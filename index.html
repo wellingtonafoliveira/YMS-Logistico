@@ -1,224 +1,1758 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>YMS - Torre de Controle</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YMS Logístico - Torre de Controle</title>
+  <style>
+    :root{
+      --bg:#f3f6fb;
+      --surface:#ffffff;
+      --surface-2:#f8fbff;
+      --text:#142338;
+      --muted:#6b7b8f;
+      --line:#dbe5ef;
+      --shadow:0 18px 40px rgba(15,23,42,.10);
+      --primary:#1d4ed8;
+      --success:#16a34a;
+      --warning:#f59e0b;
+      --danger:#dc2626;
+      --cyan:#0891b2;
+      --purple:#7c3aed;
+      --gray:#475569;
+      --radius:18px;
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
 
-<style>
-body{font-family:Arial;margin:0;background:#0f172a;color:white}
-header{padding:15px;font-size:20px;background:#020617}
-.container{padding:20px}
+    .layout{
+      display:grid;
+      grid-template-columns:280px 1fr;
+      min-height:100vh;
+    }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-gap:10px;
-margin-bottom:20px;
-}
+    .sidebar{
+      background:linear-gradient(180deg,#0f172a,#1e3a8a 70%,#0f172a);
+      color:#fff;
+      padding:22px 18px;
+      position:sticky;
+      top:0;
+      height:100vh;
+      overflow:auto;
+    }
 
-.card{
-background:#1e293b;
-padding:15px;
-border-radius:10px;
-text-align:center;
-}
+    .brand{
+      font-size:24px;
+      font-weight:700;
+    }
 
-.board{
-display:flex;
-gap:10px;
-overflow-x:auto;
-}
+    .brand small{
+      display:block;
+      font-size:12px;
+      font-weight:400;
+      opacity:.86;
+      line-height:1.5;
+      margin-top:6px;
+    }
 
-.column{
-background:#1e293b;
-padding:10px;
-border-radius:10px;
-min-width:250px;
-}
+    .badge{
+      display:inline-flex;
+      margin-top:14px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.10);
+      font-size:12px;
+      font-weight:700;
+    }
 
-.vehicle{
-background:#334155;
-padding:10px;
-margin-bottom:8px;
-border-radius:8px;
-cursor:pointer;
-}
+    .menu{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin:18px 0;
+    }
 
-button{
-padding:8px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-background:#2563eb;
-color:white;
-}
+    .menu button{
+      border:none;
+      padding:12px 14px;
+      border-radius:12px;
+      text-align:left;
+      cursor:pointer;
+      font-weight:700;
+      background:rgba(255,255,255,.08);
+      color:#fff;
+    }
 
-table{
-width:100%;
-margin-top:20px;
-border-collapse:collapse;
-background:white;
-color:black;
-}
+    .menu button.active,
+    .menu button:hover{
+      background:#fff;
+      color:#0f172a;
+    }
 
-th,td{
-padding:8px;
-border-bottom:1px solid #ddd;
-font-size:12px;
-}
+    .hint{
+      font-size:12px;
+      line-height:1.6;
+      background:rgba(255,255,255,.08);
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+    }
 
-th{background:#e2e8f0}
+    .main{
+      padding:22px;
+      overflow:auto;
+    }
 
-</style>
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+
+    .title h1{
+      margin:0;
+      font-size:31px;
+    }
+
+    .title p{
+      margin:6px 0 0;
+      color:var(--muted);
+    }
+
+    .toolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      border:none;
+      border-radius:12px;
+      padding:11px 14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-light{background:#fff;border:1px solid var(--line);color:var(--text)}
+    .btn-success{background:var(--success);color:#fff}
+    .btn-warning{background:var(--warning);color:#fff}
+    .btn-danger{background:var(--danger);color:#fff}
+
+    .spacer{height:18px}
+
+    .card{
+      background:var(--surface);
+      border:1px solid #e7eef7;
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    .kpis{
+      display:grid;
+      grid-template-columns:repeat(8,1fr);
+      gap:14px;
+    }
+
+    .kpi .label{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+
+    .kpi .value{
+      font-size:28px;
+      font-weight:700;
+    }
+
+    .kpi .sub{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:6px;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:18px;
+    }
+
+    .grid-3{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:18px;
+    }
+
+    h2{
+      margin:0 0 14px;
+      font-size:19px;
+    }
+
+    h3{
+      margin:0 0 12px;
+      font-size:15px;
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      font-weight:700;
+      color:#334155;
+      margin-bottom:6px;
+    }
+
+    input,select,textarea{
+      width:100%;
+      padding:10px 11px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      font-size:14px;
+      background:#fff;
+    }
+
+    textarea{
+      min-height:86px;
+      resize:vertical;
+    }
+
+    .field-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+    }
+
+    .field-grid-3{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+    }
+
+    .full{grid-column:1 / -1}
+
+    .status-line{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .status-note{
+      font-size:12px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border-radius:16px;
+      border:1px solid #e7eef7;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+      min-width:1850px;
+    }
+
+    th,td{
+      padding:10px 9px;
+      border-bottom:1px solid #edf2f7;
+      text-align:left;
+      font-size:12px;
+      vertical-align:middle;
+    }
+
+    th{
+      position:sticky;
+      top:0;
+      background:#f8fbff;
+      color:#475569;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+      z-index:1;
+    }
+
+    tr:hover td{
+      background:#fbfdff;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      color:#fff;
+      white-space:nowrap;
+    }
+
+    .st-agendado{background:var(--gray)}
+    .st-patio{background:var(--warning)}
+    .st-aguardando{background:#fb923c}
+    .st-separacao{background:var(--cyan)}
+    .st-separado{background:var(--success)}
+    .st-doca{background:var(--purple)}
+    .st-carregando{background:var(--primary)}
+    .st-expedido{background:#0f172a}
+
+    .al-ok{background:var(--success)}
+    .al-atrasado{background:var(--warning)}
+    .al-ausente{background:var(--danger)}
+    .al-sem{background:var(--gray)}
+
+    .mini-actions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+
+    .mini-btn{
+      border:none;
+      border-radius:9px;
+      padding:7px 9px;
+      font-size:11px;
+      font-weight:700;
+      cursor:pointer;
+      background:#eff6ff;
+      color:#1d4ed8;
+    }
+
+    .mini-btn.alt{background:#ecfdf5;color:#166534}
+    .mini-btn.warn{background:#fff7ed;color:#9a3412}
+    .mini-btn.danger{background:#fef2f2;color:#991b1b}
+
+    .board{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:12px;
+    }
+
+    .lane{
+      background:#f8fbff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:12px;
+      min-height:420px;
+    }
+
+    .lane h3{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .count{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid var(--line);
+      color:var(--muted);
+    }
+
+    .truck-card{
+      background:#fff;
+      border:1px solid #e7eef7;
+      border-radius:14px;
+      padding:12px;
+      margin-bottom:10px;
+      box-shadow:0 6px 16px rgba(15,23,42,.05);
+    }
+
+    .truck-card .top{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:flex-start;
+      margin-bottom:8px;
+    }
+
+    .truck-card .name{
+      font-weight:700;
+      font-size:13px;
+    }
+
+    .truck-card .meta{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .dock-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+    }
+
+    .dock{
+      border:1px solid var(--line);
+      background:#f8fbff;
+      border-radius:16px;
+      padding:14px;
+    }
+
+    .dock.free{
+      border-color:#bde5c6;
+      background:#f5fff7;
+    }
+
+    .dock.busy{
+      border-color:#c7b6ff;
+      background:#faf7ff;
+    }
+
+    .dock .head{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:10px;
+    }
+
+    .dock .title{
+      font-weight:700;
+    }
+
+    .time-tag{
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      background:#fff;
+      border:1px solid var(--line);
+    }
+
+    .timeline{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+    }
+
+    .tile{
+      background:#f8fbff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+    }
+
+    .tile .big{
+      font-size:18px;
+      font-weight:700;
+    }
+
+    .list-box{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      background:#f8fbff;
+      min-height:170px;
+    }
+
+    .pill-list{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid var(--line);
+      font-size:12px;
+    }
+
+    .pill button{
+      border:none;
+      background:transparent;
+      color:#b91c1c;
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    .dropzone{
+      border:2px dashed #bfd1e4;
+      background:#f8fbff;
+      padding:14px;
+      border-radius:16px;
+      margin-bottom:12px;
+    }
+
+    .muted{color:var(--muted)}
+    .small{font-size:12px;line-height:1.5}
+    .hidden{display:none !important}
+    .ok{color:#166534;font-weight:700}
+    .error{color:#991b1b;font-weight:700}
+
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.48);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      z-index:50;
+    }
+
+    .modal.show{display:flex}
+
+    .modal-card{
+      width:min(1320px,100%);
+      max-height:92vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:22px;
+      box-shadow:0 24px 70px rgba(15,23,42,.26);
+      padding:18px;
+    }
+
+    .modal-head{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      margin-bottom:12px;
+    }
+
+    @media (max-width:1500px){
+      .kpis{grid-template-columns:repeat(4,1fr)}
+      .grid-2,.grid-3{grid-template-columns:1fr}
+      .board{grid-template-columns:repeat(2,1fr)}
+      .dock-grid,.field-grid,.field-grid-3,.timeline{grid-template-columns:repeat(2,1fr)}
+    }
+
+    @media (max-width:900px){
+      .layout{grid-template-columns:1fr}
+      .sidebar{position:relative;height:auto}
+      .main{padding:16px}
+      .kpis,.board,.dock-grid,.field-grid,.field-grid-3,.timeline{grid-template-columns:1fr}
+    }
+  </style>
 </head>
-
 <body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      YMS Logístico
+      <small>Versão geral do sistema, com visão tipo Fretefy, agenda operacional, pátio, docas e importação.</small>
+    </div>
+    <div class="badge">Nível empresa</div>
 
-<header>🚛 YMS - Torre de Controle Logística</header>
+    <div class="menu">
+      <button class="active" onclick="showView('visaoGeral', this)">Visão geral</button>
+      <button onclick="showView('agendaOperacional', this)">Agenda operacional</button>
+      <button onclick="showView('painelPatio', this)">Painel de pátio</button>
+      <button onclick="showView('torreDocas', this)">Torre de docas</button>
+      <button onclick="showView('cadastros', this)">Cadastros</button>
+      <button onclick="showView('importacao', this)">Importação</button>
+    </div>
 
-<div class="container">
+    <div class="hint">
+      <strong>Fluxo padrão:</strong><br>
+      Agendado → Motorista no pátio → Aguardando doca → Em Separação → Separado → Em doca → Em carregamento → Expedido.
+    </div>
+  </aside>
 
-<button onclick="carregar()">Atualizar</button>
+  <main class="main">
+    <div class="topbar">
+      <div class="title">
+        <h1>Torre de Controle Logística</h1>
+        <p>Visão geral no estilo YMS agenda do transporte e operação em tempo real.</p>
+      </div>
+      <div class="toolbar">
+        <button class="btn btn-light" onclick="loadAll()">Atualizar do banco</button>
+        <button class="btn btn-primary" onclick="showView('importacao', document.querySelectorAll('.menu button')[5])">Importar agenda</button>
+      </div>
+    </div>
 
-<div class="grid">
-<div class="card">Agendados: <span id="agendado">0</span></div>
-<div class="card">Pátio: <span id="patio">0</span></div>
-<div class="card">Doca: <span id="doca">0</span></div>
-<div class="card">Carregando: <span id="carga">0</span></div>
-<div class="card">Finalizados: <span id="final">0</span></div>
+    <div class="spacer"></div>
+    <div class="card">
+      <div id="connectionStatus" class="muted">Conectando ao Supabase...</div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <section id="visaoGeralView">
+      <div class="kpis">
+        <div class="card kpi"><div class="label">Veículos na agenda</div><div class="value" id="kpiTotal">0</div><div class="sub">base operacional</div></div>
+        <div class="card kpi"><div class="label">No pátio</div><div class="value" id="kpiPatio">0</div><div class="sub">apresentados</div></div>
+        <div class="card kpi"><div class="label">Aguardando doca</div><div class="value" id="kpiFila">0</div><div class="sub">fila operacional</div></div>
+        <div class="card kpi"><div class="label">Em separação</div><div class="value" id="kpiSeparacao">0</div><div class="sub">preparo da carga</div></div>
+        <div class="card kpi"><div class="label">Em carregamento</div><div class="value" id="kpiCarga">0</div><div class="sub">doca ocupada</div></div>
+        <div class="card kpi"><div class="label">Expedidos</div><div class="value" id="kpiExpedido">0</div><div class="sub">saídas finalizadas</div></div>
+        <div class="card kpi"><div class="label">Atrasados / ausentes</div><div class="value" id="kpiAlerta">0</div><div class="sub">tratativa necessária</div></div>
+        <div class="card kpi"><div class="label">Docas ocupadas</div><div class="value" id="docasOcupadas">0</div><div class="sub">tempo real</div></div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2>Painel YMS do pátio</h2>
+          <div class="board" id="ymsBoard"></div>
+        </div>
+
+        <div class="card">
+          <h2>Resumo operacional</h2>
+          <div class="timeline" id="statusStrip"></div>
+          <div class="spacer"></div>
+          <h3>Tempos</h3>
+          <div class="timeline">
+            <div class="tile"><div class="muted">Tempo médio em espera</div><div class="big" id="avgEspera">0 min</div></div>
+            <div class="tile"><div class="muted">Tempo médio de carregamento</div><div class="big" id="avgCarga">0 min</div></div>
+            <div class="tile"><div class="muted">Saídas concluídas</div><div class="big" id="saidasConcluidas">0</div></div>
+            <div class="tile"><div class="muted">Registros com doca</div><div class="big" id="withDoca">0</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="agendaOperacionalView" class="hidden">
+      <div class="card">
+        <h2>Agenda operacional completa</h2>
+        <div class="status-line">
+          <span class="status-note">Arquivo base: agenda do transporte</span>
+          <span class="status-note">Campos operacionais preenchidos conforme a etapa avança</span>
+          <span class="status-note">Dados em tempo real via Supabase</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Agenda</th>
+                <th>DT</th>
+                <th>Remessa</th>
+                <th>Cliente</th>
+                <th>Transportadora</th>
+                <th>Motorista</th>
+                <th>Placa</th>
+                <th>Doca</th>
+                <th>Tipo carga</th>
+                <th>Carreta</th>
+                <th>Frete</th>
+                <th>Perfil</th>
+                <th>HE</th>
+                <th>PL HO</th>
+                <th>Total caixas</th>
+                <th>m³</th>
+                <th>Ton</th>
+                <th>Conf. receb.</th>
+                <th>Conf. exp.</th>
+                <th>Romaneio</th>
+                <th>NF</th>
+                <th>Chegada</th>
+                <th>Início carga</th>
+                <th>Fim carga</th>
+                <th>Saída</th>
+                <th>Status</th>
+                <th>Alerta</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="agendaTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="painelPatioView" class="hidden">
+      <div class="grid-2">
+        <div class="card">
+          <h2>Painel do pátio</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Agenda</th>
+                  <th>DT</th>
+                  <th>Remessa</th>
+                  <th>Motorista</th>
+                  <th>Placa</th>
+                  <th>Transportadora</th>
+                  <th>Status</th>
+                  <th>Chegada</th>
+                  <th>Espera</th>
+                  <th>Doca</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="patioTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Apresentação do motorista</h2>
+          <div class="field-grid-3">
+            <div>
+              <label>Selecionar veículo</label>
+              <select id="checkinSelect" onchange="fillCheckinPreview()"></select>
+            </div>
+            <div>
+              <label>Motorista</label>
+              <input id="checkMotorista" placeholder="Nome do motorista">
+            </div>
+            <div>
+              <label>Placa</label>
+              <input id="checkPlaca" placeholder="ABC1D23">
+            </div>
+            <div>
+              <label>Doca definida</label>
+              <input id="checkDoca" readonly>
+            </div>
+            <div class="full">
+              <label>Observação</label>
+              <textarea id="checkObs"></textarea>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+            <button class="btn btn-warning" onclick="doCheckin()">Motorista no pátio</button>
+            <button class="btn btn-primary" onclick="setAwaitDock()">Aguardando doca</button>
+            <button class="btn btn-success" onclick="setDocked()">Em doca</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="torreDocasView" class="hidden">
+      <div class="card">
+        <h2>Torre de docas</h2>
+        <div class="dock-grid" id="dockGrid"></div>
+      </div>
+    </section>
+
+    <section id="cadastrosView" class="hidden">
+      <div class="grid-3">
+        <div class="card">
+          <h2>Conferentes de recebimento</h2>
+          <div class="field-grid-3">
+            <div class="full">
+              <label>Novo nome</label>
+              <input id="novoConfRec">
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <button class="btn btn-success" onclick="addCadastro('rec')">Adicionar</button>
+          </div>
+          <div class="spacer"></div>
+          <div class="list-box"><div class="pill-list" id="listaConfRec"></div></div>
+        </div>
+
+        <div class="card">
+          <h2>Conferentes de expedição</h2>
+          <div class="field-grid-3">
+            <div class="full">
+              <label>Novo nome</label>
+              <input id="novoConfExp">
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <button class="btn btn-success" onclick="addCadastro('exp')">Adicionar</button>
+          </div>
+          <div class="spacer"></div>
+          <div class="list-box"><div class="pill-list" id="listaConfExp"></div></div>
+        </div>
+
+        <div class="card">
+          <h2>Docas</h2>
+          <div class="field-grid-3">
+            <div class="full">
+              <label>Nova doca</label>
+              <input id="novaDoca">
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <button class="btn btn-success" onclick="addCadastro('doca')">Adicionar</button>
+          </div>
+          <div class="spacer"></div>
+          <div class="list-box"><div class="pill-list" id="listaDocas"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="importacaoView" class="hidden">
+      <div class="grid-2">
+        <div class="card">
+          <h2>Subir agenda do transporte</h2>
+
+          <div class="dropzone">
+            <div class="field-grid-3">
+              <div>
+                <label>Arquivo Excel</label>
+                <input id="excelFile" type="file" accept=".xlsx,.xls">
+              </div>
+              <div>
+                <label>Importação</label>
+                <button class="btn btn-primary" style="width:100%;margin-top:22px" onclick="importExcel()">Importar agenda</button>
+              </div>
+              <div>
+                <label>Atualização</label>
+                <button class="btn btn-light" style="width:100%;margin-top:22px" onclick="loadAll()">Recarregar banco</button>
+              </div>
+            </div>
+            <div class="small muted" style="margin-top:10px">
+              Suba um único arquivo da agenda do transporte. O sistema salva no banco e a operação complementa os demais dados durante o processo.
+            </div>
+          </div>
+
+          <h3>Novo agendamento manual</h3>
+          <div class="field-grid">
+            <div><label>Data</label><input id="f_data" type="date"></div>
+            <div><label>Horário da agenda</label><input id="f_agenda" type="time"></div>
+            <div><label>DT</label><input id="f_dt"></div>
+            <div><label>Remessa</label><input id="f_remessa"></div>
+            <div><label>Cliente</label><input id="f_cliente"></div>
+            <div><label>Transportadora</label><input id="f_transportadora"></div>
+            <div><label>Doca</label><select id="f_doca"></select></div>
+            <div><label>Tipo de carga</label><input id="f_tipo_carga"></div>
+            <div><label>Tipo de carreta</label><input id="f_tipo_carreta"></div>
+            <div><label>Tipo de frete</label><input id="f_tipo_frete"></div>
+            <div><label>Perfil de carregamento</label><input id="f_perfil"></div>
+            <div><label>Caixas HE</label><input id="f_he" type="number"></div>
+            <div><label>Qtd. PL HO</label><input id="f_ho" type="number"></div>
+            <div><label>Total de caixas</label><input id="f_total" type="number"></div>
+            <div><label>M³</label><input id="f_cubagem" type="number" step="0.001"></div>
+            <div><label>Tonelagem</label><input id="f_peso" type="number" step="0.001"></div>
+            <div class="full"><label>Observação</label><textarea id="f_obs"></textarea></div>
+          </div>
+
+          <div style="margin-top:12px">
+            <button class="btn btn-success" onclick="addManual()">Adicionar agenda</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Configuração</h2>
+          <div class="small">
+            1. Rode o SQL final no Supabase.<br>
+            2. Substitua <strong>SUPABASE_URL</strong> e <strong>SUPABASE_PUBLISHABLE_KEY</strong> no topo do script.<br>
+            3. Publique este HTML na Vercel.<br>
+            4. Use o menu para operar agenda, pátio e docas.
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 </div>
 
-<div class="board">
+<div class="modal" id="editModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <h2 style="margin:0">Atualizar etapa operacional</h2>
+        <div class="muted" id="modalSubtitle">Registro</div>
+      </div>
+      <button class="btn btn-light" onclick="closeModal()">Fechar</button>
+    </div>
 
-<div class="column">
-<h3>Agendado</h3>
-<div id="col-agendado"></div>
+    <div class="field-grid">
+      <div><label>Status</label><select id="m_status"><option>Agendado</option><option>Motorista no pátio</option><option>Aguardando doca</option><option>Em Separação</option><option>Separado</option><option>Em doca</option><option>Em carregamento</option><option>Expedido</option></select></div>
+      <div><label>Data</label><input id="m_data" type="date"></div>
+      <div><label>Horário agenda</label><input id="m_agenda" type="time"></div>
+      <div><label>Doca</label><select id="m_doca"></select></div>
+      <div><label>DT</label><input id="m_dt"></div>
+      <div><label>Remessa</label><input id="m_remessa"></div>
+      <div><label>Cliente</label><input id="m_cliente"></div>
+      <div><label>Transportadora</label><input id="m_transportadora"></div>
+      <div><label>Motorista</label><input id="m_motorista"></div>
+      <div><label>Placa</label><input id="m_placa"></div>
+      <div><label>Conferente recebimento</label><select id="m_conf_rec"></select></div>
+      <div><label>Conferente expedição</label><select id="m_conf_exp"></select></div>
+      <div><label>Retirada do romaneio</label><input id="m_romaneio" type="datetime-local"></div>
+      <div><label>Retirada da NF</label><input id="m_nf" type="datetime-local"></div>
+      <div><label>Chegada</label><input id="m_chegada" type="datetime-local"></div>
+      <div><label>Encostou em doca</label><input id="m_doca_hora" type="datetime-local"></div>
+      <div><label>Início carregamento</label><input id="m_inicio" type="datetime-local"></div>
+      <div><label>Fim carregamento</label><input id="m_fim" type="datetime-local"></div>
+      <div><label>Saída</label><input id="m_saida" type="datetime-local"></div>
+      <div><label>Mão de obra exclusiva</label><select id="m_mao"><option>Não</option><option>Sim</option></select></div>
+      <div><label>Tipo de carga</label><input id="m_tipo_carga"></div>
+      <div><label>Tipo de carreta</label><input id="m_tipo_carreta"></div>
+      <div><label>Tipo de frete</label><input id="m_tipo_frete"></div>
+      <div><label>Perfil carregamento</label><input id="m_perfil"></div>
+      <div><label>HE</label><input id="m_he" type="number"></div>
+      <div><label>PL HO</label><input id="m_ho" type="number"></div>
+      <div><label>Total caixas</label><input id="m_total" type="number"></div>
+      <div><label>M³</label><input id="m_cubagem" type="number" step="0.001"></div>
+      <div><label>Ton</label><input id="m_peso" type="number" step="0.001"></div>
+      <div class="full"><label>Observação</label><textarea id="m_obs"></textarea></div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <button class="btn btn-success" onclick="saveModal()">Salvar</button>
+      <button class="btn btn-light" onclick="advanceSelected()">Avançar etapa</button>
+      <button class="btn btn-danger" onclick="closeModal()">Fechar</button>
+    </div>
+  </div>
 </div>
 
-<div class="column">
-<h3>Pátio</h3>
-<div id="col-patio"></div>
-</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-<div class="column">
-<h3>Doca</h3>
-<div id="col-doca"></div>
-</div>
-
-<div class="column">
-<h3>Carregando</h3>
-<div id="col-carga"></div>
-</div>
-
-<div class="column">
-<h3>Finalizado</h3>
-<div id="col-final"></div>
-</div>
-
-</div>
-
-<table>
-<thead>
-<tr>
-<th>DT</th>
-<th>Remessa</th>
-<th>Transportadora</th>
-<th>Doca</th>
-<th>Status</th>
-<th>Ação</th>
-</tr>
-</thead>
-<tbody id="tabela"></tbody>
-</table>
-
-</div>
-
-<script>
 const SUPABASE_URL = "https://vvazkfynwhrvjteaecim.supabase.co";
 const SUPABASE_KEY = "sb_publishable_J2QJP1PedcIIQzkmKSz9CQ_kfMOt23N";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-function avancarStatus(status){
-if(status==="Agendado") return "No pátio";
-if(status==="No pátio") return "Em doca";
-if(status==="Em doca") return "Carregando";
-if(status==="Carregando") return "Finalizado";
-return "Finalizado";
+let agendas = [];
+let confRec = [];
+let confExp = [];
+let docas = [];
+let selectedId = null;
+
+const STATUSES = ["Agendado","Motorista no pátio","Aguardando doca","Em Separação","Separado","Em doca","Em carregamento","Expedido"];
+
+const $ = (id) => document.getElementById(id);
+
+function setStatus(msg, ok=true){
+  $("connectionStatus").textContent = msg;
+  $("connectionStatus").className = ok ? "ok" : "error";
 }
 
-async function carregar(){
-const { data } = await supabase.from("agendas").select("*");
-
-document.getElementById("col-agendado").innerHTML="";
-document.getElementById("col-patio").innerHTML="";
-document.getElementById("col-doca").innerHTML="";
-document.getElementById("col-carga").innerHTML="";
-document.getElementById("col-final").innerHTML="";
-
-let cont = {a:0,p:0,d:0,c:0,f:0};
-
-data.forEach(item=>{
-
-let card = `
-<div class="vehicle" onclick="avancar('${item.id}')">
-DT: ${item.dt}<br>
-${item.transportadora}<br>
-🚚 ${item.placa || ""}
-</div>
-`;
-
-if(item.status==="Agendado"){col("col-agendado",card);cont.a++;}
-if(item.status==="No pátio"){col("col-patio",card);cont.p++;}
-if(item.status==="Em doca"){col("col-doca",card);cont.d++;}
-if(item.status==="Carregando"){col("col-carga",card);cont.c++;}
-if(item.status==="Finalizado"){col("col-final",card);cont.f++;}
-
-});
-
-document.getElementById("agendado").innerText=cont.a;
-document.getElementById("patio").innerText=cont.p;
-document.getElementById("doca").innerText=cont.d;
-document.getElementById("carga").innerText=cont.c;
-document.getElementById("final").innerText=cont.f;
-
-const tabela = document.getElementById("tabela");
-tabela.innerHTML="";
-
-data.forEach(item=>{
-tabela.innerHTML += `
-<tr>
-<td>${item.dt}</td>
-<td>${item.remessa}</td>
-<td>${item.transportadora}</td>
-<td>${item.doca}</td>
-<td>${item.status}</td>
-<td><button onclick="avancar('${item.id}')">➡️</button></td>
-</tr>
-`;
-});
-
+function fmtNum(v){
+  if(v === null || v === undefined || v === "") return "";
+  const n = Number(v);
+  return Number.isFinite(n) ? n.toLocaleString("pt-BR",{maximumFractionDigits:3}) : v;
 }
 
-function col(id,html){
-document.getElementById(id).innerHTML += html;
+function fmtDate(v){
+  if(!v) return "";
+  const d = new Date(v);
+  return isNaN(d) ? v : d.toLocaleDateString("pt-BR");
 }
 
-async function avancar(id){
-const { data } = await supabase.from("agendas").select("*").eq("id",id).single();
-
-const novo = avancarStatus(data.status);
-
-await supabase.from("agendas").update({status:novo}).eq("id",id);
-
-carregar();
+function fmtDateTime(v){
+  if(!v) return "";
+  const d = new Date(v);
+  return isNaN(d) ? v : d.toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});
 }
 
-carregar();
+function timeLocal(v){
+  if(!v) return "";
+  const d = new Date(v);
+  if(isNaN(d)) return "";
+  const p = (n) => String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function toNum(v){
+  if(v === "" || v === null || v === undefined) return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+function normalizeDate(value){
+  if(!value) return "";
+  if(value instanceof Date && !isNaN(value)) return value.toISOString().slice(0,10);
+  if(typeof value === "number"){
+    const utcDays = Math.floor(value - 25569);
+    return new Date((utcDays * 86400) * 1000).toISOString().slice(0,10);
+  }
+  const s = String(value).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const d = new Date(s);
+  if(!isNaN(d)) return d.toISOString().slice(0,10);
+  const m = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);
+  if(m){
+    const y = m[3].length === 2 ? "20"+m[3] : m[3];
+    return `${y}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;
+  }
+  return "";
+}
+
+function normalizeTime(value){
+  if(value === null || value === undefined || value === "") return "";
+  if(value instanceof Date && !isNaN(value)) return value.toTimeString().slice(0,5);
+  if(typeof value === "number"){
+    const totalSeconds = Math.round(value * 24 * 60 * 60);
+    const hh = String(Math.floor(totalSeconds / 3600) % 24).padStart(2,"0");
+    const mm = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2,"0");
+    return `${hh}:${mm}`;
+  }
+  const s = String(value);
+  const m = s.match(/(\d{1,2}):(\d{2})/);
+  return m ? `${m[1].padStart(2,"0")}:${m[2]}` : "";
+}
+
+function statusClass(status){
+  return {
+    "Agendado":"st-agendado",
+    "Motorista no pátio":"st-patio",
+    "Aguardando doca":"st-aguardando",
+    "Em Separação":"st-separacao",
+    "Separado":"st-separado",
+    "Em doca":"st-doca",
+    "Em carregamento":"st-carregando",
+    "Expedido":"st-expedido"
+  }[status] || "st-agendado";
+}
+
+function alertInfo(rec){
+  if(rec.status === "Expedido") return {label:"Em dia", cls:"al-ok"};
+  if(rec.hora_chegada) return {label:"Em dia", cls:"al-ok"};
+  if(!rec.data || !rec.hora_agenda) return {label:"Sem agenda", cls:"al-sem"};
+
+  const sched = new Date(`${rec.data}T${String(rec.hora_agenda || "").slice(0,5)}:00`);
+  if(isNaN(sched)) return {label:"Sem agenda", cls:"al-sem"};
+
+  const diff = Math.round((new Date() - sched)/60000);
+  if(diff <= 30) return {label:"Em dia", cls:"al-ok"};
+  if(diff <= 120) return {label:"Atrasado", cls:"al-atrasado"};
+  return {label:"Ausente", cls:"al-ausente"};
+}
+
+function waitMinutes(rec){
+  if(rec.hora_chegada && rec.hora_doca){
+    return Math.round((new Date(rec.hora_doca) - new Date(rec.hora_chegada))/60000);
+  }
+  if(rec.hora_chegada){
+    return Math.round((new Date() - new Date(rec.hora_chegada))/60000);
+  }
+  return null;
+}
+
+function avg(nums){
+  return nums.length ? Math.round(nums.reduce((a,b)=>a+b,0)/nums.length) : 0;
+}
+
+function currentRows(){
+  return agendas.slice().sort((a,b)=>`${a.data} ${a.hora_agenda}`.localeCompare(`${b.data} ${b.hora_agenda}`));
+}
+
+function renderSelect(id, items, placeholder="Selecione"){
+  const sel = $(id);
+  if(!sel) return;
+  const current = sel.value;
+  sel.innerHTML = `<option value="">${placeholder}</option>` + items.map(x=>`<option>${x}</option>`).join("");
+  if(items.includes(current)) sel.value = current;
+}
+
+async function testConnection(){
+  try{
+    const { error } = await supabase.from("docas").select("nome").limit(1);
+    if(error) throw error;
+    setStatus("Conectado ao Supabase.", true);
+  }catch(err){
+    console.error(err);
+    setStatus("Erro de conexão. Verifique SUPABASE_URL e SUPABASE_PUBLISHABLE_KEY.", false);
+  }
+}
+
+async function loadCadastros(){
+  const [r1, r2, r3] = await Promise.all([
+    supabase.from("conferentes_recebimento").select("nome").eq("ativo", true).order("nome"),
+    supabase.from("conferentes_expedicao").select("nome").eq("ativo", true).order("nome"),
+    supabase.from("docas").select("nome").eq("ativa", true).order("nome")
+  ]);
+
+  confRec = (r1.data || []).map(x=>x.nome);
+  confExp = (r2.data || []).map(x=>x.nome);
+  docas = (r3.data || []).map(x=>x.nome);
+
+  $("listaConfRec").innerHTML = confRec.map(n=>`<span class="pill">${n}<button onclick="window.removeCadastro('rec','${String(n).replace(/'/g,"\\\\'")}')">×</button></span>`).join("");
+  $("listaConfExp").innerHTML = confExp.map(n=>`<span class="pill">${n}<button onclick="window.removeCadastro('exp','${String(n).replace(/'/g,"\\\\'")}')">×</button></span>`).join("");
+  $("listaDocas").innerHTML = docas.map(n=>`<span class="pill">${n}<button onclick="window.removeCadastro('doca','${String(n).replace(/'/g,"\\\\'")}')">×</button></span>`).join("");
+
+  renderSelect("m_conf_rec", confRec);
+  renderSelect("m_conf_exp", confExp);
+  renderSelect("f_doca", docas);
+  renderSelect("m_doca", docas);
+}
+
+async function loadAgendas(){
+  const { data, error } = await supabase
+    .from("agendas")
+    .select("*")
+    .order("data",{ascending:true})
+    .order("hora_agenda",{ascending:true});
+
+  if(error){
+    console.error(error);
+    alert("Erro ao carregar agendas.");
+    return;
+  }
+
+  agendas = data || [];
+}
+
+window.loadAll = async function(){
+  await loadCadastros();
+  await loadAgendas();
+  renderAll();
+}
+
+async function insertHistorico(agendaId, statusAnterior, statusNovo, alteradoPor="sistema"){
+  await supabase.from("historico_status").insert([{
+    agenda_id: agendaId,
+    status_anterior: statusAnterior,
+    status_novo: statusNovo,
+    alterado_por: alteradoPor
+  }]);
+}
+
+function applyDynamicDefaults(row){
+  if(row.status === "Motorista no pátio" && !row.hora_chegada) row.hora_chegada = new Date().toISOString();
+  if(row.status === "Em doca" && !row.hora_doca) row.hora_doca = new Date().toISOString();
+  if(row.status === "Em carregamento" && !row.inicio_carregamento) row.inicio_carregamento = new Date().toISOString();
+  if(row.status === "Expedido"){
+    if(!row.fim_carregamento && row.inicio_carregamento) row.fim_carregamento = new Date().toISOString();
+    if(!row.hora_saida) row.hora_saida = new Date().toISOString();
+  }
+}
+
+async function updateAgenda(id, payload, oldStatus=null, newStatus=null, user="sistema"){
+  const { error } = await supabase.from("agendas").update(payload).eq("id", id);
+  if(error){
+    console.error(error);
+    alert("Erro ao atualizar registro.");
+    return false;
+  }
+  if(newStatus && oldStatus !== newStatus){
+    await insertHistorico(id, oldStatus, newStatus, user);
+  }
+  return true;
+}
+
+async function deleteAgenda(id){
+  const { error } = await supabase.from("agendas").delete().eq("id", id);
+  if(error){
+    console.error(error);
+    alert("Erro ao excluir registro.");
+    return false;
+  }
+  return true;
+}
+
+function renderKPIs(){
+  $("kpiTotal").textContent = agendas.length;
+  $("kpiPatio").textContent = agendas.filter(r=>r.status==="Motorista no pátio").length;
+  $("kpiFila").textContent = agendas.filter(r=>r.status==="Aguardando doca").length;
+  $("kpiSeparacao").textContent = agendas.filter(r=>["Em Separação","Separado"].includes(r.status)).length;
+  $("kpiCarga").textContent = agendas.filter(r=>["Em doca","Em carregamento"].includes(r.status)).length;
+  $("kpiExpedido").textContent = agendas.filter(r=>r.status==="Expedido").length;
+  $("kpiAlerta").textContent = agendas.filter(r=>["Atrasado","Ausente"].includes(alertInfo(r).label)).length;
+  $("docasOcupadas").textContent = agendas.filter(r=>["Em doca","Em carregamento"].includes(r.status)).length;
+  $("withDoca").textContent = agendas.filter(r=>r.doca).length;
+
+  $("avgEspera").textContent = avg(agendas.map(waitMinutes).filter(v=>Number.isFinite(v))) + " min";
+  $("avgCarga").textContent = avg(
+    agendas
+      .map(r => r.inicio_carregamento && r.fim_carregamento ? Math.round((new Date(r.fim_carregamento)-new Date(r.inicio_carregamento))/60000) : null)
+      .filter(v=>Number.isFinite(v))
+  ) + " min";
+
+  $("saidasConcluidas").textContent = agendas.filter(r=>r.status==="Expedido").length;
+}
+
+function renderStrip(){
+  $("statusStrip").innerHTML = STATUSES.map(st => `
+    <div class="tile">
+      <div class="muted">${st}</div>
+      <div class="big">${agendas.filter(r=>r.status===st).length}</div>
+    </div>
+  `).join("");
+}
+
+function renderBoard(){
+  const groups = [
+    {title:"No pátio", statuses:["Motorista no pátio"]},
+    {title:"Aguardando doca", statuses:["Aguardando doca"]},
+    {title:"Separação", statuses:["Em Separação","Separado"]},
+    {title:"Doca / carregando", statuses:["Em doca","Em carregamento"]},
+    {title:"Expedidos", statuses:["Expedido"]}
+  ];
+
+  $("ymsBoard").innerHTML = groups.map(group => {
+    const items = agendas.filter(r=>group.statuses.includes(r.status));
+    const cards = items.map(r => {
+      const alert = alertInfo(r);
+      return `
+        <div class="truck-card">
+          <div class="top">
+            <div class="name">${r.transportadora || "-"}</div>
+            <span class="chip ${statusClass(r.status)}">${r.status}</span>
+          </div>
+          <div class="meta">
+            DT: ${r.dt || "-"}<br>
+            Remessa: ${r.remessa || "-"}<br>
+            Cliente: ${r.cliente || "-"}<br>
+            Agenda: ${fmtDate(r.data)} ${String(r.hora_agenda || "").slice(0,5)}<br>
+            Motorista: ${r.motorista || "-"}<br>
+            Doca: ${r.doca || "-"}<br>
+            Alerta: ${alert.label}
+          </div>
+        </div>
+      `;
+    }).join("") || `<div class="muted small">Sem veículos.</div>`;
+
+    return `
+      <div class="lane">
+        <h3>${group.title}<span class="count">${items.length}</span></h3>
+        ${cards}
+      </div>
+    `;
+  }).join("");
+}
+
+function renderAgendaTable(){
+  $("agendaTable").innerHTML = currentRows().map(r => {
+    const alert = alertInfo(r);
+    return `
+      <tr>
+        <td>${fmtDate(r.data)}</td>
+        <td>${String(r.hora_agenda || "").slice(0,5)}</td>
+        <td>${r.dt || ""}</td>
+        <td>${r.remessa || ""}</td>
+        <td>${r.cliente || ""}</td>
+        <td>${r.transportadora || ""}</td>
+        <td>${r.motorista || ""}</td>
+        <td>${r.placa || ""}</td>
+        <td>${r.doca || ""}</td>
+        <td>${r.tipo_carga || ""}</td>
+        <td>${r.tipo_carreta || ""}</td>
+        <td>${r.tipo_frete || ""}</td>
+        <td>${r.perfil_carregamento || ""}</td>
+        <td>${fmtNum(r.he)}</td>
+        <td>${fmtNum(r.pl_ho)}</td>
+        <td>${fmtNum(r.total_caixas)}</td>
+        <td>${fmtNum(r.cubagem)}</td>
+        <td>${fmtNum(r.tonelagem)}</td>
+        <td>${r.conferente_recebimento || ""}</td>
+        <td>${r.conferente_expedicao || ""}</td>
+        <td>${fmtDateTime(r.hora_romaneio)}</td>
+        <td>${fmtDateTime(r.hora_nf)}</td>
+        <td>${fmtDateTime(r.hora_chegada)}</td>
+        <td>${fmtDateTime(r.inicio_carregamento)}</td>
+        <td>${fmtDateTime(r.fim_carregamento)}</td>
+        <td>${fmtDateTime(r.hora_saida)}</td>
+        <td><span class="chip ${statusClass(r.status)}">${r.status}</span></td>
+        <td><span class="chip ${alert.cls}">${alert.label}</span></td>
+        <td>
+          <div class="mini-actions">
+            <button class="mini-btn" onclick="window.openModal('${r.id}')">Editar</button>
+            <button class="mini-btn alt" onclick="window.advanceById('${r.id}')">Avançar</button>
+            <button class="mini-btn danger" onclick="window.removeById('${r.id}')">Excluir</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function renderPatioTable(){
+  $("patioTable").innerHTML = currentRows().map(r => {
+    const wait = waitMinutes(r);
+    return `
+      <tr>
+        <td>${String(r.hora_agenda || "").slice(0,5)}</td>
+        <td>${r.dt || ""}</td>
+        <td>${r.remessa || ""}</td>
+        <td>${r.motorista || ""}</td>
+        <td>${r.placa || ""}</td>
+        <td>${r.transportadora || ""}</td>
+        <td><span class="chip ${statusClass(r.status)}">${r.status}</span></td>
+        <td>${fmtDateTime(r.hora_chegada)}</td>
+        <td>${wait !== null ? wait + " min" : ""}</td>
+        <td>${r.doca || ""}</td>
+        <td>
+          <div class="mini-actions">
+            <button class="mini-btn" onclick="window.openModal('${r.id}')">Editar</button>
+            <button class="mini-btn warn" onclick="window.markArrival('${r.id}')">Chegada</button>
+            <button class="mini-btn alt" onclick="window.dockNow('${r.id}')">Em doca</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function renderDocks(){
+  $("dockGrid").innerHTML = docas.map(name => {
+    const current = agendas.find(r => r.doca === name && ["Em doca","Em carregamento"].includes(r.status));
+    const free = !current;
+
+    return `
+      <div class="dock ${free ? "free" : "busy"}">
+        <div class="head">
+          <div class="title">${name}</div>
+          <div class="time-tag">${free ? "Livre" : current.status}</div>
+        </div>
+        ${
+          free
+            ? `<div class="muted small">Sem veículo nesta doca.</div>`
+            : `<div class="small">
+                <strong>${current.transportadora || "-"}</strong><br>
+                DT: ${current.dt || "-"}<br>
+                Remessa: ${current.remessa || "-"}<br>
+                Motorista: ${current.motorista || "-"}<br>
+                Placa: ${current.placa || "-"}<br>
+                Início carga: ${fmtDateTime(current.inicio_carregamento)}
+              </div>`
+        }
+      </div>
+    `;
+  }).join("");
+}
+
+function refreshCheckinSelect(){
+  $("checkinSelect").innerHTML =
+    `<option value="">Selecione...</option>` +
+    currentRows().map(r => `<option value="${r.id}">${fmtDate(r.data)} ${String(r.hora_agenda || "").slice(0,5)} • DT ${r.dt || "-"} • Rem ${r.remessa || "-"}</option>`).join("");
+}
+
+window.fillCheckinPreview = function(){
+  const id = $("checkinSelect").value;
+  const rec = agendas.find(x=>x.id===id);
+  $("checkMotorista").value = rec?.motorista || "";
+  $("checkPlaca").value = rec?.placa || "";
+  $("checkDoca").value = rec?.doca || "";
+  $("checkObs").value = rec?.observacao || "";
+}
+
+function renderAll(){
+  renderKPIs();
+  renderStrip();
+  renderBoard();
+  renderAgendaTable();
+  renderPatioTable();
+  renderDocks();
+  refreshCheckinSelect();
+}
+
+window.showView = function(view, btn){
+  ["visaoGeral","agendaOperacional","painelPatio","torreDocas","cadastros","importacao"].forEach(v => $(v+"View").classList.add("hidden"));
+  $(view+"View").classList.remove("hidden");
+  document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+}
+
+window.addCadastro = async function(tipo){
+  let table = "";
+  let nome = "";
+
+  if(tipo === "rec"){ table = "conferentes_recebimento"; nome = $("novoConfRec").value.trim(); }
+  if(tipo === "exp"){ table = "conferentes_expedicao"; nome = $("novoConfExp").value.trim(); }
+  if(tipo === "doca"){ table = "docas"; nome = $("novaDoca").value.trim(); }
+
+  if(!nome) return;
+
+  const { error } = await supabase.from(table).insert([{ nome }]);
+  if(error){
+    console.error(error);
+    alert("Erro ao cadastrar.");
+    return;
+  }
+
+  $("novoConfRec").value = "";
+  $("novoConfExp").value = "";
+  $("novaDoca").value = "";
+
+  await loadCadastros();
+  renderAll();
+}
+
+window.removeCadastro = async function(tipo, valor){
+  if(!confirm("Remover este cadastro?")) return;
+
+  let table = "";
+  if(tipo === "rec") table = "conferentes_recebimento";
+  if(tipo === "exp") table = "conferentes_expedicao";
+  if(tipo === "doca") table = "docas";
+
+  const { error } = await supabase.from(table).delete().eq("nome", valor);
+  if(error){
+    console.error(error);
+    alert("Erro ao remover cadastro.");
+    return;
+  }
+
+  await loadCadastros();
+  renderAll();
+}
+
+window.addManual = async function(){
+  const payload = {
+    data: $("f_data").value,
+    hora_agenda: $("f_agenda").value || null,
+    dt: $("f_dt").value,
+    remessa: $("f_remessa").value,
+    cliente: $("f_cliente").value || null,
+    transportadora: $("f_transportadora").value || null,
+    doca: $("f_doca").value || null,
+    tipo_carga: $("f_tipo_carga").value || null,
+    tipo_carreta: $("f_tipo_carreta").value || null,
+    tipo_frete: $("f_tipo_frete").value || null,
+    perfil_carregamento: $("f_perfil").value || null,
+    he: toNum($("f_he").value),
+    pl_ho: toNum($("f_ho").value),
+    total_caixas: toNum($("f_total").value),
+    cubagem: toNum($("f_cubagem").value),
+    tonelagem: toNum($("f_peso").value),
+    status: "Agendado",
+    observacao: $("f_obs").value || null
+  };
+
+  if(!payload.data || !payload.dt || !payload.remessa){
+    alert("Preencha pelo menos data, DT e remessa.");
+    return;
+  }
+
+  const { error } = await supabase.from("agendas").insert([payload]);
+  if(error){
+    console.error(error);
+    alert("Erro ao inserir agenda.");
+    return;
+  }
+
+  document.querySelectorAll('[id^="f_"]').forEach(el => {
+    if(el.tagName === "SELECT") el.selectedIndex = 0;
+    else el.value = "";
+  });
+
+  await loadAgendas();
+  renderAll();
+}
+
+function mapRow(row){
+  const data = {};
+  Object.keys(row).forEach(k => data[k.toString().trim().toUpperCase()] = row[k]);
+
+  return {
+    data: normalizeDate(data["DATA"]),
+    hora_agenda: normalizeTime(data["HORA"]) || null,
+    dt: String(data["DT"] || data["DOCUMENTO DE TRANSPORTE"] || "").trim(),
+    remessa: String(data["REMESSA"] || "").trim(),
+    cliente: String(data["CLIENTE"] || "").trim() || null,
+    transportadora: String(data["TRANSPORTADOR"] || data["TRANSPORTADORA"] || "").trim() || null,
+    doca: String(data["DOCA"] || "").trim() || null,
+    tipo_carga: String(data["TPCARGA"] || "").trim() || null,
+    tipo_carreta: String(data["TPCARRO"] || "").trim() || null,
+    tipo_frete: String(data["TPFRETE"] || "").trim() || null,
+    perfil_carregamento: String(data["PERFILCARGA"] || "").trim() || null,
+    he: toNum(data["HE"]),
+    pl_ho: toNum(data["PALLETSHO"] || data["HO"]),
+    total_caixas: toNum(data["TOTAL"]),
+    cubagem: toNum(data["CUBAGEM"]),
+    tonelagem: toNum(data["PESO"]),
+    status: "Agendado"
+  };
+}
+
+window.importExcel = async function(){
+  const file = $("excelFile").files[0];
+  if(!file){
+    alert("Selecione o Excel.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    try{
+      const workbook = XLSX.read(e.target.result, { type:"binary", cellDates:true });
+      const imported = [];
+
+      workbook.SheetNames.forEach(name => {
+        if(/^\d{1,2}\.\d{1,2}/.test(name.trim())){
+          const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], { defval:"", raw:false });
+          rows.forEach(row => {
+            const rec = mapRow(row);
+            if(rec.data && (rec.dt || rec.remessa || rec.transportadora || rec.cliente)){
+              imported.push(rec);
+            }
+          });
+        }
+      });
+
+      if(!imported.length){
+        alert("Não encontrei registros nas abas diárias.");
+        return;
+      }
+
+      const { error } = await supabase.from("agendas").insert(imported);
+      if(error){
+        console.error(error);
+        alert("Erro ao importar agenda.");
+        return;
+      }
+
+      alert(`Importação concluída com ${imported.length} registros.`);
+      await loadAgendas();
+      renderAll();
+      window.showView("agendaOperacional", document.querySelectorAll(".menu button")[1]);
+    }catch(err){
+      console.error(err);
+      alert("Não foi possível importar o arquivo.");
+    }
+  };
+
+  reader.readAsBinaryString(file);
+}
+
+window.openModal = function(id){
+  const r = agendas.find(x=>x.id===id);
+  if(!r) return;
+
+  selectedId = id;
+  renderSelect("m_conf_rec", confRec);
+  renderSelect("m_conf_exp", confExp);
+  renderSelect("m_doca", docas);
+
+  $("modalSubtitle").textContent = `DT ${r.dt || "-"} • Remessa ${r.remessa || "-"} • ${r.transportadora || "-"}`;
+  $("m_status").value = r.status || "Agendado";
+  $("m_data").value = r.data || "";
+  $("m_agenda").value = String(r.hora_agenda || "").slice(0,5);
+  $("m_doca").value = r.doca || "";
+  $("m_dt").value = r.dt || "";
+  $("m_remessa").value = r.remessa || "";
+  $("m_cliente").value = r.cliente || "";
+  $("m_transportadora").value = r.transportadora || "";
+  $("m_motorista").value = r.motorista || "";
+  $("m_placa").value = r.placa || "";
+  $("m_conf_rec").value = r.conferente_recebimento || "";
+  $("m_conf_exp").value = r.conferente_expedicao || "";
+  $("m_romaneio").value = timeLocal(r.hora_romaneio);
+  $("m_nf").value = timeLocal(r.hora_nf);
+  $("m_chegada").value = timeLocal(r.hora_chegada);
+  $("m_doca_hora").value = timeLocal(r.hora_doca);
+  $("m_inicio").value = timeLocal(r.inicio_carregamento);
+  $("m_fim").value = timeLocal(r.fim_carregamento);
+  $("m_saida").value = timeLocal(r.hora_saida);
+  $("m_mao").value = r.mao_obra_exclusiva || "Não";
+  $("m_tipo_carga").value = r.tipo_carga || "";
+  $("m_tipo_carreta").value = r.tipo_carreta || "";
+  $("m_tipo_frete").value = r.tipo_frete || "";
+  $("m_perfil").value = r.perfil_carregamento || "";
+  $("m_he").value = r.he ?? "";
+  $("m_ho").value = r.pl_ho ?? "";
+  $("m_total").value = r.total_caixas ?? "";
+  $("m_cubagem").value = r.cubagem ?? "";
+  $("m_peso").value = r.tonelagem ?? "";
+  $("m_obs").value = r.observacao || "";
+
+  $("editModal").classList.add("show");
+}
+
+window.closeModal = function(){
+  selectedId = null;
+  $("editModal").classList.remove("show");
+}
+
+window.saveModal = async function(){
+  const current = agendas.find(x=>x.id===selectedId);
+  if(!current) return;
+
+  const payload = {
+    status: $("m_status").value,
+    data: $("m_data").value,
+    hora_agenda: $("m_agenda").value || null,
+    doca: $("m_doca").value || null,
+    dt: $("m_dt").value,
+    remessa: $("m_remessa").value,
+    cliente: $("m_cliente").value || null,
+    transportadora: $("m_transportadora").value || null,
+    motorista: $("m_motorista").value || null,
+    placa: $("m_placa").value || null,
+    conferente_recebimento: $("m_conf_rec").value || null,
+    conferente_expedicao: $("m_conf_exp").value || null,
+    hora_romaneio: $("m_romaneio").value || null,
+    hora_nf: $("m_nf").value || null,
+    hora_chegada: $("m_chegada").value || null,
+    hora_doca: $("m_doca_hora").value || null,
+    inicio_carregamento: $("m_inicio").value || null,
+    fim_carregamento: $("m_fim").value || null,
+    hora_saida: $("m_saida").value || null,
+    mao_obra_exclusiva: $("m_mao").value || "Não",
+    tipo_carga: $("m_tipo_carga").value || null,
+    tipo_carreta: $("m_tipo_carreta").value || null,
+    tipo_frete: $("m_tipo_frete").value || null,
+    perfil_carregamento: $("m_perfil").value || null,
+    he: toNum($("m_he").value),
+    pl_ho: toNum($("m_ho").value),
+    total_caixas: toNum($("m_total").value),
+    cubagem: toNum($("m_cubagem").value),
+    tonelagem: toNum($("m_peso").value),
+    observacao: $("m_obs").value || null
+  };
+
+  applyDynamicDefaults(payload);
+
+  const ok = await updateAgenda(selectedId, payload, current.status, payload.status, "operacao");
+  if(ok){
+    window.closeModal();
+    await loadAgendas();
+    renderAll();
+  }
+}
+
+window.advanceSelected = async function(){
+  if(!selectedId) return;
+  await window.advanceById(selectedId);
+  window.openModal(selectedId);
+}
+
+window.advanceById = async function(id){
+  const current = agendas.find(x=>x.id===id);
+  if(!current) return;
+
+  const i = STATUSES.indexOf(current.status);
+  const next = i >= 0 && i < STATUSES.length - 1 ? STATUSES[i+1] : current.status;
+
+  const payload = { status: next };
+  applyDynamicDefaults(payload);
+
+  const ok = await updateAgenda(id, payload, current.status, next, "operacao");
+  if(ok){
+    await loadAgendas();
+    renderAll();
+  }
+}
+
+window.removeById = async function(id){
+  if(!confirm("Excluir registro?")) return;
+  const ok = await deleteAgenda(id);
+  if(ok){
+    await loadAgendas();
+    renderAll();
+  }
+}
+
+window.markArrival = async function(id){
+  const current = agendas.find(x=>x.id===id);
+  if(!current) return;
+
+  const payload = { status: "Motorista no pátio" };
+  applyDynamicDefaults(payload);
+
+  const ok = await updateAgenda(id, payload, current.status, "Motorista no pátio", "patio");
+  if(ok){
+    await loadAgendas();
+    renderAll();
+  }
+}
+
+window.dockNow = async function(id){
+  const current = agendas.find(x=>x.id===id);
+  if(!current) return;
+
+  const payload = { status: "Em doca" };
+  applyDynamicDefaults(payload);
+
+  const ok = await updateAgenda(id, payload, current.status, "Em doca", "patio");
+  if(ok){
+    await loadAgendas();
+    renderAll();
+  }
+}
+
+window.doCheckin = async function(){
+  const id = $("checkinSelect").value;
+  if(!id){
+    alert("Selecione um veículo.");
+    return;
+  }
+
+  const current = agendas.find(x=>x.id===id);
+  if(!current) return;
+
+  const payload = {
+    motorista: $("checkMotorista").value || current.motorista,
+    placa: $("checkPlaca").value || current.placa,
+    observacao: $("checkObs").value || current.observacao,
+    status: "Motorista no pátio"
+  };
+
+  applyDynamicDefaults(payload);
+
+  const ok = await updateAgenda(id, payload, current.status, "Motorista no pátio", "patio");
+  if(ok){
+    await loadAgendas();
+    renderAll();
+  }
+}
+
+window.setAwaitDock = async function(){
+  const id = $("checkinSelect").value;
+  if(!id){
+    alert("Selecione um veículo.");
+    return;
+  }
+
+  const current = agendas.find(x=>x.id===id);
+  if(!current) return;
+
+  const payload = {
+    motorista: $("checkMotorista").value || current.motorista,
+    placa: $("checkPlaca").value || current.placa,
+    observacao: $("checkObs").value || current.observacao,
+    status: "Aguardando doca"
+  };
+
+  const ok = await updateAgenda(id, payload, current.status, "Aguardando doca", "patio");
+  if(ok){
+    await loadAgendas();
+    renderAll();
+  }
+}
+
+window.setDocked = async function(){
+  const id = $("checkinSelect").value;
+  if(!id){
+    alert("Selecione um veículo.");
+    return;
+  }
+
+  const current = agendas.find(x=>x.id===id);
+  if(!current) return;
+
+  const payload = {
+    motorista: $("checkMotorista").value || current.motorista,
+    placa: $("checkPlaca").value || current.placa,
+    observacao: $("checkObs").value || current.observacao,
+    status: "Em doca"
+  };
+
+  applyDynamicDefaults(payload);
+
+  const ok = await updateAgenda(id, payload, current.status, "Em doca", "patio");
+  if(ok){
+    await loadAgendas();
+    renderAll();
+  }
+}
+
+async function subscribeRealtime(){
+  supabase
+    .channel("agendas-realtime")
+    .on("postgres_changes", { event: "*", schema: "public", table: "agendas" }, async () => {
+      await loadAgendas();
+      renderAll();
+    })
+    .subscribe();
+}
+
+await testConnection();
+await loadAll();
+await subscribeRealtime();
 </script>
-
 </body>
 </html>
