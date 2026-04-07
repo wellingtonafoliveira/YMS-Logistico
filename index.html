@@ -2,181 +2,153 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>YMS Logístico</title>
-
+<title>YMS PRO v3</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-body{font-family:Arial;margin:0;background:#0f172a;color:white}
-
-.menu{
-display:flex;
-background:#020617;
-padding:10px;
-gap:10px;
-}
-
-.menu button{
-background:#1e293b;
-color:white;
-border:none;
-padding:10px;
-cursor:pointer;
-}
-
-.active{background:#2563eb}
-
-.page{display:none;padding:20px}
-.show{display:block}
-
-.card{background:#1e293b;padding:15px;margin-bottom:10px;border-radius:8px}
-
-input{padding:6px;margin:5px}
-
+body{font-family:Arial;background:#0b1220;color:#fff;margin:0}
+.hidden{display:none}
+.sidebar{width:240px;background:#111827;height:100vh;position:fixed;padding:20px}
+.main{margin-left:240px;padding:20px}
+button{padding:10px;border:none;border-radius:8px;cursor:pointer}
+.card{background:#1f2937;padding:15px;border-radius:12px;margin-bottom:15px}
+input,select{padding:8px;border-radius:8px;border:none;width:100%;margin-bottom:8px}
+.menu button{display:block;width:100%;margin-bottom:8px}
 </style>
 </head>
 
 <body>
 
-<div class="menu">
-<button onclick="abrir('agenda')">Agenda</button>
-<button onclick="abrir('separacao')">Separação</button>
-<button onclick="abrir('expedicao')">Expedição</button>
-<button onclick="abrir('patio')">Pátio</button>
-<button onclick="abrir('docas')">Docas</button>
-<button onclick="abrir('dashboard')">Dashboard</button>
+<!-- LOGIN -->
+<div id="login" class="card">
+  <h2>Login</h2>
+  <input id="email" placeholder="Email">
+  <input id="senha" type="password" placeholder="Senha">
+  <button onclick="login()">Entrar</button>
 </div>
 
-<!-- AGENDA -->
-<div id="agenda" class="page show">
-<h2>📅 Agenda Transporte</h2>
+<!-- SISTEMA -->
+<div id="app" class="hidden">
 
-<input id="dt" placeholder="DT">
-<input id="remessa" placeholder="Remessa">
-<input id="transportadora" placeholder="Transportadora">
+<div class="sidebar">
+  <h3 id="boasVindas"></h3>
 
-<button onclick="salvarAgenda()">Salvar</button>
-
-<div id="listaAgenda"></div>
+  <div class="menu">
+    <button onclick="view('agenda')">Agenda</button>
+    <button onclick="view('separacao')">Separação</button>
+    <button onclick="view('expedicao')">Expedição</button>
+    <button onclick="view('patio')">Pátio</button>
+    <button onclick="view('docas')">Docas</button>
+    <button onclick="view('dashboard')">Dashboard</button>
+    <button id="btnAdmin" class="hidden" onclick="view('admin')">Admin</button>
+  </div>
 </div>
 
-<!-- SEPARAÇÃO -->
-<div id="separacao" class="page">
-<h2>📦 Separação</h2>
-<div id="listaSeparacao"></div>
+<div class="main">
+
+<div id="agenda">
+  <div class="card">
+    <h2>Nova DT</h2>
+    <input id="dt" placeholder="DT">
+    <input id="cliente" placeholder="Cliente">
+    <button onclick="criar()">Salvar</button>
+  </div>
+  <div id="lista"></div>
 </div>
 
-<!-- EXPEDIÇÃO -->
-<div id="expedicao" class="page">
-<h2>🚛 Expedição</h2>
-<div id="listaExpedicao"></div>
+<div id="admin" class="hidden">
+  <div class="card">
+    <h2>Criar usuário</h2>
+    <input id="nomeU" placeholder="Nome">
+    <input id="emailU" placeholder="Email">
+    <input id="senhaU" placeholder="Senha">
+    <select id="perfilU">
+      <option value="operador">Operador</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button onclick="criarUsuario()">Criar</button>
+  </div>
 </div>
 
-<!-- PÁTIO -->
-<div id="patio" class="page">
-<h2>🏁 Pátio</h2>
-<div id="listaPatio"></div>
 </div>
-
-<!-- DOCAS -->
-<div id="docas" class="page">
-<h2>🧱 Torre de Docas</h2>
-<div id="listaDocas"></div>
-</div>
-
-<!-- DASHBOARD -->
-<div id="dashboard" class="page">
-<h2>📊 Dashboard</h2>
-<div id="indicadores"></div>
 </div>
 
 <script>
+const sb = supabase.createClient("SUA_URL","SUA_KEY")
 
-const supabase = window.supabase.createClient(
-"COLE_SUA_URL",
-"COLE_SUA_KEY"
-);
+let user=null
 
-function abrir(pagina){
-document.querySelectorAll(".page").forEach(p=>p.classList.remove("show"));
-document.getElementById(pagina).classList.add("show");
-carregar();
+async function login(){
+  const {data,error}=await sb.auth.signInWithPassword({
+    email:email.value,
+    password:senha.value
+  })
+
+  if(error)return alert("Erro login")
+
+  user=data.user
+  iniciarSistema()
 }
 
-async function salvarAgenda(){
-await supabase.from("agendas").insert([{
-dt:document.getElementById("dt").value,
-remessa:document.getElementById("remessa").value,
-transportadora:document.getElementById("transportadora").value,
-status:"Agendado"
-}]);
+async function iniciarSistema(){
+  document.getElementById("login").style.display="none"
+  document.getElementById("app").classList.remove("hidden")
 
-carregar();
+  const {data}=await sb.from("usuarios").select("*").eq("user_id",user.id).single()
+
+  const hora=new Date().getHours()
+  const saudacao=hora<12?"Bom dia":hora<18?"Boa tarde":"Boa noite"
+
+  boasVindas.innerText=`${saudacao}, ${data.nome}`
+
+  if(data.perfil==="admin"){
+    btnAdmin.classList.remove("hidden")
+  }
+
+  carregar()
+}
+
+async function criar(){
+  await sb.from("agendas").insert([{
+    dt:dt.value,
+    cliente:cliente.value
+  }])
+  carregar()
 }
 
 async function carregar(){
-const { data } = await supabase.from("agendas").select("*");
+  const {data}=await sb.from("agendas").select("*")
 
-renderAgenda(data);
-renderSeparacao(data);
-renderExpedicao(data);
-renderPatio(data);
-renderDocas(data);
-renderDashboard(data);
+  lista.innerHTML=data.map(r=>`
+    <div class="card">
+      <b>${r.dt}</b> - ${r.cliente}
+      <br>Status: ${r.status_global}
+    </div>
+  `).join("")
 }
 
-function renderAgenda(data){
-let html="";
-data.forEach(i=>{
-html+=`<div class="card">${i.dt} - ${i.transportadora}</div>`;
-});
-document.getElementById("listaAgenda").innerHTML=html;
+function view(v){
+  document.querySelectorAll(".main > div").forEach(d=>d.classList.add("hidden"))
+  document.getElementById(v).classList.remove("hidden")
 }
 
-function renderSeparacao(data){
-let html="";
-data.filter(i=>i.status==="Agendado").forEach(i=>{
-html+=`<div class="card">${i.dt} <button onclick="mudar('${i.id}','Separação')">Iniciar</button></div>`;
-});
-document.getElementById("listaSeparacao").innerHTML=html;
+async function criarUsuario(){
+  const {data,error}=await sb.auth.signUp({
+    email:emailU.value,
+    password:senhaU.value
+  })
+
+  if(error)return alert("Erro")
+
+  await sb.from("usuarios").insert([{
+    user_id:data.user.id,
+    nome:nomeU.value,
+    email:emailU.value,
+    perfil:perfilU.value
+  }])
+
+  alert("Usuário criado")
 }
-
-function renderExpedicao(data){
-let html="";
-data.filter(i=>i.status==="Separação").forEach(i=>{
-html+=`<div class="card">${i.dt} <button onclick="mudar('${i.id}','Expedição')">Enviar</button></div>`;
-});
-document.getElementById("listaExpedicao").innerHTML=html;
-}
-
-function renderPatio(data){
-let html="";
-data.filter(i=>i.status==="Expedição").forEach(i=>{
-html+=`<div class="card">${i.dt} <button onclick="mudar('${i.id}','Pátio')">Chegou</button></div>`;
-});
-document.getElementById("listaPatio").innerHTML=html;
-}
-
-function renderDocas(data){
-let html="";
-data.filter(i=>i.status==="Pátio").forEach(i=>{
-html+=`<div class="card">${i.dt} <button onclick="mudar('${i.id}','Doca')">Doca</button></div>`;
-});
-document.getElementById("listaDocas").innerHTML=html;
-}
-
-function renderDashboard(data){
-document.getElementById("indicadores").innerHTML=
-`Total: ${data.length}`;
-}
-
-async function mudar(id,status){
-await supabase.from("agendas").update({status}).eq("id",id);
-carregar();
-}
-
-carregar();
-
 </script>
 
 </body>
