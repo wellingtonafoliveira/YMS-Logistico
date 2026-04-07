@@ -112,7 +112,6 @@
       align-items:flex-start;
       gap:16px;
       flex-wrap:wrap;
-      margin-bottom:18px;
     }
 
     .title h1{
@@ -226,7 +225,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:1350px;
+      min-width:1500px;
       background:#0f1726;
     }
 
@@ -372,6 +371,20 @@
     }
 
     .hidden{display:none!important}
+    .toast{
+      position:fixed;
+      right:20px;
+      bottom:20px;
+      background:#111827;
+      border:1px solid rgba(148,163,184,.18);
+      color:#fff;
+      padding:12px 14px;
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      z-index:100;
+      display:none;
+      max-width:320px;
+    }
 
     @media (max-width:1400px){
       .grid-4{grid-template-columns:repeat(2,1fr)}
@@ -390,7 +403,7 @@
   <aside class="sidebar">
     <div class="brand">
       YMS
-      <small>Menu lateral fixo, módulos por processo e DT única atravessando toda a operação.</small>
+      <small>Menu lateral fixo, módulos por processo, tempo real ativo.</small>
     </div>
 
     <div class="menu">
@@ -642,13 +655,17 @@
   </main>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-const SUPABASE_URL = "https://vvazkfynwhrvjteaecim.supabase.co";
-const SUPABASE_KEY = "sb_secret_5y4VaidOTdG9x1lzxoiFOA_0JeV94ey";
+const SUPABASE_URL = "COLE_AQUI_SUA_SUPABASE_URL";
+const SUPABASE_KEY = "COLE_AQUI_SUA_SUPABASE_PUBLISHABLE_KEY";
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let registros = [];
+let realtimeChannel = null;
+
 const STAGES = ["Agendado","Em Separação","Separado","Pronto Expedição","No Pátio","Em Doca","Em Carregamento","Expedido"];
 
 function clsStatus(s){
@@ -691,6 +708,16 @@ function linhasFiltradas(){
   return d ? registros.filter(r => r.data === d) : registros;
 }
 
+function showToast(msg){
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.style.display = "block";
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => {
+    el.style.display = "none";
+  }, 2500);
+}
+
 function setView(view, btn){
   document.getElementById("pageTitle").textContent = btn.textContent;
   document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
@@ -729,6 +756,25 @@ async function carregarTudo(){
   }
 
   registros = data || [];
+  renderTudo();
+}
+
+async function carregarTudoSilencioso(){
+  let query = sb.from("agendas").select("*").order("data",{ascending:true}).order("hora",{ascending:true});
+  const df = dataFiltrada();
+  if(df) query = query.eq("data", df);
+
+  const { data, error } = await query;
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  registros = data || [];
+  renderTudo();
+}
+
+function renderTudo(){
   renderDashboard();
   renderAgenda();
   renderSeparacao();
@@ -737,6 +783,40 @@ async function carregarTudo(){
   renderDocas();
   renderCheckin();
   renderRelatorios();
+  carregarSelectPatio();
+}
+
+async function iniciarRealtime(){
+  if(realtimeChannel){
+    await sb.removeChannel(realtimeChannel);
+  }
+
+  realtimeChannel = sb
+    .channel("realtime-agendas")
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "agendas"
+      },
+      async (payload) => {
+        console.log("Realtime agendas:", payload);
+        const tipo = payload.eventType || "UPDATE";
+        if(tipo === "INSERT") showToast("Nova DT recebida em tempo real");
+        if(tipo === "UPDATE") showToast("DT atualizada em tempo real");
+        if(tipo === "DELETE") showToast("DT removida em tempo real");
+        await carregarTudoSilencioso();
+      }
+    )
+    .subscribe((status) => {
+      console.log("Status realtime:", status);
+      const el = document.getElementById("statusConexao");
+      if(status === "SUBSCRIBED"){
+        el.textContent = "Conectado ao Supabase • tempo real ativo";
+        el.style.color = "#22c55e";
+      }
+    });
 }
 
 async function criarDT(){
@@ -1061,7 +1141,9 @@ async function mudarStatus(id, status){
   document.getElementById("filtroData").value = `${hoje.getFullYear()}-${p(hoje.getMonth()+1)}-${p(hoje.getDate())}`;
 })();
 
-testarConexao().then(carregarTudo);
+testarConexao()
+  .then(carregarTudo)
+  .then(iniciarRealtime);
 </script>
 </body>
 </html>
