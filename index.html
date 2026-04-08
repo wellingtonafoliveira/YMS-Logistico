@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>YMS Logístico</title>
+  <link rel="icon" type="image/png" href="a_logo_for_a_logistics_management_system_named_ym.png">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
       --bg:#0b1220;
       --sidebar:#0f172a;
       --panel:#111827;
-      --panel-2:#182233;
       --card:#1f2937;
       --line:#334155;
       --text:#e5eefc;
@@ -34,6 +34,77 @@
       color:var(--text);
     }
 
+    .hidden{display:none!important}
+
+    .login-screen{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:radial-gradient(circle at top,#14213a 0%, #0b1220 45%, #08101d 100%);
+    }
+
+    .login-box{
+      width:min(380px,100%);
+      background:rgba(17,24,39,.96);
+      border:1px solid rgba(148,163,184,.12);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      padding:28px;
+      text-align:center;
+    }
+
+    .login-box img{
+      width:78px;
+      height:78px;
+      object-fit:contain;
+      margin-bottom:14px;
+      background:#fff;
+      border-radius:18px;
+      padding:6px;
+    }
+
+    .login-box h2{
+      margin:0 0 6px;
+      font-size:24px;
+    }
+
+    .login-box p{
+      margin:0 0 18px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .login-box input{
+      width:100%;
+      background:#0f1726;
+      color:#fff;
+      border:1px solid rgba(148,163,184,.18);
+      border-radius:12px;
+      padding:12px;
+      font-size:14px;
+      margin-bottom:10px;
+    }
+
+    .login-box button{
+      width:100%;
+      padding:12px;
+      background:var(--blue);
+      color:#fff;
+      border:none;
+      border-radius:12px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .login-error{
+      margin-top:10px;
+      font-size:12px;
+      color:#fca5a5;
+      min-height:16px;
+    }
+
     .app{
       display:grid;
       grid-template-columns:260px 1fr;
@@ -50,23 +121,58 @@
       overflow:auto;
     }
 
-    .brand{
+    .brand-wrap{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .brand-logo{
+      width:52px;
+      height:52px;
+      object-fit:contain;
+      border-radius:12px;
+      background:#fff;
+      padding:4px;
+      box-shadow:0 6px 18px rgba(0,0,0,.18);
+    }
+
+    .brand-title{
       font-size:24px;
       font-weight:800;
       letter-spacing:.3px;
+      line-height:1;
     }
 
-    .brand small{
+    .brand-sub{
       display:block;
       font-size:12px;
       color:var(--muted);
       font-weight:500;
       margin-top:6px;
+      line-height:1.4;
+    }
+
+    .user-box{
+      margin-bottom:16px;
+      padding:12px;
+      border:1px solid rgba(148,163,184,.1);
+      background:#101a2a;
+      border-radius:14px;
+      font-size:12px;
+      color:var(--muted);
       line-height:1.5;
     }
 
+    .user-box strong{
+      display:block;
+      color:#fff;
+      font-size:14px;
+      margin-bottom:4px;
+    }
+
     .menu{
-      margin-top:24px;
       display:flex;
       flex-direction:column;
       gap:10px;
@@ -102,8 +208,23 @@
       line-height:1.6;
     }
 
+    .logout-btn{
+      margin-top:14px;
+      width:100%;
+      border:none;
+      background:#7f1d1d;
+      color:#fff;
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
     .main{
       padding:22px;
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
     }
 
     .topbar{
@@ -112,6 +233,7 @@
       align-items:flex-start;
       gap:16px;
       flex-wrap:wrap;
+      margin-bottom:16px;
     }
 
     .title h1{
@@ -141,7 +263,6 @@
 
     .grid{display:grid;gap:16px}
     .grid-2{grid-template-columns:1.1fr .9fr}
-    .grid-3{grid-template-columns:repeat(3,1fr)}
     .grid-4{grid-template-columns:repeat(4,1fr)}
 
     .kpi{
@@ -370,7 +491,6 @@
       margin-bottom:10px;
     }
 
-    .hidden{display:none!important}
     .toast{
       position:fixed;
       right:20px;
@@ -386,9 +506,17 @@
       max-width:320px;
     }
 
+    footer{
+      text-align:center;
+      margin-top:auto;
+      padding:20px 0 6px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
     @media (max-width:1400px){
       .grid-4{grid-template-columns:repeat(2,1fr)}
-      .grid-3,.grid-2,.board,.dock-grid,.fields{grid-template-columns:1fr}
+      .grid-2,.board,.dock-grid,.fields{grid-template-columns:1fr}
     }
 
     @media (max-width:900px){
@@ -399,751 +527,840 @@
   </style>
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar">
-    <div class="brand">
-      YMS
-      <small>Menu lateral fixo, módulos por processo, tempo real ativo.</small>
+  <div class="login-screen" id="loginScreen">
+    <div class="login-box">
+      <img src="a_logo_for_a_logistics_management_system_named_ym.png" alt="YMS Logístico">
+      <h2>Login</h2>
+      <p>Acesse o sistema de gestão logística</p>
+      <input type="email" id="loginEmail" placeholder="Email">
+      <input type="password" id="loginSenha" placeholder="Senha">
+      <button onclick="login()">Entrar</button>
+      <div class="login-error" id="loginErro"></div>
     </div>
+  </div>
 
-    <div class="menu">
-      <button class="active" onclick="setView('dashboard', this)">Dashboard</button>
-      <button onclick="setView('agenda', this)">Agenda</button>
-      <button onclick="setView('separacao', this)">Separação</button>
-      <button onclick="setView('expedicao', this)">Expedição</button>
-      <button onclick="setView('patio', this)">Pátio</button>
-      <button onclick="setView('docas', this)">Docas</button>
-      <button onclick="setView('checkin', this)">Check-in</button>
-      <button onclick="setView('relatorios', this)">Relatórios</button>
-      <button onclick="setView('admin', this)">Admin</button>
-    </div>
-
-    <div class="sidebar-note">
-      <strong>Fluxo:</strong><br>
-      Agendado → Em Separação → Separado → Pronto Expedição → No Pátio → Em Doca → Em Carregamento → Expedido
-    </div>
-  </aside>
-
-  <main class="main">
-    <div class="topbar">
-      <div class="title">
-        <h1 id="pageTitle">Dashboard</h1>
-        <p>Gestão integrada da agenda, operação e pátio.</p>
-      </div>
-
-      <div class="actions">
+  <div class="app hidden" id="app">
+    <aside class="sidebar">
+      <div class="brand-wrap">
+        <img src="a_logo_for_a_logistics_management_system_named_ym.png" alt="YMS Logístico" class="brand-logo">
         <div>
-          <label>Filtrar por data</label>
-          <input type="date" id="filtroData" onchange="carregarTudo()">
+          <div class="brand-title">YMS</div>
+          <small class="brand-sub">Agenda, operação e pátio em tempo real</small>
         </div>
-        <button class="btn btn-light" onclick="carregarTudo()">Atualizar</button>
       </div>
-    </div>
 
-    <div class="card" style="margin-bottom:16px">
-      <div id="statusConexao" style="color:var(--muted)">Conectando ao Supabase...</div>
-    </div>
-
-    <section id="view-dashboard">
-      <div class="grid grid-4" id="dashboardKpis"></div>
-      <div class="card" style="margin-top:16px">
-        <h2>Torre de etapas</h2>
-        <div class="board" id="dashboardBoard"></div>
+      <div class="user-box">
+        <strong id="userLabel">Usuário</strong>
+        <span id="userEmail">-</span>
       </div>
-    </section>
 
-    <section id="view-agenda" class="hidden">
-      <div class="grid grid-2">
+      <div class="menu">
+        <button class="active" onclick="setView('dashboard', this)">Dashboard</button>
+        <button onclick="setView('agenda', this)">Agenda</button>
+        <button onclick="setView('separacao', this)">Separação</button>
+        <button onclick="setView('expedicao', this)">Expedição</button>
+        <button onclick="setView('patio', this)">Pátio</button>
+        <button onclick="setView('docas', this)">Docas</button>
+        <button onclick="setView('checkin', this)">Check-in</button>
+        <button onclick="setView('relatorios', this)">Relatórios</button>
+        <button onclick="setView('admin', this)">Admin</button>
+      </div>
+
+      <div class="sidebar-note">
+        <strong>Fluxo:</strong><br>
+        Agendado → Em Separação → Separado → Pronto Expedição → No Pátio → Em Doca → Em Carregamento → Expedido
+      </div>
+
+      <button class="logout-btn" onclick="logout()">Sair</button>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="title">
+          <h1 id="pageTitle">Dashboard</h1>
+          <p>Gestão integrada da agenda, operação e pátio.</p>
+        </div>
+
+        <div class="actions">
+          <div>
+            <label>Filtrar por data</label>
+            <input type="date" id="filtroData" onchange="carregarTudo()">
+          </div>
+          <button class="btn btn-light" onclick="carregarTudo()">Atualizar</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <div id="statusConexao" style="color:var(--muted)">Conectando ao Supabase...</div>
+      </div>
+
+      <section id="view-dashboard">
+        <div class="grid grid-4" id="dashboardKpis"></div>
+        <div class="card" style="margin-top:16px">
+          <h2>Torre de etapas</h2>
+          <div class="board" id="dashboardBoard"></div>
+        </div>
+      </section>
+
+      <section id="view-agenda" class="hidden">
+        <div class="grid grid-2">
+          <div class="card">
+            <h2>Nova DT</h2>
+            <div class="fields">
+              <div><label>DT</label><input id="a_dt"></div>
+              <div><label>Ordem</label><input id="a_ordem"></div>
+              <div><label>Remessa</label><input id="a_remessa"></div>
+              <div><label>Data</label><input id="a_data" type="date"></div>
+
+              <div><label>Hora</label><input id="a_hora" type="time"></div>
+              <div><label>Transportadora</label><input id="a_transportadora"></div>
+              <div><label>Cliente</label><input id="a_cliente"></div>
+              <div><label>Tipo de carga</label><input id="a_tipo_carga"></div>
+
+              <div><label>Tipo de veículo</label><input id="a_tipo_veiculo"></div>
+              <div><label>Tipo de frete</label><input id="a_tipo_frete"></div>
+              <div><label>Perfil de carga</label><input id="a_perfil_carga"></div>
+              <div><label>Doca agenda</label><input id="a_doca_agenda"></div>
+
+              <div><label>Peso</label><input id="a_peso" type="number" step="0.001"></div>
+              <div><label>Cubagem</label><input id="a_cubagem" type="number" step="0.001"></div>
+              <div><label>HE</label><input id="a_he" type="number"></div>
+              <div><label>HO</label><input id="a_ho" type="number"></div>
+
+              <div><label>Total caixas</label><input id="a_total_caixas" type="number"></div>
+              <div class="full"><label>Observação geral</label><textarea id="a_observacao"></textarea></div>
+            </div>
+            <div style="margin-top:12px">
+              <button class="btn btn-success" onclick="criarDT()">Salvar DT</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Resumo do dia</h2>
+            <div class="grid grid-4" id="agendaKpis"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h2>Agenda do dia</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DT</th>
+                  <th>Data</th>
+                  <th>Hora</th>
+                  <th>Cliente</th>
+                  <th>Transportadora</th>
+                  <th>Doca</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="agendaTabela"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-separacao" class="hidden">
         <div class="card">
-          <h2>Nova DT</h2>
+          <h2>Separação</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DT</th>
+                  <th>Cliente</th>
+                  <th>Transportadora</th>
+                  <th>Doca planejada</th>
+                  <th>Status separação</th>
+                  <th>Conferente recebimento</th>
+                  <th>Turno</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="separacaoTabela"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-expedicao" class="hidden">
+        <div class="card">
+          <h2>Expedição</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DT</th>
+                  <th>Cliente</th>
+                  <th>Transportadora</th>
+                  <th>Doca agenda</th>
+                  <th>Conferente expedição</th>
+                  <th>Faturado</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="expedicaoTabela"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-patio" class="hidden">
+        <div class="grid grid-2">
+          <div class="card">
+            <h2>Fila do pátio</h2>
+            <div class="board" id="patioBoard"></div>
+          </div>
+
+          <div class="card">
+            <h2>Movimentação rápida</h2>
+            <div class="fields" style="grid-template-columns:repeat(2,1fr)">
+              <div>
+                <label>DT</label>
+                <select id="p_dt" onchange="preencherPatio()"></select>
+              </div>
+              <div>
+                <label>Doca carregamento</label>
+                <input id="p_doca">
+              </div>
+              <div>
+                <label>Motorista</label>
+                <input id="p_motorista">
+              </div>
+              <div>
+                <label>Placa cavalo</label>
+                <input id="p_placa_cavalo">
+              </div>
+              <div>
+                <label>Placa carreta</label>
+                <input id="p_placa_carreta">
+              </div>
+              <div>
+                <label>Presença</label>
+                <select id="p_presenca">
+                  <option value="">Selecione</option>
+                  <option>Presente</option>
+                  <option>Ausente</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+              <button class="btn btn-warning" onclick="moverPatio('No Pátio')">No Pátio</button>
+              <button class="btn btn-primary" onclick="moverPatio('Em Doca')">Em Doca</button>
+              <button class="btn btn-success" onclick="moverPatio('Em Carregamento')">Em Carregamento</button>
+              <button class="btn btn-danger" onclick="moverPatio('Expedido')">Expedido</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-docas" class="hidden">
+        <div class="card">
+          <h2>Torre de docas</h2>
+          <div class="dock-grid" id="docasGrid"></div>
+        </div>
+      </section>
+
+      <section id="view-checkin" class="hidden">
+        <div class="card">
+          <h2>Check-in do motorista</h2>
           <div class="fields">
-            <div><label>DT</label><input id="a_dt"></div>
-            <div><label>Ordem</label><input id="a_ordem"></div>
-            <div><label>Remessa</label><input id="a_remessa"></div>
-            <div><label>Data</label><input id="a_data" type="date"></div>
-
-            <div><label>Hora</label><input id="a_hora" type="time"></div>
-            <div><label>Transportadora</label><input id="a_transportadora"></div>
-            <div><label>Cliente</label><input id="a_cliente"></div>
-            <div><label>Tipo de carga</label><input id="a_tipo_carga"></div>
-
-            <div><label>Tipo de veículo</label><input id="a_tipo_veiculo"></div>
-            <div><label>Tipo de frete</label><input id="a_tipo_frete"></div>
-            <div><label>Perfil de carga</label><input id="a_perfil_carga"></div>
-            <div><label>Doca agenda</label><input id="a_doca_agenda"></div>
-
-            <div><label>Peso</label><input id="a_peso" type="number" step="0.001"></div>
-            <div><label>Cubagem</label><input id="a_cubagem" type="number" step="0.001"></div>
-            <div><label>HE</label><input id="a_he" type="number"></div>
-            <div><label>HO</label><input id="a_ho" type="number"></div>
-
-            <div><label>Total caixas</label><input id="a_total_caixas" type="number"></div>
-            <div class="full"><label>Observação geral</label><textarea id="a_observacao"></textarea></div>
-          </div>
-          <div style="margin-top:12px">
-            <button class="btn btn-success" onclick="criarDT()">Salvar DT</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>Resumo do dia</h2>
-          <div class="grid grid-4" id="agendaKpis"></div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:16px">
-        <h2>Agenda do dia</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>DT</th>
-                <th>Data</th>
-                <th>Hora</th>
-                <th>Cliente</th>
-                <th>Transportadora</th>
-                <th>Doca</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody id="agendaTabela"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section id="view-separacao" class="hidden">
-      <div class="card">
-        <h2>Separação</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>DT</th>
-                <th>Cliente</th>
-                <th>Transportadora</th>
-                <th>Doca planejada</th>
-                <th>Status separação</th>
-                <th>Conferente recebimento</th>
-                <th>Turno</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody id="separacaoTabela"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section id="view-expedicao" class="hidden">
-      <div class="card">
-        <h2>Expedição</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>DT</th>
-                <th>Cliente</th>
-                <th>Transportadora</th>
-                <th>Doca agenda</th>
-                <th>Conferente expedição</th>
-                <th>Faturado</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody id="expedicaoTabela"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section id="view-patio" class="hidden">
-      <div class="grid grid-2">
-        <div class="card">
-          <h2>Fila do pátio</h2>
-          <div class="board" id="patioBoard"></div>
-        </div>
-
-        <div class="card">
-          <h2>Movimentação rápida</h2>
-          <div class="fields" style="grid-template-columns:repeat(2,1fr)">
-            <div>
-              <label>DT</label>
-              <select id="p_dt" onchange="preencherPatio()"></select>
-            </div>
-            <div>
-              <label>Doca carregamento</label>
-              <input id="p_doca">
-            </div>
-            <div>
-              <label>Motorista</label>
-              <input id="p_motorista">
-            </div>
-            <div>
-              <label>Placa cavalo</label>
-              <input id="p_placa_cavalo">
-            </div>
-            <div>
-              <label>Placa carreta</label>
-              <input id="p_placa_carreta">
-            </div>
-            <div>
-              <label>Presença</label>
-              <select id="p_presenca">
+            <div><label>DT</label><select id="c_dt"></select></div>
+            <div><label>Motorista</label><input id="c_motorista"></div>
+            <div><label>Placa cavalo</label><input id="c_placa_cavalo"></div>
+            <div><label>Placa carreta</label><input id="c_placa_carreta"></div>
+            <div><label>Presença</label>
+              <select id="c_presenca">
                 <option value="">Selecione</option>
                 <option>Presente</option>
                 <option>Ausente</option>
               </select>
             </div>
+            <div class="full"><label>Observação</label><textarea id="c_obs"></textarea></div>
           </div>
-
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
-            <button class="btn btn-warning" onclick="moverPatio('No Pátio')">No Pátio</button>
-            <button class="btn btn-primary" onclick="moverPatio('Em Doca')">Em Doca</button>
-            <button class="btn btn-success" onclick="moverPatio('Em Carregamento')">Em Carregamento</button>
-            <button class="btn btn-danger" onclick="moverPatio('Expedido')">Expedido</button>
+          <div style="margin-top:12px">
+            <button class="btn btn-success" onclick="registrarCheckin()">Registrar check-in</button>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section id="view-docas" class="hidden">
-      <div class="card">
-        <h2>Torre de docas</h2>
-        <div class="dock-grid" id="docasGrid"></div>
-      </div>
-    </section>
-
-    <section id="view-checkin" class="hidden">
-      <div class="card">
-        <h2>Check-in do motorista</h2>
-        <div class="fields">
-          <div><label>DT</label><select id="c_dt"></select></div>
-          <div><label>Motorista</label><input id="c_motorista"></div>
-          <div><label>Placa cavalo</label><input id="c_placa_cavalo"></div>
-          <div><label>Placa carreta</label><input id="c_placa_carreta"></div>
-          <div><label>Presença</label>
-            <select id="c_presenca">
-              <option value="">Selecione</option>
-              <option>Presente</option>
-              <option>Ausente</option>
-            </select>
-          </div>
-          <div class="full"><label>Observação</label><textarea id="c_obs"></textarea></div>
+      <section id="view-relatorios" class="hidden">
+        <div class="card">
+          <h2>Relatórios</h2>
+          <div class="grid grid-4" id="relatoriosKpis"></div>
         </div>
-        <div style="margin-top:12px">
-          <button class="btn btn-success" onclick="registrarCheckin()">Registrar check-in</button>
+      </section>
+
+      <section id="view-admin" class="hidden">
+        <div class="card">
+          <h2>Admin</h2>
+          <p style="color:var(--muted)">Área reservada para criação de usuários e gestão de perfis. Em front-end puro, a criação segura de usuários admin deve ser feita pelo painel do Supabase ou por backend próprio.</p>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section id="view-relatorios" class="hidden">
-      <div class="card">
-        <h2>Relatórios</h2>
-        <div class="grid grid-4" id="relatoriosKpis"></div>
-      </div>
-    </section>
+      <footer>
+        © 2026 Wellington Alves - Sistema de Gestão Logística
+      </footer>
+    </main>
+  </div>
 
-    <section id="view-admin" class="hidden">
-      <div class="card">
-        <h2>Admin</h2>
-        <p class="muted">Área reservada para criação de usuários e gestão de perfis.</p>
-      </div>
-    </section>
-  </main>
-</div>
+  <div class="toast" id="toast"></div>
 
-<div class="toast" id="toast"></div>
+  <script>
+    const SUPABASE_URL = "COLE_AQUI_SUA_SUPABASE_URL";
+    const SUPABASE_KEY = "COLE_AQUI_SUA_SUPABASE_PUBLISHABLE_KEY";
 
-<script>
-const SUPABASE_URL = "https://vvazkfynwhrvjteeacim.supabase.co";
-const SUPABASE_KEY = "sb_publishable_J2QJP1PedcIIQzkmKSz9CQ_kfMOt23N";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let registros = [];
+    let realtimeChannel = null;
 
-let registros = [];
-let realtimeChannel = null;
+    const STAGES = ["Agendado","Em Separação","Separado","Pronto Expedição","No Pátio","Em Doca","Em Carregamento","Expedido"];
 
-const STAGES = ["Agendado","Em Separação","Separado","Pronto Expedição","No Pátio","Em Doca","Em Carregamento","Expedido"];
+    function clsStatus(s){
+      return {
+        "Agendado":"st-agendado",
+        "Em Separação":"st-separacao",
+        "Separado":"st-separado",
+        "Pronto Expedição":"st-pronto",
+        "No Pátio":"st-patio",
+        "Em Doca":"st-doca",
+        "Em Carregamento":"st-carregando",
+        "Expedido":"st-expedido"
+      }[s] || "st-agendado";
+    }
 
-function clsStatus(s){
-  return {
-    "Agendado":"st-agendado",
-    "Em Separação":"st-separacao",
-    "Separado":"st-separado",
-    "Pronto Expedição":"st-pronto",
-    "No Pátio":"st-patio",
-    "Em Doca":"st-doca",
-    "Em Carregamento":"st-carregando",
-    "Expedido":"st-expedido"
-  }[s] || "st-agendado";
-}
+    function num(v){
+      if(v === "" || v === null || v === undefined) return null;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
 
-function num(v){
-  if(v === "" || v === null || v === undefined) return null;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : null;
-}
+    function fmtDate(v){
+      if(!v) return "";
+      const d = new Date(v);
+      return isNaN(d) ? v : d.toLocaleDateString("pt-BR");
+    }
 
-function fmtDate(v){
-  if(!v) return "";
-  const d = new Date(v);
-  return isNaN(d) ? v : d.toLocaleDateString("pt-BR");
-}
+    function fmtDateTime(v){
+      if(!v) return "";
+      const d = new Date(v);
+      return isNaN(d) ? v : d.toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});
+    }
 
-function fmtDateTime(v){
-  if(!v) return "";
-  const d = new Date(v);
-  return isNaN(d) ? v : d.toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});
-}
+    function dataFiltrada(){
+      return document.getElementById("filtroData").value;
+    }
 
-function dataFiltrada(){
-  return document.getElementById("filtroData").value;
-}
+    function linhasFiltradas(){
+      const d = dataFiltrada();
+      return d ? registros.filter(r => r.data === d) : registros;
+    }
 
-function linhasFiltradas(){
-  const d = dataFiltrada();
-  return d ? registros.filter(r => r.data === d) : registros;
-}
+    function showToast(msg){
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.style.display = "block";
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        el.style.display = "none";
+      }, 2500);
+    }
 
-function showToast(msg){
-  const el = document.getElementById("toast");
-  el.textContent = msg;
-  el.style.display = "block";
-  clearTimeout(window.__toastTimer);
-  window.__toastTimer = setTimeout(() => {
-    el.style.display = "none";
-  }, 2500);
-}
+    function setView(view, btn){
+      document.getElementById("pageTitle").textContent = btn.textContent;
+      document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
 
-function setView(view, btn){
-  document.getElementById("pageTitle").textContent = btn.textContent;
-  document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
+      ["dashboard","agenda","separacao","expedicao","patio","docas","checkin","relatorios","admin"].forEach(v=>{
+        document.getElementById(`view-${v}`).classList.add("hidden");
+      });
 
-  ["dashboard","agenda","separacao","expedicao","patio","docas","checkin","relatorios","admin"].forEach(v=>{
-    document.getElementById(`view-${v}`).classList.add("hidden");
-  });
+      document.getElementById(`view-${view}`).classList.remove("hidden");
+    }
 
-  document.getElementById(`view-${view}`).classList.remove("hidden");
-}
-
-async function testarConexao(){
-  try{
-    const { error } = await sb.from("agendas").select("id").limit(1);
-    if(error) throw error;
-    document.getElementById("statusConexao").textContent = "Conectado ao Supabase.";
-    document.getElementById("statusConexao").style.color = "#22c55e";
-  }catch(e){
-    console.error(e);
-    document.getElementById("statusConexao").textContent = "Erro de conexão. Verifique URL, key e SQL.";
-    document.getElementById("statusConexao").style.color = "#ef4444";
-  }
-}
-
-async function carregarTudo(){
-  let query = sb.from("agendas").select("*").order("data",{ascending:true}).order("hora",{ascending:true});
-  const df = dataFiltrada();
-  if(df) query = query.eq("data", df);
-
-  const { data, error } = await query;
-  if(error){
-    console.error(error);
-    alert("Erro ao carregar dados.");
-    return;
-  }
-
-  registros = data || [];
-  renderTudo();
-}
-
-async function carregarTudoSilencioso(){
-  let query = sb.from("agendas").select("*").order("data",{ascending:true}).order("hora",{ascending:true});
-  const df = dataFiltrada();
-  if(df) query = query.eq("data", df);
-
-  const { data, error } = await query;
-  if(error){
-    console.error(error);
-    return;
-  }
-
-  registros = data || [];
-  renderTudo();
-}
-
-function renderTudo(){
-  renderDashboard();
-  renderAgenda();
-  renderSeparacao();
-  renderExpedicao();
-  renderPatio();
-  renderDocas();
-  renderCheckin();
-  renderRelatorios();
-  carregarSelectPatio();
-}
-
-async function iniciarRealtime(){
-  if(realtimeChannel){
-    await sb.removeChannel(realtimeChannel);
-  }
-
-  realtimeChannel = sb
-    .channel("realtime-agendas")
-    .on(
-      "postgres_changes",
-      {
-        event: "*",
-        schema: "public",
-        table: "agendas"
-      },
-      async (payload) => {
-        console.log("Realtime agendas:", payload);
-        const tipo = payload.eventType || "UPDATE";
-        if(tipo === "INSERT") showToast("Nova DT recebida em tempo real");
-        if(tipo === "UPDATE") showToast("DT atualizada em tempo real");
-        if(tipo === "DELETE") showToast("DT removida em tempo real");
-        await carregarTudoSilencioso();
+    async function testarConexao(){
+      try{
+        const { error } = await sb.from("agendas").select("id").limit(1);
+        if(error) throw error;
+        document.getElementById("statusConexao").textContent = "Conectado ao Supabase.";
+        document.getElementById("statusConexao").style.color = "#22c55e";
+      }catch(e){
+        console.error(e);
+        document.getElementById("statusConexao").textContent = "Erro de conexão. Verifique URL, key e SQL.";
+        document.getElementById("statusConexao").style.color = "#ef4444";
       }
-    )
-    .subscribe((status) => {
-      console.log("Status realtime:", status);
-      const el = document.getElementById("statusConexao");
-      if(status === "SUBSCRIBED"){
-        el.textContent = "Conectado ao Supabase • tempo real ativo";
-        el.style.color = "#22c55e";
+    }
+
+    async function login(){
+      const email = document.getElementById("loginEmail").value;
+      const senha = document.getElementById("loginSenha").value;
+      document.getElementById("loginErro").textContent = "";
+
+      const { data, error } = await sb.auth.signInWithPassword({
+        email,
+        password: senha
+      });
+
+      if(error){
+        document.getElementById("loginErro").textContent = "Email ou senha inválidos.";
+        return;
+      }
+
+      entrarSistema(data.user);
+      await carregarTudo();
+      await iniciarRealtime();
+    }
+
+    async function logout(){
+      await sb.auth.signOut();
+      bloquearSistema();
+    }
+
+    async function verificarSessao(){
+      const { data } = await sb.auth.getSession();
+      if(data.session){
+        entrarSistema(data.session.user);
+        return true;
+      }
+      bloquearSistema();
+      return false;
+    }
+
+    function entrarSistema(user){
+      document.getElementById("loginScreen").classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+      document.getElementById("userLabel").textContent = "Usuário logado";
+      document.getElementById("userEmail").textContent = user.email || "-";
+    }
+
+    function bloquearSistema(){
+      document.getElementById("app").classList.add("hidden");
+      document.getElementById("loginScreen").classList.remove("hidden");
+      document.getElementById("loginEmail").value = "";
+      document.getElementById("loginSenha").value = "";
+      document.getElementById("loginErro").textContent = "";
+    }
+
+    sb.auth.onAuthStateChange((event, session) => {
+      if(session){
+        entrarSistema(session.user);
+      } else {
+        bloquearSistema();
       }
     });
-}
 
-async function criarDT(){
-  const payload = {
-    dt: document.getElementById("a_dt").value || null,
-    ordem: document.getElementById("a_ordem").value || null,
-    remessa: document.getElementById("a_remessa").value || null,
-    data: document.getElementById("a_data").value || null,
-    hora: document.getElementById("a_hora").value || null,
-    transportadora: document.getElementById("a_transportadora").value || null,
-    cliente: document.getElementById("a_cliente").value || null,
-    tipo_carga: document.getElementById("a_tipo_carga").value || null,
-    tipo_veiculo: document.getElementById("a_tipo_veiculo").value || null,
-    tipo_frete: document.getElementById("a_tipo_frete").value || null,
-    perfil_carga: document.getElementById("a_perfil_carga").value || null,
-    doca_agenda: document.getElementById("a_doca_agenda").value || null,
-    peso: num(document.getElementById("a_peso").value),
-    cubagem: num(document.getElementById("a_cubagem").value),
-    he: num(document.getElementById("a_he").value),
-    ho: num(document.getElementById("a_ho").value),
-    total_caixas: num(document.getElementById("a_total_caixas").value),
-    observacao_geral: document.getElementById("a_observacao").value || null,
-    status_global: "Agendado"
-  };
+    async function carregarTudo(){
+      let query = sb.from("agendas").select("*").order("data",{ascending:true}).order("hora",{ascending:true});
+      const df = dataFiltrada();
+      if(df) query = query.eq("data", df);
 
-  if(!payload.dt){
-    alert("Preencha a DT.");
-    return;
-  }
+      const { data, error } = await query;
+      if(error){
+        console.error(error);
+        alert("Erro ao carregar dados.");
+        return;
+      }
 
-  const { error } = await sb.from("agendas").insert([payload]);
-  if(error){
-    console.error(error);
-    alert("Erro ao criar DT.");
-    return;
-  }
+      registros = data || [];
+      renderTudo();
+    }
 
-  document.querySelectorAll('#view-agenda input, #view-agenda textarea').forEach(el=>{
-    if(el.id !== "filtroData") el.value = "";
-  });
+    async function carregarTudoSilencioso(){
+      let query = sb.from("agendas").select("*").order("data",{ascending:true}).order("hora",{ascending:true});
+      const df = dataFiltrada();
+      if(df) query = query.eq("data", df);
 
-  await carregarTudo();
-}
+      const { data, error } = await query;
+      if(error){
+        console.error(error);
+        return;
+      }
 
-function renderDashboard(){
-  const rows = linhasFiltradas();
+      registros = data || [];
+      renderTudo();
+    }
 
-  document.getElementById("dashboardKpis").innerHTML = `
-    <div class="kpi"><div class="label">Agendadas</div><div class="value">${rows.filter(x=>x.status_global==="Agendado").length}</div><div class="sub">planejamento</div></div>
-    <div class="kpi"><div class="label">Em separação</div><div class="value">${rows.filter(x=>x.status_global==="Em Separação").length}</div><div class="sub">andamento</div></div>
-    <div class="kpi"><div class="label">Separadas</div><div class="value">${rows.filter(x=>x.status_global==="Separado").length}</div><div class="sub">prontas</div></div>
-    <div class="kpi"><div class="label">No pátio</div><div class="value">${rows.filter(x=>x.status_global==="No Pátio").length}</div><div class="sub">chegadas</div></div>
-    <div class="kpi"><div class="label">Em doca</div><div class="value">${rows.filter(x=>x.status_global==="Em Doca").length}</div><div class="sub">ocupação</div></div>
-    <div class="kpi"><div class="label">Carregando</div><div class="value">${rows.filter(x=>x.status_global==="Em Carregamento").length}</div><div class="sub">execução</div></div>
-    <div class="kpi"><div class="label">Expedidas</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div><div class="sub">concluídas</div></div>
-    <div class="kpi"><div class="label">Faturadas</div><div class="value">${rows.filter(x=>x.faturado===true).length}</div><div class="sub">documentos</div></div>
-  `;
+    function renderTudo(){
+      renderDashboard();
+      renderAgenda();
+      renderSeparacao();
+      renderExpedicao();
+      renderPatio();
+      renderDocas();
+      renderCheckin();
+      renderRelatorios();
+      carregarSelectPatio();
+    }
 
-  document.getElementById("dashboardBoard").innerHTML = STAGES.map(st => {
-    const itens = rows.filter(r => r.status_global === st);
-    return `
-      <div class="lane">
-        <div class="lane-head">
-          <h3>${st}</h3>
-          <span class="count">${itens.length}</span>
-        </div>
-        ${itens.map(r => `
-          <div class="item">
-            <strong>DT ${r.dt || "-"}</strong>
-            <div class="meta">${r.transportadora || "-"}<br>${r.cliente || "-"}</div>
+    async function iniciarRealtime(){
+      if(realtimeChannel){
+        await sb.removeChannel(realtimeChannel);
+      }
+
+      realtimeChannel = sb
+        .channel("realtime-agendas")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "agendas"
+          },
+          async (payload) => {
+            const tipo = payload.eventType || "UPDATE";
+            if(tipo === "INSERT") showToast("Nova DT recebida em tempo real");
+            if(tipo === "UPDATE") showToast("DT atualizada em tempo real");
+            if(tipo === "DELETE") showToast("DT removida em tempo real");
+            await carregarTudoSilencioso();
+          }
+        )
+        .subscribe((status) => {
+          const el = document.getElementById("statusConexao");
+          if(status === "SUBSCRIBED"){
+            el.textContent = "Conectado ao Supabase • tempo real ativo";
+            el.style.color = "#22c55e";
+          }
+        });
+    }
+
+    async function criarDT(){
+      const payload = {
+        dt: document.getElementById("a_dt").value || null,
+        ordem: document.getElementById("a_ordem").value || null,
+        remessa: document.getElementById("a_remessa").value || null,
+        data: document.getElementById("a_data").value || null,
+        hora: document.getElementById("a_hora").value || null,
+        transportadora: document.getElementById("a_transportadora").value || null,
+        cliente: document.getElementById("a_cliente").value || null,
+        tipo_carga: document.getElementById("a_tipo_carga").value || null,
+        tipo_veiculo: document.getElementById("a_tipo_veiculo").value || null,
+        tipo_frete: document.getElementById("a_tipo_frete").value || null,
+        perfil_carga: document.getElementById("a_perfil_carga").value || null,
+        doca_agenda: document.getElementById("a_doca_agenda").value || null,
+        peso: num(document.getElementById("a_peso").value),
+        cubagem: num(document.getElementById("a_cubagem").value),
+        he: num(document.getElementById("a_he").value),
+        ho: num(document.getElementById("a_ho").value),
+        total_caixas: num(document.getElementById("a_total_caixas").value),
+        observacao_geral: document.getElementById("a_observacao").value || null,
+        status_global: "Agendado"
+      };
+
+      if(!payload.dt){
+        alert("Preencha a DT.");
+        return;
+      }
+
+      const { error } = await sb.from("agendas").insert([payload]);
+      if(error){
+        console.error(error);
+        alert("Erro ao criar DT.");
+        return;
+      }
+
+      document.querySelectorAll('#view-agenda input, #view-agenda textarea').forEach(el=>{
+        if(el.id !== "filtroData") el.value = "";
+      });
+
+      await carregarTudo();
+    }
+
+    function renderDashboard(){
+      const rows = linhasFiltradas();
+
+      document.getElementById("dashboardKpis").innerHTML = `
+        <div class="kpi"><div class="label">Agendadas</div><div class="value">${rows.filter(x=>x.status_global==="Agendado").length}</div><div class="sub">planejamento</div></div>
+        <div class="kpi"><div class="label">Em separação</div><div class="value">${rows.filter(x=>x.status_global==="Em Separação").length}</div><div class="sub">andamento</div></div>
+        <div class="kpi"><div class="label">Separadas</div><div class="value">${rows.filter(x=>x.status_global==="Separado").length}</div><div class="sub">prontas</div></div>
+        <div class="kpi"><div class="label">No pátio</div><div class="value">${rows.filter(x=>x.status_global==="No Pátio").length}</div><div class="sub">chegadas</div></div>
+        <div class="kpi"><div class="label">Em doca</div><div class="value">${rows.filter(x=>x.status_global==="Em Doca").length}</div><div class="sub">ocupação</div></div>
+        <div class="kpi"><div class="label">Carregando</div><div class="value">${rows.filter(x=>x.status_global==="Em Carregamento").length}</div><div class="sub">execução</div></div>
+        <div class="kpi"><div class="label">Expedidas</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div><div class="sub">concluídas</div></div>
+        <div class="kpi"><div class="label">Faturadas</div><div class="value">${rows.filter(x=>x.faturado===true).length}</div><div class="sub">documentos</div></div>
+      `;
+
+      document.getElementById("dashboardBoard").innerHTML = STAGES.map(st => {
+        const itens = rows.filter(r => r.status_global === st);
+        return `
+          <div class="lane">
+            <div class="lane-head">
+              <h3>${st}</h3>
+              <span class="count">${itens.length}</span>
+            </div>
+            ${itens.map(r => `
+              <div class="item">
+                <strong>DT ${r.dt || "-"}</strong>
+                <div class="meta">${r.transportadora || "-"}<br>${r.cliente || "-"}</div>
+              </div>
+            `).join("") || `<div class="meta">Sem registros.</div>`}
           </div>
-        `).join("") || `<div class="meta">Sem registros.</div>`}
-      </div>
-    `;
-  }).join("");
-}
+        `;
+      }).join("");
+    }
 
-function renderAgenda(){
-  const rows = linhasFiltradas();
+    function renderAgenda(){
+      const rows = linhasFiltradas();
 
-  document.getElementById("agendaKpis").innerHTML = `
-    <div class="kpi"><div class="label">DTs do dia</div><div class="value">${rows.length}</div><div class="sub">cadastros filtrados</div></div>
-    <div class="kpi"><div class="label">Agendadas</div><div class="value">${rows.filter(x=>x.status_global==="Agendado").length}</div><div class="sub">planejamento</div></div>
-    <div class="kpi"><div class="label">Com doca</div><div class="value">${rows.filter(x=>x.doca_agenda).length}</div><div class="sub">pré-definidas</div></div>
-    <div class="kpi"><div class="label">Peso total</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0)}</div><div class="sub">kg planejados</div></div>
-  `;
+      document.getElementById("agendaKpis").innerHTML = `
+        <div class="kpi"><div class="label">DTs do dia</div><div class="value">${rows.length}</div><div class="sub">cadastros filtrados</div></div>
+        <div class="kpi"><div class="label">Agendadas</div><div class="value">${rows.filter(x=>x.status_global==="Agendado").length}</div><div class="sub">planejamento</div></div>
+        <div class="kpi"><div class="label">Com doca</div><div class="value">${rows.filter(x=>x.doca_agenda).length}</div><div class="sub">pré-definidas</div></div>
+        <div class="kpi"><div class="label">Peso total</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0)}</div><div class="sub">kg planejados</div></div>
+      `;
 
-  document.getElementById("agendaTabela").innerHTML = rows.map(r => `
-    <tr>
-      <td>${r.dt || ""}</td>
-      <td>${fmtDate(r.data)}</td>
-      <td>${r.hora || ""}</td>
-      <td>${r.cliente || ""}</td>
-      <td>${r.transportadora || ""}</td>
-      <td>${r.doca_agenda || ""}</td>
-      <td><span class="chip ${clsStatus(r.status_global)}">${r.status_global || ""}</span></td>
-      <td>
-        <div class="mini-actions">
-          <button class="mini orange" onclick="mudarStatus('${r.id}','Em Separação')">Separação</button>
-        </div>
-      </td>
-    </tr>
-  `).join("");
-}
+      document.getElementById("agendaTabela").innerHTML = rows.map(r => `
+        <tr>
+          <td>${r.dt || ""}</td>
+          <td>${fmtDate(r.data)}</td>
+          <td>${r.hora || ""}</td>
+          <td>${r.cliente || ""}</td>
+          <td>${r.transportadora || ""}</td>
+          <td>${r.doca_agenda || ""}</td>
+          <td><span class="chip ${clsStatus(r.status_global)}">${r.status_global || ""}</span></td>
+          <td>
+            <div class="mini-actions">
+              <button class="mini orange" onclick="mudarStatus('${r.id}','Em Separação')">Separação</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    }
 
-function renderSeparacao(){
-  const rows = linhasFiltradas().filter(r => ["Agendado","Em Separação","Separado"].includes(r.status_global));
-  document.getElementById("separacaoTabela").innerHTML = rows.map(r => `
-    <tr>
-      <td>${r.dt || ""}</td>
-      <td>${r.cliente || ""}</td>
-      <td>${r.transportadora || ""}</td>
-      <td>${r.doca_planejada || r.doca_agenda || ""}</td>
-      <td>${r.status_separacao || ""}</td>
-      <td>${r.conferente_recebimento || ""}</td>
-      <td>${r.turno_separacao || ""}</td>
-      <td>
-        <div class="mini-actions">
-          <button class="mini orange" onclick="mudarStatus('${r.id}','Em Separação')">Em separação</button>
-          <button class="mini green" onclick="mudarStatus('${r.id}','Separado')">Separado</button>
-        </div>
-      </td>
-    </tr>
-  `).join("");
-}
+    function renderSeparacao(){
+      const rows = linhasFiltradas().filter(r => ["Agendado","Em Separação","Separado"].includes(r.status_global));
+      document.getElementById("separacaoTabela").innerHTML = rows.map(r => `
+        <tr>
+          <td>${r.dt || ""}</td>
+          <td>${r.cliente || ""}</td>
+          <td>${r.transportadora || ""}</td>
+          <td>${r.doca_planejada || r.doca_agenda || ""}</td>
+          <td>${r.status_separacao || ""}</td>
+          <td>${r.conferente_recebimento || ""}</td>
+          <td>${r.turno_separacao || ""}</td>
+          <td>
+            <div class="mini-actions">
+              <button class="mini orange" onclick="mudarStatus('${r.id}','Em Separação')">Em separação</button>
+              <button class="mini green" onclick="mudarStatus('${r.id}','Separado')">Separado</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    }
 
-function renderExpedicao(){
-  const rows = linhasFiltradas().filter(r => ["Separado","Pronto Expedição","No Pátio"].includes(r.status_global));
-  document.getElementById("expedicaoTabela").innerHTML = rows.map(r => `
-    <tr>
-      <td>${r.dt || ""}</td>
-      <td>${r.cliente || ""}</td>
-      <td>${r.transportadora || ""}</td>
-      <td>${r.doca_agenda || ""}</td>
-      <td>${r.conferente_expedicao || ""}</td>
-      <td>${r.faturado === true ? "Sim" : r.faturado === false ? "Não" : ""}</td>
-      <td><span class="chip ${clsStatus(r.status_global)}">${r.status_global || ""}</span></td>
-      <td>
-        <div class="mini-actions">
-          <button class="mini orange" onclick="mudarStatus('${r.id}','Pronto Expedição')">Pronto</button>
-          <button class="mini green" onclick="mudarStatus('${r.id}','No Pátio')">Enviar pátio</button>
-        </div>
-      </td>
-    </tr>
-  `).join("");
-}
+    function renderExpedicao(){
+      const rows = linhasFiltradas().filter(r => ["Separado","Pronto Expedição","No Pátio"].includes(r.status_global));
+      document.getElementById("expedicaoTabela").innerHTML = rows.map(r => `
+        <tr>
+          <td>${r.dt || ""}</td>
+          <td>${r.cliente || ""}</td>
+          <td>${r.transportadora || ""}</td>
+          <td>${r.doca_agenda || ""}</td>
+          <td>${r.conferente_expedicao || ""}</td>
+          <td>${r.faturado === true ? "Sim" : r.faturado === false ? "Não" : ""}</td>
+          <td><span class="chip ${clsStatus(r.status_global)}">${r.status_global || ""}</span></td>
+          <td>
+            <div class="mini-actions">
+              <button class="mini orange" onclick="mudarStatus('${r.id}','Pronto Expedição')">Pronto</button>
+              <button class="mini green" onclick="mudarStatus('${r.id}','No Pátio')">Enviar pátio</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    }
 
-function renderPatio(){
-  const rows = linhasFiltradas().filter(r => ["No Pátio","Em Doca","Em Carregamento","Expedido"].includes(r.status_global));
-  const grupos = [
-    {nome:"No Pátio", valores:["No Pátio"]},
-    {nome:"Em Doca", valores:["Em Doca"]},
-    {nome:"Em Carregamento", valores:["Em Carregamento"]},
-    {nome:"Expedido", valores:["Expedido"]}
-  ];
+    function renderPatio(){
+      const rows = linhasFiltradas().filter(r => ["No Pátio","Em Doca","Em Carregamento","Expedido"].includes(r.status_global));
+      const grupos = [
+        {nome:"No Pátio", valores:["No Pátio"]},
+        {nome:"Em Doca", valores:["Em Doca"]},
+        {nome:"Em Carregamento", valores:["Em Carregamento"]},
+        {nome:"Expedido", valores:["Expedido"]}
+      ];
 
-  document.getElementById("patioBoard").innerHTML = grupos.map(g => {
-    const itens = rows.filter(r => g.valores.includes(r.status_global));
-    return `
-      <div class="lane">
-        <div class="lane-head">
-          <h3>${g.nome}</h3>
-          <span class="count">${itens.length}</span>
-        </div>
-        ${itens.map(r => `
-          <div class="item">
-            <strong>DT ${r.dt || "-"}</strong>
+      document.getElementById("patioBoard").innerHTML = grupos.map(g => {
+        const itens = rows.filter(r => g.valores.includes(r.status_global));
+        return `
+          <div class="lane">
+            <div class="lane-head">
+              <h3>${g.nome}</h3>
+              <span class="count">${itens.length}</span>
+            </div>
+            ${itens.map(r => `
+              <div class="item">
+                <strong>DT ${r.dt || "-"}</strong>
+                <div class="meta">
+                  ${r.transportadora || "-"}<br>
+                  Motorista: ${r.motorista || "-"}<br>
+                  Placa: ${r.placa_cavalo || "-"}<br>
+                  Doca: ${r.doca_carregamento || r.doca_agenda || "-"}
+                </div>
+              </div>
+            `).join("") || `<div class="meta">Sem registros.</div>`}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderDocas(){
+      const rows = linhasFiltradas();
+      const nomes = [...new Set(rows.map(r => r.doca_carregamento || r.doca_agenda).filter(Boolean))];
+
+      document.getElementById("docasGrid").innerHTML = nomes.map(nome => {
+        const atual = rows.find(r => (r.doca_carregamento || r.doca_agenda) === nome && ["Em Doca","Em Carregamento"].includes(r.status_global));
+        if(!atual){
+          return `
+            <div class="dock free">
+              <div class="dock-head">
+                <strong>${nome}</strong>
+                <span class="count">Livre</span>
+              </div>
+              <div class="meta">Sem veículo na doca.</div>
+            </div>
+          `;
+        }
+        return `
+          <div class="dock busy">
+            <div class="dock-head">
+              <strong>${nome}</strong>
+              <span class="count">${atual.status_global}</span>
+            </div>
             <div class="meta">
-              ${r.transportadora || "-"}<br>
-              Motorista: ${r.motorista || "-"}<br>
-              Placa: ${r.placa_cavalo || "-"}<br>
-              Doca: ${r.doca_carregamento || r.doca_agenda || "-"}
+              DT: ${atual.dt || "-"}<br>
+              Transportadora: ${atual.transportadora || "-"}<br>
+              Motorista: ${atual.motorista || "-"}<br>
+              Placa: ${atual.placa_cavalo || "-"}<br>
+              Início: ${fmtDateTime(atual.inicio_carregamento)}
             </div>
           </div>
-        `).join("") || `<div class="meta">Sem registros.</div>`}
-      </div>
-    `;
-  }).join("");
-}
+        `;
+      }).join("") || `<div class="meta">Nenhuma doca encontrada para o dia.</div>`;
+    }
 
-function renderDocas(){
-  const rows = linhasFiltradas();
-  const nomes = [...new Set(rows.map(r => r.doca_carregamento || r.doca_agenda).filter(Boolean))];
+    function renderCheckin(){
+      const rows = linhasFiltradas().filter(r => ["Pronto Expedição","No Pátio"].includes(r.status_global));
+      document.getElementById("c_dt").innerHTML = `<option value="">Selecione</option>` + rows.map(r => `<option value="${r.id}">${r.dt} - ${r.transportadora || ""}</option>`).join("");
+    }
 
-  document.getElementById("docasGrid").innerHTML = nomes.map(nome => {
-    const atual = rows.find(r => (r.doca_carregamento || r.doca_agenda) === nome && ["Em Doca","Em Carregamento"].includes(r.status_global));
-    if(!atual){
-      return `
-        <div class="dock free">
-          <div class="dock-head">
-            <strong>${nome}</strong>
-            <span class="count">Livre</span>
-          </div>
-          <div class="meta">Sem veículo na doca.</div>
-        </div>
+    function renderRelatorios(){
+      const rows = linhasFiltradas();
+      const emDoca = rows.filter(r => r.status_global === "Em Doca").length;
+      const carregando = rows.filter(r => r.status_global === "Em Carregamento").length;
+      const expedidos = rows.filter(r => r.status_global === "Expedido").length;
+      const presentes = rows.filter(r => r.presente_ausente === "Presente").length;
+
+      document.getElementById("relatoriosKpis").innerHTML = `
+        <div class="kpi"><div class="label">Presentes</div><div class="value">${presentes}</div><div class="sub">check-in</div></div>
+        <div class="kpi"><div class="label">Em doca</div><div class="value">${emDoca}</div><div class="sub">ocupação</div></div>
+        <div class="kpi"><div class="label">Carregando</div><div class="value">${carregando}</div><div class="sub">execução</div></div>
+        <div class="kpi"><div class="label">Expedidos</div><div class="value">${expedidos}</div><div class="sub">finalizados</div></div>
       `;
     }
-    return `
-      <div class="dock busy">
-        <div class="dock-head">
-          <strong>${nome}</strong>
-          <span class="count">${atual.status_global}</span>
-        </div>
-        <div class="meta">
-          DT: ${atual.dt || "-"}<br>
-          Transportadora: ${atual.transportadora || "-"}<br>
-          Motorista: ${atual.motorista || "-"}<br>
-          Placa: ${atual.placa_cavalo || "-"}<br>
-          Início: ${fmtDateTime(atual.inicio_carregamento)}
-        </div>
-      </div>
-    `;
-  }).join("") || `<div class="meta">Nenhuma doca encontrada para o dia.</div>`;
-}
 
-function renderCheckin(){
-  const rows = linhasFiltradas().filter(r => ["Pronto Expedição","No Pátio"].includes(r.status_global));
-  document.getElementById("c_dt").innerHTML = `<option value="">Selecione</option>` + rows.map(r => `<option value="${r.id}">${r.dt} - ${r.transportadora || ""}</option>`).join("");
-}
+    async function registrarCheckin(){
+      const id = document.getElementById("c_dt").value;
+      if(!id){
+        alert("Selecione a DT.");
+        return;
+      }
 
-function renderRelatorios(){
-  const rows = linhasFiltradas();
-  const emDoca = rows.filter(r => r.status_global === "Em Doca").length;
-  const carregando = rows.filter(r => r.status_global === "Em Carregamento").length;
-  const expedidos = rows.filter(r => r.status_global === "Expedido").length;
-  const presentes = rows.filter(r => r.presente_ausente === "Presente").length;
+      const payload = {
+        motorista: document.getElementById("c_motorista").value || null,
+        placa_cavalo: document.getElementById("c_placa_cavalo").value || null,
+        placa_carreta: document.getElementById("c_placa_carreta").value || null,
+        presente_ausente: document.getElementById("c_presenca").value || null,
+        observacao_geral: document.getElementById("c_obs").value || null,
+        chegada_motorista: new Date().toISOString(),
+        status_global: "No Pátio"
+      };
 
-  document.getElementById("relatoriosKpis").innerHTML = `
-    <div class="kpi"><div class="label">Presentes</div><div class="value">${presentes}</div><div class="sub">check-in</div></div>
-    <div class="kpi"><div class="label">Em doca</div><div class="value">${emDoca}</div><div class="sub">ocupação</div></div>
-    <div class="kpi"><div class="label">Carregando</div><div class="value">${carregando}</div><div class="sub">execução</div></div>
-    <div class="kpi"><div class="label">Expedidos</div><div class="value">${expedidos}</div><div class="sub">finalizados</div></div>
-  `;
-}
+      const { error } = await sb.from("agendas").update(payload).eq("id", id);
+      if(error){
+        console.error(error);
+        alert("Erro ao registrar check-in.");
+        return;
+      }
 
-async function registrarCheckin(){
-  const id = document.getElementById("c_dt").value;
-  if(!id){
-    alert("Selecione a DT.");
-    return;
-  }
+      await carregarTudo();
+    }
 
-  const payload = {
-    motorista: document.getElementById("c_motorista").value || null,
-    placa_cavalo: document.getElementById("c_placa_cavalo").value || null,
-    placa_carreta: document.getElementById("c_placa_carreta").value || null,
-    presente_ausente: document.getElementById("c_presenca").value || null,
-    observacao_geral: document.getElementById("c_obs").value || null,
-    chegada_motorista: new Date().toISOString(),
-    status_global: "No Pátio"
-  };
+    function carregarSelectPatio(){
+      const rows = linhasFiltradas().filter(r => ["Pronto Expedição","No Pátio","Em Doca","Em Carregamento"].includes(r.status_global));
+      document.getElementById("p_dt").innerHTML = `<option value="">Selecione</option>` + rows.map(r => `<option value="${r.id}">${r.dt} - ${r.transportadora || ""}</option>`).join("");
+    }
 
-  const { error } = await sb.from("agendas").update(payload).eq("id", id);
-  if(error){
-    console.error(error);
-    alert("Erro ao registrar check-in.");
-    return;
-  }
+    function preencherPatio(){
+      const id = document.getElementById("p_dt").value;
+      const r = registros.find(x => x.id === id);
+      document.getElementById("p_doca").value = r?.doca_carregamento || r?.doca_agenda || "";
+      document.getElementById("p_motorista").value = r?.motorista || "";
+      document.getElementById("p_placa_cavalo").value = r?.placa_cavalo || "";
+      document.getElementById("p_placa_carreta").value = r?.placa_carreta || "";
+      document.getElementById("p_presenca").value = r?.presente_ausente || "";
+    }
 
-  await carregarTudo();
-}
+    async function moverPatio(status){
+      const id = document.getElementById("p_dt").value;
+      if(!id){
+        alert("Selecione a DT.");
+        return;
+      }
 
-function carregarSelectPatio(){
-  const rows = linhasFiltradas().filter(r => ["Pronto Expedição","No Pátio","Em Doca","Em Carregamento"].includes(r.status_global));
-  document.getElementById("p_dt").innerHTML = `<option value="">Selecione</option>` + rows.map(r => `<option value="${r.id}">${r.dt} - ${r.transportadora || ""}</option>`).join("");
-}
+      const payload = {
+        status_global: status,
+        doca_carregamento: document.getElementById("p_doca").value || null,
+        motorista: document.getElementById("p_motorista").value || null,
+        placa_cavalo: document.getElementById("p_placa_cavalo").value || null,
+        placa_carreta: document.getElementById("p_placa_carreta").value || null,
+        presente_ausente: document.getElementById("p_presenca").value || null
+      };
 
-function preencherPatio(){
-  const id = document.getElementById("p_dt").value;
-  const r = registros.find(x => x.id === id);
-  document.getElementById("p_doca").value = r?.doca_carregamento || r?.doca_agenda || "";
-  document.getElementById("p_motorista").value = r?.motorista || "";
-  document.getElementById("p_placa_cavalo").value = r?.placa_cavalo || "";
-  document.getElementById("p_placa_carreta").value = r?.placa_carreta || "";
-  document.getElementById("p_presenca").value = r?.presente_ausente || "";
-}
+      if(status === "No Pátio") payload.chegada_motorista = new Date().toISOString();
+      if(status === "Em Doca") payload.data_em_doca = new Date().toISOString();
+      if(status === "Em Carregamento") payload.inicio_carregamento = new Date().toISOString();
+      if(status === "Expedido") payload.termino_carregamento = new Date().toISOString();
 
-async function moverPatio(status){
-  const id = document.getElementById("p_dt").value;
-  if(!id){
-    alert("Selecione a DT.");
-    return;
-  }
+      const { error } = await sb.from("agendas").update(payload).eq("id", id);
+      if(error){
+        console.error(error);
+        alert("Erro ao atualizar pátio.");
+        return;
+      }
 
-  const payload = {
-    status_global: status,
-    doca_carregamento: document.getElementById("p_doca").value || null,
-    motorista: document.getElementById("p_motorista").value || null,
-    placa_cavalo: document.getElementById("p_placa_cavalo").value || null,
-    placa_carreta: document.getElementById("p_placa_carreta").value || null,
-    presente_ausente: document.getElementById("p_presenca").value || null
-  };
+      await carregarTudo();
+    }
 
-  if(status === "No Pátio") payload.chegada_motorista = new Date().toISOString();
-  if(status === "Em Doca") payload.data_em_doca = new Date().toISOString();
-  if(status === "Em Carregamento") payload.inicio_carregamento = new Date().toISOString();
-  if(status === "Expedido") payload.termino_carregamento = new Date().toISOString();
+    async function mudarStatus(id, status){
+      const { error } = await sb.from("agendas").update({ status_global: status }).eq("id", id);
+      if(error){
+        console.error(error);
+        alert("Erro ao atualizar status.");
+        return;
+      }
+      await carregarTudo();
+    }
 
-  const { error } = await sb.from("agendas").update(payload).eq("id", id);
-  if(error){
-    console.error(error);
-    alert("Erro ao atualizar pátio.");
-    return;
-  }
+    (function iniciar(){
+      const hoje = new Date();
+      const p = n => String(n).padStart(2,"0");
+      document.getElementById("filtroData").value = `${hoje.getFullYear()}-${p(hoje.getMonth()+1)}-${p(hoje.getDate())}`;
+    })();
 
-  await carregarTudo();
-}
+    async function boot(){
+      await testarConexao();
+      const ok = await verificarSessao();
+      if(ok){
+        await carregarTudo();
+        await iniciarRealtime();
+      }
+    }
 
-async function mudarStatus(id, status){
-  const { error } = await sb.from("agendas").update({ status_global: status }).eq("id", id);
-  if(error){
-    console.error(error);
-    alert("Erro ao atualizar status.");
-    return;
-  }
-  await carregarTudo();
-}
-
-(function iniciar(){
-  const hoje = new Date();
-  const p = n => String(n).padStart(2,"0");
-  document.getElementById("filtroData").value = `${hoje.getFullYear()}-${p(hoje.getMonth()+1)}-${p(hoje.getDate())}`;
-})();
-
-testarConexao()
-  .then(carregarTudo)
-  .then(iniciarRealtime);
-</script>
+    boot();
+  </script>
 </body>
 </html>
