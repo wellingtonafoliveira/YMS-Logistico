@@ -1850,3 +1850,24 @@
   </script>
 </body>
 </html>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// CORREÇÃO LOGIN SUPABASE
+const SUPABASE_URL = "https://jwprwgptefhvqzdewnfr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ePs_koxCzHKOsejBKA3BGA_fj3ENPIp";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function carregarPerfil() {
+    const { data: authData } = await sb.auth.getUser();
+    const user = authData.user;
+
+    const { data } = await sb
+        .from("usuarios")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+    return data;
+}
+</script>
