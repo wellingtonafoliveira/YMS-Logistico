@@ -574,20 +574,21 @@
       </div>
 
       <div class="user-box">
-        <strong>Usuário logado</strong>
-        <span id="userEmail">-</span>
+        <strong id="userNome">Usuário logado</strong>
+        <span id="userEmail">-</span><br>
+        <span id="userPerfil">Perfil: -</span>
       </div>
 
       <div class="menu">
-        <button class="active" onclick="setView('dashboard', this)">Dashboard</button>
-        <button onclick="setView('agenda', this)">Agenda</button>
-        <button onclick="setView('separacao', this)">Separação</button>
-        <button onclick="setView('expedicao', this)">Expedição</button>
-        <button onclick="setView('patio', this)">Pátio</button>
-        <button onclick="setView('docas', this)">Docas</button>
-        <button onclick="setView('checkin', this)">Check-in</button>
-        <button onclick="setView('relatorios', this)">Relatórios</button>
-        <button onclick="setView('admin', this)">Admin</button>
+        <button id="menu-dashboard" class="active" onclick="setView('dashboard', this)">Dashboard</button>
+        <button id="menu-agenda" onclick="setView('agenda', this)">Agenda</button>
+        <button id="menu-separacao" onclick="setView('separacao', this)">Separação</button>
+        <button id="menu-expedicao" onclick="setView('expedicao', this)">Expedição</button>
+        <button id="menu-patio" onclick="setView('patio', this)">Pátio</button>
+        <button id="menu-docas" onclick="setView('docas', this)">Docas</button>
+        <button id="menu-checkin" onclick="setView('checkin', this)">Check-in</button>
+        <button id="menu-relatorios" onclick="setView('relatorios', this)">Relatórios</button>
+        <button id="menu-admin" onclick="setView('admin', this)">Admin</button>
       </div>
 
       <div class="sidebar-note">
@@ -620,6 +621,20 @@
 
       <section id="view-dashboard">
         <div class="grid grid-4" id="dashboardKpis"></div>
+        <div class="grid grid-3" style="margin-top:16px">
+          <div class="card">
+            <h2>Resultados gerais</h2>
+            <div id="dashboardResultadosGerais" class="grid grid-3"></div>
+          </div>
+          <div class="card">
+            <h2>Resultados separação</h2>
+            <div id="dashboardResultadosSeparacao" class="grid grid-3"></div>
+          </div>
+          <div class="card">
+            <h2>Resultados expedição</h2>
+            <div id="dashboardResultadosExpedicao" class="grid grid-3"></div>
+          </div>
+        </div>
         <div class="card" style="margin-top:16px">
           <h2>Torre de etapas</h2>
           <div class="board" id="dashboardBoard"></div>
@@ -1098,9 +1113,8 @@
     async function entrarSistema(user){
       document.getElementById("loginScreen").classList.add("hidden");
       document.getElementById("app").classList.remove("hidden");
-      document.getElementById("userEmail").textContent = user.email || "-";
 
-      await carregarPerfil(user.email);
+      await carregarPerfil(user.email, user.id);
       await carregarCadastros();
       await carregarTudo();
       await iniciarRealtime();
@@ -1118,10 +1132,53 @@
       if(!session) bloquearSistema();
     });
 
-    async function carregarPerfil(email){
-      const { data } = await sb.from("usuarios").select("perfil").eq("email", email).single();
-      usuarioPerfil = data?.perfil || null;
+    async function carregarPerfil(email, userId){
+      const { data, error } = await sb
+        .from("usuarios")
+        .select("id,nome,email,perfil")
+        .or(`email.eq.${email},id.eq.${userId}`)
+        .limit(1)
+        .maybeSingle();
+
+      if(error){
+        console.error(error);
+        throw new Error("Erro ao validar usuário.");
+      }
+
+      if(!data){
+        await sb.auth.signOut();
+        bloquearSistema();
+        document.getElementById("loginErro").textContent = "Usuário sem perfil cadastrado na tabela usuarios.";
+        throw new Error("Usuário sem perfil cadastrado.");
+      }
+
+      usuarioPerfil = data.perfil || null;
+      document.getElementById("userNome").textContent = data.nome || "Usuário logado";
+      document.getElementById("userEmail").textContent = data.email || email || "-";
+      document.getElementById("userPerfil").textContent = `Perfil: ${usuarioPerfil || "-"}`;
       document.getElementById("areaAdmin").style.display = usuarioPerfil === "admin" ? "block" : "none";
+
+      aplicarPermissoes();
+    }
+
+    function aplicarPermissoes(){
+      const ocultar = (id, hidden) => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = hidden ? "none" : "";
+      };
+
+      // padrão
+      ocultar("menu-admin", usuarioPerfil !== "admin");
+
+      // perfis específicos
+      if(usuarioPerfil === "portaria"){
+        ["menu-agenda","menu-separacao","menu-expedicao"].forEach(id => ocultar(id, true));
+        ["menu-dashboard","menu-patio","menu-docas","menu-checkin","menu-relatorios"].forEach(id => ocultar(id, false));
+      } else if(usuarioPerfil === "conferente"){
+        ocultar("menu-admin", true);
+      } else if(usuarioPerfil === "operacao" || usuarioPerfil === "assistente"){
+        ocultar("menu-admin", true);
+      }
     }
 
     async function carregarCadastros(){
@@ -1219,6 +1276,11 @@
     }
 
     async function criarDT(){
+      if(usuarioPerfil === "portaria"){
+        alert("Seu perfil não pode criar DTs.");
+        return;
+      }
+
       const payload = {
         dt: document.getElementById("a_dt").value || null,
         ordem: document.getElementById("a_ordem").value || null,
@@ -1271,6 +1333,24 @@
         <div class="kpi"><div class="label">Carregando</div><div class="value">${rows.filter(x=>x.status_global==="Em Carregamento").length}</div><div class="sub">execução</div></div>
         <div class="kpi"><div class="label">Expedidas</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div><div class="sub">concluídas</div></div>
         <div class="kpi"><div class="label">Atrasadas</div><div class="value">${rows.filter(x=>calcSla(x).label==="Atrasado").length}</div><div class="sub">SLA</div></div>
+      `;
+
+      document.getElementById("dashboardResultadosGerais").innerHTML = `
+        <div class="kpi"><div class="label">DTs no dia</div><div class="value">${rows.length}</div><div class="sub">total filtrado</div></div>
+        <div class="kpi"><div class="label">Peso total</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0)}</div><div class="sub">kg</div></div>
+        <div class="kpi"><div class="label">Caixas totais</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.total_caixas)||0),0)}</div><div class="sub">volumes</div></div>
+      `;
+
+      document.getElementById("dashboardResultadosSeparacao").innerHTML = `
+        <div class="kpi"><div class="label">Em separação</div><div class="value">${rows.filter(x=>x.status_global==="Em Separação").length}</div><div class="sub">andamento</div></div>
+        <div class="kpi"><div class="label">Separadas</div><div class="value">${rows.filter(x=>x.status_global==="Separado").length}</div><div class="sub">concluídas</div></div>
+        <div class="kpi"><div class="label">Recebimento pendente</div><div class="value">${rows.filter(x=>!x.status_recebimento || x.status_recebimento==="PENDENTE").length}</div><div class="sub">atenção</div></div>
+      `;
+
+      document.getElementById("dashboardResultadosExpedicao").innerHTML = `
+        <div class="kpi"><div class="label">Pronto expedição</div><div class="value">${rows.filter(x=>x.status_global==="Pronto Expedição").length}</div><div class="sub">fila</div></div>
+        <div class="kpi"><div class="label">Em carregamento</div><div class="value">${rows.filter(x=>x.status_global==="Em Carregamento").length}</div><div class="sub">docas ativas</div></div>
+        <div class="kpi"><div class="label">Expedidas</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div><div class="sub">encerradas</div></div>
       `;
 
       document.getElementById("dashboardBoard").innerHTML = STAGES.map(st => {
@@ -1685,6 +1765,10 @@
 
     async function salvarDTModal(){
       if(!dtAtual) return;
+      if(usuarioPerfil === "portaria"){
+        alert("Seu perfil não pode editar DTs.");
+        return;
+      }
 
       const payload = {
         ordem: document.getElementById("m_ordem").value || null,
