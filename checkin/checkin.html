@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Check-in Motorista | Gestão Logística Plus</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body {
+  margin:0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#0f172a,#020617);
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.container {
+  background:#1e293b;
+  padding:30px;
+  border-radius:14px;
+  width:360px;
+}
+
+input, select {
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border-radius:6px;
+  border:none;
+}
+
+button {
+  width:100%;
+  padding:14px;
+  background:#22c55e;
+  border:none;
+  border-radius:6px;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.msg { text-align:center; margin-top:10px; }
+.erro { color:#ef4444; }
+.sucesso { color:#22c55e; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Check-in Motorista</h2>
+
+<input id="nome" placeholder="Nome do motorista">
+<input id="telefone" placeholder="Telefone (WhatsApp)">
+
+<select id="tipoVeiculo" onchange="alterarCampos()">
+  <option value="">Tipo de veículo</option>
+  <option value="unico">Placa única</option>
+  <option value="cavalo">Cavalo + carreta</option>
+  <option value="bitrem">Bitrem</option>
+</select>
+
+<div id="placas"></div>
+
+<input id="transportadora" placeholder="Transportadora">
+<input id="dt" placeholder="Número da DT (CARRO)">
+
+<button onclick="checkin()">Entrar na fila</button>
+
+<div id="msg" class="msg"></div>
+
+</div>
+
+<script>
+const sb = supabase.createClient(
+"https://jwprwgptefhvqzdewnfr.supabase.co",
+"sb_publishable_ePs_koxCzHKOsejBKA3BGA_fj3ENPIp"
+);
+
+function alterarCampos(){
+  const tipo = document.getElementById("tipoVeiculo").value;
+  const div = document.getElementById("placas");
+
+  if(tipo === "unico"){
+    div.innerHTML = '<input id="placa1" placeholder="Placa do veículo">';
+  }
+  if(tipo === "cavalo"){
+    div.innerHTML = `
+      <input id="placa1" placeholder="Placa do cavalo">
+      <input id="placa2" placeholder="Placa da carreta">
+    `;
+  }
+  if(tipo === "bitrem"){
+    div.innerHTML = `
+      <input id="placa1" placeholder="Placa do cavalo">
+      <input id="placa2" placeholder="Carreta 1">
+      <input id="placa3" placeholder="Carreta 2">
+    `;
+  }
+}
+
+async function checkin(){
+
+  const nome = document.getElementById("nome").value.trim();
+  const telefone = document.getElementById("telefone").value.trim();
+  const tipo = document.getElementById("tipoVeiculo").value;
+  const placa1 = document.getElementById("placa1")?.value?.trim().toUpperCase();
+  const placa2 = document.getElementById("placa2")?.value?.trim().toUpperCase();
+  const placa3 = document.getElementById("placa3")?.value?.trim().toUpperCase();
+  const transportadora = document.getElementById("transportadora").value.trim();
+  const dt = document.getElementById("dt").value.trim();
+
+  const msg = document.getElementById("msg");
+
+  if(!nome || !placa1){
+    msg.className="msg erro";
+    msg.innerText="Preencha nome e placa";
+    return;
+  }
+
+  // 🔒 Validação de duplicidade usando horário do banco
+  const hoje = new Date().toISOString().split("T")[0];
+
+  const { data } = await sb
+    .from("fila_patios")
+    .select("*")
+    .eq("placa_cavalo", placa1)
+    .gte("data_chegada", hoje)
+    .lte("data_chegada", hoje + "T23:59:59");
+
+  if(data && data.length > 0){
+    msg.className="msg erro";
+    msg.innerText="Este veículo já realizou check-in hoje.";
+    return;
+  }
+
+  // ✅ INSERE SEM data_chegada (usa horário real do banco)
+  const { error } = await sb.from("fila_patios").insert([{
+    nome_motorista: nome,
+    telefone: telefone,
+    tipo_veiculo: tipo,
+    placa_cavalo: placa1,
+    placa_carreta1: placa2,
+    placa_carreta2: placa3,
+    transportadora: transportadora,
+    dt: dt,
+    status: "aguardando_patio"
+  }]);
+
+  if(error){
+    msg.className="msg erro";
+    msg.innerText="Erro ao registrar";
+    console.log(error);
+    return;
+  }
+
+  msg.className="msg sucesso";
+  msg.innerText="Check-in realizado com sucesso!";
+
+  document.querySelectorAll("input").forEach(i=>i.value="");
+  document.getElementById("tipoVeiculo").value="";
+  document.getElementById("placas").innerHTML="";
+}
+</script>
+
+</body>
+</html>
