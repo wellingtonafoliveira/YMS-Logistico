@@ -55,31 +55,35 @@ function renderApp() {
 
       <aside class="sidebar">
         <div class="brand">
-          <h2>🚛 YMS</h2>
-          <span>Sistema Logístico</span>
+          <h2>YMS</h2>
+          <span>Gestão Logística</span>
         </div>
 
-        <nav class="menu">
-          <button onclick="window.loadPage('dashboard')">📊 Dashboard</button>
-          <button onclick="window.loadPage('agenda')">📅 Agenda</button>
-          <button onclick="window.loadPage('separacao')">📦 Separação</button>
-          <button onclick="window.loadPage('expedicao')">🚚 Expedição</button>
-          <button onclick="window.loadPage('patio')">🏢 Pátio</button>
-          <button onclick="window.loadPage('docas')">🚪 Docas</button>
-          <button onclick="window.loadPage('checkin')">📝 Check-in</button>
-          <button onclick="window.loadPage('relatorios')">📈 Relatórios</button>
-          <button onclick="window.loadPage('admin')">⚙️ Admin</button>
-        </nav>
+        <div class="menu">
+          <button onclick="loadPage('dashboard')">Dashboard</button>
+          <button onclick="loadPage('agenda')">Agenda</button>
+          <button onclick="loadPage('separacao')">Separação</button>
+          <button onclick="loadPage('expedicao')">Expedição</button>
+          <button onclick="loadPage('patio')">Pátio</button>
+          <button onclick="loadPage('docas')">Docas</button>
+          <button onclick="loadPage('checkin')">Check-in</button>
+          <button onclick="loadPage('relatorios')">Relatórios</button>
+          <button onclick="loadPage('admin')">Admin</button>
+        </div>
       </aside>
 
       <main class="main">
+
         <div class="topbar">
-          <h1 id="pageTitle">Dashboard</h1>
+          <div>
+            <h1 id="pageTitle">Dashboard</h1>
+            <p>Controle operacional em tempo real</p>
+          </div>
         </div>
 
         <div id="content"></div>
-      </main>
 
+      </main>
     </div>
   `;
 
@@ -103,5 +107,5 @@ function renderApp() {
     map[page]();
   };
 
-  window.loadPage("dashboard");
+  loadPage("dashboard");
 }
