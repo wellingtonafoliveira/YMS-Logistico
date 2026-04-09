@@ -52,40 +52,56 @@ function renderLogin() {
 function renderApp() {
   document.getElementById("app").innerHTML = `
     <div class="app">
-      <aside class="sidebar">
-        <h2>YMS</h2>
 
-        <div class="menu">
-          <button id="btnDashboard">Dashboard</button>
-          <button id="btnAgenda">Agenda</button>
-          <button id="btnSeparacao">Separação</button>
-          <button id="btnExpedicao">Expedição</button>
-          <button id="btnPatio">Pátio</button>
-          <button id="btnDocas">Docas</button>
-          <button id="btnCheckin">Check-in</button>
-          <button id="btnRelatorios">Relatórios</button>
-          <button id="btnAdmin">Admin</button>
+      <aside class="sidebar">
+        <div class="brand">
+          <h2>🚛 YMS</h2>
+          <span>Sistema Logístico</span>
         </div>
+
+        <nav class="menu">
+          <button onclick="window.loadPage('dashboard')">📊 Dashboard</button>
+          <button onclick="window.loadPage('agenda')">📅 Agenda</button>
+          <button onclick="window.loadPage('separacao')">📦 Separação</button>
+          <button onclick="window.loadPage('expedicao')">🚚 Expedição</button>
+          <button onclick="window.loadPage('patio')">🏢 Pátio</button>
+          <button onclick="window.loadPage('docas')">🚪 Docas</button>
+          <button onclick="window.loadPage('checkin')">📝 Check-in</button>
+          <button onclick="window.loadPage('relatorios')">📈 Relatórios</button>
+          <button onclick="window.loadPage('admin')">⚙️ Admin</button>
+        </nav>
       </aside>
 
       <main class="main">
+        <div class="topbar">
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+
         <div id="content"></div>
       </main>
+
     </div>
   `;
 
-  // navegação
-  document.getElementById("btnDashboard").onclick = renderDashboard;
-  document.getElementById("btnAgenda").onclick = renderAgenda;
-  document.getElementById("btnSeparacao").onclick = renderSeparacao;
-  document.getElementById("btnExpedicao").onclick = renderExpedicao;
-  document.getElementById("btnPatio").onclick = renderPatio;
-  document.getElementById("btnDocas").onclick = renderDocas;
-  document.getElementById("btnCheckin").onclick = renderCheckin;
-  document.getElementById("btnRelatorios").onclick = renderRelatorios;
-  document.getElementById("btnAdmin").onclick = renderAdmin;
+  // controle de páginas
+  window.loadPage = (page) => {
+    const map = {
+      dashboard: renderDashboard,
+      agenda: renderAgenda,
+      separacao: renderSeparacao,
+      expedicao: renderExpedicao,
+      patio: renderPatio,
+      docas: renderDocas,
+      checkin: renderCheckin,
+      relatorios: renderRelatorios,
+      admin: renderAdmin
+    };
 
-  renderDashboard(); // inicial
+    document.getElementById("pageTitle").textContent =
+      page.charAt(0).toUpperCase() + page.slice(1);
+
+    map[page]();
+  };
+
+  window.loadPage("dashboard");
 }
-
-init();
