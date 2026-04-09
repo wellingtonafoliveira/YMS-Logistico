@@ -1,23 +1,24 @@
-import { sb } from "../supabase.js";
-
 export async function renderDashboard() {
-  const { data } = await sb.from("agendas").select("*");
-
-  const total = data.length;
-  const expedidos = data.filter(x => x.status_global === "Expedido").length;
-
   document.getElementById("content").innerHTML = `
-    <h1>Dashboard</h1>
-
-    <div class="grid grid-2">
-      <div class="card">
-        <h3>Total de DTs</h3>
-        <div>${total}</div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <h3>Total DTs</h3>
+        <div class="value">120</div>
       </div>
 
-      <div class="card">
+      <div class="kpi-card">
+        <h3>Em Separação</h3>
+        <div class="value">30</div>
+      </div>
+
+      <div class="kpi-card">
+        <h3>No Pátio</h3>
+        <div class="value">15</div>
+      </div>
+
+      <div class="kpi-card">
         <h3>Expedidos</h3>
-        <div>${expedidos}</div>
+        <div class="value">75</div>
       </div>
     </div>
   `;
