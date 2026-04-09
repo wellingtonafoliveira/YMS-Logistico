@@ -1,7 +1,7 @@
 import { login, getSession } from "./auth.js";
 
 import { renderDashboard } from "./modules/dashboard.js";
-import { renderAgenda } from "./modules/agendas.js";
+import { renderAgenda } from "./modules/agenda.js";
 import { renderSeparacao } from "./modules/separacao.js";
 import { renderExpedicao } from "./modules/expedicao.js";
 import { renderPatio } from "./modules/patio.js";
