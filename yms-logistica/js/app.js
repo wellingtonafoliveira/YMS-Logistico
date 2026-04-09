@@ -1,15 +1,22 @@
-import { getSession, login } from "./auth.js";
+import { getSession } from "./auth.js";
 import { renderDashboard } from "./modules/dashboard.js";
 
 async function init() {
-  const session = await getSession();
+  try {
+    const session = await getSession();
 
-  if (!session) {
-    renderLogin();
-    return;
+    if (!session) {
+      renderLogin();
+      return;
+    }
+
+    renderApp();
+
+  } catch (e) {
+    console.error("Erro:", e);
+    document.getElementById("app").innerHTML =
+      "<h2>Erro ao iniciar sistema</h2>";
   }
-
-  renderApp();
 }
 
 function renderLogin() {
@@ -17,25 +24,12 @@ function renderLogin() {
     <div class="login-screen">
       <div class="login-box">
         <h2>Login</h2>
-        <input id="email" placeholder="Email">
-        <input id="senha" type="password" placeholder="Senha">
-        <button id="btnLogin">Entrar</button>
-        <div id="erro"></div>
+        <input placeholder="Email">
+        <input placeholder="Senha">
+        <button>Entrar</button>
       </div>
     </div>
   `;
-
-  document.getElementById("btnLogin").onclick = async () => {
-    const email = document.getElementById("email").value;
-    const senha = document.getElementById("senha").value;
-
-    try {
-      await login(email, senha);
-      location.reload();
-    } catch (e) {
-      document.getElementById("erro").textContent = e.message;
-    }
-  };
 }
 
 function renderApp() {
@@ -43,8 +37,6 @@ function renderApp() {
     <div class="app">
       <aside class="sidebar">
         <h2>YMS</h2>
-        <button id="btnDashboard">Dashboard</button>
-        <button id="btnAgenda">Agenda</button>
       </aside>
 
       <main class="main">
@@ -53,10 +45,6 @@ function renderApp() {
     </div>
   `;
 
-  // navegação
-  document.getElementById("btnDashboard").onclick = () => renderDashboard();
-
-  // inicia dashboard
   renderDashboard();
 }
 
