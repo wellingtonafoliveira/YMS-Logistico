@@ -98,7 +98,7 @@ button:hover{
 <script>
 
 const SUPABASE_URL = "https://jwprwgptefhvqzdewnfr.supabase.co";
-const SUPABASE_KEY = "sb_publishable_ePs_koxCzHKOsejBKA3BGA_fj3ENPIp";
+const SUPABASE_KEY = "SUA_KEY_AQUI";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -134,32 +134,49 @@ async function fazerCheckin(){
     return;
   }
 
+  // 🔥 CAPTURA PLACAS
   const placas = [];
   document.querySelectorAll("#placas input").forEach(i=>{
     if(i.value) placas.push(i.value.toUpperCase());
   });
 
-  const agora = new Date();
+  if(placas.length === 0){
+    mostrarErro("Informe pelo menos uma placa");
+    return;
+  }
 
+  // 🔥 VERIFICA SE DT EXISTE
+  const { data: existe, error: erroBusca } = await sb
+    .from("agendas")
+    .select("dt")
+    .eq("dt", dt)
+    .single();
+
+  if(erroBusca || !existe){
+    mostrarErro("DT não encontrada no sistema");
+    return;
+  }
+
+  // 🔥 ATUALIZA AGENDA
   const { error } = await sb
     .from("agendas")
     .update({
-      motorista_nome: motorista,
+      motorista: motorista,
       transportadora: transportadora,
       tipo_veiculo: tipo,
       placas: placas,
-      chegada_motorista: agora.toISOString(),
+      chegada_motorista: new Date().toISOString(),
       status_global: "No Pátio"
     })
     .eq("dt", dt);
 
   if(error){
-    console.error(error);
-    mostrarErro("Erro ao registrar check-in");
+    console.error("ERRO:", error);
+    mostrarErro(error.message);
     return;
   }
 
-  mostrarSucesso("Check-in realizado com sucesso");
+  mostrarSucesso("Check-in realizado com sucesso 🚛");
   limparCampos();
 }
 
