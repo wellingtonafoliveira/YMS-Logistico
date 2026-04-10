@@ -1634,61 +1634,109 @@
       await carregarTudo();
     }
 
-    async function importarExcel(){
-      if(usuarioPerfil !== "admin"){
-        alert("Acesso negado");
-        return;
-      }
+    sync function importarExcel(){
+  if(usuarioPerfil !== "admin"){
+    alert("Acesso negado");
+    return;
+  }
 
-      const file = document.getElementById("fileInput").files[0];
-      if(!file){
-        alert("Selecione um arquivo");
-        return;
-      }
+  const file = document.getElementById("fileInput").files[0];
+  if(!file){
+    alert("Selecione um arquivo");
+    return;
+  }
 
-      const reader = new FileReader();
-      reader.onload = async function(e){
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, {type:'array'});
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet);
+  const reader = new FileReader();
 
-        let count = 0;
-        for(const row of json){
-          const registro = {
-            dt: String(row["DT"] || row["dt"] || "").trim(),
-            ordem: row["Ordem"] || row["ordem"] || null,
-            remessa: row["Remessa"] || row["remessa"] || null,
-            cliente: row["Cliente"] || row["cliente"] || null,
-            transportadora: row["Transportadora"] || row["transportadora"] || null,
-            data_agenda: row["Data"] || row["data_agenda"] || null,
-            hora_agenda: row["Hora"] || row["hora_agenda"] || null,
-            tipo_carga: row["Tipo de carga"] || row["tipo_carga"] || null,
-            tipo_veiculo: row["Tipo de veículo"] || row["tipo_veiculo"] || null,
-            tipo_frete: row["Tipo de frete"] || row["tipo_frete"] || null,
-            perfil_carga: row["Perfil de carregamento"] || row["perfil_carga"] || null,
-            total_caixas: num(row["Total caixas"] || row["total_caixas"]),
-            he: num(row["HE"]),
-            ho: num(row["HO"]),
-            cubagem: num(row["Cubagem"] || row["metragem_cubica"]),
-            tonelagem: num(row["Tonelagem"] || row["tonelagem"]),
-            peso: num(row["Peso"] || row["peso"]),
-            status_global: "Agendado"
-          };
+  reader.onload = async function(e){
 
-          if(!registro.dt) continue;
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, {type:'array'});
 
-          const { error } = await sb.from("agendas").upsert(registro, { onConflict:"dt" });
-          if(!error) count++;
-        }
+    let registrosImportacao = [];
 
-        document.getElementById("statusUpload").innerText = `Importado: ${count} registros`;
-        await carregarTudo();
-      };
+    // 🔥 LÊ TODAS AS ABAS
+    workbook.SheetNames.forEach(nomeAba => {
 
-      reader.readAsArrayBuffer(file);
+      const sheet = workbook.Sheets[nomeAba];
+      const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+      json.forEach(row => {
+
+        const dt = String(row["DT"] || row["dt"] || "").trim();
+        if(!dt) return;
+
+        registrosImportacao.push({
+          dt: dt,
+          ordem: row["Ordem"] || null,
+          remessa: row["Remessa"] || null,
+          cliente: row["Cliente"] || null,
+          transportadora: row["Transportadora"] || null,
+
+          data_agenda: normalizarData(row["Data"]),
+          hora_agenda: normalizarHora(row["Hora"]),
+
+          tipo_carga: row["Tipo de carga"] || null,
+          tipo_veiculo: row["Tipo de veículo"] || null,
+          tipo_frete: row["Tipo de frete"] || null,
+          perfil_carga: row["Perfil de carregamento"] || null,
+
+          total_caixas: num(row["Total caixas"]),
+          he: num(row["HE"]),
+          ho: num(row["HO"]),
+          cubagem: num(row["Cubagem"]),
+          tonelagem: num(row["Tonelagem"]),
+          peso: num(row["Peso"]),
+
+          status_global: "Agendado"
+        });
+
+      });
+
+    });
+
+    // 🔥 INSERE TUDO DE UMA VEZ
+    const { error } = await sb
+      .from("agendas")
+      .upsert(registrosImportacao, { onConflict: "dt" });
+
+    if(error){
+      alert(error.message);
+      return;
     }
 
+    document.getElementById("statusUpload").innerText =
+      "Importado: " + registrosImportacao.length + " registros";
+
+    await carregarTudo();
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+    function normalizarData(valor){
+  if(!valor) return null;
+
+  if(typeof valor === "number"){
+    const base = new Date(1899,11,30);
+    const data = new Date(base.getTime() + valor * 86400000);
+    return data.toISOString().split("T")[0];
+  }
+
+  return valor;
+}
+
+function normalizarHora(valor){
+  if(!valor) return null;
+
+  if(typeof valor === "number"){
+    const total = Math.round(valor * 86400);
+    const h = String(Math.floor(total / 3600)).padStart(2,"0");
+    const m = String(Math.floor((total % 3600)/60)).padStart(2,"0");
+    return h + ":" + m + ":00";
+  }
+
+  return valor;
+}
     function abrirDTPorId(id){
       const item = registros.find(r => r.id === id);
       if(item) abrirDTCompleta(item);
