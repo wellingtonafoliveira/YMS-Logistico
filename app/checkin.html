@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Check-in Motorista</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b1220;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.container{
+  background:#111827;
+  padding:25px;
+  border-radius:12px;
+  width:400px;
+}
+
+h2{
+  text-align:center;
+  margin-bottom:15px;
+}
+
+input, select{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  background:#1f2937;
+  border:none;
+  color:#fff;
+  border-radius:6px;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  background:#22c55e;
+  border:none;
+  color:#fff;
+  cursor:pointer;
+  margin-top:10px;
+  border-radius:6px;
+  font-weight:bold;
+}
+
+button:hover{
+  opacity:0.9;
+}
+
+.success{
+  text-align:center;
+  margin-top:10px;
+  color:#22c55e;
+}
+
+.error{
+  text-align:center;
+  margin-top:10px;
+  color:#ef4444;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Check-in Motorista</h2>
+
+  <input id="dt" placeholder="Número do Transporte (DT)">
+  <input id="motorista" placeholder="Nome do Motorista">
+  <input id="transportadora" placeholder="Transportadora">
+
+  <select id="tipoVeiculo" onchange="alterarTipo()">
+    <option value="">Tipo de Veículo</option>
+    <option value="simples">Caminhão Simples (1 placa)</option>
+    <option value="carreta">Carreta (2 placas)</option>
+    <option value="bitrem">Bitrem (3 placas)</option>
+    <option value="rodotrem">Rodotrem (4 placas)</option>
+  </select>
+
+  <div id="placas"></div>
+
+  <button onclick="fazerCheckin()">Realizar Check-in</button>
+
+  <div id="msg"></div>
+</div>
+
+<script>
+
+const SUPABASE_URL = "https://jwprwgptefhvqzdewnfr.supabase.co";
+const SUPABASE_KEY = "SUA_KEY_AQUI";
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function alterarTipo(){
+  const tipo = document.getElementById("tipoVeiculo").value;
+  const div = document.getElementById("placas");
+
+  let quantidade = 0;
+
+  if(tipo === "simples") quantidade = 1;
+  if(tipo === "carreta") quantidade = 2;
+  if(tipo === "bitrem") quantidade = 3;
+  if(tipo === "rodotrem") quantidade = 4;
+
+  let html = "";
+
+  for(let i=1;i<=quantidade;i++){
+    html += `<input id="placa${i}" placeholder="Placa ${i}">`;
+  }
+
+  div.innerHTML = html;
+}
+
+async function fazerCheckin(){
+
+  const dt = document.getElementById("dt").value.trim();
+  const motorista = document.getElementById("motorista").value.trim();
+  const transportadora = document.getElementById("transportadora").value.trim();
+  const tipo = document.getElementById("tipoVeiculo").value;
+
+  if(!dt || !motorista || !tipo){
+    mostrarErro("Preencha os campos obrigatórios");
+    return;
+  }
+
+  const placas = [];
+  document.querySelectorAll("#placas input").forEach(i=>{
+    if(i.value) placas.push(i.value.toUpperCase());
+  });
+
+  const agora = new Date();
+
+  const { error } = await sb
+    .from("agendas")
+    .update({
+      motorista_nome: motorista,
+      transportadora: transportadora,
+      tipo_veiculo: tipo,
+      placas: placas,
+      chegada_motorista: agora.toISOString(),
+      status_global: "No Pátio"
+    })
+    .eq("dt", dt);
+
+  if(error){
+    console.error(error);
+    mostrarErro("Erro ao registrar check-in");
+    return;
+  }
+
+  mostrarSucesso("Check-in realizado com sucesso");
+  limparCampos();
+}
+
+function mostrarSucesso(msg){
+  document.getElementById("msg").innerHTML =
+    `<div class="success">${msg}</div>`;
+}
+
+function mostrarErro(msg){
+  document.getElementById("msg").innerHTML =
+    `<div class="error">${msg}</div>`;
+}
+
+function limparCampos(){
+  document.querySelectorAll("input").forEach(i => i.value = "");
+  document.getElementById("tipoVeiculo").value = "";
+  document.getElementById("placas").innerHTML = "";
+}
+
+</script>
+
+</body>
+</html>
