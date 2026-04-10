@@ -1662,34 +1662,36 @@
 
       for (const row of json) {
 
-  const dt = String(row["DT"] || row["dt"] || row["CARRO"] || row["carro"] || "").trim();
+  const dt = String(row["CARRO"] || "").trim();
+if (!dt) continue;
 
-  if (!dt) continue;
+registrosImportacao.push({
+  dt: dt,
 
-  registrosImportacao.push({
-    dt: dt,
-    ordem: row["Ordem"] || null,
-    remessa: row["Remessa"] || null,
-    cliente: row["Cliente"] || null,
-    transportadora: row["Transportadora"] || null,
+  ordem: row["ORDEM"] || null,
+  remessa: row["REMESSA"] || null,
 
-    data_agenda: normalizarData(row["Data"]),
-    hora_agenda: normalizarHora(row["Hora"]),
+  cliente: row["CLIENTE"] || null,
+  transportadora: row["TRANSPORTADOR"] || null,
 
-    tipo_carga: row["Tipo de carga"] || null,
-    tipo_veiculo: row["Tipo de veículo"] || null,
-    tipo_frete: row["Tipo de frete"] || null,
-    perfil_carga: row["Perfil de carregamento"] || null,
+  data_agenda: normalizarData(row["DATA"]),
+  hora_agenda: normalizarHora(row["HORA"]),
 
-    total_caixas: num(row["Total caixas"]),
-    he: num(row["HE"]),
-    ho: num(row["HO"]),
-    cubagem: num(row["Cubagem"]),
-    tonelagem: num(row["Tonelagem"]),
-    peso: num(row["Peso"]),
+  tipo_carga: row["TPCARGA"] || null,
+  tipo_veiculo: row["TPCARRO"] || null,
+  tipo_frete: row["TPFRETE"] || null,
+  perfil_carga: row["PERFILCARGA"] || null,
 
-    status_global: "Agendado"
-  });
+  total_caixas: num(row["Total"]),
+  he: num(row["HE"]),
+  ho: num(row["HO"]),
+
+  cubagem: num(row["CUBAGEM"]),
+  tonelagem: num(row["Ton"]),
+  peso: num(row["PESO"]),
+
+  status_global: "Agendado"
+});
 
 }
     });
