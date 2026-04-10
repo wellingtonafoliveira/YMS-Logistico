@@ -1,181 +1,1873 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestão Logística</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestão Logistica</title>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
-<style>
-body {
-  font-family: Arial;
-  background: #0f172a;
-  color: white;
-  padding: 20px;
-}
-
-button {
-  padding: 10px 15px;
-  background: #3b82f6;
-  border: none;
-  color: white;
-  cursor: pointer;
-  border-radius: 6px;
-}
-
-input {
-  margin-bottom: 10px;
-}
-</style>
-</head>
-
-<body>
-
-<h2>🚛 Sistema YMS - Upload Inteligente</h2>
-
-<input type="file" id="fileInput">
-<br><br>
-<button onclick="importarExcel()">Importar Excel</button>
-
-<p id="statusUpload"></p>
-
-<script>
-
-// ============================
-// CONFIG SUPABASE
-// ============================
-const SUPABASE_URL = "https://jwprwgptefhvqzdewnfr.supabase.co";
-const SUPABASE_KEY = "sb_publishable_ePs_koxCzHKOsejBKA3BGA_fj3ENPIp";
-
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// Simulação de perfil (se quiser integrar com login depois)
-let usuarioPerfil = "admin";
-
-
-// ============================
-// FUNÇÃO PRINCIPAL (UPLOAD)
-// ============================
-async function importarExcel(){
-
-  if(usuarioPerfil !== "admin"){
-    alert("Acesso negado");
-    return;
-  }
-
-  const file = document.getElementById("fileInput").files[0];
-  if(!file){
-    alert("Selecione um arquivo");
-    return;
-  }
-
-  const reader = new FileReader();
-
-  reader.onload = async function(e){
-
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, {type:'array'});
-
-    let registrosImportacao = [];
-
-    workbook.SheetNames.forEach(nomeAba => {
-
-      const sheet = workbook.Sheets[nomeAba];
-      const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-
-      json.forEach(row => {
-
-        const dt = String(row["DT"] || row["dt"] || "").trim();
-        if(!dt) return;
-
-        registrosImportacao.push({
-          dt: dt,
-          ordem: row["Ordem"] || row["ordem"] || null,
-          remessa: row["Remessa"] || row["remessa"] || null,
-          cliente: row["Cliente"] || row["cliente"] || null,
-          transportadora: row["Transportadora"] || row["transportadora"] || null,
-
-          data_agenda: normalizarData(row["Data"] || row["data_agenda"]),
-          hora_agenda: normalizarHora(row["Hora"] || row["hora_agenda"]),
-
-          tipo_carga: row["Tipo de carga"] || row["tipo_carga"] || null,
-          tipo_veiculo: row["Tipo de veículo"] || row["tipo_veiculo"] || null,
-          tipo_frete: row["Tipo de frete"] || row["tipo_frete"] || null,
-          perfil_carga: row["Perfil de carregamento"] || row["perfil_carga"] || null,
-
-          total_caixas: num(row["Total caixas"] || row["total_caixas"]),
-          he: num(row["HE"]),
-          ho: num(row["HO"]),
-          cubagem: num(row["Cubagem"] || row["metragem_cubica"]),
-          tonelagem: num(row["Tonelagem"] || row["tonelagem"]),
-          peso: num(row["Peso"] || row["peso"]),
-
-          status_global: "Agendado"
-        });
-
-      });
-
-    });
-
-    const { error } = await sb
-      .from("agendas")
-      .upsert(registrosImportacao, { onConflict: "dt" });
-
-    if(error){
-      alert("Erro: " + error.message);
-      return;
+  <style>
+    :root{
+      --bg:#0b1220;
+      --sidebar:#0f172a;
+      --card:#111827;
+      --card-2:#1f2937;
+      --line:#334155;
+      --text:#e5eefc;
+      --muted:#94a3b8;
+      --blue:#3b82f6;
+      --green:#22c55e;
+      --orange:#f59e0b;
+      --red:#ef4444;
+      --purple:#8b5cf6;
+      --cyan:#06b6d4;
+      --gray:#64748b;
+      --radius:16px;
+      --shadow:0 14px 30px rgba(0,0,0,.28);
     }
 
-    document.getElementById("statusUpload").innerText =
-      "Importado com sucesso: " + registrosImportacao.length + " registros";
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:Inter,Segoe UI,Arial,sans-serif;
+      background:linear-gradient(180deg,#08101d,#0b1220 55%,#0b1220);
+      color:var(--text);
+    }
 
-  };
+    .hidden{display:none !important}
 
-  reader.readAsArrayBuffer(file);
-}
+    .login-screen{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:radial-gradient(circle at top,#14213a 0%, #0b1220 45%, #08101d 100%);
+    }
 
+    .login-box{
+      width:min(390px,100%);
+      background:rgba(17,24,39,.96);
+      border:1px solid rgba(148,163,184,.12);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      padding:28px;
+      text-align:center;
+    }
 
-// ============================
-// FUNÇÕES AUXILIARES
-// ============================
+    .login-box img{
+      width:84px;
+      height:84px;
+      object-fit:contain;
+      margin-bottom:14px;
+      background:#fff;
+      border-radius:18px;
+      padding:6px;
+    }
 
-function normalizarData(valor){
-  if(!valor) return null;
+    .login-box h2{margin:0 0 6px;font-size:26px}
+    .login-box p{margin:0 0 18px;color:var(--muted);font-size:13px}
 
-  if(valor instanceof Date){
-    return valor.toISOString().split("T")[0];
-  }
+    .login-box input{
+      width:100%;
+      background:#0f1726;
+      color:#fff;
+      border:1px solid rgba(148,163,184,.18);
+      border-radius:12px;
+      padding:12px;
+      font-size:14px;
+      margin-bottom:10px;
+    }
 
-  if(typeof valor === "number"){
-    const excelEpoch = new Date(1899,11,30);
-    const data = new Date(excelEpoch.getTime() + valor * 86400000);
-    return data.toISOString().split("T")[0];
-  }
+    .login-box button{
+      width:100%;
+      padding:12px;
+      background:var(--blue);
+      color:#fff;
+      border:none;
+      border-radius:12px;
+      font-weight:800;
+      cursor:pointer;
+    }
 
-  return valor;
-}
+    .login-error{
+      margin-top:10px;
+      font-size:12px;
+      color:#fca5a5;
+      min-height:16px;
+    }
 
-function normalizarHora(valor){
-  if(!valor) return null;
+    .app{
+      display:grid;
+      grid-template-columns:260px 1fr;
+      min-height:100vh;
+    }
 
-  if(typeof valor === "number"){
-    const total = Math.round(valor * 86400);
-    const h = String(Math.floor(total / 3600)).padStart(2,"0");
-    const m = String(Math.floor((total % 3600)/60)).padStart(2,"0");
-    return h + ":" + m + ":00";
-  }
+    .sidebar{
+      background:rgba(10,15,28,.98);
+      border-right:1px solid rgba(148,163,184,.1);
+      padding:20px 16px;
+      position:sticky;
+      top:0;
+      height:100vh;
+      overflow:auto;
+    }
 
-  return valor;
-}
+    .brand-wrap{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
 
-function num(v){
-  if(!v) return 0;
-  return Number(String(v).replace(",", ".")) || 0;
-}
+    .brand-logo{
+      width:52px;
+      height:52px;
+      object-fit:contain;
+      border-radius:12px;
+      background:#fff;
+      padding:4px;
+      box-shadow:0 6px 18px rgba(0,0,0,.18);
+    }
 
-</script>
+    .brand-title{
+      font-size:24px;
+      font-weight:800;
+      line-height:1;
+    }
 
+    .brand-sub{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+      line-height:1.4;
+    }
+
+    .user-box{
+      margin-bottom:16px;
+      padding:12px;
+      border:1px solid rgba(148,163,184,.1);
+      background:#101a2a;
+      border-radius:14px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .user-box strong{
+      display:block;
+      color:#fff;
+      font-size:14px;
+      margin-bottom:4px;
+    }
+
+    .menu{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .menu button{
+      border:none;
+      background:#162132;
+      color:var(--text);
+      padding:12px 14px;
+      border-radius:12px;
+      text-align:left;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s;
+    }
+
+    .menu button:hover,
+    .menu button.active{
+      background:var(--blue);
+      color:#fff;
+      transform:translateX(2px);
+    }
+
+    .sidebar-note{
+      margin-top:22px;
+      padding:12px;
+      border:1px solid rgba(148,163,184,.1);
+      background:#101a2a;
+      border-radius:14px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+
+    .logout-btn{
+      margin-top:14px;
+      width:100%;
+      border:none;
+      background:#7f1d1d;
+      color:#fff;
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .main{
+      padding:22px;
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .title h1{margin:0;font-size:30px}
+    .title p{margin:6px 0 0;color:var(--muted)}
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:end;
+    }
+
+    .card{
+      background:rgba(17,24,39,.94);
+      border:1px solid rgba(148,163,184,.1);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+
+    .grid{display:grid;gap:16px}
+    .grid-2{grid-template-columns:1.1fr .9fr}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    .grid-4{grid-template-columns:repeat(4,1fr)}
+
+    .kpi{
+      background:linear-gradient(180deg,#131d2c,#101827);
+      border:1px solid rgba(148,163,184,.08);
+      border-radius:16px;
+      padding:16px;
+    }
+
+    .kpi .label{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+
+    .kpi .value{
+      font-size:28px;
+      font-weight:800;
+    }
+
+    .kpi .sub{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:6px;
+    }
+
+    h2{margin:0 0 14px;font-size:18px}
+    h3{margin:0 0 10px;font-size:15px}
+
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+      font-weight:700;
+    }
+
+    input,select,textarea{
+      width:100%;
+      background:#0f1726;
+      color:#fff;
+      border:1px solid rgba(148,163,184,.18);
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:14px;
+    }
+
+    textarea{
+      min-height:88px;
+      resize:vertical;
+    }
+
+    .fields{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+    }
+
+    .full{grid-column:1 / -1}
+
+    .btn{
+      border:none;
+      border-radius:12px;
+      padding:10px 14px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .btn-primary{background:var(--blue);color:#fff}
+    .btn-success{background:var(--green);color:#08110a}
+    .btn-warning{background:var(--orange);color:#221300}
+    .btn-danger{background:var(--red);color:#fff}
+    .btn-light{background:#1b2637;color:#fff;border:1px solid rgba(148,163,184,.14)}
+
+    .table-wrap{
+      overflow:auto;
+      border-radius:14px;
+      border:1px solid rgba(148,163,184,.12);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:1700px;
+      background:#0f1726;
+    }
+
+    th,td{
+      padding:10px 9px;
+      font-size:12px;
+      border-bottom:1px solid rgba(148,163,184,.1);
+      text-align:left;
+      vertical-align:middle;
+    }
+
+    th{
+      background:#162132;
+      color:#cbd5e1;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+      position:sticky;
+      top:0;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+      color:#fff;
+      white-space:nowrap;
+    }
+
+    .st-agendado{background:var(--gray)}
+    .st-separacao{background:var(--orange);color:#231300}
+    .st-separado{background:var(--green);color:#05210d}
+    .st-pronto{background:var(--cyan);color:#06252c}
+    .st-patio{background:var(--blue)}
+    .st-doca{background:var(--purple)}
+    .st-carregando{background:#0ea5e9}
+    .st-expedido{background:#0f172a;border:1px solid rgba(255,255,255,.12)}
+
+    .mini-actions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+
+    .mini{
+      border:none;
+      padding:7px 9px;
+      border-radius:10px;
+      font-size:11px;
+      font-weight:800;
+      cursor:pointer;
+      color:#fff;
+      background:#1e293b;
+    }
+
+    .mini.blue{background:#1d4ed8}
+    .mini.green{background:#15803d}
+    .mini.orange{background:#d97706}
+    .mini.red{background:#b91c1c}
+
+    .board{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+    }
+
+    .lane{
+      background:#0f1726;
+      border:1px solid rgba(148,163,184,.12);
+      border-radius:14px;
+      padding:12px;
+      min-height:260px;
+    }
+
+    .lane-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+    }
+
+    .count{
+      background:#1b2637;
+      border:1px solid rgba(148,163,184,.12);
+      color:var(--muted);
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      font-weight:800;
+    }
+
+    .item{
+      background:#192436;
+      border:1px solid rgba(148,163,184,.1);
+      border-radius:12px;
+      padding:10px;
+      margin-bottom:10px;
+      cursor:pointer;
+    }
+
+    .item strong{
+      display:block;
+      margin-bottom:6px;
+    }
+
+    .item .meta{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .dock-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+    }
+
+    .dock{
+      border-radius:14px;
+      padding:14px;
+      border:1px solid rgba(148,163,184,.12);
+      background:#101a2a;
+      min-height:170px;
+      cursor:pointer;
+    }
+
+    .dock.free{
+      background:linear-gradient(180deg,#0f2117,#0d1a14);
+      border-color:rgba(34,197,94,.2);
+    }
+
+    .dock.busy{
+      background:linear-gradient(180deg,#231742,#16122f);
+      border-color:rgba(139,92,246,.25);
+    }
+
+    .dock-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+    }
+
+    .sla-ok{color:#22c55e;font-weight:700}
+    .sla-alerta{color:#f59e0b;font-weight:700}
+    .sla-atraso{color:#ef4444;font-weight:700}
+
+    .toast{
+      position:fixed;
+      right:20px;
+      bottom:20px;
+      background:#111827;
+      border:1px solid rgba(148,163,184,.18);
+      color:#fff;
+      padding:12px 14px;
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      z-index:100;
+      display:none;
+      max-width:320px;
+    }
+
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.7);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      z-index:200;
+    }
+
+    .modal.show{display:flex}
+
+    .modal-content{
+      width:min(1400px,100%);
+      max-height:92vh;
+      overflow:auto;
+      background:#111827;
+      border:1px solid rgba(148,163,184,.14);
+      border-radius:20px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .modal-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    footer{
+      text-align:center;
+      margin-top:auto;
+      padding:20px 0 6px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    @media (max-width:1400px){
+      .grid-4,.grid-3{grid-template-columns:repeat(2,1fr)}
+      .grid-2,.board,.dock-grid,.fields{grid-template-columns:1fr}
+    }
+
+    @media (max-width:900px){
+      .app{grid-template-columns:1fr}
+      .sidebar{position:relative;height:auto}
+      .main{padding:16px}
+    }
+  </style>
+</head>
+<body>
+  <div class="login-screen" id="loginScreen">
+    <div class="login-box">
+      <img src="logo.png" alt="YMS">
+      <h2>Login</h2>
+      <p>Acesse o sistema de gestão logística</p>
+      <input type="email" id="loginEmail" placeholder="Email">
+      <input type="password" id="loginSenha" placeholder="Senha">
+      <button onclick="login()">Entrar</button>
+      <div class="login-error" id="loginErro"></div>
+    </div>
+  </div>
+
+  <div class="app hidden" id="app">
+    <aside class="sidebar">
+      <div class="brand-wrap">
+        <img src="logo.png" alt="YMS" class="brand-logo">
+        <div>
+          <div class="brand-title">YMS</div>
+          <small class="brand-sub">Agenda, operação e pátio em tempo real</small>
+        </div>
+      </div>
+
+      <div class="user-box">
+        <strong id="userNome">Usuário logado</strong>
+        <span id="userEmail">-</span><br>
+        <span id="userPerfil">Perfil: -</span>
+      </div>
+
+      <div class="menu">
+        <button id="menu-dashboard" class="active" onclick="setView('dashboard', this)">Dashboard</button>
+        <button id="menu-agenda" onclick="setView('agenda', this)">Agenda</button>
+        <button id="menu-separacao" onclick="setView('separacao', this)">Separação</button>
+        <button id="menu-expedicao" onclick="setView('expedicao', this)">Expedição</button>
+        <button id="menu-patio" onclick="setView('patio', this)">Pátio</button>
+        <button id="menu-docas" onclick="setView('docas', this)">Docas</button>
+        <button id="menu-checkin" onclick="setView('checkin', this)">Check-in</button>
+        <button id="menu-relatorios" onclick="setView('relatorios', this)">Relatórios</button>
+        <button id="menu-admin" onclick="setView('admin', this)">Admin</button>
+      </div>
+
+      <div class="sidebar-note">
+        <strong>Fluxo:</strong><br>
+        Agendado → Em Separação → Separado → Pronto Expedição → No Pátio → Em Doca → Em Carregamento → Expedido
+      </div>
+
+      <button class="logout-btn" onclick="logout()">Sair</button>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="title">
+          <h1 id="pageTitle">Dashboard</h1>
+          <p>Gestão integrada da agenda, operação e pátio.</p>
+        </div>
+
+        <div class="actions">
+          <div>
+            <label>Filtrar por data</label>
+            <input type="date" id="filtroData" onchange="carregarTudo()">
+          </div>
+          <button class="btn btn-light" onclick="carregarTudo()">Atualizar</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <div id="statusConexao" style="color:var(--muted)">Conectando ao Supabase...</div>
+      </div>
+
+      <section id="view-dashboard">
+        <div class="grid grid-4" id="dashboardKpis"></div>
+        <div class="grid grid-3" style="margin-top:16px">
+          <div class="card">
+            <h2>Resultados gerais</h2>
+            <div id="dashboardResultadosGerais" class="grid grid-3"></div>
+          </div>
+          <div class="card">
+            <h2>Resultados separação</h2>
+            <div id="dashboardResultadosSeparacao" class="grid grid-3"></div>
+          </div>
+          <div class="card">
+            <h2>Resultados expedição</h2>
+            <div id="dashboardResultadosExpedicao" class="grid grid-3"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <h2>Torre de etapas</h2>
+          <div class="board" id="dashboardBoard"></div>
+        </div>
+      </section>
+
+      <section id="view-agenda" class="hidden">
+        <div class="grid grid-2">
+          <div class="card">
+            <h2>Nova DT</h2>
+            <div class="fields">
+              <div><label>DT</label><input id="a_dt"></div>
+              <div><label>Ordem</label><input id="a_ordem"></div>
+              <div><label>Remessa</label><input id="a_remessa"></div>
+              <div><label>Data agenda</label><input id="a_data_agenda" type="date"></div>
+
+              <div><label>Hora agenda</label><input id="a_hora_agenda" type="time"></div>
+              <div><label>Transportadora</label><input id="a_transportadora"></div>
+              <div><label>Cliente</label><input id="a_cliente"></div>
+              <div><label>Tipo de carga</label><input id="a_tipo_carga"></div>
+
+              <div><label>Tipo de veículo</label><input id="a_tipo_veiculo"></div>
+              <div><label>Tipo de frete</label><input id="a_tipo_frete"></div>
+              <div><label>Perfil carga</label><input id="a_perfil_carga"></div>
+              <div><label>Doca agenda</label><select id="a_doca_agenda"></select></div>
+
+              <div><label>Peso</label><input id="a_peso" type="number" step="0.001"></div>
+              <div><label>M³ / Cubagem</label><input id="a_cubagem" type="number" step="0.001"></div>
+              <div><label>Tonelagem</label><input id="a_tonelagem" type="number" step="0.001"></div>
+              <div><label>HE</label><input id="a_he" type="number"></div>
+
+              <div><label>HO</label><input id="a_ho" type="number"></div>
+              <div><label>Total caixas</label><input id="a_total_caixas" type="number"></div>
+              <div class="full"><label>Observação geral</label><textarea id="a_observacao"></textarea></div>
+            </div>
+            <div style="margin-top:12px">
+              <button class="btn btn-success" onclick="criarDT()">Salvar DT</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Resumo do dia</h2>
+            <div class="grid grid-4" id="agendaKpis"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h2>Agenda do dia</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DT</th>
+                  <th>Data</th>
+                  <th>Hora</th>
+                  <th>Cliente</th>
+                  <th>Transportadora</th>
+                  <th>Doca</th>
+                  <th>Status</th>
+                  <th>SLA</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="agendaTabela"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-separacao" class="hidden">
+        <div class="card">
+          <h2>Separação</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DT</th>
+                  <th>Cliente</th>
+                  <th>Transportadora</th>
+                  <th>Doca planejada</th>
+                  <th>Status separação</th>
+                  <th>Conferente recebimento</th>
+                  <th>Turno</th>
+                  <th>SLA</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="separacaoTabela"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-expedicao" class="hidden">
+        <div class="card">
+          <h2>Expedição</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DT</th>
+                  <th>Cliente</th>
+                  <th>Transportadora</th>
+                  <th>Doca agenda</th>
+                  <th>Conferente expedição</th>
+                  <th>Faturado</th>
+                  <th>Status</th>
+                  <th>SLA</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="expedicaoTabela"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-patio" class="hidden">
+        <div class="grid grid-2">
+          <div class="card">
+            <h2>Painel do pátio</h2>
+            <div class="board" id="patioBoard"></div>
+          </div>
+
+          <div class="card">
+            <h2>Movimentação rápida</h2>
+            <div class="fields" style="grid-template-columns:repeat(2,1fr)">
+              <div><label>DT</label><select id="p_dt" onchange="preencherPatio()"></select></div>
+              <div><label>Doca carregamento</label><select id="p_doca"></select></div>
+              <div><label>Motorista</label><input id="p_motorista"></div>
+              <div><label>Placa cavalo</label><input id="p_placa_cavalo"></div>
+              <div><label>Placa carreta</label><input id="p_placa_carreta"></div>
+              <div><label>Presença</label>
+                <select id="p_presenca">
+                  <option value="">Selecione</option>
+                  <option>Presente</option>
+                  <option>Ausente</option>
+                  <option>Atrasado</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+              <button class="btn btn-warning" onclick="moverPatio('No Pátio')">No Pátio</button>
+              <button class="btn btn-primary" onclick="moverPatio('Em Doca')">Em Doca</button>
+              <button class="btn btn-success" onclick="moverPatio('Em Carregamento')">Em Carregamento</button>
+              <button class="btn btn-danger" onclick="moverPatio('Expedido')">Expedido</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-docas" class="hidden">
+        <div class="card">
+          <h2>Torre de docas</h2>
+          <div class="dock-grid" id="docasGrid"></div>
+        </div>
+      </section>
+
+      <section id="view-checkin" class="hidden">
+        <div class="card">
+          <h2>Check-in do motorista</h2>
+          <div class="fields">
+            <div><label>DT</label><select id="c_dt"></select></div>
+            <div><label>Motorista</label><input id="c_motorista"></div>
+            <div><label>Placa cavalo</label><input id="c_placa_cavalo"></div>
+            <div><label>Placa carreta</label><input id="c_placa_carreta"></div>
+            <div><label>Presença</label>
+              <select id="c_presenca">
+                <option value="">Selecione</option>
+                <option>Presente</option>
+                <option>Ausente</option>
+                <option>Atrasado</option>
+              </select>
+            </div>
+            <div class="full"><label>Observação</label><textarea id="c_obs"></textarea></div>
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn btn-success" onclick="registrarCheckin()">Registrar check-in</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-relatorios" class="hidden">
+        <div class="card">
+          <h2>Relatórios</h2>
+          <div class="grid grid-4" id="relatoriosKpis"></div>
+        </div>
+      </section>
+
+      <section id="view-admin" class="hidden">
+        <div class="card" id="areaAdmin" style="display:none;">
+          <h2>Importar Agenda (Excel)</h2>
+          <input type="file" id="fileInput" accept=".xlsx,.xls">
+          <div style="margin-top:10px">
+            <button class="btn btn-primary" onclick="importarExcel()">Importar</button>
+          </div>
+          <p id="statusUpload" style="color:var(--muted)"></p>
+        </div>
+      </section>
+
+      <footer>
+        © 2026 Wellington Alves - Sistema de Gestão Logística
+      </footer>
+    </main>
+  </div>
+
+  <div class="modal" id="dtModal">
+    <div class="modal-content">
+      <div class="modal-head">
+        <div>
+          <h2 style="margin:0">Tela completa da DT</h2>
+          <div id="dtModalSub" style="color:var(--muted);margin-top:6px"></div>
+        </div>
+        <button class="btn btn-light" onclick="fecharDTModal()">Fechar</button>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="card">
+          <h3>Informações gerais</h3>
+          <div class="fields" style="grid-template-columns:repeat(2,1fr)">
+            <div><label>DT</label><input id="m_dt" disabled></div>
+            <div><label>Ordem</label><input id="m_ordem"></div>
+            <div><label>Remessa</label><input id="m_remessa"></div>
+            <div><label>Cliente</label><input id="m_cliente"></div>
+            <div><label>Transportadora</label><input id="m_transportadora"></div>
+            <div><label>Data agenda</label><input id="m_data_agenda" type="date"></div>
+            <div><label>Hora agenda</label><input id="m_hora_agenda" type="time"></div>
+            <div><label>Tipo carga (CB/CP)</label><input id="m_tipo_carga"></div>
+            <div><label>Tipo veículo</label><input id="m_tipo_veiculo"></div>
+            <div><label>Tipo frete</label><input id="m_tipo_frete"></div>
+            <div><label>Perfil carga</label><input id="m_perfil_carga"></div>
+            <div><label>Doca agenda</label><select id="m_doca_agenda"></select></div>
+            <div><label>Status global</label>
+              <select id="m_status_global">
+                <option>Agendado</option>
+                <option>Em Separação</option>
+                <option>Separado</option>
+                <option>Pronto Expedição</option>
+                <option>No Pátio</option>
+                <option>Em Doca</option>
+                <option>Em Carregamento</option>
+                <option>Expedido</option>
+              </select>
+            </div>
+            <div><label>Peso</label><input id="m_peso" type="number" step="0.001"></div>
+            <div><label>M³ / Cubagem</label><input id="m_cubagem" type="number" step="0.001"></div>
+            <div><label>Tonelagem</label><input id="m_tonelagem" type="number" step="0.001"></div>
+            <div><label>HE</label><input id="m_he" type="number"></div>
+            <div><label>HO</label><input id="m_ho" type="number"></div>
+            <div><label>Total caixas</label><input id="m_total_caixas" type="number"></div>
+            <div class="full"><label>Observação geral</label><textarea id="m_observacao_geral"></textarea></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Separação / Recebimento</h3>
+          <div class="fields" style="grid-template-columns:repeat(2,1fr)">
+            <div><label>Doca planejada</label><select id="m_doca_planejada"></select></div>
+            <div><label>Tipo separação</label>
+              <select id="m_tipo_separacao">
+                <option value="">Selecione</option>
+                <option>COLETOR</option>
+                <option>MANUAL</option>
+              </select>
+            </div>
+            <div><label>Início separação</label><input id="m_inicio_separacao" type="datetime-local"></div>
+            <div><label>Fim separação</label><input id="m_fim_separacao" type="datetime-local"></div>
+            <div><label>Status separação</label><input id="m_status_separacao"></div>
+            <div><label>Turno separação</label>
+              <select id="m_turno_separacao">
+                <option value="">Selecione</option>
+                <option>T1</option>
+                <option>T2</option>
+                <option>T3</option>
+              </select>
+            </div>
+            <div><label>Início recebimento</label><input id="m_inicio_recebimento" type="datetime-local"></div>
+            <div><label>Fim recebimento</label><input id="m_fim_recebimento" type="datetime-local"></div>
+            <div><label>Conferente recebimento</label><select id="m_conf_recebimento"></select></div>
+            <div><label>Status recebimento</label><input id="m_status_recebimento"></div>
+            <div class="full"><label>Obs. separação</label><textarea id="m_obs_separacao"></textarea></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Expedição / Pátio</h3>
+          <div class="fields" style="grid-template-columns:repeat(2,1fr)">
+            <div><label>Conferente expedição</label><select id="m_conf_expedicao"></select></div>
+            <div><label>Faturado</label>
+              <select id="m_faturado">
+                <option value="">Selecione</option>
+                <option value="true">Sim</option>
+                <option value="false">Não</option>
+              </select>
+            </div>
+            <div><label>Data faturamento</label><input id="m_data_faturamento" type="datetime-local"></div>
+            <div><label>Romaneio</label><input id="m_romaneio"></div>
+            <div><label>Retirada NF</label><input id="m_retirada_nf" type="datetime-local"></div>
+            <div><label>Caixas embarcadas</label><input id="m_caixas_embarcadas" type="number"></div>
+            <div><label>Operador</label><input id="m_operador"></div>
+            <div><label>Mão de obra</label><input id="m_mao_obra"></div>
+            <div><label>Motorista</label><input id="m_motorista"></div>
+            <div><label>Placa cavalo</label><input id="m_placa_cavalo"></div>
+            <div><label>Placa carreta</label><input id="m_placa_carreta"></div>
+            <div><label>Presença</label>
+              <select id="m_presente_ausente">
+                <option value="">Selecione</option>
+                <option>Presente</option>
+                <option>Ausente</option>
+                <option>Atrasado</option>
+              </select>
+            </div>
+            <div><label>Chegada motorista</label><input id="m_chegada_motorista" type="datetime-local"></div>
+            <div><label>Doca carregamento</label><select id="m_doca_carregamento"></select></div>
+            <div><label>Data em doca</label><input id="m_data_em_doca" type="datetime-local"></div>
+            <div><label>Início carregamento</label><input id="m_inicio_carregamento" type="datetime-local"></div>
+            <div><label>Fim carregamento</label><input id="m_fim_carregamento" type="datetime-local"></div>
+            <div class="full"><label>Obs. carregamento</label><textarea id="m_obs_carregamento"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+        <button class="btn btn-success" onclick="salvarDTModal()">Salvar DT</button>
+        <button class="btn btn-light" onclick="fecharDTModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const SUPABASE_URL = "https://jwprwgptefhvqzdewnfr.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_ePs_koxCzHKOsejBKA3BGA_fj3ENPIp";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let registros = [];
+    let realtimeChannel = null;
+    let usuarioPerfil = null;
+    let conferentes = [];
+    let docas = [];
+    let dtAtual = null;
+
+    const STAGES = ["Agendado","Em Separação","Separado","Pronto Expedição","No Pátio","Em Doca","Em Carregamento","Expedido"];
+
+    function clsStatus(s){
+      return {
+        "Agendado":"st-agendado",
+        "Em Separação":"st-separacao",
+        "Separado":"st-separado",
+        "Pronto Expedição":"st-pronto",
+        "No Pátio":"st-patio",
+        "Em Doca":"st-doca",
+        "Em Carregamento":"st-carregando",
+        "Expedido":"st-expedido"
+      }[s] || "st-agendado";
+    }
+
+    function num(v){
+      if(v === "" || v === null || v === undefined) return null;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function fmtDate(v){
+      if(!v) return "";
+      const d = new Date(v);
+      return isNaN(d) ? v : d.toLocaleDateString("pt-BR");
+    }
+
+    function fmtDateTime(v){
+      if(!v) return "";
+      const d = new Date(v);
+      return isNaN(d) ? v : d.toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});
+    }
+
+    function toInputDateTime(v){
+      if(!v) return "";
+      const d = new Date(v);
+      if(isNaN(d)) return "";
+      const p = n => String(n).padStart(2,"0");
+      return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+    }
+
+    function dataFiltrada(){
+      return document.getElementById("filtroData").value;
+    }
+
+    function linhasFiltradas(){
+      const d = dataFiltrada();
+      return d ? registros.filter(r => r.data_agenda === d) : registros;
+    }
+
+    function showToast(msg){
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.style.display = "block";
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => el.style.display = "none", 2500);
+    }
+
+    function setView(view, btn){
+      document.getElementById("pageTitle").textContent = btn.textContent;
+      document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      ["dashboard","agenda","separacao","expedicao","patio","docas","checkin","relatorios","admin"].forEach(v=>{
+        document.getElementById(`view-${v}`).classList.add("hidden");
+      });
+
+      document.getElementById(`view-${view}`).classList.remove("hidden");
+    }
+
+    function calcSla(row){
+      const baseData = row.data_agenda;
+      const baseHora = row.hora_agenda;
+      if(!baseData) return {label:"Sem agenda", cls:"sla-alerta"};
+
+      const dtAgenda = new Date(`${baseData}T${(baseHora || "00:00")}:00`);
+      if(isNaN(dtAgenda)) return {label:"Sem agenda", cls:"sla-alerta"};
+
+      if(row.status_global === "Expedido") return {label:"Concluído", cls:"sla-ok"};
+
+      const diffMin = Math.round((new Date() - dtAgenda) / 60000);
+      if(diffMin <= 30) return {label:"No prazo", cls:"sla-ok"};
+      if(diffMin <= 120) return {label:"Alerta", cls:"sla-alerta"};
+      return {label:"Atrasado", cls:"sla-atraso"};
+    }
+
+    async function testarConexao(){
+      try{
+        const { error } = await sb.from("agendas").select("id").limit(1);
+        if(error) throw error;
+        document.getElementById("statusConexao").textContent = "Conectado ao Supabase.";
+        document.getElementById("statusConexao").style.color = "#22c55e";
+      }catch(e){
+        console.error(e);
+        document.getElementById("statusConexao").textContent = "Erro de conexão. Verifique URL, key e SQL.";
+        document.getElementById("statusConexao").style.color = "#ef4444";
+      }
+    }
+
+    async function login(){
+      const email = document.getElementById("loginEmail").value;
+      const senha = document.getElementById("loginSenha").value;
+      document.getElementById("loginErro").textContent = "";
+
+      const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+      if(error){
+        document.getElementById("loginErro").textContent = "Email ou senha inválidos.";
+        return;
+      }
+
+      await entrarSistema(data.user);
+    }
+
+    async function logout(){
+      if(realtimeChannel){
+        try{ await sb.removeChannel(realtimeChannel); }catch(e){}
+      }
+      await sb.auth.signOut();
+      bloquearSistema();
+    }
+
+    async function verificarSessao(){
+      const { data } = await sb.auth.getSession();
+      if(data.session){
+        await entrarSistema(data.session.user);
+        return true;
+      }
+      bloquearSistema();
+      return false;
+    }
+
+    async function entrarSistema(user){
+      document.getElementById("loginScreen").classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+
+      await carregarPerfil(user.email, user.id);
+      await carregarCadastros();
+      await carregarTudo();
+      await iniciarRealtime();
+    }
+
+    function bloquearSistema(){
+      document.getElementById("app").classList.add("hidden");
+      document.getElementById("loginScreen").classList.remove("hidden");
+      document.getElementById("loginEmail").value = "";
+      document.getElementById("loginSenha").value = "";
+      document.getElementById("loginErro").textContent = "";
+    }
+
+    sb.auth.onAuthStateChange(async (event, session) => {
+      if(!session) bloquearSistema();
+    });
+
+    async function carregarPerfil(email, userId){
+      const { data, error } = await sb
+        .from("usuarios")
+        .select("id,nome,email,perfil")
+        .or(`email.eq.${email},id.eq.${userId}`)
+        .limit(1)
+        .maybeSingle();
+
+      if(error){
+        console.error(error);
+        throw new Error("Erro ao validar usuário.");
+      }
+
+      if(!data){
+        await sb.auth.signOut();
+        bloquearSistema();
+        document.getElementById("loginErro").textContent = "Usuário sem perfil cadastrado na tabela usuarios.";
+        throw new Error("Usuário sem perfil cadastrado.");
+      }
+
+      usuarioPerfil = data.perfil || null;
+      document.getElementById("userNome").textContent = data.nome || "Usuário logado";
+      document.getElementById("userEmail").textContent = data.email || email || "-";
+      document.getElementById("userPerfil").textContent = `Perfil: ${usuarioPerfil || "-"}`;
+      document.getElementById("areaAdmin").style.display = usuarioPerfil === "admin" ? "block" : "none";
+
+      aplicarPermissoes();
+    }
+
+    function aplicarPermissoes(){
+      const ocultar = (id, hidden) => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = hidden ? "none" : "";
+      };
+
+      // padrão
+      ocultar("menu-admin", usuarioPerfil !== "admin");
+
+      // perfis específicos
+      if(usuarioPerfil === "portaria"){
+        ["menu-agenda","menu-separacao","menu-expedicao"].forEach(id => ocultar(id, true));
+        ["menu-dashboard","menu-patio","menu-docas","menu-checkin","menu-relatorios"].forEach(id => ocultar(id, false));
+      } else if(usuarioPerfil === "conferente"){
+        ocultar("menu-admin", true);
+      } else if(usuarioPerfil === "operacao" || usuarioPerfil === "assistente"){
+        ocultar("menu-admin", true);
+      }
+    }
+
+    async function carregarCadastros(){
+      const [confRes, docaRes] = await Promise.all([
+        sb.from("conferentes").select("*").eq("ativo", true).order("nome"),
+        sb.from("docas").select("*").eq("ativo", true).order("nome")
+      ]);
+
+      conferentes = confRes.data || [];
+      docas = docaRes.data || [];
+
+      ["a_doca_agenda","p_doca","m_doca_agenda","m_doca_planejada","m_doca_carregamento"].forEach(preencherSelectDocas);
+      ["m_conf_recebimento","m_conf_expedicao"].forEach(preencherSelectConferentes);
+    }
+
+    function preencherSelectDocas(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      const atual = el.value;
+      el.innerHTML = `<option value="">Selecione</option>` + docas.map(d => `<option value="${d.nome}">${d.nome}</option>`).join("");
+      if(atual) el.value = atual;
+    }
+
+    function preencherSelectConferentes(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      const atual = el.value;
+      el.innerHTML = `<option value="">Selecione</option>` + conferentes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join("");
+      if(atual) el.value = atual;
+    }
+
+    async function carregarTudo(){
+      let query = sb.from("agendas").select("*").order("data_agenda",{ascending:true}).order("hora_agenda",{ascending:true});
+      const df = dataFiltrada();
+      if(df) query = query.eq("data_agenda", df);
+
+      const { data, error } = await query;
+      if(error){
+        console.error(error);
+        alert("Erro ao carregar dados.");
+        return;
+      }
+
+      registros = data || [];
+      renderTudo();
+    }
+
+    async function carregarTudoSilencioso(){
+      let query = sb.from("agendas").select("*").order("data_agenda",{ascending:true}).order("hora_agenda",{ascending:true});
+      const df = dataFiltrada();
+      if(df) query = query.eq("data_agenda", df);
+
+      const { data, error } = await query;
+      if(error){
+        console.error(error);
+        return;
+      }
+
+      registros = data || [];
+      renderTudo();
+    }
+
+    function renderTudo(){
+      renderDashboard();
+      renderAgenda();
+      renderSeparacao();
+      renderExpedicao();
+      renderPatio();
+      renderDocas();
+      renderCheckin();
+      renderRelatorios();
+      carregarSelectPatio();
+    }
+
+    async function iniciarRealtime(){
+      if(realtimeChannel){
+        try{ await sb.removeChannel(realtimeChannel); }catch(e){}
+      }
+
+      realtimeChannel = sb.channel("realtime-agendas")
+        .on("postgres_changes",{ event:"*", schema:"public", table:"agendas" }, async (payload) => {
+          const tipo = payload.eventType || "UPDATE";
+          if(tipo === "INSERT") showToast("Nova DT recebida em tempo real");
+          if(tipo === "UPDATE") showToast("DT atualizada em tempo real");
+          if(tipo === "DELETE") showToast("DT removida em tempo real");
+          await carregarTudoSilencioso();
+        })
+        .subscribe((status) => {
+          if(status === "SUBSCRIBED"){
+            const el = document.getElementById("statusConexao");
+            el.textContent = "Conectado ao Supabase • tempo real ativo";
+            el.style.color = "#22c55e";
+          }
+        });
+    }
+
+    async function criarDT(){
+      if(usuarioPerfil === "portaria"){
+        alert("Seu perfil não pode criar DTs.");
+        return;
+      }
+
+      const payload = {
+        dt: document.getElementById("a_dt").value || null,
+        ordem: document.getElementById("a_ordem").value || null,
+        remessa: document.getElementById("a_remessa").value || null,
+        data_agenda: document.getElementById("a_data_agenda").value || null,
+        hora_agenda: document.getElementById("a_hora_agenda").value || null,
+        transportadora: document.getElementById("a_transportadora").value || null,
+        cliente: document.getElementById("a_cliente").value || null,
+        tipo_carga: document.getElementById("a_tipo_carga").value || null,
+        tipo_veiculo: document.getElementById("a_tipo_veiculo").value || null,
+        tipo_frete: document.getElementById("a_tipo_frete").value || null,
+        perfil_carga: document.getElementById("a_perfil_carga").value || null,
+        doca_agenda: document.getElementById("a_doca_agenda").value || null,
+        peso: num(document.getElementById("a_peso").value),
+        cubagem: num(document.getElementById("a_cubagem").value),
+        tonelagem: num(document.getElementById("a_tonelagem").value),
+        he: num(document.getElementById("a_he").value),
+        ho: num(document.getElementById("a_ho").value),
+        total_caixas: num(document.getElementById("a_total_caixas").value),
+        observacao_geral: document.getElementById("a_observacao").value || null,
+        status_global: "Agendado"
+      };
+
+      if(!payload.dt){
+        alert("Preencha a DT.");
+        return;
+      }
+
+      const { error } = await sb.from("agendas").insert([payload]);
+      if(error){
+        console.error(error);
+        alert("Erro ao criar DT.");
+        return;
+      }
+
+      document.querySelectorAll('#view-agenda input, #view-agenda textarea').forEach(el => el.value = "");
+      document.getElementById("a_doca_agenda").value = "";
+      await carregarTudo();
+    }
+
+    function renderDashboard(){
+      const rows = linhasFiltradas();
+
+      document.getElementById("dashboardKpis").innerHTML = `
+        <div class="kpi"><div class="label">Agendadas</div><div class="value">${rows.filter(x=>x.status_global==="Agendado").length}</div><div class="sub">planejamento</div></div>
+        <div class="kpi"><div class="label">Em separação</div><div class="value">${rows.filter(x=>x.status_global==="Em Separação").length}</div><div class="sub">andamento</div></div>
+        <div class="kpi"><div class="label">Separadas</div><div class="value">${rows.filter(x=>x.status_global==="Separado").length}</div><div class="sub">prontas</div></div>
+        <div class="kpi"><div class="label">No pátio</div><div class="value">${rows.filter(x=>x.status_global==="No Pátio").length}</div><div class="sub">chegadas</div></div>
+        <div class="kpi"><div class="label">Em doca</div><div class="value">${rows.filter(x=>x.status_global==="Em Doca").length}</div><div class="sub">ocupação</div></div>
+        <div class="kpi"><div class="label">Carregando</div><div class="value">${rows.filter(x=>x.status_global==="Em Carregamento").length}</div><div class="sub">execução</div></div>
+        <div class="kpi"><div class="label">Expedidas</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div><div class="sub">concluídas</div></div>
+        <div class="kpi"><div class="label">Atrasadas</div><div class="value">${rows.filter(x=>calcSla(x).label==="Atrasado").length}</div><div class="sub">SLA</div></div>
+      `;
+
+      document.getElementById("dashboardResultadosGerais").innerHTML = `
+        <div class="kpi"><div class="label">DTs no dia</div><div class="value">${rows.length}</div><div class="sub">total filtrado</div></div>
+        <div class="kpi"><div class="label">Peso total</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0)}</div><div class="sub">kg</div></div>
+        <div class="kpi"><div class="label">Caixas totais</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.total_caixas)||0),0)}</div><div class="sub">volumes</div></div>
+      `;
+
+      document.getElementById("dashboardResultadosSeparacao").innerHTML = `
+        <div class="kpi"><div class="label">Em separação</div><div class="value">${rows.filter(x=>x.status_global==="Em Separação").length}</div><div class="sub">andamento</div></div>
+        <div class="kpi"><div class="label">Separadas</div><div class="value">${rows.filter(x=>x.status_global==="Separado").length}</div><div class="sub">concluídas</div></div>
+        <div class="kpi"><div class="label">Recebimento pendente</div><div class="value">${rows.filter(x=>!x.status_recebimento || x.status_recebimento==="PENDENTE").length}</div><div class="sub">atenção</div></div>
+      `;
+
+      document.getElementById("dashboardResultadosExpedicao").innerHTML = `
+        <div class="kpi"><div class="label">Pronto expedição</div><div class="value">${rows.filter(x=>x.status_global==="Pronto Expedição").length}</div><div class="sub">fila</div></div>
+        <div class="kpi"><div class="label">Em carregamento</div><div class="value">${rows.filter(x=>x.status_global==="Em Carregamento").length}</div><div class="sub">docas ativas</div></div>
+        <div class="kpi"><div class="label">Expedidas</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div><div class="sub">encerradas</div></div>
+      `;
+
+      document.getElementById("dashboardBoard").innerHTML = STAGES.map(st => {
+        const itens = rows.filter(r => r.status_global === st);
+        return `
+          <div class="lane">
+            <div class="lane-head">
+              <h3>${st}</h3>
+              <span class="count">${itens.length}</span>
+            </div>
+            ${itens.map(r => `
+              <div class="item" onclick="abrirDTPorId('${r.id}')">
+                <strong>DT ${r.dt || "-"}</strong>
+                <div class="meta">${r.transportadora || "-"}<br>${r.cliente || "-"}</div>
+              </div>
+            `).join("") || `<div class="meta">Sem registros.</div>`}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderAgenda(){
+      const rows = linhasFiltradas();
+
+      document.getElementById("agendaKpis").innerHTML = `
+        <div class="kpi"><div class="label">DTs do dia</div><div class="value">${rows.length}</div><div class="sub">cadastros filtrados</div></div>
+        <div class="kpi"><div class="label">Agendadas</div><div class="value">${rows.filter(x=>x.status_global==="Agendado").length}</div><div class="sub">planejamento</div></div>
+        <div class="kpi"><div class="label">Com doca</div><div class="value">${rows.filter(x=>x.doca_agenda).length}</div><div class="sub">pré-definidas</div></div>
+        <div class="kpi"><div class="label">Peso total</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0)}</div><div class="sub">kg planejados</div></div>
+      `;
+
+      document.getElementById("agendaTabela").innerHTML = rows.map(r => {
+        const sla = calcSla(r);
+        return `
+          <tr>
+            <td>${r.dt || ""}</td>
+            <td>${fmtDate(r.data_agenda)}</td>
+            <td>${r.hora_agenda || ""}</td>
+            <td>${r.cliente || ""}</td>
+            <td>${r.transportadora || ""}</td>
+            <td>${r.doca_agenda || ""}</td>
+            <td><span class="chip ${clsStatus(r.status_global)}">${r.status_global || ""}</span></td>
+            <td><span class="${sla.cls}">${sla.label}</span></td>
+            <td>
+              <div class="mini-actions">
+                <button class="mini blue" onclick="abrirDTPorId('${r.id}')">Abrir DT</button>
+                <button class="mini orange" onclick="mudarStatus('${r.id}','Em Separação')">Separação</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderSeparacao(){
+      const rows = linhasFiltradas().filter(r => ["Agendado","Em Separação","Separado"].includes(r.status_global));
+      document.getElementById("separacaoTabela").innerHTML = rows.map(r => {
+        const sla = calcSla(r);
+        return `
+          <tr>
+            <td>${r.dt || ""}</td>
+            <td>${r.cliente || ""}</td>
+            <td>${r.transportadora || ""}</td>
+            <td>${r.doca_planejada || r.doca_agenda || ""}</td>
+            <td>${r.status_separacao || ""}</td>
+            <td>${r.conferente_recebimento || ""}</td>
+            <td>${r.turno_separacao || ""}</td>
+            <td><span class="${sla.cls}">${sla.label}</span></td>
+            <td>
+              <div class="mini-actions">
+                <button class="mini blue" onclick="abrirDTPorId('${r.id}')">Abrir DT</button>
+                <button class="mini orange" onclick="mudarStatus('${r.id}','Em Separação')">Em separação</button>
+                <button class="mini green" onclick="mudarStatus('${r.id}','Separado')">Separado</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderExpedicao(){
+      const rows = linhasFiltradas().filter(r => ["Separado","Pronto Expedição","No Pátio"].includes(r.status_global));
+      document.getElementById("expedicaoTabela").innerHTML = rows.map(r => {
+        const sla = calcSla(r);
+        return `
+          <tr>
+            <td>${r.dt || ""}</td>
+            <td>${r.cliente || ""}</td>
+            <td>${r.transportadora || ""}</td>
+            <td>${r.doca_agenda || ""}</td>
+            <td>${r.conferente_expedicao || ""}</td>
+            <td>${r.faturado === true ? "Sim" : r.faturado === false ? "Não" : ""}</td>
+            <td><span class="chip ${clsStatus(r.status_global)}">${r.status_global || ""}</span></td>
+            <td><span class="${sla.cls}">${sla.label}</span></td>
+            <td>
+              <div class="mini-actions">
+                <button class="mini blue" onclick="abrirDTPorId('${r.id}')">Abrir DT</button>
+                <button class="mini orange" onclick="mudarStatus('${r.id}','Pronto Expedição')">Pronto</button>
+                <button class="mini green" onclick="mudarStatus('${r.id}','No Pátio')">Enviar pátio</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderPatio(){
+      const rows = linhasFiltradas().filter(r => ["No Pátio","Em Doca","Em Carregamento","Expedido"].includes(r.status_global));
+      const grupos = [
+        {nome:"No Pátio", valores:["No Pátio"]},
+        {nome:"Em Doca", valores:["Em Doca"]},
+        {nome:"Em Carregamento", valores:["Em Carregamento"]},
+        {nome:"Expedido", valores:["Expedido"]}
+      ];
+
+      document.getElementById("patioBoard").innerHTML = grupos.map(g => {
+        const itens = rows.filter(r => g.valores.includes(r.status_global));
+        return `
+          <div class="lane">
+            <div class="lane-head">
+              <h3>${g.nome}</h3>
+              <span class="count">${itens.length}</span>
+            </div>
+            ${itens.map(r => {
+              const sla = calcSla(r);
+              return `
+                <div class="item" onclick="abrirDTPorId('${r.id}')">
+                  <strong>DT ${r.dt || "-"}</strong>
+                  <div class="meta">
+                    ${r.transportadora || "-"}<br>
+                    Motorista: ${r.motorista || "-"}<br>
+                    Placa: ${r.placa_cavalo || "-"}<br>
+                    Doca: ${r.doca_carregamento || r.doca_agenda || "-"}<br>
+                    <span class="${sla.cls}">${sla.label}</span>
+                  </div>
+                </div>
+              `;
+            }).join("") || `<div class="meta">Sem registros.</div>`}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderDocas(){
+      const rows = linhasFiltradas();
+      const nomesDoca = docas.length ? docas.map(d => d.nome) : ["Doca 1","Doca 2","Doca 3","Doca 4"];
+
+      document.getElementById("docasGrid").innerHTML = nomesDoca.map(nome => {
+        const atual = rows.find(r => (r.doca_carregamento || r.doca_agenda || r.doca_planejada) === nome && ["Em Doca","Em Carregamento"].includes(r.status_global));
+        if(!atual){
+          return `
+            <div class="dock free">
+              <div class="dock-head">
+                <strong>${nome}</strong>
+                <span class="count">Livre</span>
+              </div>
+              <div class="meta">Sem veículo na doca.</div>
+            </div>
+          `;
+        }
+
+        const sla = calcSla(atual);
+        return `
+          <div class="dock busy" onclick="abrirDTPorId('${atual.id}')">
+            <div class="dock-head">
+              <strong>${nome}</strong>
+              <span class="count">${atual.status_global}</span>
+            </div>
+            <div class="meta">
+              DT: ${atual.dt || "-"}<br>
+              Transportadora: ${atual.transportadora || "-"}<br>
+              Motorista: ${atual.motorista || "-"}<br>
+              Placa: ${atual.placa_cavalo || "-"}<br>
+              Início: ${fmtDateTime(atual.inicio_carregamento)}<br>
+              <span class="${sla.cls}">${sla.label}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderCheckin(){
+      const rows = linhasFiltradas().filter(r => ["Pronto Expedição","No Pátio"].includes(r.status_global));
+      document.getElementById("c_dt").innerHTML =
+        `<option value="">Selecione</option>` +
+        rows.map(r => `<option value="${r.id}">${r.dt} - ${r.transportadora || ""}</option>`).join("");
+    }
+
+    function renderRelatorios(){
+      const rows = linhasFiltradas();
+      document.getElementById("relatoriosKpis").innerHTML = `
+        <div class="kpi"><div class="label">Presentes</div><div class="value">${rows.filter(r => r.presente_ausente === "Presente").length}</div><div class="sub">check-in</div></div>
+        <div class="kpi"><div class="label">Em doca</div><div class="value">${rows.filter(r => r.status_global === "Em Doca").length}</div><div class="sub">ocupação</div></div>
+        <div class="kpi"><div class="label">Carregando</div><div class="value">${rows.filter(r => r.status_global === "Em Carregamento").length}</div><div class="sub">execução</div></div>
+        <div class="kpi"><div class="label">Expedidos</div><div class="value">${rows.filter(r => r.status_global === "Expedido").length}</div><div class="sub">finalizados</div></div>
+      `;
+    }
+
+    async function registrarCheckin(){
+      const id = document.getElementById("c_dt").value;
+      if(!id){
+        alert("Selecione a DT.");
+        return;
+      }
+
+      const payload = {
+        motorista: document.getElementById("c_motorista").value || null,
+        placa_cavalo: document.getElementById("c_placa_cavalo").value || null,
+        placa_carreta: document.getElementById("c_placa_carreta").value || null,
+        presente_ausente: document.getElementById("c_presenca").value || null,
+        observacao_geral: document.getElementById("c_obs").value || null,
+        chegada_motorista: new Date().toISOString(),
+        status_global: "No Pátio"
+      };
+
+      const { error } = await sb.from("agendas").update(payload).eq("id", id);
+      if(error){
+        console.error(error);
+        alert("Erro ao registrar check-in.");
+        return;
+      }
+
+      await carregarTudo();
+    }
+
+    function carregarSelectPatio(){
+      const rows = linhasFiltradas().filter(r => ["Pronto Expedição","No Pátio","Em Doca","Em Carregamento"].includes(r.status_global));
+      document.getElementById("p_dt").innerHTML =
+        `<option value="">Selecione</option>` +
+        rows.map(r => `<option value="${r.id}">${r.dt} - ${r.transportadora || ""}</option>`).join("");
+    }
+
+    function preencherPatio(){
+      const id = document.getElementById("p_dt").value;
+      const r = registros.find(x => x.id === id);
+      document.getElementById("p_doca").value = r?.doca_carregamento || r?.doca_agenda || "";
+      document.getElementById("p_motorista").value = r?.motorista || "";
+      document.getElementById("p_placa_cavalo").value = r?.placa_cavalo || "";
+      document.getElementById("p_placa_carreta").value = r?.placa_carreta || "";
+      document.getElementById("p_presenca").value = r?.presente_ausente || "";
+    }
+
+    async function moverPatio(status){
+      const id = document.getElementById("p_dt").value;
+      if(!id){
+        alert("Selecione a DT.");
+        return;
+      }
+
+      const payload = {
+        status_global: status,
+        doca_carregamento: document.getElementById("p_doca").value || null,
+        motorista: document.getElementById("p_motorista").value || null,
+        placa_cavalo: document.getElementById("p_placa_cavalo").value || null,
+        placa_carreta: document.getElementById("p_placa_carreta").value || null,
+        presente_ausente: document.getElementById("p_presenca").value || null
+      };
+
+      if(status === "No Pátio") payload.chegada_motorista = new Date().toISOString();
+      if(status === "Em Doca") payload.data_em_doca = new Date().toISOString();
+      if(status === "Em Carregamento") payload.inicio_carregamento = new Date().toISOString();
+      if(status === "Expedido") payload.fim_carregamento = new Date().toISOString();
+
+      const { error } = await sb.from("agendas").update(payload).eq("id", id);
+      if(error){
+        console.error(error);
+        alert("Erro ao atualizar pátio.");
+        return;
+      }
+
+      await carregarTudo();
+    }
+
+    async function mudarStatus(id, status){
+      const { error } = await sb.from("agendas").update({ status_global: status }).eq("id", id);
+      if(error){
+        console.error(error);
+        alert("Erro ao atualizar status.");
+        return;
+      }
+      await carregarTudo();
+    }
+
+    async function importarExcel(){
+      if(usuarioPerfil !== "admin"){
+        alert("Acesso negado");
+        return;
+      }
+
+      const file = document.getElementById("fileInput").files[0];
+      if(!file){
+        alert("Selecione um arquivo");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async function(e){
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type:'array'});
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet);
+
+        let count = 0;
+        for(const row of json){
+          const registro = {
+            dt: String(row["DT"] || row["dt"] || "").trim(),
+            ordem: row["Ordem"] || row["ordem"] || null,
+            remessa: row["Remessa"] || row["remessa"] || null,
+            cliente: row["Cliente"] || row["cliente"] || null,
+            transportadora: row["Transportadora"] || row["transportadora"] || null,
+            data_agenda: row["Data"] || row["data_agenda"] || null,
+            hora_agenda: row["Hora"] || row["hora_agenda"] || null,
+            tipo_carga: row["Tipo de carga"] || row["tipo_carga"] || null,
+            tipo_veiculo: row["Tipo de veículo"] || row["tipo_veiculo"] || null,
+            tipo_frete: row["Tipo de frete"] || row["tipo_frete"] || null,
+            perfil_carga: row["Perfil de carregamento"] || row["perfil_carga"] || null,
+            total_caixas: num(row["Total caixas"] || row["total_caixas"]),
+            he: num(row["HE"]),
+            ho: num(row["HO"]),
+            cubagem: num(row["Cubagem"] || row["metragem_cubica"]),
+            tonelagem: num(row["Tonelagem"] || row["tonelagem"]),
+            peso: num(row["Peso"] || row["peso"]),
+            status_global: "Agendado"
+          };
+
+          if(!registro.dt) continue;
+
+          const { error } = await sb.from("agendas").upsert(registro, { onConflict:"dt" });
+          if(!error) count++;
+        }
+
+        document.getElementById("statusUpload").innerText = `Importado: ${count} registros`;
+        await carregarTudo();
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+    function abrirDTPorId(id){
+      const item = registros.find(r => r.id === id);
+      if(item) abrirDTCompleta(item);
+    }
+
+    function abrirDTCompleta(item){
+      dtAtual = item;
+      document.getElementById("dtModal").classList.add("show");
+      document.getElementById("dtModalSub").textContent = `DT ${item.dt || "-"} • ${item.transportadora || "-"}`;
+
+      const map = {
+        m_dt: item.dt,
+        m_ordem: item.ordem,
+        m_remessa: item.remessa,
+        m_cliente: item.cliente,
+        m_transportadora: item.transportadora,
+        m_data_agenda: item.data_agenda,
+        m_hora_agenda: item.hora_agenda,
+        m_tipo_carga: item.tipo_carga,
+        m_tipo_veiculo: item.tipo_veiculo,
+        m_tipo_frete: item.tipo_frete,
+        m_perfil_carga: item.perfil_carga,
+        m_doca_agenda: item.doca_agenda,
+        m_status_global: item.status_global || "Agendado",
+        m_peso: item.peso,
+        m_cubagem: item.cubagem,
+        m_tonelagem: item.tonelagem,
+        m_he: item.he,
+        m_ho: item.ho,
+        m_total_caixas: item.total_caixas,
+        m_observacao_geral: item.observacao_geral,
+        m_doca_planejada: item.doca_planejada,
+        m_tipo_separacao: item.tipo_separacao,
+        m_status_separacao: item.status_separacao,
+        m_turno_separacao: item.turno_separacao,
+        m_conf_recebimento: item.conferente_recebimento,
+        m_status_recebimento: item.status_recebimento,
+        m_obs_separacao: item.obs_separacao,
+        m_conf_expedicao: item.conferente_expedicao,
+        m_faturado: item.faturado === true ? "true" : item.faturado === false ? "false" : "",
+        m_romaneio: item.romaneio,
+        m_caixas_embarcadas: item.caixas_embarcadas,
+        m_operador: item.operador,
+        m_mao_obra: item.mao_obra,
+        m_motorista: item.motorista,
+        m_placa_cavalo: item.placa_cavalo,
+        m_placa_carreta: item.placa_carreta,
+        m_presente_ausente: item.presente_ausente,
+        m_doca_carregamento: item.doca_carregamento,
+        m_obs_carregamento: item.obs_carregamento
+      };
+
+      Object.entries(map).forEach(([id,val]) => {
+        const el = document.getElementById(id);
+        if(el) el.value = val ?? "";
+      });
+
+      document.getElementById("m_inicio_separacao").value = toInputDateTime(item.inicio_separacao);
+      document.getElementById("m_fim_separacao").value = toInputDateTime(item.fim_separacao);
+      document.getElementById("m_inicio_recebimento").value = toInputDateTime(item.inicio_recebimento);
+      document.getElementById("m_fim_recebimento").value = toInputDateTime(item.fim_recebimento);
+      document.getElementById("m_data_faturamento").value = toInputDateTime(item.data_faturamento);
+      document.getElementById("m_retirada_nf").value = toInputDateTime(item.retirada_nf);
+      document.getElementById("m_chegada_motorista").value = toInputDateTime(item.chegada_motorista);
+      document.getElementById("m_data_em_doca").value = toInputDateTime(item.data_em_doca);
+      document.getElementById("m_inicio_carregamento").value = toInputDateTime(item.inicio_carregamento);
+      document.getElementById("m_fim_carregamento").value = toInputDateTime(item.fim_carregamento);
+    }
+
+    function fecharDTModal(){
+      document.getElementById("dtModal").classList.remove("show");
+      dtAtual = null;
+    }
+
+    async function salvarDTModal(){
+      if(!dtAtual) return;
+      if(usuarioPerfil === "portaria"){
+        alert("Seu perfil não pode editar DTs.");
+        return;
+      }
+
+      const payload = {
+        ordem: document.getElementById("m_ordem").value || null,
+        remessa: document.getElementById("m_remessa").value || null,
+        cliente: document.getElementById("m_cliente").value || null,
+        transportadora: document.getElementById("m_transportadora").value || null,
+        data_agenda: document.getElementById("m_data_agenda").value || null,
+        hora_agenda: document.getElementById("m_hora_agenda").value || null,
+        tipo_carga: document.getElementById("m_tipo_carga").value || null,
+        tipo_veiculo: document.getElementById("m_tipo_veiculo").value || null,
+        tipo_frete: document.getElementById("m_tipo_frete").value || null,
+        perfil_carga: document.getElementById("m_perfil_carga").value || null,
+        doca_agenda: document.getElementById("m_doca_agenda").value || null,
+        status_global: document.getElementById("m_status_global").value || null,
+        peso: num(document.getElementById("m_peso").value),
+        cubagem: num(document.getElementById("m_cubagem").value),
+        tonelagem: num(document.getElementById("m_tonelagem").value),
+        he: num(document.getElementById("m_he").value),
+        ho: num(document.getElementById("m_ho").value),
+        total_caixas: num(document.getElementById("m_total_caixas").value),
+        observacao_geral: document.getElementById("m_observacao_geral").value || null,
+
+        doca_planejada: document.getElementById("m_doca_planejada").value || null,
+        tipo_separacao: document.getElementById("m_tipo_separacao").value || null,
+        inicio_separacao: document.getElementById("m_inicio_separacao").value || null,
+        fim_separacao: document.getElementById("m_fim_separacao").value || null,
+        status_separacao: document.getElementById("m_status_separacao").value || null,
+        turno_separacao: document.getElementById("m_turno_separacao").value || null,
+        inicio_recebimento: document.getElementById("m_inicio_recebimento").value || null,
+        fim_recebimento: document.getElementById("m_fim_recebimento").value || null,
+        conferente_recebimento: document.getElementById("m_conf_recebimento").value || null,
+        status_recebimento: document.getElementById("m_status_recebimento").value || null,
+        obs_separacao: document.getElementById("m_obs_separacao").value || null,
+
+        conferente_expedicao: document.getElementById("m_conf_expedicao").value || null,
+        faturado: document.getElementById("m_faturado").value === "" ? null : document.getElementById("m_faturado").value === "true",
+        data_faturamento: document.getElementById("m_data_faturamento").value || null,
+        romaneio: document.getElementById("m_romaneio").value || null,
+        retirada_nf: document.getElementById("m_retirada_nf").value || null,
+        caixas_embarcadas: num(document.getElementById("m_caixas_embarcadas").value),
+        operador: document.getElementById("m_operador").value || null,
+        mao_obra: document.getElementById("m_mao_obra").value || null,
+        motorista: document.getElementById("m_motorista").value || null,
+        placa_cavalo: document.getElementById("m_placa_cavalo").value || null,
+        placa_carreta: document.getElementById("m_placa_carreta").value || null,
+        presente_ausente: document.getElementById("m_presente_ausente").value || null,
+        chegada_motorista: document.getElementById("m_chegada_motorista").value || null,
+        doca_carregamento: document.getElementById("m_doca_carregamento").value || null,
+        data_em_doca: document.getElementById("m_data_em_doca").value || null,
+        inicio_carregamento: document.getElementById("m_inicio_carregamento").value || null,
+        fim_carregamento: document.getElementById("m_fim_carregamento").value || null,
+        obs_carregamento: document.getElementById("m_obs_carregamento").value || null
+      };
+
+      const { error } = await sb.from("agendas").update(payload).eq("id", dtAtual.id);
+      if(error){
+        console.error(error);
+        alert("Erro ao salvar DT.");
+        return;
+      }
+
+      showToast("DT salva com sucesso");
+      fecharDTModal();
+      await carregarTudo();
+    }
+
+    (function iniciar(){
+      const hoje = new Date();
+      const p = n => String(n).padStart(2,"0");
+      document.getElementById("filtroData").value = `${hoje.getFullYear()}-${p(hoje.getMonth()+1)}-${p(hoje.getDate())}`;
+    })();
+
+    async function boot(){
+      await testarConexao();
+      await verificarSessao();
+    }
+
+    boot();
+  </script>
 </body>
 </html>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// CORREÇÃO LOGIN SUPABASE
+const SUPABASE_URL = "https://jwprwgptefhvqzdewnfr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ePs_koxCzHKOsejBKA3BGA_fj3ENPIp";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function carregarPerfil() {
+    const { data: authData } = await sb.auth.getUser();
+    const user = authData.user;
+
+    const { data } = await sb
+        .from("usuarios")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+    return data;
+}
+</script>
