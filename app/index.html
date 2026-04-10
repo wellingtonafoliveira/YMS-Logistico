@@ -1660,38 +1660,38 @@
       const sheet = workbook.Sheets[nomeAba];
       const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-      json.forEach(row => {
+      for (const row of json) {
 
-        const dt = String(row["DT"] || row["dt"] || "").trim();
-        if(!dt) return;
+  const dt = String(row["DT"] || row["dt"] || row["CARRO"] || row["carro"] || "").trim();
 
-        registrosImportacao.push({
-          dt: dt,
-          ordem: row["Ordem"] || null,
-          remessa: row["Remessa"] || null,
-          cliente: row["Cliente"] || null,
-          transportadora: row["Transportadora"] || null,
+  if (!dt) continue;
 
-          data_agenda: normalizarData(row["Data"]),
-          hora_agenda: normalizarHora(row["Hora"]),
+  registrosImportacao.push({
+    dt: dt,
+    ordem: row["Ordem"] || null,
+    remessa: row["Remessa"] || null,
+    cliente: row["Cliente"] || null,
+    transportadora: row["Transportadora"] || null,
 
-          tipo_carga: row["Tipo de carga"] || null,
-          tipo_veiculo: row["Tipo de veículo"] || null,
-          tipo_frete: row["Tipo de frete"] || null,
-          perfil_carga: row["Perfil de carregamento"] || null,
+    data_agenda: normalizarData(row["Data"]),
+    hora_agenda: normalizarHora(row["Hora"]),
 
-          total_caixas: num(row["Total caixas"]),
-          he: num(row["HE"]),
-          ho: num(row["HO"]),
-          cubagem: num(row["Cubagem"]),
-          tonelagem: num(row["Tonelagem"]),
-          peso: num(row["Peso"]),
+    tipo_carga: row["Tipo de carga"] || null,
+    tipo_veiculo: row["Tipo de veículo"] || null,
+    tipo_frete: row["Tipo de frete"] || null,
+    perfil_carga: row["Perfil de carregamento"] || null,
 
-          status_global: "Agendado"
-        });
+    total_caixas: num(row["Total caixas"]),
+    he: num(row["HE"]),
+    ho: num(row["HO"]),
+    cubagem: num(row["Cubagem"]),
+    tonelagem: num(row["Tonelagem"]),
+    peso: num(row["Peso"]),
 
-      });
+    status_global: "Agendado"
+  });
 
+}
     });
 
     const { error } = await sb
