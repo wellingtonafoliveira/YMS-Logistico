@@ -1651,49 +1651,86 @@
   reader.onload = async function(e){
 
     const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, {type:'array'});
+    const workbook = XLSX.read(data, { type:'array' });
 
     let registrosImportacao = [];
+
+    function get(row, nomes){
+      for(let nome of nomes){
+        const key = Object.keys(row).find(k => k.toUpperCase().includes(nome.toUpperCase()));
+        if(key && row[key] !== undefined && row[key] !== "") return row[key];
+      }
+      return null;
+    }
+
+    function normalizarData(v){
+      if(!v) return null;
+
+      if(typeof v === "number"){
+        const base = new Date(1899,11,30);
+        const data = new Date(base.getTime() + v * 86400000);
+        return data.toISOString().split("T")[0];
+      }
+
+      const d = new Date(v);
+      if(isNaN(d)) return null;
+      return d.toISOString().split("T")[0];
+    }
+
+    function normalizarHora(v){
+      if(!v) return null;
+
+      if(typeof v === "number"){
+        const total = Math.round(v * 86400);
+        const h = String(Math.floor(total / 3600)).padStart(2,"0");
+        const m = String(Math.floor((total % 3600)/60)).padStart(2,"0");
+        return h + ":" + m;
+      }
+
+      const d = new Date("1970-01-01 " + v);
+      if(isNaN(d)) return null;
+      return d.toTimeString().slice(0,5);
+    }
 
     workbook.SheetNames.forEach(nomeAba => {
 
       const sheet = workbook.Sheets[nomeAba];
       const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-      for (const row of json) {
+      json.forEach(row => {
 
-  const dt = String(row["CARRO"] || "").trim();
-if (!dt) continue;
+        const dt = String(get(row, ["CARRO","DT","TRANSPORTE"])).trim();
+        if(!dt) return;
 
-registrosImportacao.push({
-  dt: dt,
+        registrosImportacao.push({
+          dt: dt,
 
-  ordem: row["ORDEM"] || null,
-  remessa: row["REMESSA"] || null,
+          ordem: get(row, ["ORDEM"]),
+          remessa: get(row, ["REMESSA"]),
+          cliente: get(row, ["CLIENTE"]),
+          transportadora: get(row, ["TRANSPORTADOR"]),
 
-  cliente: row["CLIENTE"] || null,
-  transportadora: row["TRANSPORTADOR"] || null,
+          data_agenda: normalizarData(get(row, ["DATA"])),
+          hora_agenda: normalizarHora(get(row, ["HORA"])),
 
-  data_agenda: normalizarData(row["DATA"]),
-  hora_agenda: normalizarHora(row["HORA"]),
+          tipo_carga: get(row, ["TPCARGA"]),
+          tipo_veiculo: get(row, ["TPCARRO"]),
+          tipo_frete: get(row, ["TPFRETE"]),
+          perfil_carga: get(row, ["PERFILCARGA"]),
 
-  tipo_carga: row["TPCARGA"] || null,
-  tipo_veiculo: row["TPCARRO"] || null,
-  tipo_frete: row["TPFRETE"] || null,
-  perfil_carga: row["PERFILCARGA"] || null,
+          total_caixas: num(get(row, ["TOTAL"])),
+          he: num(get(row, ["HE"])),
+          ho: num(get(row, ["HO"])),
 
-  total_caixas: num(row["Total"]),
-  he: num(row["HE"]),
-  ho: num(row["HO"]),
+          cubagem: num(get(row, ["CUBAGEM"])),
+          tonelagem: num(get(row, ["TON"])),
+          peso: num(get(row, ["PESO"])),
 
-  cubagem: num(row["CUBAGEM"]),
-  tonelagem: num(row["Ton"]),
-  peso: num(row["PESO"]),
+          status_global: "Agendado"
+        });
 
-  status_global: "Agendado"
-});
+      });
 
-}
     });
 
     const { error } = await sb
