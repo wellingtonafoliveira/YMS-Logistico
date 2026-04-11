@@ -1676,136 +1676,89 @@
       await carregarTudo();
     }
 async function importarExcel(){
-  if(usuarioPerfil !== "admin"){
-    alert("Acesso negado");
-    return;
-  }
+  try{
 
-  const file = document.getElementById("fileInput").files[0];
-  if(!file){
-    alert("Selecione um arquivo");
-    return;
-  }
-
-  const reader = new FileReader();
-
-  reader.onload = async function(e){
-
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type:'array' });
-
-    let total = 0;
-    let inseridos = 0;
-    let atualizados = 0;
-
-    function get(row, nomes){
-      for(let nome of nomes){
-        const key = Object.keys(row).find(k => k.toUpperCase().includes(nome.toUpperCase()));
-        if(key && row[key] !== undefined && row[key] !== "") return row[key];
-      }
-      return null;
+    if(usuarioPerfil !== "admin"){
+      alert("Acesso negado");
+      return;
     }
 
-    function normalizarData(v){
-      if(!v) return null;
-      if(typeof v === "number"){
-        const base = new Date(1899,11,30);
-        const data = new Date(base.getTime() + v * 86400000);
-        return data.toISOString().split("T")[0];
-      }
-      const d = new Date(v);
-      if(isNaN(d)) return null;
-      return d.toISOString().split("T")[0];
+    const file = document.getElementById("fileInput").files[0];
+    if(!file){
+      alert("Selecione um arquivo");
+      return;
     }
 
-    function normalizarHora(v){
-      if(!v) return null;
-      if(typeof v === "number"){
-        const total = Math.round(v * 86400);
-        const h = String(Math.floor(total / 3600)).padStart(2,"0");
-        const m = String(Math.floor((total % 3600)/60)).padStart(2,"0");
-        return h + ":" + m;
+    const reader = new FileReader();
+
+    reader.onload = async function(e){
+
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type:'array' });
+
+      let total = 0;
+      let inseridos = 0;
+      let atualizados = 0;
+
+      function get(row, nomes){
+        for(let nome of nomes){
+          const key = Object.keys(row).find(k => k.toUpperCase().includes(nome.toUpperCase()));
+          if(key && row[key]) return row[key];
+        }
+        return null;
       }
-      const d = new Date("1970-01-01 " + v);
-      if(isNaN(d)) return null;
-      return d.toTimeString().slice(0,5);
-    }
 
-    for (const nomeAba of workbook.SheetNames){
+      for (const nomeAba of workbook.SheetNames){
 
-      const sheet = workbook.Sheets[nomeAba];
-      const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+        const sheet = workbook.Sheets[nomeAba];
+        const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-      for (const row of json){
+        for (const row of json){
 
-        const dt = String(get(row, ["CARRO","DT","TRANSPORTE"])).trim();
-        if(!dt) continue;
+          const dt = String(get(row, ["CARRO","DT","TRANSPORTE"])).trim();
+          if(!dt) continue;
 
-        const registro = {
-          dt: dt,
-          ordem: get(row, ["ORDEM"]),
-          remessa: get(row, ["REMESSA"]),
-          cliente: get(row, ["CLIENTE"]),
-          transportadora: get(row, ["TRANSPORTADOR"]),
-          data_agenda: normalizarData(get(row, ["DATA"])),
-          hora_agenda: normalizarHora(get(row, ["HORA"])),
-          tipo_carga: get(row, ["TPCARGA"]),
-          tipo_veiculo: get(row, ["TPCARRO"]),
-          tipo_frete: get(row, ["TPFRETE"]),
-          perfil_carga: get(row, ["PERFILCARGA"]),
-          total_caixas: num(get(row, ["TOTAL"])),
-          he: num(get(row, ["HE"])),
-          ho: num(get(row, ["HO"])),
-          cubagem: num(get(row, ["CUBAGEM"])),
-          tonelagem: num(get(row, ["TON"])),
-          peso: num(get(row, ["PESO"])),
-          status_global: "Agendado"
-        };
-const { data: existe } = await sb
-  .from("agendas")
-  .select("id")
-  .eq("dt", dt)
-  .maybeSingle();
+          const registro = {
+            dt: dt,
+            cliente: get(row, ["CLIENTE"]),
+            transportadora: get(row, ["TRANSPORTADOR"]),
+            data_agenda: get(row, ["DATA"]),
+            hora_agenda: get(row, ["HORA"]),
+            peso: num(get(row, ["PESO"])),
+            status_global: "Agendado"
+          };
 
-if(existe){
+          const { data: existe } = await sb
+            .from("agendas")
+            .select("id")
+            .eq("dt", dt)
+            .maybeSingle();
 
-  // UPDATE
-  const { error } = await sb
-    .from("agendas")
-    .update(registro)
-    .eq("dt", dt);
+          if(existe){
+            const { error } = await sb.from("agendas").update(registro).eq("dt", dt);
+            if(!error) atualizados++;
+          } else {
+            const { error } = await sb.from("agendas").insert([registro]);
+            if(!error) inseridos++;
+          }
 
-  if(error){
-    console.error("ERRO UPDATE:", error);
-  } else {
-    atualizados++;
+          total++;
+        }
+      }
+
+      document.getElementById("statusUpload").innerText =
+        `Total: ${total} | Inseridos: ${inseridos} | Atualizados: ${atualizados}`;
+
+      await carregarTudo();
+    };
+
+    reader.readAsArrayBuffer(file);
+
+  }catch(err){
+    console.error(err);
+    alert("Erro na importação");
   }
-
-} else {
-
-  // INSERT
-  const { error } = await sb
-    .from("agendas")
-    .insert([registro]);
-
-  if(error){
-    console.error("ERRO INSERT:", error);
-  } else {
-    inseridos++;
-  }
-
 }
-        
-
-    document.getElementById("statusUpload").innerText =
-      `Total: ${total} | Inseridos: ${inseridos} | Atualizados: ${atualizados}`;
-
-    await carregarTudo();
-  };
-
-  reader.readAsArrayBuffer(file);
-}
-
 // 🔥 FUNÇÕES FORA DA IMPORTAÇÃO
 function normalizarData(valor){
   if(!valor) return null;
