@@ -1677,148 +1677,127 @@
     }
 async function importarExcel(){
 
-  try{
-
-    if(usuarioPerfil !== "admin"){
-      alert("Acesso negado");
-      return;
-    }
-
-    const file = document.getElementById("fileInput").files[0];
-    if(!file){
-      alert("Selecione um arquivo");
-      return;
-    }
-
-    const reader = new FileReader();
-
-    reader.onload = async function(e){
-
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type:'array' });
-
-      let registrosImportacao = [];
-
-      // 🔎 BUSCA FLEXÍVEL DE COLUNA (IGNORA O RESTO)
-      function get(row, nomes){
-        for(let nome of nomes){
-          const key = Object.keys(row).find(k =>
-            k.toUpperCase().replace(/\s/g,"").includes(nome.toUpperCase())
-          );
-          if(key && row[key] !== "" && row[key] !== undefined){
-            return row[key];
-          }
-        }
-        return null;
-      }
-
-      // 📅 DATA
-      function normalizarData(valor){
-        if(!valor) return null;
-
-        if(typeof valor === "number"){
-          const base = new Date(1899,11,30);
-          const data = new Date(base.getTime() + valor * 86400000);
-          return data.toISOString().split("T")[0];
-        }
-
-        const d = new Date(valor);
-        if(isNaN(d)) return null;
-        return d.toISOString().split("T")[0];
-      }
-
-      // ⏰ HORA
-      function normalizarHora(valor){
-        if(!valor) return null;
-
-        if(typeof valor === "number"){
-          const total = Math.round(valor * 86400);
-          const h = String(Math.floor(total / 3600)).padStart(2,"0");
-          const m = String(Math.floor((total % 3600)/60)).padStart(2,"0");
-          return h + ":" + m;
-        }
-
-        const d = new Date("1970-01-01 " + valor);
-        if(isNaN(d)) return null;
-        return d.toTimeString().slice(0,5);
-      }
-
-      // 🔁 PERCORRE TODAS AS ABAS
-      for (const nomeAba of workbook.SheetNames){
-
-        const sheet = workbook.Sheets[nomeAba];
-        const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-
-        for (const row of json){
-
-          const dt = String(get(row, ["CARRO","DT","TRANSPORTE"])).trim();
-
-          // ❌ IGNORA LINHA VAZIA
-          if(!dt) continue;
-
-          registrosImportacao.push({
-
-            dt: dt,
-
-            ordem: get(row, ["ORDEM"]),
-            remessa: get(row, ["REMESSA"]),
-
-            cliente: get(row, ["CLIENTE"]),
-            transportadora: get(row, ["TRANSPORTADOR"]),
-
-            data_agenda: normalizarData(get(row, ["DATA"])),
-            hora_agenda: normalizarHora(get(row, ["HORA"])),
-
-            tipo_carga: get(row, ["TPCARGA"]),
-            tipo_veiculo: get(row, ["TPCARRO"]),
-            tipo_frete: get(row, ["TPFRETE"]),
-            perfil_carga: get(row, ["PERFILCARGA"]),
-
-            total_caixas: num(get(row, ["TOTAL"])),
-            he: num(get(row, ["HE"])),
-            ho: num(get(row, ["HO"])),
-
-            cubagem: num(get(row, ["CUBAGEM"])),
-            tonelagem: num(get(row, ["TON"])),
-            peso: num(get(row, ["PESO"])),
-
-            status_global: "Agendado"
-
-          });
-
-        }
-      }
-
-      // ❌ SE NÃO TEM DADO
-      if(registrosImportacao.length === 0){
-        alert("Nenhum registro válido encontrado no Excel.");
-        return;
-      }
-
-      // 🚀 UPSERT EM MASSA (RÁPIDO E SEGURO)
-      const { error } = await sb
-        .from("agendas")
-        .upsert(registrosImportacao, { onConflict: "dt" });
-
-      if(error){
-       console.error(error);
-        alert("Erro ao importar: " + error.message);
-        return;
-      }
-
-      document.getElementById("statusUpload").innerText =
-        `Importado com sucesso: ${registrosImportacao.length} registros`;
-
-      await carregarTudo();
-
-    };
-
-    reader.readAsArrayBuffer(file);
-
-  }catch(err){
-    console.error(err);
-    alert("Erro inesperado na importação");
+  if(usuarioPerfil !== "admin"){
+    alert("Acesso negado");
+    return;
   }
+
+  const file = document.getElementById("fileInput").files[0];
+  if(!file){
+    alert("Selecione um arquivo");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = async function(e){
+
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type:'array' });
+
+    let registrosImportacao = [];
+
+    function get(row, nomes){
+      for(let nome of nomes){
+        const key = Object.keys(row).find(k => k.toUpperCase().includes(nome.toUpperCase()));
+        if(key && row[key] !== undefined && row[key] !== "") return row[key];
+      }
+      return null;
+    }
+
+    function num(v){
+      if(v === null || v === undefined || v === "") return null;
+      if(typeof v === "number") return v;
+      return parseFloat(String(v).replace(",", ".")) || null;
+    }
+
+    function normalizarData(v){
+      if(!v) return null;
+
+      if(typeof v === "number"){
+        const base = new Date(1899,11,30);
+        const data = new Date(base.getTime() + v * 86400000);
+        return data.toISOString().split("T")[0];
+      }
+
+      const d = new Date(v);
+      if(isNaN(d)) return null;
+      return d.toISOString().split("T")[0];
+    }
+
+    function normalizarHora(v){
+      if(!v) return null;
+
+      if(typeof v === "number"){
+        const total = Math.round(v * 86400);
+        const h = String(Math.floor(total / 3600)).padStart(2,"0");
+        const m = String(Math.floor((total % 3600)/60)).padStart(2,"0");
+        return h + ":" + m;
+      }
+
+      const d = new Date("1970-01-01 " + v);
+      if(isNaN(d)) return null;
+      return d.toTimeString().slice(0,5);
+    }
+
+    // 🔁 LÊ TODAS AS ABAS
+    for (const nomeAba of workbook.SheetNames){
+
+      const sheet = workbook.Sheets[nomeAba];
+      const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+      for (const row of json){
+
+        const dt = String(get(row, ["CARRO","DT","TRANSPORTE"])).trim();
+        if(!dt) continue;
+
+        const registro = {
+          dt: dt,
+
+          ordem: get(row, ["ORDEM"]),
+          remessa: get(row, ["REMESSA"]),
+          cliente: get(row, ["CLIENTE"]),
+          transportadora: get(row, ["TRANSPORTADOR"]),
+
+          data_agenda: normalizarData(get(row, ["DATA"])),
+          hora_agenda: normalizarHora(get(row, ["HORA"])),
+
+          tipo_carga: get(row, ["TPCARGA"]),
+          tipo_veiculo: get(row, ["TPCARRO"]),
+          tipo_frete: get(row, ["TPFRETE"]),
+          perfil_carga: get(row, ["PERFILCARGA"]),
+
+          total_caixas: num(get(row, ["TOTAL"])),
+
+          cubagem: num(get(row, ["CUBAGEM"])),
+          tonelagem: num(get(row, ["TON"])),
+          peso: num(get(row, ["PESO"])),
+
+          status_global: "Agendado"
+        };
+
+        registrosImportacao.push(registro);
+      }
+    }
+
+    // 🚀 UPSERT EM MASSA
+    const { error } = await sb
+      .from("agendas")
+      .upsert(registrosImportacao, { onConflict: "dt" });
+
+    if(error){
+      console.error("ERRO COMPLETO:", error);
+      alert("Erro ao importar: " + error.message);
+      return;
+    }
+
+    document.getElementById("statusUpload").innerText =
+      "Importado com sucesso: " + registrosImportacao.length + " registros";
+
+    await carregarTudo();
+  };
+
+  reader.readAsArrayBuffer(file);
 }
 // 🔥 FUNÇÕES FORA DA IMPORTAÇÃO
 function normalizarData(valor){
