@@ -1801,7 +1801,7 @@ async function importarExcel(){
         .upsert(registrosImportacao, { onConflict: "dt" });
 
       if(error){
-        console.error(error);
+       console.error(error);
         alert("Erro ao importar: " + error.message);
         return;
       }
