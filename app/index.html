@@ -1719,34 +1719,41 @@ async function importarExcel(){
           peso: num(get(row, ["PESO"])),
           status_global: "Agendado"
         };
+const { data: existe } = await sb
+  .from("agendas")
+  .select("id")
+  .eq("dt", dt)
+  .maybeSingle();
 
-        // 🔍 VERIFICA SE EXISTE
-        const { data: existe } = await sb
-          .from("agendas")
-          .select("id")
-          .eq("dt", dt)
-          .maybeSingle();
+if(existe){
 
-        if(existe){
-          // UPDATE
-          const { error } = await sb
-            .from("agendas")
-            .update(registro)
-            .eq("dt", dt);
+  // UPDATE
+  const { error } = await sb
+    .from("agendas")
+    .update(registro)
+    .eq("dt", dt);
 
-          if(!error) atualizados++;
-        } else {
-          // INSERT
-          const { error } = await sb
-            .from("agendas")
-            .insert([registro]);
+  if(error){
+    console.error("ERRO UPDATE:", error);
+  } else {
+    atualizados++;
+  }
 
-          if(!error) inseridos++;
-        }
+} else {
 
-        total++;
-      }
-    }
+  // INSERT
+  const { error } = await sb
+    .from("agendas")
+    .insert([registro]);
+
+  if(error){
+    console.error("ERRO INSERT:", error);
+  } else {
+    inseridos++;
+  }
+
+}
+        
 
     document.getElementById("statusUpload").innerText =
       `Total: ${total} | Inseridos: ${inseridos} | Atualizados: ${atualizados}`;
