@@ -1676,6 +1676,7 @@
       await carregarTudo();
     }
 async function importarExcel(){
+
   try{
 
     if(usuarioPerfil !== "admin"){
@@ -1696,18 +1697,53 @@ async function importarExcel(){
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type:'array' });
 
-      let total = 0;
-      let inseridos = 0;
-      let atualizados = 0;
+      let registrosImportacao = [];
 
+      // 🔎 BUSCA FLEXÍVEL DE COLUNA (IGNORA O RESTO)
       function get(row, nomes){
         for(let nome of nomes){
-          const key = Object.keys(row).find(k => k.toUpperCase().includes(nome.toUpperCase()));
-          if(key && row[key]) return row[key];
+          const key = Object.keys(row).find(k =>
+            k.toUpperCase().replace(/\s/g,"").includes(nome.toUpperCase())
+          );
+          if(key && row[key] !== "" && row[key] !== undefined){
+            return row[key];
+          }
         }
         return null;
       }
 
+      // 📅 DATA
+      function normalizarData(valor){
+        if(!valor) return null;
+
+        if(typeof valor === "number"){
+          const base = new Date(1899,11,30);
+          const data = new Date(base.getTime() + valor * 86400000);
+          return data.toISOString().split("T")[0];
+        }
+
+        const d = new Date(valor);
+        if(isNaN(d)) return null;
+        return d.toISOString().split("T")[0];
+      }
+
+      // ⏰ HORA
+      function normalizarHora(valor){
+        if(!valor) return null;
+
+        if(typeof valor === "number"){
+          const total = Math.round(valor * 86400);
+          const h = String(Math.floor(total / 3600)).padStart(2,"0");
+          const m = String(Math.floor((total % 3600)/60)).padStart(2,"0");
+          return h + ":" + m;
+        }
+
+        const d = new Date("1970-01-01 " + valor);
+        if(isNaN(d)) return null;
+        return d.toTimeString().slice(0,5);
+      }
+
+      // 🔁 PERCORRE TODAS AS ABAS
       for (const nomeAba of workbook.SheetNames){
 
         const sheet = workbook.Sheets[nomeAba];
@@ -1716,47 +1752,72 @@ async function importarExcel(){
         for (const row of json){
 
           const dt = String(get(row, ["CARRO","DT","TRANSPORTE"])).trim();
+
+          // ❌ IGNORA LINHA VAZIA
           if(!dt) continue;
 
-          const registro = {
+          registrosImportacao.push({
+
             dt: dt,
+
+            ordem: get(row, ["ORDEM"]),
+            remessa: get(row, ["REMESSA"]),
+
             cliente: get(row, ["CLIENTE"]),
             transportadora: get(row, ["TRANSPORTADOR"]),
-            data_agenda: get(row, ["DATA"]),
-            hora_agenda: get(row, ["HORA"]),
+
+            data_agenda: normalizarData(get(row, ["DATA"])),
+            hora_agenda: normalizarHora(get(row, ["HORA"])),
+
+            tipo_carga: get(row, ["TPCARGA"]),
+            tipo_veiculo: get(row, ["TPCARRO"]),
+            tipo_frete: get(row, ["TPFRETE"]),
+            perfil_carga: get(row, ["PERFILCARGA"]),
+
+            total_caixas: num(get(row, ["TOTAL"])),
+            he: num(get(row, ["HE"])),
+            ho: num(get(row, ["HO"])),
+
+            cubagem: num(get(row, ["CUBAGEM"])),
+            tonelagem: num(get(row, ["TON"])),
             peso: num(get(row, ["PESO"])),
+
             status_global: "Agendado"
-          };
 
-          const { data: existe } = await sb
-            .from("agendas")
-            .select("id")
-            .eq("dt", dt)
-            .maybeSingle();
+          });
 
-          if(existe){
-            const { error } = await sb.from("agendas").update(registro).eq("dt", dt);
-            if(!error) atualizados++;
-          } else {
-            const { error } = await sb.from("agendas").insert([registro]);
-            if(!error) inseridos++;
-          }
-
-          total++;
         }
       }
 
+      // ❌ SE NÃO TEM DADO
+      if(registrosImportacao.length === 0){
+        alert("Nenhum registro válido encontrado no Excel.");
+        return;
+      }
+
+      // 🚀 UPSERT EM MASSA (RÁPIDO E SEGURO)
+      const { error } = await sb
+        .from("agendas")
+        .upsert(registrosImportacao, { onConflict: "dt" });
+
+      if(error){
+        console.error(error);
+        alert("Erro ao importar: " + error.message);
+        return;
+      }
+
       document.getElementById("statusUpload").innerText =
-        `Total: ${total} | Inseridos: ${inseridos} | Atualizados: ${atualizados}`;
+        `Importado com sucesso: ${registrosImportacao.length} registros`;
 
       await carregarTudo();
+
     };
 
     reader.readAsArrayBuffer(file);
 
   }catch(err){
     console.error(err);
-    alert("Erro na importação");
+    alert("Erro inesperado na importação");
   }
 }
 // 🔥 FUNÇÕES FORA DA IMPORTAÇÃO
