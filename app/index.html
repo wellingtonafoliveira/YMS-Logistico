@@ -1779,11 +1779,19 @@ async function importarExcel(){
         registrosImportacao.push(registro);
       }
     }
+// 🧠 REMOVE DUPLICADOS POR DT
+const mapa = new Map();
 
-    // 🚀 UPSERT EM MASSA
-    const { error } = await sb
-      .from("agendas")
-      .upsert(registrosImportacao, { onConflict: "dt" });
+for (const item of registrosImportacao){
+  mapa.set(item.dt, item); // mantém o último registro da DT
+}
+
+const registrosUnicos = Array.from(mapa.values());
+
+// 🚀 UPSERT LIMPO
+const { error } = await sb
+  .from("agendas")
+  .upsert(registrosUnicos, { onConflict: "dt" });
 
     if(error){
       console.error("ERRO COMPLETO:", error);
