@@ -1999,10 +1999,6 @@ function normalizarHora(valor){
     document.getElementById("loginEmail").addEventListener("keydown", (e) => {
       if(e.key === "Enter") login();
     });
-    document.getElementById("loginSenha").addEventListener("keydown", (e) => {
-      if(e.key === "Enter") login();
-    });
-
     async function boot(){
       await testarConexao();
       await verificarSessao();
