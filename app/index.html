@@ -1815,7 +1815,7 @@ function normalizarData(valor){
     const data = new Date(base.getTime() + valor * 86400000);
     return data.toISOString().split("T")[0];
   }
-
+}
   return valor;
 }
 
