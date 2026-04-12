@@ -624,12 +624,12 @@
         <button id="menu-separacao" onclick="setView('separacao', this)">Separação</button>
         <button id="menu-expedicao" onclick="setView('expedicao', this)">Expedição</button>
         <button id="menu-patio" onclick="setView('patio', this)">Pátio</button>
+        <button onclick="setView('motoristas', this)">Motoristas</button>
+        <button onclick="setView('transportadoras', this)">Transportadoras</button>
         <button id="menu-docas" onclick="setView('docas', this)">Docas</button>
         <button id="menu-checkin" onclick="setView('checkin', this)">Check-in</button>
         <button id="menu-relatorios" onclick="setView('relatorios', this)">Relatórios</button>
         <button id="menu-admin" onclick="setView('admin', this)">Admin</button>
-        <button onclick="setView('motoristas', this)">Motoristas</button>
-        <button onclick="setView('transportadoras', this)">Transportadoras</button>
       </div>
 
       <div class="sidebar-note">
@@ -876,6 +876,30 @@
           <p id="statusUpload" style="color:var(--muted)"></p>
         </div>
       </section>
+      
+      <section id="view-motoristas" class="hidden">
+  <div class="card">
+    <h2>Cadastro de Motoristas</h2>
+    <div class="fields">
+      <div><label>Nome</label><input id="m_nome"></div>
+      <div><label>CPF</label><input id="m_cpf"></div>
+      <div><label>Telefone</label><input id="m_telefone"></div>
+    </div>
+    <button class="btn btn-primary" onclick="salvarMotorista()">Salvar</button>
+    <table><tbody id="listaMotoristas"></tbody></table>
+  </div>
+</section>
+
+<section id="view-transportadoras" class="hidden">
+  <div class="card">
+    <h2>Cadastro de Transportadoras</h2>
+    <div class="fields">
+      <div><label>Nome</label><input id="t_nome"></div>
+    </div>
+    <button class="btn btn-primary" onclick="salvarTransportadora()">Salvar</button>
+    <table><tbody id="listaTransportadoras"></tbody></table>
+  </div>
+</section>
 
       <footer>
         © 2026 Wellington Alves - Sistema de Gestão Logística
@@ -961,7 +985,7 @@
           </div>
         </div>
 
-        <div class="card">
+        <div class="card">    
           <h3>Expedição / Pátio</h3>
           <div class="fields" style="grid-template-columns:repeat(2,1fr)">
             <div><label>Conferente expedição</label><select id="m_conf_expedicao"></select></div>
@@ -1084,7 +1108,7 @@
       document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
       if(targetBtn) targetBtn.classList.add("active");
 
-      ["dashboard","agenda","separacao","expedicao","patio","docas","checkin","relatorios","admin"].forEach(v=>{
+      ["dashboard","agenda","separacao","expedicao","patio""motoristas","transportadoras","docas","checkin","relatorios","admin"].forEach(v=>{
         document.getElementById(`view-${v}`).classList.add("hidden");
       });
 
@@ -2040,6 +2064,54 @@ async function moverStatusDrag(id, status){
   }
 
   await carregarTudo();
+}
+    async function salvarMotorista(){
+
+  const payload = {
+    nome: document.getElementById("m_nome").value,
+    cpf: document.getElementById("m_cpf").value,
+    telefone: document.getElementById("m_telefone").value
+  };
+
+  await sb.from("motoristas").insert([payload]);
+  carregarMotoristas();
+}
+
+async function carregarMotoristas(){
+
+  const { data } = await sb.from("motoristas").select("*");
+
+  document.getElementById("listaMotoristas").innerHTML =
+    data.map(m => `
+      <tr>
+        <td>${m.nome}</td>
+        <td>${m.cpf}</td>
+        <td>${m.telefone}</td>
+      </tr>
+    `).join("");
+}
+
+async function salvarTransportadora(){
+
+  const payload = {
+    nome: document.getElementById("t_nome").value,
+    cnpj: document.getElementById("t_cnpj").value
+  };
+
+  await sb.from("transportadoras").insert([payload]);
+  carregarTransportadoras();
+}
+
+async function carregarTransportadoras(){
+
+  const { data } = await sb.from("transportadoras").select("*");
+
+  document.getElementById("listaTransportadoras").innerHTML =
+    data.map(t => `
+      <tr>
+        <td>${t.nome}</td>
+      </tr>
+    `).join("");
 }
   </script>
 </body>
