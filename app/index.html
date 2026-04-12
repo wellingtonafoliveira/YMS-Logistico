@@ -1601,29 +1601,25 @@
 
   const rows = linhasFiltradas();
 
-  // 🔹 RESUMO
-  document.getElementById("relatorioResumo").innerHTML = `
-    <div class="kpi"><div class="label">DTs</div><div class="value">${rows.length}</div></div>
-    <div class="kpi"><div class="label">Caixas (HE)</div><div class="value">${rows.reduce((a,b)=>a+(b.total_caixas||0),0)}</div></div>
-    <div class="kpi"><div class="label">Paletes (HO)</div><div class="value">${rows.reduce((a,b)=>a+(b.paletes||0),0)}</div></div>
-    <div class="kpi"><div class="label">Expedidos</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div></div>
-  `;
+document.getElementById("relatorioResumo").innerHTML = `
+  <div class="kpi"><div class="label">Total Caixas</div><div class="value">${rows.reduce((a,b)=>a+(b.total_caixas||0),0)}</div></div>
+  <div class="kpi"><div class="label">Picking (HE)</div><div class="value">${rows.reduce((a,b)=>a+(b.caixas_he||0),0)}</div></div>
+  <div class="kpi"><div class="label">Paletes (HO)</div><div class="value">${rows.reduce((a,b)=>a+(b.paletes_ho||0),0)}</div></div>
+`;
 
   const turnos = ["T1","T2","T3"];
 
-  // 🔥 HE = CAIXAS
-  const heData = turnos.map(t =>
-    rows
-      .filter(r => r.turno_separacao === t)
-      .reduce((a,b)=>a+(b.total_caixas||0),0)
-  );
+ const heData = turnos.map(t =>
+  rows
+    .filter(r => r.turno_separacao === t)
+    .reduce((a,b)=>a+(b.caixas_he||0),0)
+);
 
-  // 🔥 HO = PALETES / PL
-  const hoData = turnos.map(t =>
-    rows
-      .filter(r => r.turno_separacao === t)
-      .reduce((a,b)=>a+(b.paletes||0),0)
-  );
+const hoData = turnos.map(t =>
+  rows
+    .filter(r => r.turno_separacao === t)
+    .reduce((a,b)=>a+(b.paletes_ho||0),0)
+);
 
   // 🔥 LIMPAR GRÁFICO ANTIGO
   if(window.chartHE) window.chartHE.destroy();
