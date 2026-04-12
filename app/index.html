@@ -1108,7 +1108,7 @@
       document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
       if(targetBtn) targetBtn.classList.add("active");
 
-      ["dashboard","agenda","separacao","expedicao","patio""motoristas","transportadoras","docas","checkin","relatorios","admin"].forEach(v=>{
+      ["dashboard","agenda","separacao","expedicao","patio","motoristas","transportadoras","docas","checkin","relatorios","admin"].forEach(v=>{
         document.getElementById(`view-${v}`).classList.add("hidden");
       });
 
