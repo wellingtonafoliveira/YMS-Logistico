@@ -1615,33 +1615,32 @@ document.getElementById("relatorioResumo").innerHTML = `
     .reduce((a,b)=>a+(b.caixas_he||0),0)
 );
 
-const hoData = turnos.map(t =>
-  rows
+const turnos = ["T1","T2","T3","Sem turno"];
+
+const heData = turnos.map(t => {
+  if(t === "Sem turno"){
+    return rows
+      .filter(r => !r.turno_separacao)
+      .reduce((a,b)=>a+(b.caixas_he||0),0);
+  }
+
+  return rows
     .filter(r => r.turno_separacao === t)
-    .reduce((a,b)=>a+(b.paletes_ho||0),0)
-);
+    .reduce((a,b)=>a+(b.caixas_he||0),0);
+});
 
-  // 🔥 LIMPAR GRÁFICO ANTIGO
-  if(window.chartHE) window.chartHE.destroy();
+const hoData = turnos.map(t => {
+  if(t === "Sem turno"){
+    return rows
+      .filter(r => !r.turno_separacao)
+      .reduce((a,b)=>a+(b.paletes_ho||0),0);
+  }
 
-  // 🔥 GRÁFICO ESTILO POWER BI
-  window.chartHE = new Chart(document.getElementById("graficoHE"), {
-    data: {
-      labels: turnos,
-      datasets: [
-        {
-          type: "bar",
-          label: "HE (Caixas)",
-          data: heData
-        },
-        {
-          type: "line",
-          label: "HO (Paletes)",
-          data: hoData
-        }
-      ]
-    }
-  });
+  return rows
+    .filter(r => r.turno_separacao === t)
+    .reduce((a,b)=>a+(b.paletes_ho||0),0);
+});
+
 
   // 🔹 STATUS
   document.getElementById("statusEtiquetagem").innerHTML = `
