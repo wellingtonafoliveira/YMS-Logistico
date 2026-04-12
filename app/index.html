@@ -10,6 +10,7 @@
 
   <style>
 
+    
     :root{
       --bg:#08111f;
       --sidebar:#0b1627;
@@ -1388,25 +1389,6 @@
         <div class="kpi"><div class="label">Expedidas</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div><div class="sub">concluídas</div></div>
         <div class="kpi"><div class="label">Atrasadas</div><div class="value">${rows.filter(x=>calcSla(x).label==="Atrasado").length}</div><div class="sub">SLA</div></div>
       `;
-
-      document.getElementById("dashboardResultadosGerais").innerHTML = `
-        <div class="kpi"><div class="label">DTs no dia</div><div class="value">${rows.length}</div><div class="sub">total filtrado</div></div>
-        <div class="kpi"><div class="label">Peso total</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0)}</div><div class="sub">kg</div></div>
-        <div class="kpi"><div class="label">Caixas totais</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.total_caixas)||0),0)}</div><div class="sub">volumes</div></div>
-      `;
-
-      document.getElementById("dashboardResultadosSeparacao").innerHTML = `
-        <div class="kpi"><div class="label">Em separação</div><div class="value">${rows.filter(x=>x.status_global==="Em Separação").length}</div><div class="sub">andamento</div></div>
-        <div class="kpi"><div class="label">Separadas</div><div class="value">${rows.filter(x=>x.status_global==="Separado").length}</div><div class="sub">concluídas</div></div>
-        <div class="kpi"><div class="label">Recebimento pendente</div><div class="value">${rows.filter(x=>!x.status_recebimento || x.status_recebimento==="PENDENTE").length}</div><div class="sub">atenção</div></div>
-      `;
-
-      document.getElementById("dashboardResultadosExpedicao").innerHTML = `
-        <div class="kpi"><div class="label">Pronto expedição</div><div class="value">${rows.filter(x=>x.status_global==="Pronto Expedição").length}</div><div class="sub">fila</div></div>
-        <div class="kpi"><div class="label">Em carregamento</div><div class="value">${rows.filter(x=>x.status_global==="Em Carregamento").length}</div><div class="sub">docas ativas</div></div>
-        <div class="kpi"><div class="label">Expedidas</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div><div class="sub">encerradas</div></div>
-      `;
-
       document.getElementById("dashboardBoard").innerHTML = STAGES.map(st => {
         const itens = rows.filter(r => r.status_global === st);
         return `
