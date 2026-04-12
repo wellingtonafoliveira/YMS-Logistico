@@ -1816,29 +1816,36 @@ async function importarExcel(){
         if(!dt) continue;
 
         const registro = {
-          dt: dt,
+  dt: dt,
 
-          ordem: get(row, ["ORDEM"]),
-          remessa: get(row, ["REMESSA"]),
-          cliente: get(row, ["CLIENTE"]),
-          transportadora: get(row, ["TRANSPORTADOR"]),
+  ordem: row["ORDEM"] || null,
+  remessa: row["REMESSA"] || null,
+  cliente: row["CLIENTE"] || null,
+  transportadora: row["TRANSPORTADOR"] || null,
 
-          data_agenda: normalizarData(get(row, ["DATA"])),
-          hora_agenda: normalizarHora(get(row, ["HORA"])),
+  data_agenda: normalizarData(row["DATA"]),
+  hora_agenda: normalizarHora(row["HORA"]),
 
-          tipo_carga: get(row, ["TPCARGA"]),
-          tipo_veiculo: get(row, ["TPCARRO"]),
-          tipo_frete: get(row, ["TPFRETE"]),
-          perfil_carga: get(row, ["PERFILCARGA"]),
+  tipo_carga: row["TPCARGA"] || null,
+  tipo_veiculo: row["TPCARRO"] || null,
+  tipo_frete: row["TPFRETE"] || null,
+  perfil_carga: row["PERFILCARGA"] || null,
 
-          total_caixas: num(get(row, ["TOTAL"])),
+  // 🔥 VOLUME TOTAL
+  total_caixas: num(row["TOTAL"]),
 
-          cubagem: num(get(row, ["CUBAGEM"])),
-          tonelagem: num(get(row, ["TON"])),
-          peso: num(get(row, ["PESO"])),
+  // 🔥 PRODUÇÃO SEPARAÇÃO
+  caixas_he: num(row["HE"]),
 
-          status_global: "Agendado"
-        };
+  // 🔥 PRODUÇÃO EMPILHADEIRA
+  paletes_ho: num(row["HO"]),
+
+  cubagem: num(row["CUBAGEM"]),
+  tonelagem: num(row["TON"]),
+  peso: num(row["PESO"]),
+
+  status_global: "Agendado"
+};
 
         registrosImportacao.push(registro);
       }
