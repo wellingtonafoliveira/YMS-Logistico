@@ -1598,14 +1598,62 @@
     }
 
     function renderRelatorios(){
-      const rows = linhasFiltradas();
-      document.getElementById("relatoriosKpis").innerHTML = `
-        <div class="kpi"><div class="label">Presentes</div><div class="value">${rows.filter(r => r.presente_ausente === "Presente").length}</div><div class="sub">check-in</div></div>
-        <div class="kpi"><div class="label">Em doca</div><div class="value">${rows.filter(r => r.status_global === "Em Doca").length}</div><div class="sub">ocupação</div></div>
-        <div class="kpi"><div class="label">Carregando</div><div class="value">${rows.filter(r => r.status_global === "Em Carregamento").length}</div><div class="sub">execução</div></div>
-        <div class="kpi"><div class="label">Expedidos</div><div class="value">${rows.filter(r => r.status_global === "Expedido").length}</div><div class="sub">finalizados</div></div>
-      `;
+
+  const rows = linhasFiltradas();
+
+  // 🔹 RESUMO
+  document.getElementById("relatorioResumo").innerHTML = `
+    <div class="kpi"><div class="label">DTs</div><div class="value">${rows.length}</div></div>
+    <div class="kpi"><div class="label">Caixas (HE)</div><div class="value">${rows.reduce((a,b)=>a+(b.total_caixas||0),0)}</div></div>
+    <div class="kpi"><div class="label">Paletes (HO)</div><div class="value">${rows.reduce((a,b)=>a+(b.paletes||0),0)}</div></div>
+    <div class="kpi"><div class="label">Expedidos</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div></div>
+  `;
+
+  const turnos = ["T1","T2","T3"];
+
+  // 🔥 HE = CAIXAS
+  const heData = turnos.map(t =>
+    rows
+      .filter(r => r.turno_separacao === t)
+      .reduce((a,b)=>a+(b.total_caixas||0),0)
+  );
+
+  // 🔥 HO = PALETES / PL
+  const hoData = turnos.map(t =>
+    rows
+      .filter(r => r.turno_separacao === t)
+      .reduce((a,b)=>a+(b.paletes||0),0)
+  );
+
+  // 🔥 LIMPAR GRÁFICO ANTIGO
+  if(window.chartHE) window.chartHE.destroy();
+
+  // 🔥 GRÁFICO ESTILO POWER BI
+  window.chartHE = new Chart(document.getElementById("graficoHE"), {
+    data: {
+      labels: turnos,
+      datasets: [
+        {
+          type: "bar",
+          label: "HE (Caixas)",
+          data: heData
+        },
+        {
+          type: "line",
+          label: "HO (Paletes)",
+          data: hoData
+        }
+      ]
     }
+  });
+
+  // 🔹 STATUS
+  document.getElementById("statusEtiquetagem").innerHTML = `
+    <div class="kpi"><div class="label">Total</div><div class="value">${rows.length}</div></div>
+    <div class="kpi"><div class="label">Realizado</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div></div>
+    <div class="kpi"><div class="label">Pendente</div><div class="value">${rows.filter(x=>x.status_global!=="Expedido").length}</div></div>
+  `;
+}
 
     async function registrarCheckin(){
       const id = document.getElementById("c_dt").value;
