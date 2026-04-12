@@ -1316,7 +1316,23 @@
       registros = data || [];
       renderTudo();
     }
+    
+    // 🔥 DEFINIR TURNO AUTOMÁTICO
+function definirTurno(hora){
 
+  if(!hora) return "Sem turno";
+
+  try{
+    const h = parseInt(String(hora).split(":")[0]);
+
+    if(h >= 6 && h < 14) return "T1";
+    if(h >= 14 && h < 22) return "T2";
+    return "T3";
+  }catch{
+    return "Sem turno";
+  }
+}
+    
     function renderTudo(){
       renderDashboard();
       renderAgenda();
