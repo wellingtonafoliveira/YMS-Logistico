@@ -1398,13 +1398,13 @@
       document.getElementById("dashboardBoard").innerHTML = STAGES.map(st => {
         const itens = rows.filter(r => r.status_global === st);
         return `
-          <div class="lane">
+         <div class="lane" data-status="${st}">
             <div class="lane-head">
               <h3>${st}</h3>
               <span class="count">${itens.length}</span>
             </div>
             ${itens.map(r => `
-              <div class="item" onclick="abrirDTPorId('${r.id}')">
+              <div class="item" data-id="${r.id}" onclick="abrirDTPorId('${r.id}')">
                 <strong>DT ${r.dt || "-"}</strong>
                 <div class="meta">${r.transportadora || "-"}<br>${r.cliente || "-"}</div>
               </div>
@@ -1412,6 +1412,7 @@
           </div>
         `;
       }).join("");
+      setTimeout(initDragDrop, 200);
     }
 
     function renderAgenda(){
@@ -1992,6 +1993,52 @@ function normalizarHora(valor){
     }
 
     boot();
+    let draggedId = null;
+
+function initDragDrop(){
+
+  document.querySelectorAll(".item").forEach(el => {
+    el.draggable = true;
+
+    el.addEventListener("dragstart", e => {
+      draggedId = el.dataset.id;
+    });
+  });
+
+  document.querySelectorAll(".lane").forEach(lane => {
+
+    lane.addEventListener("dragover", e => {
+      e.preventDefault();
+    });
+
+    lane.addEventListener("drop", async e => {
+      e.preventDefault();
+
+      const novoStatus = lane.dataset.status;
+
+      if(!draggedId) return;
+
+      await moverStatusDrag(draggedId, novoStatus);
+
+      draggedId = null;
+    });
+  });
+}
+
+async function moverStatusDrag(id, status){
+
+  const { error } = await sb
+    .from("agendas")
+    .update({ status_global: status })
+    .eq("id", id);
+
+  if(error){
+    alert("Erro ao mover");
+    return;
+  }
+
+  await carregarTudo();
+}
   </script>
 </body>
 </html>
