@@ -1607,15 +1607,7 @@ document.getElementById("relatorioResumo").innerHTML = `
   <div class="kpi"><div class="label">Paletes (HO)</div><div class="value">${rows.reduce((a,b)=>a+(b.paletes_ho||0),0)}</div></div>
 `;
 
-  const turnos = ["T1","T2","T3"];
-
- const heData = turnos.map(t =>
-  rows
-    .filter(r => r.turno_separacao === t)
-    .reduce((a,b)=>a+(b.caixas_he||0),0)
-);
-
-const turnos = ["T1","T2","T3","Sem turno"];
+  const turnos = ["T1","T2","T3","Sem turno"];
 
 const heData = turnos.map(t => {
   if(t === "Sem turno"){
