@@ -1889,6 +1889,13 @@ function normalizarHora(valor){
     function abrirDTCompleta(item){
       dtAtual = item;
       document.getElementById("dtModal").classList.add("show");
+      const blocoExpedicao = document.getElementById("blocoExpedicao");
+
+  if(viewAtualGlobal === "separacao"){
+    blocoExpedicao.style.display = "none";
+  }else{
+    blocoExpedicao.style.display = "block";
+  }
       document.getElementById("dtModalSub").textContent = `DT ${item.dt || "-"} • ${item.transportadora || "-"}`;
 
       const map = {
