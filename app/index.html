@@ -3,14 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestão Logistica</title>
+  <title>Gestão Logística</title>
   <link rel="icon" type="image/png" href="logo.png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-
-    
     :root{
       --bg:#08111f;
       --sidebar:#0b1627;
@@ -78,18 +76,19 @@
     .login-box h2{margin:0 0 6px;font-size:28px}
     .login-box p{margin:0 0 18px;color:var(--muted);font-size:13px}
 
-    .login-box input{
+    .login-box input,
+    input,select,textarea{
       width:100%;
       background:#0d1728;
       color:#fff;
       border:1px solid rgba(255,255,255,.10);
       border-radius:14px;
-      padding:13px 14px;
+      padding:11px 12px;
       font-size:14px;
-      margin-bottom:10px;
-      outline:none;
       transition:.2s;
     }
+
+    .login-box input{margin-bottom:10px;padding:13px 14px}
 
     .login-box input:focus,
     input:focus,select:focus,textarea:focus{
@@ -97,6 +96,12 @@
       box-shadow:0 0 0 4px rgba(59,130,246,.12);
       outline:none;
     }
+
+    .login-box button,
+    .btn,
+    .mini,
+    .logout-btn,
+    .menu button{transition:.2s}
 
     .login-box button{
       width:100%;
@@ -107,7 +112,6 @@
       border-radius:14px;
       font-weight:800;
       cursor:pointer;
-      transition:.2s;
     }
 
     .login-box button:hover,
@@ -140,140 +144,51 @@
       backdrop-filter:blur(18px);
     }
 
-    .brand-wrap{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-bottom:18px;
-    }
-
+    .brand-wrap{display:flex;align-items:center;gap:12px;margin-bottom:18px}
     .brand-logo{
-      width:56px;
-      height:56px;
-      object-fit:contain;
-      border-radius:14px;
-      background:#fff;
-      padding:5px;
+      width:56px;height:56px;object-fit:contain;border-radius:14px;background:#fff;padding:5px;
       box-shadow:0 10px 26px rgba(0,0,0,.22);
     }
-
-    .brand-title{
-      font-size:26px;
-      font-weight:900;
-      line-height:1;
-      letter-spacing:.01em;
-    }
-
-    .brand-sub{
-      display:block;
-      font-size:12px;
-      color:var(--muted);
-      margin-top:6px;
-      line-height:1.4;
-    }
+    .brand-title{font-size:26px;font-weight:900;line-height:1;letter-spacing:.01em}
+    .brand-sub{display:block;font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4}
 
     .user-box{
-      margin-bottom:16px;
-      padding:14px;
-      border:1px solid var(--line);
+      margin-bottom:16px;padding:14px;border:1px solid var(--line);
       background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
-      border-radius:16px;
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.6;
+      border-radius:16px;font-size:12px;color:var(--muted);line-height:1.6;
     }
+    .user-box strong{display:block;color:#fff;font-size:14px;margin-bottom:4px}
 
-    .user-box strong{
-      display:block;
-      color:#fff;
-      font-size:14px;
-      margin-bottom:4px;
-    }
-
-    .menu{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-
+    .menu{display:flex;flex-direction:column;gap:10px}
     .menu button{
-      border:none;
-      background:#13233a;
-      color:var(--text);
-      padding:13px 14px;
-      border-radius:14px;
-      text-align:left;
-      font-weight:800;
-      cursor:pointer;
-      transition:.2s;
-      border:1px solid transparent;
+      border:none;background:#13233a;color:var(--text);padding:13px 14px;border-radius:14px;text-align:left;
+      font-weight:800;cursor:pointer;border:1px solid transparent;
     }
-
-    .menu button:hover,
-    .menu button.active{
-      background:linear-gradient(135deg,#1d4ed8,#2563eb);
-      color:#fff;
-      transform:translateX(2px);
+    .menu button:hover,.menu button.active{
+      background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;transform:translateX(2px);
       border-color:rgba(255,255,255,.12);
     }
 
     .sidebar-note{
-      margin-top:22px;
-      padding:14px;
-      border:1px solid rgba(59,130,246,.18);
+      margin-top:22px;padding:14px;border:1px solid rgba(59,130,246,.18);
       background:linear-gradient(180deg,rgba(59,130,246,.12),rgba(6,182,212,.06));
-      border-radius:16px;
-      color:#d6e7ff;
-      font-size:12px;
-      line-height:1.7;
+      border-radius:16px;color:#d6e7ff;font-size:12px;line-height:1.7;
     }
 
     .logout-btn{
-      margin-top:14px;
-      width:100%;
-      border:none;
-      background:linear-gradient(135deg,#991b1b,#7f1d1d);
-      color:#fff;
-      padding:11px 12px;
-      border-radius:14px;
-      font-weight:800;
-      cursor:pointer;
-      transition:.2s;
+      margin-top:14px;width:100%;border:none;background:linear-gradient(135deg,#991b1b,#7f1d1d);
+      color:#fff;padding:11px 12px;border-radius:14px;font-weight:800;cursor:pointer;
     }
 
-    .main{
-      padding:24px;
-      display:flex;
-      flex-direction:column;
-      min-height:100vh;
-    }
-
-    .topbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:16px;
-      flex-wrap:wrap;
-      margin-bottom:18px;
-    }
-
+    .main{padding:24px;display:flex;flex-direction:column;min-height:100vh}
+    .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px}
     .title h1{margin:0;font-size:34px}
     .title p{margin:8px 0 0;color:var(--muted)}
-
-    .actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:end;
-    }
+    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
 
     .card{
       background:linear-gradient(180deg,rgba(17,28,47,.95),rgba(13,23,39,.95));
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:18px;
-      backdrop-filter:blur(14px);
+      border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;backdrop-filter:blur(14px);
     }
 
     .grid{display:grid;gap:16px}
@@ -281,123 +196,32 @@
     .grid-3{grid-template-columns:repeat(3,1fr)}
     .grid-4{grid-template-columns:repeat(4,1fr)}
 
-    .kpi{
-      background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
-    }
-
-    .kpi .label{
-      font-size:12px;
-      color:var(--muted);
-      margin-bottom:8px;
-    }
-
-    .kpi .value{
-      font-size:30px;
-      font-weight:900;
-    }
-
-    .kpi .sub{
-      font-size:11px;
-      color:var(--muted);
-      margin-top:6px;
-    }
+    .kpi{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:18px;padding:16px}
+    .kpi .label{font-size:12px;color:var(--muted);margin-bottom:8px}
+    .kpi .value{font-size:30px;font-weight:900}
+    .kpi .sub{font-size:11px;color:var(--muted);margin-top:6px}
 
     h2{margin:0 0 14px;font-size:18px}
     h3{margin:0 0 10px;font-size:15px}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:800}
+    textarea{min-height:88px;resize:vertical}
 
-    label{
-      display:block;
-      font-size:12px;
-      color:var(--muted);
-      margin-bottom:6px;
-      font-weight:800;
-    }
-
-    input,select,textarea{
-      width:100%;
-      background:#0d1728;
-      color:#fff;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:14px;
-      padding:11px 12px;
-      font-size:14px;
-      transition:.2s;
-    }
-
-    textarea{
-      min-height:88px;
-      resize:vertical;
-    }
-
-    .fields{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:10px;
-    }
-
+    .fields{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
     .full{grid-column:1 / -1}
 
-    .btn{
-      border:none;
-      border-radius:14px;
-      padding:11px 15px;
-      font-weight:900;
-      cursor:pointer;
-      transition:.2s;
-    }
-
+    .btn{border:none;border-radius:14px;padding:11px 15px;font-weight:900;cursor:pointer}
     .btn-primary{background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff}
     .btn-success{background:linear-gradient(135deg,#16a34a,var(--green));color:#08110a}
     .btn-warning{background:linear-gradient(135deg,#f59e0b,#f97316);color:#221300}
     .btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff}
     .btn-light{background:#152640;color:#fff;border:1px solid var(--line)}
 
-    .table-wrap{
-      overflow:auto;
-      border-radius:16px;
-      border:1px solid var(--line);
-    }
+    .table-wrap{overflow:auto;border-radius:16px;border:1px solid var(--line)}
+    table{width:100%;border-collapse:collapse;min-width:1500px;background:#0c1728}
+    th,td{padding:11px 10px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;vertical-align:middle}
+    th{background:#12223a;color:#d5e5ff;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0;font-size:11px}
 
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:1700px;
-      background:#0c1728;
-    }
-
-    th,td{
-      padding:11px 10px;
-      font-size:12px;
-      border-bottom:1px solid rgba(255,255,255,.06);
-      text-align:left;
-      vertical-align:middle;
-    }
-
-    th{
-      background:#12223a;
-      color:#d5e5ff;
-      text-transform:uppercase;
-      letter-spacing:.4px;
-      position:sticky;
-      top:0;
-      font-size:11px;
-    }
-
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:11px;
-      font-weight:900;
-      color:#fff;
-      white-space:nowrap;
-    }
-
+    .chip{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:900;color:#fff;white-space:nowrap}
     .st-agendado{background:#475569}
     .st-separacao{background:#f59e0b;color:#231300}
     .st-separado{background:#22c55e;color:#05210d}
@@ -407,187 +231,52 @@
     .st-carregando{background:#0ea5e9}
     .st-expedido{background:#0f172a;border:1px solid rgba(255,255,255,.12)}
 
-    .mini-actions{
-      display:flex;
-      gap:6px;
-      flex-wrap:wrap;
-    }
-
-    .mini{
-      border:none;
-      padding:7px 9px;
-      border-radius:10px;
-      font-size:11px;
-      font-weight:900;
-      cursor:pointer;
-      color:#fff;
-      background:#1e293b;
-      transition:.2s;
-    }
-
+    .mini-actions{display:flex;gap:6px;flex-wrap:wrap}
+    .mini{border:none;padding:7px 9px;border-radius:10px;font-size:11px;font-weight:900;cursor:pointer;color:#fff;background:#1e293b}
     .mini.blue{background:#1d4ed8}
     .mini.green{background:#15803d}
     .mini.orange{background:#d97706}
     .mini.red{background:#b91c1c}
 
-    .board{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:12px;
-    }
-
-    .lane{
-      background:#0d1728;
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:12px;
-      min-height:260px;
-    }
-
-    .lane-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:10px;
-    }
-
-    .count{
-      background:#152640;
-      border:1px solid var(--line);
-      color:var(--muted);
-      font-size:11px;
-      padding:4px 8px;
-      border-radius:999px;
-      font-weight:900;
-    }
-
-    .item{
-      background:linear-gradient(180deg,#14233a,#102034);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:12px;
-      padding:10px;
-      margin-bottom:10px;
-      cursor:pointer;
-      transition:.2s;
-    }
-
+    .board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .lane{background:#0d1728;border:1px solid var(--line);border-radius:16px;padding:12px;min-height:260px}
+    .lane-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .count{background:#152640;border:1px solid var(--line);color:var(--muted);font-size:11px;padding:4px 8px;border-radius:999px;font-weight:900}
+    .item{background:linear-gradient(180deg,#14233a,#102034);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px;margin-bottom:10px;cursor:pointer;transition:.2s}
     .item:hover{transform:translateY(-1px)}
-    .item strong{
-      display:block;
-      margin-bottom:6px;
-    }
+    .item strong{display:block;margin-bottom:6px}
+    .item .meta{font-size:12px;color:var(--muted);line-height:1.5}
 
-    .item .meta{
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.5;
-    }
-
-    .dock-grid{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:12px;
-    }
-
-    .dock{
-      border-radius:16px;
-      padding:14px;
-      border:1px solid var(--line);
-      background:#101a2a;
-      min-height:170px;
-      cursor:pointer;
-      transition:.2s;
-    }
-
-    .dock.free{
-      background:linear-gradient(180deg,rgba(34,197,94,.12),rgba(13,26,20,.80));
-      border-color:rgba(34,197,94,.22);
-    }
-
-    .dock.busy{
-      background:linear-gradient(180deg,rgba(139,92,246,.18),rgba(22,18,47,.92));
-      border-color:rgba(139,92,246,.25);
-    }
-
-    .dock-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:10px;
-    }
+    .dock-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .dock{border-radius:16px;padding:14px;border:1px solid var(--line);background:#101a2a;min-height:170px;cursor:pointer;transition:.2s}
+    .dock.free{background:linear-gradient(180deg,rgba(34,197,94,.12),rgba(13,26,20,.80));border-color:rgba(34,197,94,.22)}
+    .dock.busy{background:linear-gradient(180deg,rgba(139,92,246,.18),rgba(22,18,47,.92));border-color:rgba(139,92,246,.25)}
+    .dock-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 
     .sla-ok{color:#22c55e;font-weight:800}
     .sla-alerta{color:#f59e0b;font-weight:800}
     .sla-atraso{color:#ef4444;font-weight:800}
 
-    .toast{
-      position:fixed;
-      right:20px;
-      bottom:20px;
-      background:#111827;
-      border:1px solid rgba(255,255,255,.12);
-      color:#fff;
-      padding:12px 14px;
-      border-radius:14px;
-      box-shadow:var(--shadow);
-      z-index:100;
-      display:none;
-      max-width:320px;
-    }
-
-    .modal{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.7);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-      z-index:200;
-      backdrop-filter:blur(4px);
-    }
-
+    .toast{position:fixed;right:20px;bottom:20px;background:#111827;border:1px solid rgba(255,255,255,.12);color:#fff;padding:12px 14px;border-radius:14px;box-shadow:var(--shadow);z-index:100;display:none;max-width:320px}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:20px;z-index:200;backdrop-filter:blur(4px)}
     .modal.show{display:flex}
+    .modal-content{width:min(1400px,100%);max-height:92vh;overflow:auto;background:linear-gradient(180deg,rgba(17,28,47,.98),rgba(13,23,39,.98));border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+    .modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
 
-    .modal-content{
-      width:min(1400px,100%);
-      max-height:92vh;
-      overflow:auto;
-      background:linear-gradient(180deg,rgba(17,28,47,.98),rgba(13,23,39,.98));
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:18px;
-      box-shadow:var(--shadow);
-    }
+    footer{text-align:center;margin-top:auto;padding:20px 0 6px;color:var(--muted);font-size:12px}
 
-    .modal-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:12px;
-      margin-bottom:14px;
-    }
-
-    footer{
-      text-align:center;
-      margin-top:auto;
-      padding:20px 0 6px;
-      color:var(--muted);
-      font-size:12px;
-    }
+    canvas{max-width:100%}
 
     @media (max-width:1400px){
       .grid-4,.grid-3{grid-template-columns:repeat(2,1fr)}
       .grid-2,.board,.dock-grid,.fields{grid-template-columns:1fr}
     }
-
     @media (max-width:900px){
       .app{grid-template-columns:1fr}
       .sidebar{position:relative;height:auto}
       .main{padding:16px}
       .title h1{font-size:28px}
     }
-
   </style>
 </head>
 <body>
@@ -625,8 +314,8 @@
         <button id="menu-separacao" onclick="setView('separacao', this)">Separação</button>
         <button id="menu-expedicao" onclick="setView('expedicao', this)">Expedição</button>
         <button id="menu-patio" onclick="setView('patio', this)">Pátio</button>
-        <button onclick="setView('motoristas', this)">Motoristas</button>
-        <button onclick="setView('transportadoras', this)">Transportadoras</button>
+        <button id="menu-motoristas" onclick="setView('motoristas', this)">Motoristas</button>
+        <button id="menu-transportadoras" onclick="setView('transportadoras', this)">Transportadoras</button>
         <button id="menu-docas" onclick="setView('docas', this)">Docas</button>
         <button id="menu-checkin" onclick="setView('checkin', this)">Check-in</button>
         <button id="menu-relatorios" onclick="setView('relatorios', this)">Relatórios</button>
@@ -647,7 +336,6 @@
           <h1 id="pageTitle">Dashboard</h1>
           <p>Gestão integrada da agenda, operação e pátio.</p>
         </div>
-
         <div class="actions">
           <div>
             <label>Filtrar por data</label>
@@ -678,22 +366,18 @@
               <div><label>Ordem</label><input id="a_ordem"></div>
               <div><label>Remessa</label><input id="a_remessa"></div>
               <div><label>Data agenda</label><input id="a_data_agenda" type="date"></div>
-
               <div><label>Hora agenda</label><input id="a_hora_agenda" type="time"></div>
               <div><label>Transportadora</label><input id="a_transportadora"></div>
               <div><label>Cliente</label><input id="a_cliente"></div>
               <div><label>Tipo de carga</label><input id="a_tipo_carga"></div>
-
               <div><label>Tipo de veículo</label><input id="a_tipo_veiculo"></div>
               <div><label>Tipo de frete</label><input id="a_tipo_frete"></div>
               <div><label>Perfil carga</label><input id="a_perfil_carga"></div>
               <div><label>Doca agenda</label><select id="a_doca_agenda"></select></div>
-
               <div><label>Peso</label><input id="a_peso" type="number" step="0.001"></div>
               <div><label>M³ / Cubagem</label><input id="a_cubagem" type="number" step="0.001"></div>
               <div><label>Tonelagem</label><input id="a_tonelagem" type="number" step="0.001"></div>
               <div><label>HE</label><input id="a_he" type="number"></div>
-
               <div><label>HO</label><input id="a_ho" type="number"></div>
               <div><label>Total caixas</label><input id="a_total_caixas" type="number"></div>
               <div class="full"><label>Observação geral</label><textarea id="a_observacao"></textarea></div>
@@ -715,15 +399,7 @@
             <table>
               <thead>
                 <tr>
-                  <th>DT</th>
-                  <th>Data</th>
-                  <th>Hora</th>
-                  <th>Cliente</th>
-                  <th>Transportadora</th>
-                  <th>Doca</th>
-                  <th>Status</th>
-                  <th>SLA</th>
-                  <th>Ações</th>
+                  <th>DT</th><th>Data</th><th>Hora</th><th>Cliente</th><th>Transportadora</th><th>Doca</th><th>Status</th><th>SLA</th><th>Ações</th>
                 </tr>
               </thead>
               <tbody id="agendaTabela"></tbody>
@@ -739,15 +415,7 @@
             <table>
               <thead>
                 <tr>
-                  <th>DT</th>
-                  <th>Cliente</th>
-                  <th>Transportadora</th>
-                  <th>Doca planejada</th>
-                  <th>Status separação</th>
-                  <th>Conferente recebimento</th>
-                  <th>Turno</th>
-                  <th>SLA</th>
-                  <th>Ações</th>
+                  <th>DT</th><th>Cliente</th><th>Transportadora</th><th>Doca planejada</th><th>Status separação</th><th>Conferente recebimento</th><th>Turno</th><th>SLA</th><th>Ações</th>
                 </tr>
               </thead>
               <tbody id="separacaoTabela"></tbody>
@@ -763,15 +431,7 @@
             <table>
               <thead>
                 <tr>
-                  <th>DT</th>
-                  <th>Cliente</th>
-                  <th>Transportadora</th>
-                  <th>Doca agenda</th>
-                  <th>Conferente expedição</th>
-                  <th>Faturado</th>
-                  <th>Status</th>
-                  <th>SLA</th>
-                  <th>Ações</th>
+                  <th>DT</th><th>Cliente</th><th>Transportadora</th><th>Doca agenda</th><th>Conferente expedição</th><th>Faturado</th><th>Status</th><th>SLA</th><th>Ações</th>
                 </tr>
               </thead>
               <tbody id="expedicaoTabela"></tbody>
@@ -786,7 +446,6 @@
             <h2>Painel do pátio</h2>
             <div class="board" id="patioBoard"></div>
           </div>
-
           <div class="card">
             <h2>Movimentação rápida</h2>
             <div class="fields" style="grid-template-columns:repeat(2,1fr)">
@@ -804,7 +463,6 @@
                 </select>
               </div>
             </div>
-
             <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
               <button class="btn btn-warning" onclick="moverPatio('No Pátio')">No Pátio</button>
               <button class="btn btn-primary" onclick="moverPatio('Em Doca')">Em Doca</button>
@@ -843,30 +501,33 @@
           <div style="margin-top:12px">
             <button class="btn btn-success" onclick="registrarCheckin()">Registrar check-in</button>
           </div>
+          <div class="table-wrap" style="margin-top:16px">
+            <table>
+              <thead>
+                <tr>
+                  <th>DT</th><th>Transportadora</th><th>Motorista</th><th>Placa</th><th>Presença</th><th>Chegada</th><th>Status</th><th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="checkinTabela"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
-     <section id="view-relatorios" class="hidden">
-
-  <!-- 🔹 RESUMO -->
-  <div class="card">
-    <h2>Resultados gerais</h2>
-    <div class="grid grid-4" id="relatorioResumo"></div>
-  </div>
-
-  <!-- 🔹 SEPARAÇÃO HE -->
-  <div class="card" style="margin-top:16px">
-    <h2>Separação HE</h2>
-    <canvas id="graficoHE" height="120"></canvas>
-  </div>
-
-  <!-- 🔹 SEPARAÇÃO HO -->
-  <div class="card" style="margin-top:16px">
-    <h2>Separação HO</h2>
-    <canvas id="graficoHO" height="120"></canvas>
-  </div>
-
-</section>
+      <section id="view-relatorios" class="hidden">
+        <div class="card">
+          <h2>Resultados gerais</h2>
+          <div class="grid grid-4" id="relatorioResumo"></div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <h2>Separação HE</h2>
+          <canvas id="graficoHE" height="120"></canvas>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <h2>Separação HO</h2>
+          <canvas id="graficoHO" height="120"></canvas>
+        </div>
+      </section>
 
       <section id="view-admin" class="hidden">
         <div class="card" id="areaAdmin" style="display:none;">
@@ -878,34 +539,51 @@
           <p id="statusUpload" style="color:var(--muted)"></p>
         </div>
       </section>
-      
+
       <section id="view-motoristas" class="hidden">
-  <div class="card">
-    <h2>Cadastro de Motoristas</h2>
-    <div class="fields">
-      <div><label>Nome</label><input id="m_nome"></div>
-      <div><label>CPF</label><input id="m_cpf"></div>
-      <div><label>Telefone</label><input id="m_telefone"></div>
-    </div>
-    <button class="btn btn-primary" onclick="salvarMotorista()">Salvar</button>
-    <table><tbody id="listaMotoristas"></tbody></table>
-  </div>
-</section>
+        <div class="card">
+          <h2>Cadastro de Motoristas</h2>
+          <div class="fields">
+            <div><label>Nome</label><input id="m_nome"></div>
+            <div><label>CPF</label><input id="m_cpf"></div>
+            <div><label>Telefone</label><input id="m_telefone"></div>
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn btn-primary" onclick="salvarMotorista()">Salvar</button>
+          </div>
+          <div class="table-wrap" style="margin-top:16px">
+            <table>
+              <thead>
+                <tr><th>Nome</th><th>CPF</th><th>Telefone</th></tr>
+              </thead>
+              <tbody id="listaMotoristas"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-<section id="view-transportadoras" class="hidden">
-  <div class="card">
-    <h2>Cadastro de Transportadoras</h2>
-    <div class="fields">
-      <div><label>Nome</label><input id="t_nome"></div>
-    </div>
-    <button class="btn btn-primary" onclick="salvarTransportadora()">Salvar</button>
-    <table><tbody id="listaTransportadoras"></tbody></table>
-  </div>
-</section>
+      <section id="view-transportadoras" class="hidden">
+        <div class="card">
+          <h2>Cadastro de Transportadoras</h2>
+          <div class="fields">
+            <div><label>Nome</label><input id="t_nome"></div>
+            <div><label>CNPJ</label><input id="t_cnpj"></div>
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn btn-primary" onclick="salvarTransportadora()">Salvar</button>
+          </div>
+          <div class="table-wrap" style="margin-top:16px">
+            <table>
+              <thead>
+                <tr><th>Nome</th><th>CNPJ</th></tr>
+              </thead>
+              <tbody id="listaTransportadoras"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-      <footer>
-        © 2026 Wellington Alves - Sistema de Gestão Logística
-      </footer>
+      <footer>© 2026 Wellington Alves - Sistema de Gestão Logística</footer>
     </main>
   </div>
 
@@ -920,7 +598,7 @@
       </div>
 
       <div class="grid grid-3">
-       <div class="card" id="blocoInfo">
+        <div class="card" id="blocoInfo">
           <h3>Informações gerais</h3>
           <div class="fields" style="grid-template-columns:repeat(2,1fr)">
             <div><label>DT</label><input id="m_dt" disabled></div>
@@ -937,14 +615,7 @@
             <div><label>Doca agenda</label><select id="m_doca_agenda"></select></div>
             <div><label>Status global</label>
               <select id="m_status_global">
-                <option>Agendado</option>
-                <option>Em Separação</option>
-                <option>Separado</option>
-                <option>Pronto Expedição</option>
-                <option>No Pátio</option>
-                <option>Em Doca</option>
-                <option>Em Carregamento</option>
-                <option>Expedido</option>
+                <option>Agendado</option><option>Em Separação</option><option>Separado</option><option>Pronto Expedição</option><option>No Pátio</option><option>Em Doca</option><option>Em Carregamento</option><option>Expedido</option>
               </select>
             </div>
             <div><label>Peso</label><input id="m_peso" type="number" step="0.001"></div>
@@ -957,27 +628,18 @@
           </div>
         </div>
 
-          <div class="card" id="blocoSeparacao">
+        <div class="card" id="blocoSeparacao">
           <h3>Separação / Recebimento</h3>
           <div class="fields" style="grid-template-columns:repeat(2,1fr)">
             <div><label>Doca planejada</label><select id="m_doca_planejada"></select></div>
             <div><label>Tipo separação</label>
-              <select id="m_tipo_separacao">
-                <option value="">Selecione</option>
-                <option>COLETOR</option>
-                <option>MANUAL</option>
-              </select>
+              <select id="m_tipo_separacao"><option value="">Selecione</option><option>COLETOR</option><option>MANUAL</option></select>
             </div>
             <div><label>Início separação</label><input id="m_inicio_separacao" type="datetime-local"></div>
             <div><label>Fim separação</label><input id="m_fim_separacao" type="datetime-local"></div>
             <div><label>Status separação</label><input id="m_status_separacao"></div>
             <div><label>Turno separação</label>
-              <select id="m_turno_separacao">
-                <option value="">Selecione</option>
-                <option>T1</option>
-                <option>T2</option>
-                <option>T3</option>
-              </select>
+              <select id="m_turno_separacao"><option value="">Selecione</option><option>T1</option><option>T2</option><option>T3</option></select>
             </div>
             <div><label>Início recebimento</label><input id="m_inicio_recebimento" type="datetime-local"></div>
             <div><label>Fim recebimento</label><input id="m_fim_recebimento" type="datetime-local"></div>
@@ -988,15 +650,11 @@
         </div>
 
         <div class="card" id="blocoExpedicao">
-        <h3>Expedição / Pátio</h3>
+          <h3>Expedição / Pátio</h3>
           <div class="fields" style="grid-template-columns:repeat(2,1fr)">
             <div><label>Conferente expedição</label><select id="m_conf_expedicao"></select></div>
             <div><label>Faturado</label>
-              <select id="m_faturado">
-                <option value="">Selecione</option>
-                <option value="true">Sim</option>
-                <option value="false">Não</option>
-              </select>
+              <select id="m_faturado"><option value="">Selecione</option><option value="true">Sim</option><option value="false">Não</option></select>
             </div>
             <div><label>Data faturamento</label><input id="m_data_faturamento" type="datetime-local"></div>
             <div><label>Romaneio</label><input id="m_romaneio"></div>
@@ -1008,12 +666,7 @@
             <div><label>Placa cavalo</label><input id="m_placa_cavalo"></div>
             <div><label>Placa carreta</label><input id="m_placa_carreta"></div>
             <div><label>Presença</label>
-              <select id="m_presente_ausente">
-                <option value="">Selecione</option>
-                <option>Presente</option>
-                <option>Ausente</option>
-                <option>Atrasado</option>
-              </select>
+              <select id="m_presente_ausente"><option value="">Selecione</option><option>Presente</option><option>Ausente</option><option>Atrasado</option></select>
             </div>
             <div><label>Chegada motorista</label><input id="m_chegada_motorista" type="datetime-local"></div>
             <div><label>Doca carregamento</label><select id="m_doca_carregamento"></select></div>
@@ -1046,6 +699,8 @@
     let docas = [];
     let dtAtual = null;
     let viewAtualGlobal = "dashboard";
+    let chartHE = null;
+    let chartHO = null;
 
     const STAGES = ["Agendado","Em Separação","Separado","Pronto Expedição","No Pátio","Em Doca","Em Carregamento","Expedido"];
 
@@ -1068,6 +723,15 @@
       return Number.isFinite(n) ? n : null;
     }
 
+    function esc(v){
+      return String(v ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
     function fmtDate(v){
       if(!v) return "";
       const d = new Date(v);
@@ -1088,14 +752,8 @@
       return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
     }
 
-    function dataFiltrada(){
-      return document.getElementById("filtroData").value;
-    }
-
-    function linhasFiltradas(){
-      const d = dataFiltrada();
-      return d ? registros.filter(r => r.data_agenda === d) : registros;
-    }
+    function dataFiltrada(){ return document.getElementById("filtroData").value; }
+    function linhasFiltradas(){ const d = dataFiltrada(); return d ? registros.filter(r => r.data_agenda === d) : registros; }
 
     function showToast(msg){
       const el = document.getElementById("toast");
@@ -1106,68 +764,70 @@
     }
 
     function setView(view, btn){
-      
       viewAtualGlobal = view;
-      
       const targetBtn = btn || document.getElementById(`menu-${view}`);
       document.getElementById("pageTitle").textContent = targetBtn ? targetBtn.textContent : view;
       document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
       if(targetBtn) targetBtn.classList.add("active");
-
-      ["dashboard","agenda","separacao","expedicao","patio","motoristas","transportadoras","docas","checkin","relatorios","admin"].forEach(v=>{
-        document.getElementById(`view-${v}`).classList.add("hidden");
+      ["dashboard","agenda","separacao","expedicao","patio","motoristas","transportadoras","docas","checkin","relatorios","admin"].forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        if(el) el.classList.add("hidden");
       });
-
-      document.getElementById(`view-${view}`).classList.remove("hidden");
+      const viewEl = document.getElementById(`view-${view}`);
+      if(viewEl) viewEl.classList.remove("hidden");
     }
 
     function calcSla(row){
       const baseData = row.data_agenda;
       const baseHora = row.hora_agenda;
       if(!baseData) return {label:"Sem agenda", cls:"sla-alerta"};
-
-      const dtAgenda = new Date(`${baseData}T${(baseHora || "00:00")}:00`);
+      const dtAgenda = new Date(`${baseData}T${baseHora || "00:00"}:00`);
       if(isNaN(dtAgenda)) return {label:"Sem agenda", cls:"sla-alerta"};
-
       if(row.status_global === "Expedido") return {label:"Concluído", cls:"sla-ok"};
-
       const diffMin = Math.round((new Date() - dtAgenda) / 60000);
       if(diffMin <= 30) return {label:"No prazo", cls:"sla-ok"};
       if(diffMin <= 120) return {label:"Alerta", cls:"sla-alerta"};
       return {label:"Atrasado", cls:"sla-atraso"};
     }
 
+    function definirTurno(hora){
+      if(!hora) return "Sem turno";
+      const h = parseInt(String(hora).split(":")[0], 10);
+      if(Number.isNaN(h)) return "Sem turno";
+      if(h >= 6 && h < 14) return "T1";
+      if(h >= 14 && h < 22) return "T2";
+      return "T3";
+    }
+
     async function testarConexao(){
       try{
         const { error } = await sb.from("agendas").select("id").limit(1);
         if(error) throw error;
-        document.getElementById("statusConexao").textContent = "Conectado ao Supabase.";
-        document.getElementById("statusConexao").style.color = "#22c55e";
+        const el = document.getElementById("statusConexao");
+        el.textContent = "Conectado ao Supabase.";
+        el.style.color = "#22c55e";
       }catch(e){
         console.error(e);
-        document.getElementById("statusConexao").textContent = "Erro de conexão. Verifique URL, key e SQL.";
-        document.getElementById("statusConexao").style.color = "#ef4444";
+        const el = document.getElementById("statusConexao");
+        el.textContent = "Erro de conexão. Verifique URL, key, RLS e estrutura SQL.";
+        el.style.color = "#ef4444";
       }
     }
 
     async function login(){
-      const email = document.getElementById("loginEmail").value;
+      const email = document.getElementById("loginEmail").value.trim();
       const senha = document.getElementById("loginSenha").value;
       document.getElementById("loginErro").textContent = "";
-
       const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
       if(error){
-        document.getElementById("loginErro").textContent = error?.message || "Email ou senha inválidos.";
+        document.getElementById("loginErro").textContent = error.message || "Email ou senha inválidos.";
         return;
       }
-
       await entrarSistema(data.user);
     }
 
     async function logout(){
-      if(realtimeChannel){
-        try{ await sb.removeChannel(realtimeChannel); }catch(e){}
-      }
+      if(realtimeChannel){ try{ await sb.removeChannel(realtimeChannel); }catch(_){} }
       await sb.auth.signOut();
       bloquearSistema();
     }
@@ -1185,7 +845,6 @@
     async function entrarSistema(user){
       document.getElementById("loginScreen").classList.add("hidden");
       document.getElementById("app").classList.remove("hidden");
-
       await carregarPerfil(user.email, user.id);
       await carregarCadastros();
       await carregarTudo();
@@ -1195,27 +854,16 @@
     function bloquearSistema(){
       document.getElementById("app").classList.add("hidden");
       document.getElementById("loginScreen").classList.remove("hidden");
-      document.getElementById("loginEmail").value = "";
-      document.getElementById("loginSenha").value = "";
       document.getElementById("loginErro").textContent = "";
     }
 
-    sb.auth.onAuthStateChange(async (event, session) => {
+    sb.auth.onAuthStateChange(async (_, session) => {
       if(!session) bloquearSistema();
     });
 
-    
-    async function carregarPerfil(email, userId){
-      const { data, error } = await sb
-        .from("usuarios")
-        .select("id,nome,email,perfil")
-        .eq("email", email)
-        .maybeSingle();
-
-      if(error){
-        console.error(error);
-      }
-
+    async function carregarPerfil(email){
+      const { data, error } = await sb.from("usuarios").select("id,nome,email,perfil").eq("email", email).maybeSingle();
+      if(error) console.error(error);
       if(!data){
         usuarioPerfil = "admin";
         document.getElementById("userNome").textContent = email || "Usuário logado";
@@ -1225,13 +873,11 @@
         aplicarPermissoes();
         return;
       }
-
       usuarioPerfil = data.perfil || "operacao";
       document.getElementById("userNome").textContent = data.nome || email || "Usuário logado";
       document.getElementById("userEmail").textContent = data.email || email || "-";
       document.getElementById("userPerfil").textContent = `Perfil: ${usuarioPerfil}`;
       document.getElementById("areaAdmin").style.display = usuarioPerfil === "admin" ? "block" : "none";
-
       aplicarPermissoes();
     }
 
@@ -1240,39 +886,38 @@
         const el = document.getElementById(id);
         if(el) el.style.display = hidden ? "none" : "";
       };
-
-      // padrão
       ocultar("menu-admin", usuarioPerfil !== "admin");
-
-      // perfis específicos
       if(usuarioPerfil === "portaria"){
-        ["menu-agenda","menu-separacao","menu-expedicao"].forEach(id => ocultar(id, true));
-        ["menu-dashboard","menu-patio","menu-docas","menu-checkin","menu-relatorios"].forEach(id => ocultar(id, false));
-      } else if(usuarioPerfil === "conferente"){
-        ocultar("menu-admin", true);
-      } else if(usuarioPerfil === "operacao" || usuarioPerfil === "assistente"){
+        ["menu-agenda","menu-separacao","menu-expedicao","menu-admin","menu-motoristas","menu-transportadoras"].forEach(id => ocultar(id, true));
+      }else if(["conferente","operacao","assistente"].includes(usuarioPerfil)){
         ocultar("menu-admin", true);
       }
     }
 
     async function carregarCadastros(){
-      const [confRes, docaRes] = await Promise.all([
+      const [confRes, docaRes, motRes, transRes] = await Promise.all([
         sb.from("conferentes").select("*").eq("ativo", true).order("nome"),
-        sb.from("docas").select("*").eq("ativo", true).order("nome")
+        sb.from("docas").select("*").eq("ativo", true).order("nome"),
+        sb.from("motoristas").select("*").order("nome"),
+        sb.from("transportadoras").select("*").order("nome")
       ]);
 
       conferentes = confRes.data || [];
       docas = docaRes.data || [];
+      window._motoristas = motRes.data || [];
+      window._transportadoras = transRes.data || [];
 
       ["a_doca_agenda","p_doca","m_doca_agenda","m_doca_planejada","m_doca_carregamento"].forEach(preencherSelectDocas);
       ["m_conf_recebimento","m_conf_expedicao"].forEach(preencherSelectConferentes);
+      carregarMotoristas();
+      carregarTransportadoras();
     }
 
     function preencherSelectDocas(id){
       const el = document.getElementById(id);
       if(!el) return;
       const atual = el.value;
-      el.innerHTML = `<option value="">Selecione</option>` + docas.map(d => `<option value="${d.nome}">${d.nome}</option>`).join("");
+      el.innerHTML = `<option value="">Selecione</option>` + docas.map(d => `<option value="${esc(d.nome)}">${esc(d.nome)}</option>`).join("");
       if(atual) el.value = atual;
     }
 
@@ -1280,57 +925,30 @@
       const el = document.getElementById(id);
       if(!el) return;
       const atual = el.value;
-      el.innerHTML = `<option value="">Selecione</option>` + conferentes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join("");
+      el.innerHTML = `<option value="">Selecione</option>` + conferentes.map(c => `<option value="${esc(c.nome)}">${esc(c.nome)}</option>`).join("");
       if(atual) el.value = atual;
     }
 
     async function carregarTudo(){
-      let query = sb.from("agendas").select("*").order("data_agenda",{ascending:true}).order("hora_agenda",{ascending:true});
+      let query = sb.from("agendas").select("*").order("data_agenda", {ascending:true}).order("hora_agenda", {ascending:true});
       const df = dataFiltrada();
       if(df) query = query.eq("data_agenda", df);
-
       const { data, error } = await query;
-      if(error){
-        console.error(error);
-        alert("Erro ao carregar dados.");
-        return;
-      }
-
+      if(error){ console.error(error); alert("Erro ao carregar dados."); return; }
       registros = data || [];
       renderTudo();
     }
 
     async function carregarTudoSilencioso(){
-      let query = sb.from("agendas").select("*").order("data_agenda",{ascending:true}).order("hora_agenda",{ascending:true});
+      let query = sb.from("agendas").select("*").order("data_agenda", {ascending:true}).order("hora_agenda", {ascending:true});
       const df = dataFiltrada();
       if(df) query = query.eq("data_agenda", df);
-
       const { data, error } = await query;
-      if(error){
-        console.error(error);
-        return;
-      }
-
+      if(error){ console.error(error); return; }
       registros = data || [];
       renderTudo();
     }
-    
-    // 🔥 DEFINIR TURNO AUTOMÁTICO
-function definirTurno(hora){
 
-  if(!hora) return "Sem turno";
-
-  try{
-    const h = parseInt(String(hora).split(":")[0]);
-
-    if(h >= 6 && h < 14) return "T1";
-    if(h >= 14 && h < 22) return "T2";
-    return "T3";
-  }catch{
-    return "Sem turno";
-  }
-}
-    
     function renderTudo(){
       renderDashboard();
       renderAgenda();
@@ -1341,65 +959,13 @@ function definirTurno(hora){
       renderCheckin();
       renderRelatorios();
       carregarSelectPatio();
+      carregarSelectCheckin();
     }
-    function aplicarModoModal(){
-
-  const info = document.getElementById("blocoInfo");
-  const sep = document.getElementById("blocoSeparacao");
-  const exp = document.getElementById("blocoExpedicao");
-
-  // reset padrão
-  info.style.display = "block";
-  sep.style.display = "block";
-  exp.style.display = "block";
-
-  const bloquearCampos = (container, bloquear) => {
-    container.querySelectorAll("input, select, textarea").forEach(el => {
-      el.disabled = bloquear;
-    });
-  };
-
-  // 🔥 REGRAS POR TELA
-  switch(viewAtualGlobal){
-
-    case "agenda":
-      sep.style.display = "none";
-      exp.style.display = "none";
-      bloquearCampos(info, false);
-      break;
-
-    case "separacao":
-      exp.style.display = "none";
-      bloquearCampos(info, true); // não altera dados base
-      bloquearCampos(sep, false);
-      break;
-
-    case "expedicao":
-      bloquearCampos(info, true);
-      bloquearCampos(sep, true);
-      bloquearCampos(exp, false);
-      break;
-
-    case "patio":
-      bloquearCampos(info, true);
-      bloquearCampos(sep, true);
-      bloquearCampos(exp, false);
-      break;
-
-    default:
-      bloquearCampos(info, false);
-      bloquearCampos(sep, false);
-      bloquearCampos(exp, false);
-  }
-}
 
     async function iniciarRealtime(){
-      if(realtimeChannel){
-        try{ await sb.removeChannel(realtimeChannel); }catch(e){}
-      }
-
+      if(realtimeChannel){ try{ await sb.removeChannel(realtimeChannel); }catch(_){} }
       realtimeChannel = sb.channel("realtime-agendas")
-        .on("postgres_changes",{ event:"*", schema:"public", table:"agendas" }, async (payload) => {
+        .on("postgres_changes", { event:"*", schema:"public", table:"agendas" }, async (payload) => {
           const tipo = payload.eventType || "UPDATE";
           if(tipo === "INSERT") showToast("Nova DT recebida em tempo real");
           if(tipo === "UPDATE") showToast("DT atualizada em tempo real");
@@ -1416,23 +982,19 @@ function definirTurno(hora){
     }
 
     async function criarDT(){
-      if(usuarioPerfil === "portaria"){
-        alert("Seu perfil não pode criar DTs.");
-        return;
-      }
-
+      if(usuarioPerfil === "portaria") return alert("Seu perfil não pode criar DTs.");
       const payload = {
-        dt: document.getElementById("a_dt").value || null,
-        ordem: document.getElementById("a_ordem").value || null,
-        remessa: document.getElementById("a_remessa").value || null,
+        dt: document.getElementById("a_dt").value.trim() || null,
+        ordem: document.getElementById("a_ordem").value.trim() || null,
+        remessa: document.getElementById("a_remessa").value.trim() || null,
         data_agenda: document.getElementById("a_data_agenda").value || null,
         hora_agenda: document.getElementById("a_hora_agenda").value || null,
-        transportadora: document.getElementById("a_transportadora").value || null,
-        cliente: document.getElementById("a_cliente").value || null,
-        tipo_carga: document.getElementById("a_tipo_carga").value || null,
-        tipo_veiculo: document.getElementById("a_tipo_veiculo").value || null,
-        tipo_frete: document.getElementById("a_tipo_frete").value || null,
-        perfil_carga: document.getElementById("a_perfil_carga").value || null,
+        transportadora: document.getElementById("a_transportadora").value.trim() || null,
+        cliente: document.getElementById("a_cliente").value.trim() || null,
+        tipo_carga: document.getElementById("a_tipo_carga").value.trim() || null,
+        tipo_veiculo: document.getElementById("a_tipo_veiculo").value.trim() || null,
+        tipo_frete: document.getElementById("a_tipo_frete").value.trim() || null,
+        perfil_carga: document.getElementById("a_perfil_carga").value.trim() || null,
         doca_agenda: document.getElementById("a_doca_agenda").value || null,
         peso: num(document.getElementById("a_peso").value),
         cubagem: num(document.getElementById("a_cubagem").value),
@@ -1440,30 +1002,20 @@ function definirTurno(hora){
         he: num(document.getElementById("a_he").value),
         ho: num(document.getElementById("a_ho").value),
         total_caixas: num(document.getElementById("a_total_caixas").value),
-        observacao_geral: document.getElementById("a_observacao").value || null,
+        observacao_geral: document.getElementById("a_observacao").value.trim() || null,
         status_global: "Agendado"
       };
-
-      if(!payload.dt){
-        alert("Preencha a DT.");
-        return;
-      }
-
+      if(!payload.dt) return alert("Preencha a DT.");
       const { error } = await sb.from("agendas").insert([payload]);
-      if(error){
-        console.error(error);
-        alert("Erro ao criar DT.");
-        return;
-      }
-
+      if(error){ console.error(error); return alert("Erro ao criar DT."); }
       document.querySelectorAll('#view-agenda input, #view-agenda textarea').forEach(el => el.value = "");
       document.getElementById("a_doca_agenda").value = "";
       await carregarTudo();
+      showToast("DT criada com sucesso");
     }
 
     function renderDashboard(){
       const rows = linhasFiltradas();
-
       document.getElementById("dashboardKpis").innerHTML = `
         <div class="kpi"><div class="label">Agendadas</div><div class="value">${rows.filter(x=>x.status_global==="Agendado").length}</div><div class="sub">planejamento</div></div>
         <div class="kpi"><div class="label">Em separação</div><div class="value">${rows.filter(x=>x.status_global==="Em Separação").length}</div><div class="sub">andamento</div></div>
@@ -1472,58 +1024,32 @@ function definirTurno(hora){
         <div class="kpi"><div class="label">Em doca</div><div class="value">${rows.filter(x=>x.status_global==="Em Doca").length}</div><div class="sub">ocupação</div></div>
         <div class="kpi"><div class="label">Carregando</div><div class="value">${rows.filter(x=>x.status_global==="Em Carregamento").length}</div><div class="sub">execução</div></div>
         <div class="kpi"><div class="label">Expedidas</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div><div class="sub">concluídas</div></div>
-        <div class="kpi"><div class="label">Atrasadas</div><div class="value">${rows.filter(x=>calcSla(x).label==="Atrasado").length}</div><div class="sub">SLA</div></div>
-      `;
+        <div class="kpi"><div class="label">Atrasadas</div><div class="value">${rows.filter(x=>calcSla(x).label==="Atrasado").length}</div><div class="sub">SLA</div></div>`;
       document.getElementById("dashboardBoard").innerHTML = STAGES.map(st => {
         const itens = rows.filter(r => r.status_global === st);
-        return `
-         <div class="lane" data-status="${st}">
-            <div class="lane-head">
-              <h3>${st}</h3>
-              <span class="count">${itens.length}</span>
-            </div>
-            ${itens.map(r => `
-              <div class="item" data-id="${r.id}" onclick="abrirDTPorId('${r.id}')">
-                <strong>DT ${r.dt || "-"}</strong>
-                <div class="meta">${r.transportadora || "-"}<br>${r.cliente || "-"}</div>
-              </div>
-            `).join("") || `<div class="meta">Sem registros.</div>`}
-          </div>
-        `;
+        return `<div class="lane" data-status="${esc(st)}">
+          <div class="lane-head"><h3>${esc(st)}</h3><span class="count">${itens.length}</span></div>
+          ${itens.map(r => `<div class="item" draggable="true" data-id="${esc(r.id)}" onclick="abrirDTPorId('${esc(r.id)}')"><strong>DT ${esc(r.dt || "-")}</strong><div class="meta">${esc(r.transportadora || "-")}<br>${esc(r.cliente || "-")}</div></div>`).join("") || `<div class="meta">Sem registros.</div>`}
+        </div>`;
       }).join("");
-      setTimeout(initDragDrop, 200);
+      initDragDrop();
     }
 
     function renderAgenda(){
       const rows = linhasFiltradas();
-
       document.getElementById("agendaKpis").innerHTML = `
         <div class="kpi"><div class="label">DTs do dia</div><div class="value">${rows.length}</div><div class="sub">cadastros filtrados</div></div>
         <div class="kpi"><div class="label">Agendadas</div><div class="value">${rows.filter(x=>x.status_global==="Agendado").length}</div><div class="sub">planejamento</div></div>
         <div class="kpi"><div class="label">Com doca</div><div class="value">${rows.filter(x=>x.doca_agenda).length}</div><div class="sub">pré-definidas</div></div>
-        <div class="kpi"><div class="label">Peso total</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0)}</div><div class="sub">kg planejados</div></div>
-      `;
-
+        <div class="kpi"><div class="label">Peso total</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0)}</div><div class="sub">kg planejados</div></div>`;
       document.getElementById("agendaTabela").innerHTML = rows.map(r => {
         const sla = calcSla(r);
-        return `
-          <tr>
-            <td>${r.dt || ""}</td>
-            <td>${fmtDate(r.data_agenda)}</td>
-            <td>${r.hora_agenda || ""}</td>
-            <td>${r.cliente || ""}</td>
-            <td>${r.transportadora || ""}</td>
-            <td>${r.doca_agenda || ""}</td>
-            <td><span class="chip ${clsStatus(r.status_global)}">${r.status_global || ""}</span></td>
-            <td><span class="${sla.cls}">${sla.label}</span></td>
-            <td>
-              <div class="mini-actions">
-                <button class="mini blue" onclick="abrirDTPorId('${r.id}')">Abrir DT</button>
-                <button class="mini orange" onclick="mudarStatus('${r.id}','Em Separação')">Separação</button>
-              </div>
-            </td>
-          </tr>
-        `;
+        return `<tr>
+          <td>${esc(r.dt)}</td><td>${fmtDate(r.data_agenda)}</td><td>${esc(r.hora_agenda)}</td><td>${esc(r.cliente)}</td><td>${esc(r.transportadora)}</td><td>${esc(r.doca_agenda)}</td>
+          <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span></td>
+          <td><span class="${sla.cls}">${sla.label}</span></td>
+          <td><div class="mini-actions"><button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button><button class="mini orange" onclick="mudarStatus('${esc(r.id)}','Em Separação')">Separação</button></div></td>
+        </tr>`;
       }).join("");
     }
 
@@ -1531,25 +1057,11 @@ function definirTurno(hora){
       const rows = linhasFiltradas().filter(r => ["Agendado","Em Separação","Separado"].includes(r.status_global));
       document.getElementById("separacaoTabela").innerHTML = rows.map(r => {
         const sla = calcSla(r);
-        return `
-          <tr>
-            <td>${r.dt || ""}</td>
-            <td>${r.cliente || ""}</td>
-            <td>${r.transportadora || ""}</td>
-            <td>${r.doca_planejada || r.doca_agenda || ""}</td>
-            <td>${r.status_separacao || ""}</td>
-            <td>${r.conferente_recebimento || ""}</td>
-            <td>${r.turno_separacao || ""}</td>
-            <td><span class="${sla.cls}">${sla.label}</span></td>
-            <td>
-              <div class="mini-actions">
-                <button class="mini blue" onclick="abrirDTPorId('${r.id}')">Abrir DT</button>
-                <button class="mini orange" onclick="mudarStatus('${r.id}','Em Separação')">Em separação</button>
-                <button class="mini green" onclick="mudarStatus('${r.id}','Separado')">Separado</button>
-              </div>
-            </td>
-          </tr>
-        `;
+        return `<tr>
+          <td>${esc(r.dt)}</td><td>${esc(r.cliente)}</td><td>${esc(r.transportadora)}</td><td>${esc(r.doca_planejada || r.doca_agenda)}</td><td>${esc(r.status_separacao)}</td><td>${esc(r.conferente_recebimento)}</td><td>${esc(r.turno_separacao)}</td>
+          <td><span class="${sla.cls}">${sla.label}</span></td>
+          <td><div class="mini-actions"><button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button><button class="mini orange" onclick="mudarStatus('${esc(r.id)}','Em Separação')">Em separação</button><button class="mini green" onclick="mudarStatus('${esc(r.id)}','Separado')">Separado</button></div></td>
+        </tr>`;
       }).join("");
     }
 
@@ -1557,170 +1069,78 @@ function definirTurno(hora){
       const rows = linhasFiltradas().filter(r => ["Separado","Pronto Expedição","No Pátio"].includes(r.status_global));
       document.getElementById("expedicaoTabela").innerHTML = rows.map(r => {
         const sla = calcSla(r);
-        return `
-          <tr>
-            <td>${r.dt || ""}</td>
-            <td>${r.cliente || ""}</td>
-            <td>${r.transportadora || ""}</td>
-            <td>${r.doca_agenda || ""}</td>
-            <td>${r.conferente_expedicao || ""}</td>
-            <td>${r.faturado === true ? "Sim" : r.faturado === false ? "Não" : ""}</td>
-            <td><span class="chip ${clsStatus(r.status_global)}">${r.status_global || ""}</span></td>
-            <td><span class="${sla.cls}">${sla.label}</span></td>
-            <td>
-              <div class="mini-actions">
-                <button class="mini blue" onclick="abrirDTPorId('${r.id}')">Abrir DT</button>
-                <button class="mini orange" onclick="mudarStatus('${r.id}','Pronto Expedição')">Pronto</button>
-                <button class="mini green" onclick="mudarStatus('${r.id}','No Pátio')">Enviar pátio</button>
-              </div>
-            </td>
-          </tr>
-        `;
+        return `<tr>
+          <td>${esc(r.dt)}</td><td>${esc(r.cliente)}</td><td>${esc(r.transportadora)}</td><td>${esc(r.doca_agenda)}</td><td>${esc(r.conferente_expedicao)}</td><td>${r.faturado === true ? "Sim" : r.faturado === false ? "Não" : ""}</td>
+          <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span></td>
+          <td><span class="${sla.cls}">${sla.label}</span></td>
+          <td><div class="mini-actions"><button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button><button class="mini orange" onclick="mudarStatus('${esc(r.id)}','Pronto Expedição')">Pronto</button><button class="mini green" onclick="mudarStatus('${esc(r.id)}','No Pátio')">Enviar pátio</button></div></td>
+        </tr>`;
       }).join("");
     }
 
     function renderPatio(){
       const rows = linhasFiltradas().filter(r => ["No Pátio","Em Doca","Em Carregamento","Expedido"].includes(r.status_global));
-      const grupos = [
-        {nome:"No Pátio", valores:["No Pátio"]},
-        {nome:"Em Doca", valores:["Em Doca"]},
-        {nome:"Em Carregamento", valores:["Em Carregamento"]},
-        {nome:"Expedido", valores:["Expedido"]}
-      ];
-
+      const grupos = ["No Pátio","Em Doca","Em Carregamento","Expedido"];
       document.getElementById("patioBoard").innerHTML = grupos.map(g => {
-        const itens = rows.filter(r => g.valores.includes(r.status_global));
-        return `
-          <div class="lane">
-            <div class="lane-head">
-              <h3>${g.nome}</h3>
-              <span class="count">${itens.length}</span>
-            </div>
-            ${itens.map(r => {
-              const sla = calcSla(r);
-              return `
-                <div class="item" onclick="abrirDTPorId('${r.id}')">
-                  <strong>DT ${r.dt || "-"}</strong>
-                  <div class="meta">
-                    ${r.transportadora || "-"}<br>
-                    Motorista: ${r.motorista || "-"}<br>
-                    Placa: ${r.placa_cavalo || "-"}<br>
-                    Doca: ${r.doca_carregamento || r.doca_agenda || "-"}<br>
-                    <span class="${sla.cls}">${sla.label}</span>
-                  </div>
-                </div>
-              `;
-            }).join("") || `<div class="meta">Sem registros.</div>`}
-          </div>
-        `;
+        const itens = rows.filter(r => r.status_global === g);
+        return `<div class="lane"><div class="lane-head"><h3>${g}</h3><span class="count">${itens.length}</span></div>
+          ${itens.map(r => { const sla = calcSla(r); return `<div class="item" onclick="abrirDTPorId('${esc(r.id)}')"><strong>DT ${esc(r.dt || "-")}</strong><div class="meta">${esc(r.transportadora || "-")}<br>Motorista: ${esc(r.motorista || "-")}<br>Placa: ${esc(r.placa_cavalo || "-")}<br>Doca: ${esc(r.doca_carregamento || r.doca_agenda || "-")}<br><span class="${sla.cls}">${sla.label}</span></div></div>`; }).join("") || `<div class="meta">Sem registros.</div>`}
+        </div>`;
       }).join("");
     }
 
     function renderDocas(){
       const rows = linhasFiltradas();
       const nomesDoca = docas.length ? docas.map(d => d.nome) : ["Doca 1","Doca 2","Doca 3","Doca 4"];
-
       document.getElementById("docasGrid").innerHTML = nomesDoca.map(nome => {
         const atual = rows.find(r => (r.doca_carregamento || r.doca_agenda || r.doca_planejada) === nome && ["Em Doca","Em Carregamento"].includes(r.status_global));
         if(!atual){
-          return `
-            <div class="dock free">
-              <div class="dock-head">
-                <strong>${nome}</strong>
-                <span class="count">Livre</span>
-              </div>
-              <div class="meta">Sem veículo na doca.</div>
-            </div>
-          `;
+          return `<div class="dock free"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">Livre</span></div><div class="meta">Sem veículo na doca.</div></div>`;
         }
-
         const sla = calcSla(atual);
-        return `
-          <div class="dock busy" onclick="abrirDTPorId('${atual.id}')">
-            <div class="dock-head">
-              <strong>${nome}</strong>
-              <span class="count">${atual.status_global}</span>
-            </div>
-            <div class="meta">
-              DT: ${atual.dt || "-"}<br>
-              Transportadora: ${atual.transportadora || "-"}<br>
-              Motorista: ${atual.motorista || "-"}<br>
-              Placa: ${atual.placa_cavalo || "-"}<br>
-              Início: ${fmtDateTime(atual.inicio_carregamento)}<br>
-              <span class="${sla.cls}">${sla.label}</span>
-            </div>
-          </div>
-        `;
+        return `<div class="dock busy" onclick="abrirDTPorId('${esc(atual.id)}')"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">${esc(atual.status_global)}</span></div><div class="meta">DT: ${esc(atual.dt || "-")}<br>Transportadora: ${esc(atual.transportadora || "-")}<br>Motorista: ${esc(atual.motorista || "-")}<br>Placa: ${esc(atual.placa_cavalo || "-")}<br>Início: ${fmtDateTime(atual.inicio_carregamento)}<br><span class="${sla.cls}">${sla.label}</span></div></div>`;
       }).join("");
     }
 
+    function renderCheckin(){
+      const rows = linhasFiltradas().filter(r => r.motorista || r.chegada_motorista || ["No Pátio","Em Doca","Em Carregamento","Expedido"].includes(r.status_global));
+      document.getElementById("checkinTabela").innerHTML = rows.map(r => `
+        <tr>
+          <td>${esc(r.dt)}</td>
+          <td>${esc(r.transportadora)}</td>
+          <td>${esc(r.motorista)}</td>
+          <td>${esc(r.placa_cavalo || r.placa_carreta)}</td>
+          <td>${esc(r.presente_ausente)}</td>
+          <td>${fmtDateTime(r.chegada_motorista)}</td>
+          <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span></td>
+          <td><div class="mini-actions"><button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button></div></td>
+        </tr>`).join("");
+    }
+
     function renderRelatorios(){
-
-  const rows = linhasFiltradas();
-
-  document.getElementById("relatorioResumo").innerHTML = `
-    <div class="kpi"><div class="label">Total Caixas</div><div class="value">${rows.reduce((a,b)=>a+(b.total_caixas||0),0)}</div></div>
-    <div class="kpi"><div class="label">Picking (HE)</div><div class="value">${rows.reduce((a,b)=>a+(b.he||0),0)}</div></div>
-    <div class="kpi"><div class="label">Paletes (HO)</div><div class="value">${rows.reduce((a,b)=>a+(b.ho||0),0)}</div></div>
-  `;
-
-  const turnos = ["T1","T2","T3","Sem turno"];
-
-  const heData = turnos.map(t =>
-    rows.filter(r => (t === "Sem turno" ? !r.turno_separacao : r.turno_separacao === t))
-        .reduce((a,b)=>a+(b.he||0),0)
-  );
-
-  const hoData = turnos.map(t =>
-    rows.filter(r => (t === "Sem turno" ? !r.turno_separacao : r.turno_separacao === t))
-        .reduce((a,b)=>a+(b.ho||0),0)
-  );
-
-  if(window.chartHE) window.chartHE.destroy();
-  if(window.chartHO) window.chartHO.destroy();
-
-  window.chartHE = new Chart(document.getElementById("graficoHE"), {
-    type: "bar",
-    data: { labels: turnos, datasets: [{ label: "HE", data: heData }] }
-  });
-
-  window.chartHO = new Chart(document.getElementById("graficoHO"), {
-    type: "bar",
-    data: { labels: turnos, datasets: [{ label: "HO", data: hoData }] }
-  });
-}
-    async function registrarCheckin(){
-      const id = document.getElementById("c_dt").value;
-      if(!id){
-        alert("Selecione a DT.");
-        return;
-      }
-
-      const payload = {
-        motorista: document.getElementById("c_motorista").value || null,
-        placa_cavalo: document.getElementById("c_placa_cavalo").value || null,
-        placa_carreta: document.getElementById("c_placa_carreta").value || null,
-        presente_ausente: document.getElementById("c_presenca").value || null,
-        observacao_geral: document.getElementById("c_obs").value || null,
-        chegada_motorista: new Date().toISOString(),
-        status_global: "No Pátio"
-      };
-
-      const { error } = await sb.from("agendas").update(payload).eq("id", id);
-      if(error){
-        console.error(error);
-        alert("Erro ao registrar check-in.");
-        return;
-      }
-
-      await carregarTudo();
+      const rows = linhasFiltradas();
+      document.getElementById("relatorioResumo").innerHTML = `
+        <div class="kpi"><div class="label">Total Caixas</div><div class="value">${rows.reduce((a,b)=>a+(b.total_caixas||0),0)}</div></div>
+        <div class="kpi"><div class="label">Picking (HE)</div><div class="value">${rows.reduce((a,b)=>a+(b.he||0),0)}</div></div>
+        <div class="kpi"><div class="label">Paletes (HO)</div><div class="value">${rows.reduce((a,b)=>a+(b.ho||0),0)}</div></div>
+        <div class="kpi"><div class="label">Peso</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0)}</div></div>`;
+      const turnos = ["T1","T2","T3","Sem turno"];
+      const heData = turnos.map(t => rows.filter(r => (t === "Sem turno" ? !r.turno_separacao : r.turno_separacao === t)).reduce((a,b)=>a+(b.he||0),0));
+      const hoData = turnos.map(t => rows.filter(r => (t === "Sem turno" ? !r.turno_separacao : r.turno_separacao === t)).reduce((a,b)=>a+(b.ho||0),0));
+      if(chartHE) chartHE.destroy();
+      if(chartHO) chartHO.destroy();
+      chartHE = new Chart(document.getElementById("graficoHE"), { type:"bar", data:{ labels:turnos, datasets:[{ label:"HE", data:heData }] }, options:{ responsive:true, plugins:{ legend:{ labels:{ color:'#eef4ff' } } }, scales:{ x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }, y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } } } } });
+      chartHO = new Chart(document.getElementById("graficoHO"), { type:"bar", data:{ labels:turnos, datasets:[{ label:"HO", data:hoData }] }, options:{ responsive:true, plugins:{ legend:{ labels:{ color:'#eef4ff' } } }, scales:{ x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }, y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } } } } });
     }
 
     function carregarSelectPatio(){
       const rows = linhasFiltradas().filter(r => ["Pronto Expedição","No Pátio","Em Doca","Em Carregamento"].includes(r.status_global));
-      document.getElementById("p_dt").innerHTML =
-        `<option value="">Selecione</option>` +
-        rows.map(r => `<option value="${r.id}">${r.dt} - ${r.transportadora || ""}</option>`).join("");
+      document.getElementById("p_dt").innerHTML = `<option value="">Selecione</option>` + rows.map(r => `<option value="${esc(r.id)}">${esc(r.dt)} - ${esc(r.transportadora || "")}</option>`).join("");
+    }
+
+    function carregarSelectCheckin(){
+      const rows = linhasFiltradas().filter(r => ["Pronto Expedição","No Pátio","Em Doca","Em Carregamento","Agendado","Separado"].includes(r.status_global));
+      document.getElementById("c_dt").innerHTML = `<option value="">Selecione</option>` + rows.map(r => `<option value="${esc(r.id)}">${esc(r.dt)} - ${esc(r.transportadora || "")}</option>`).join("");
     }
 
     function preencherPatio(){
@@ -1735,280 +1155,127 @@ function definirTurno(hora){
 
     async function moverPatio(status){
       const id = document.getElementById("p_dt").value;
-      if(!id){
-        alert("Selecione a DT.");
-        return;
-      }
-
+      if(!id) return alert("Selecione a DT.");
       const payload = {
         status_global: status,
         doca_carregamento: document.getElementById("p_doca").value || null,
-        motorista: document.getElementById("p_motorista").value || null,
-        placa_cavalo: document.getElementById("p_placa_cavalo").value || null,
-        placa_carreta: document.getElementById("p_placa_carreta").value || null,
+        motorista: document.getElementById("p_motorista").value.trim() || null,
+        placa_cavalo: document.getElementById("p_placa_cavalo").value.trim() || null,
+        placa_carreta: document.getElementById("p_placa_carreta").value.trim() || null,
         presente_ausente: document.getElementById("p_presenca").value || null
       };
-
       if(status === "No Pátio") payload.chegada_motorista = new Date().toISOString();
       if(status === "Em Doca") payload.data_em_doca = new Date().toISOString();
       if(status === "Em Carregamento") payload.inicio_carregamento = new Date().toISOString();
       if(status === "Expedido") payload.fim_carregamento = new Date().toISOString();
-
       const { error } = await sb.from("agendas").update(payload).eq("id", id);
-      if(error){
-        console.error(error);
-        alert("Erro ao atualizar pátio.");
-        return;
-      }
-
+      if(error){ console.error(error); return alert("Erro ao atualizar movimentação do pátio."); }
       await carregarTudo();
+      showToast(`DT movida para ${status}`);
+    }
+
+    async function registrarCheckin(){
+      const id = document.getElementById("c_dt").value;
+      if(!id) return alert("Selecione a DT.");
+      const payload = {
+        motorista: document.getElementById("c_motorista").value.trim() || null,
+        placa_cavalo: document.getElementById("c_placa_cavalo").value.trim() || null,
+        placa_carreta: document.getElementById("c_placa_carreta").value.trim() || null,
+        presente_ausente: document.getElementById("c_presenca").value || null,
+        observacao_geral: document.getElementById("c_obs").value.trim() || null,
+        chegada_motorista: new Date().toISOString(),
+        status_global: "No Pátio"
+      };
+      const { error } = await sb.from("agendas").update(payload).eq("id", id);
+      if(error){ console.error(error); return alert("Erro ao registrar check-in."); }
+      await carregarTudo();
+      showToast("Check-in registrado");
     }
 
     async function mudarStatus(id, status){
-      const { error } = await sb.from("agendas").update({ status_global: status }).eq("id", id);
-      if(error){
-        console.error(error);
-        alert("Erro ao atualizar status.");
-        return;
-      }
+      const payload = { status_global: status };
+      if(status === "Em Separação" && !registros.find(r => r.id === id)?.inicio_separacao) payload.inicio_separacao = new Date().toISOString();
+      if(status === "Separado" && !registros.find(r => r.id === id)?.fim_separacao) payload.fim_separacao = new Date().toISOString();
+      const { error } = await sb.from("agendas").update(payload).eq("id", id);
+      if(error){ console.error(error); return alert("Erro ao alterar status."); }
       await carregarTudo();
+      showToast(`Status alterado para ${status}`);
     }
-async function importarExcel(){
 
-  if(usuarioPerfil !== "admin"){
-    alert("Acesso negado");
-    return;
-  }
-
-  const file = document.getElementById("fileInput").files[0];
-  if(!file){
-    alert("Selecione um arquivo");
-    return;
-  }
-
-  const reader = new FileReader();
-
-  reader.onload = async function(e){
-
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type:'array' });
-
-    let registrosImportacao = [];
-
-    function get(row, nomes){
-      for(let nome of nomes){
-        const key = Object.keys(row).find(k => k.toUpperCase().includes(nome.toUpperCase()));
-        if(key && row[key] !== undefined && row[key] !== "") return row[key];
+    function aplicarModoModal(){
+      const info = document.getElementById("blocoInfo");
+      const sep = document.getElementById("blocoSeparacao");
+      const exp = document.getElementById("blocoExpedicao");
+      info.style.display = "block"; sep.style.display = "block"; exp.style.display = "block";
+      const bloquearCampos = (container, bloquear) => container.querySelectorAll("input, select, textarea").forEach(el => el.disabled = bloquear);
+      document.getElementById("m_dt").disabled = true;
+      switch(viewAtualGlobal){
+        case "agenda": sep.style.display = "none"; exp.style.display = "none"; bloquearCampos(info, false); break;
+        case "separacao": exp.style.display = "none"; bloquearCampos(info, true); bloquearCampos(sep, false); break;
+        case "expedicao":
+        case "patio": bloquearCampos(info, true); bloquearCampos(sep, true); bloquearCampos(exp, false); break;
+        default: bloquearCampos(info, false); bloquearCampos(sep, false); bloquearCampos(exp, false);
       }
-      return null;
+      document.getElementById("m_dt").disabled = true;
     }
 
-    function num(v){
-      if(v === null || v === undefined || v === "") return null;
-      if(typeof v === "number") return v;
-      return parseFloat(String(v).replace(",", ".")) || null;
-    }
-
-    function normalizarData(v){
-      if(!v) return null;
-
-      if(typeof v === "number"){
-        const base = new Date(1899,11,30);
-        const data = new Date(base.getTime() + v * 86400000);
-        return data.toISOString().split("T")[0];
-      }
-
-      const d = new Date(v);
-      if(isNaN(d)) return null;
-      return d.toISOString().split("T")[0];
-    }
-
-    function normalizarHora(v){
-      if(!v) return null;
-
-      if(typeof v === "number"){
-        const total = Math.round(v * 86400);
-        const h = String(Math.floor(total / 3600)).padStart(2,"0");
-        const m = String(Math.floor((total % 3600)/60)).padStart(2,"0");
-        return h + ":" + m;
-      }
-
-      const d = new Date("1970-01-01 " + v);
-      if(isNaN(d)) return null;
-      return d.toTimeString().slice(0,5);
-    }
-
-    // 🔁 LÊ TODAS AS ABAS
-    for (const nomeAba of workbook.SheetNames){
-
-      const sheet = workbook.Sheets[nomeAba];
-      const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-
-      for (const row of json){
-
-        const dt = String(get(row, ["CARRO","DT","TRANSPORTE"])).trim();
-        if(!dt) continue;
-
-        const registro = {
-  dt: dt,
-
-  ordem: row["ORDEM"] || null,
-  remessa: row["REMESSA"] || null,
-  cliente: row["CLIENTE"] || null,
-  transportadora: row["TRANSPORTADOR"] || null,
-
-  data_agenda: normalizarData(row["DATA"]),
-  hora_agenda: normalizarHora(row["HORA"]),
-
-  tipo_carga: row["TPCARGA"] || null,
-  tipo_veiculo: row["TPCARRO"] || null,
-  tipo_frete: row["TPFRETE"] || null,
-  perfil_carga: row["PERFILCARGA"] || null,
-
-  // 🔥 VOLUME TOTAL
-  total_caixas: num(row["TOTAL"]),
-
-  // 🔥 PRODUÇÃO SEPARAÇÃO
-  caixas_he: num(row["HE"]),
-
-  // 🔥 PRODUÇÃO EMPILHADEIRA
-  paletes_ho: num(row["PalletsHO"]),
-
-  cubagem: num(row["CUBAGEM"]),
-  tonelagem: num(row["TON"]),
-  peso: num(row["PESO"]),
-
-  status_global: "Agendado"
-};
-
-        registrosImportacao.push(registro);
-      }
-    }
-// 🧠 REMOVE DUPLICADOS POR DT
-const mapa = new Map();
-
-for (const item of registrosImportacao){
-  mapa.set(item.dt, item); // mantém o último registro da DT
-}
-
-const registrosUnicos = Array.from(mapa.values());
-
-// 🚀 UPSERT LIMPO
-const { error } = await sb
-  .from("agendas")
-  .upsert(registrosUnicos, { onConflict: "dt" });
-
-    if(error){
-      console.error("ERRO COMPLETO:", error);
-      alert("Erro ao importar: " + error.message);
-      return;
-    }
-
-    document.getElementById("statusUpload").innerText =
-      "Importado com sucesso: " + registrosImportacao.length + " registros";
-
-    await carregarTudo();
-  };
-
-  reader.readAsArrayBuffer(file);
-}
-// 🔥 FUNÇÕES FORA DA IMPORTAÇÃO
-function normalizarData(valor){
-  if(!valor) return null;
-
-  if(typeof valor === "number"){
-    const base = new Date(1899,11,30);
-    const data = new Date(base.getTime() + valor * 86400000);
-    return data.toISOString().split("T")[0];
-  }
-}
-
-function normalizarHora(valor){
-  if(!valor) return null;
-
-  if(typeof valor === "number"){
-    const total = Math.round(valor * 86400);
-    const h = String(Math.floor(total / 3600)).padStart(2,"0");
-    const m = String(Math.floor((total % 3600)/60)).padStart(2,"0");
-    return h + ":" + m + ":00";
-  }
-
-  return valor;
-}
-    function abrirDTPorId(id){
-      const item = registros.find(r => r.id === id);
-      if(item) abrirDTCompleta(item);
-    }
-
-    function abrirDTCompleta(item){
-      dtAtual = item;
+    async function abrirDTPorId(id){
+      const row = registros.find(r => r.id === id);
+      if(!row){ alert("DT não encontrada."); return; }
+      dtAtual = row;
+      document.getElementById("dtModalSub").textContent = `DT ${row.dt || "-"} • ${row.transportadora || "-"} • ${row.cliente || "-"}`;
+      const set = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? ""; };
+      set("m_dt", row.dt);
+      set("m_ordem", row.ordem);
+      set("m_remessa", row.remessa);
+      set("m_cliente", row.cliente);
+      set("m_transportadora", row.transportadora);
+      set("m_data_agenda", row.data_agenda);
+      set("m_hora_agenda", row.hora_agenda);
+      set("m_tipo_carga", row.tipo_carga);
+      set("m_tipo_veiculo", row.tipo_veiculo);
+      set("m_tipo_frete", row.tipo_frete);
+      set("m_perfil_carga", row.perfil_carga);
+      set("m_doca_agenda", row.doca_agenda);
+      set("m_status_global", row.status_global || "Agendado");
+      set("m_peso", row.peso);
+      set("m_cubagem", row.cubagem);
+      set("m_tonelagem", row.tonelagem);
+      set("m_he", row.he);
+      set("m_ho", row.ho);
+      set("m_total_caixas", row.total_caixas);
+      set("m_observacao_geral", row.observacao_geral);
+      set("m_doca_planejada", row.doca_planejada);
+      set("m_tipo_separacao", row.tipo_separacao);
+      set("m_inicio_separacao", toInputDateTime(row.inicio_separacao));
+      set("m_fim_separacao", toInputDateTime(row.fim_separacao));
+      set("m_status_separacao", row.status_separacao);
+      set("m_turno_separacao", row.turno_separacao || definirTurno(row.hora_agenda));
+      set("m_inicio_recebimento", toInputDateTime(row.inicio_recebimento));
+      set("m_fim_recebimento", toInputDateTime(row.fim_recebimento));
+      set("m_conf_recebimento", row.conferente_recebimento);
+      set("m_status_recebimento", row.status_recebimento);
+      set("m_obs_separacao", row.obs_separacao);
+      set("m_conf_expedicao", row.conferente_expedicao);
+      set("m_faturado", row.faturado === true ? "true" : row.faturado === false ? "false" : "");
+      set("m_data_faturamento", toInputDateTime(row.data_faturamento));
+      set("m_romaneio", row.romaneio);
+      set("m_retirada_nf", toInputDateTime(row.retirada_nf));
+      set("m_caixas_embarcadas", row.caixas_embarcadas);
+      set("m_operador", row.operador);
+      set("m_mao_obra", row.mao_obra);
+      set("m_motorista", row.motorista);
+      set("m_placa_cavalo", row.placa_cavalo);
+      set("m_placa_carreta", row.placa_carreta);
+      set("m_presente_ausente", row.presente_ausente);
+      set("m_chegada_motorista", toInputDateTime(row.chegada_motorista));
+      set("m_doca_carregamento", row.doca_carregamento);
+      set("m_data_em_doca", toInputDateTime(row.data_em_doca));
+      set("m_inicio_carregamento", toInputDateTime(row.inicio_carregamento));
+      set("m_fim_carregamento", toInputDateTime(row.fim_carregamento));
+      set("m_obs_carregamento", row.obs_carregamento);
+      aplicarModoModal();
       document.getElementById("dtModal").classList.add("show");
-      const blocoExpedicao = document.getElementById("blocoExpedicao");
-
-  if(viewAtualGlobal === "separacao"){
-    blocoExpedicao.style.display = "none";
-  }else{
-    blocoExpedicao.style.display = "block";
-  }
-      document.getElementById("dtModalSub").textContent = `DT ${item.dt || "-"} • ${item.transportadora || "-"}`;
-
-      const map = {
-        m_dt: item.dt,
-        m_ordem: item.ordem,
-        m_remessa: item.remessa,
-        m_cliente: item.cliente,
-        m_transportadora: item.transportadora,
-        m_data_agenda: item.data_agenda,
-        m_hora_agenda: item.hora_agenda,
-        m_tipo_carga: item.tipo_carga,
-        m_tipo_veiculo: item.tipo_veiculo,
-        m_tipo_frete: item.tipo_frete,
-        m_perfil_carga: item.perfil_carga,
-        m_doca_agenda: item.doca_agenda,
-        m_status_global: item.status_global || "Agendado",
-        m_peso: item.peso,
-        m_cubagem: item.cubagem,
-        m_tonelagem: item.tonelagem,
-        m_he: item.he,
-        m_ho: item.ho,
-        m_total_caixas: item.total_caixas,
-        m_observacao_geral: item.observacao_geral,
-        m_doca_planejada: item.doca_planejada,
-        m_tipo_separacao: item.tipo_separacao,
-        m_status_separacao: item.status_separacao,
-        m_turno_separacao: item.turno_separacao,
-        m_conf_recebimento: item.conferente_recebimento,
-        m_status_recebimento: item.status_recebimento,
-        m_obs_separacao: item.obs_separacao,
-        m_conf_expedicao: item.conferente_expedicao,
-        m_faturado: item.faturado === true ? "true" : item.faturado === false ? "false" : "",
-        m_romaneio: item.romaneio,
-        m_caixas_embarcadas: item.caixas_embarcadas,
-        m_operador: item.operador,
-        m_mao_obra: item.mao_obra,
-        m_motorista: item.motorista,
-        m_placa_cavalo: item.placa_cavalo,
-        m_placa_carreta: item.placa_carreta,
-        m_presente_ausente: item.presente_ausente,
-        m_doca_carregamento: item.doca_carregamento,
-        m_obs_carregamento: item.obs_carregamento
-      };
-
-      Object.entries(map).forEach(([id,val]) => {
-        const el = document.getElementById(id);
-        if(el) el.value = val ?? "";
-      });
-
-      document.getElementById("m_inicio_separacao").value = toInputDateTime(item.inicio_separacao);
-      document.getElementById("m_fim_separacao").value = toInputDateTime(item.fim_separacao);
-      document.getElementById("m_inicio_recebimento").value = toInputDateTime(item.inicio_recebimento);
-      document.getElementById("m_fim_recebimento").value = toInputDateTime(item.fim_recebimento);
-      document.getElementById("m_data_faturamento").value = toInputDateTime(item.data_faturamento);
-      document.getElementById("m_retirada_nf").value = toInputDateTime(item.retirada_nf);
-      document.getElementById("m_chegada_motorista").value = toInputDateTime(item.chegada_motorista);
-      document.getElementById("m_data_em_doca").value = toInputDateTime(item.data_em_doca);
-      document.getElementById("m_inicio_carregamento").value = toInputDateTime(item.inicio_carregamento);
-      document.getElementById("m_fim_carregamento").value = toInputDateTime(item.fim_carregamento);
     }
 
     function fecharDTModal(){
@@ -2018,22 +1285,18 @@ function normalizarHora(valor){
 
     async function salvarDTModal(){
       if(!dtAtual) return;
-      if(usuarioPerfil === "portaria"){
-        alert("Seu perfil não pode editar DTs.");
-        return;
-      }
-
+      const faturadoVal = document.getElementById("m_faturado").value;
       const payload = {
-        ordem: document.getElementById("m_ordem").value || null,
-        remessa: document.getElementById("m_remessa").value || null,
-        cliente: document.getElementById("m_cliente").value || null,
-        transportadora: document.getElementById("m_transportadora").value || null,
+        ordem: document.getElementById("m_ordem").value.trim() || null,
+        remessa: document.getElementById("m_remessa").value.trim() || null,
+        cliente: document.getElementById("m_cliente").value.trim() || null,
+        transportadora: document.getElementById("m_transportadora").value.trim() || null,
         data_agenda: document.getElementById("m_data_agenda").value || null,
         hora_agenda: document.getElementById("m_hora_agenda").value || null,
-        tipo_carga: document.getElementById("m_tipo_carga").value || null,
-        tipo_veiculo: document.getElementById("m_tipo_veiculo").value || null,
-        tipo_frete: document.getElementById("m_tipo_frete").value || null,
-        perfil_carga: document.getElementById("m_perfil_carga").value || null,
+        tipo_carga: document.getElementById("m_tipo_carga").value.trim() || null,
+        tipo_veiculo: document.getElementById("m_tipo_veiculo").value.trim() || null,
+        tipo_frete: document.getElementById("m_tipo_frete").value.trim() || null,
+        perfil_carga: document.getElementById("m_perfil_carga").value.trim() || null,
         doca_agenda: document.getElementById("m_doca_agenda").value || null,
         status_global: document.getElementById("m_status_global").value || null,
         peso: num(document.getElementById("m_peso").value),
@@ -2042,162 +1305,149 @@ function normalizarHora(valor){
         he: num(document.getElementById("m_he").value),
         ho: num(document.getElementById("m_ho").value),
         total_caixas: num(document.getElementById("m_total_caixas").value),
-        observacao_geral: document.getElementById("m_observacao_geral").value || null,
-
+        observacao_geral: document.getElementById("m_observacao_geral").value.trim() || null,
         doca_planejada: document.getElementById("m_doca_planejada").value || null,
         tipo_separacao: document.getElementById("m_tipo_separacao").value || null,
         inicio_separacao: document.getElementById("m_inicio_separacao").value || null,
         fim_separacao: document.getElementById("m_fim_separacao").value || null,
-        status_separacao: document.getElementById("m_status_separacao").value || null,
+        status_separacao: document.getElementById("m_status_separacao").value.trim() || null,
         turno_separacao: document.getElementById("m_turno_separacao").value || null,
         inicio_recebimento: document.getElementById("m_inicio_recebimento").value || null,
         fim_recebimento: document.getElementById("m_fim_recebimento").value || null,
         conferente_recebimento: document.getElementById("m_conf_recebimento").value || null,
-        status_recebimento: document.getElementById("m_status_recebimento").value || null,
-        obs_separacao: document.getElementById("m_obs_separacao").value || null,
-
+        status_recebimento: document.getElementById("m_status_recebimento").value.trim() || null,
+        obs_separacao: document.getElementById("m_obs_separacao").value.trim() || null,
         conferente_expedicao: document.getElementById("m_conf_expedicao").value || null,
-        faturado: document.getElementById("m_faturado").value === "" ? null : document.getElementById("m_faturado").value === "true",
+        faturado: faturadoVal === "" ? null : faturadoVal === "true",
         data_faturamento: document.getElementById("m_data_faturamento").value || null,
-        romaneio: document.getElementById("m_romaneio").value || null,
+        romaneio: document.getElementById("m_romaneio").value.trim() || null,
         retirada_nf: document.getElementById("m_retirada_nf").value || null,
         caixas_embarcadas: num(document.getElementById("m_caixas_embarcadas").value),
-        operador: document.getElementById("m_operador").value || null,
-        mao_obra: document.getElementById("m_mao_obra").value || null,
-        motorista: document.getElementById("m_motorista").value || null,
-        placa_cavalo: document.getElementById("m_placa_cavalo").value || null,
-        placa_carreta: document.getElementById("m_placa_carreta").value || null,
+        operador: document.getElementById("m_operador").value.trim() || null,
+        mao_obra: document.getElementById("m_mao_obra").value.trim() || null,
+        motorista: document.getElementById("m_motorista").value.trim() || null,
+        placa_cavalo: document.getElementById("m_placa_cavalo").value.trim() || null,
+        placa_carreta: document.getElementById("m_placa_carreta").value.trim() || null,
         presente_ausente: document.getElementById("m_presente_ausente").value || null,
         chegada_motorista: document.getElementById("m_chegada_motorista").value || null,
         doca_carregamento: document.getElementById("m_doca_carregamento").value || null,
         data_em_doca: document.getElementById("m_data_em_doca").value || null,
         inicio_carregamento: document.getElementById("m_inicio_carregamento").value || null,
         fim_carregamento: document.getElementById("m_fim_carregamento").value || null,
-        obs_carregamento: document.getElementById("m_obs_carregamento").value || null
+        obs_carregamento: document.getElementById("m_obs_carregamento").value.trim() || null
       };
-
       const { error } = await sb.from("agendas").update(payload).eq("id", dtAtual.id);
-      if(error){
-        console.error(error);
-        alert("Erro ao salvar DT.");
-        return;
-      }
-
+      if(error){ console.error(error); return alert("Erro ao salvar DT."); }
       showToast("DT salva com sucesso");
       fecharDTModal();
       await carregarTudo();
     }
 
+    async function importarExcel(){
+      const input = document.getElementById("fileInput");
+      const status = document.getElementById("statusUpload");
+      if(!input.files?.length) return alert("Selecione um arquivo Excel.");
+      status.textContent = "Lendo arquivo...";
+      const file = input.files[0];
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type:"array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval:"" });
+
+      const map = rows.map(r => ({
+        dt: String(r["Nº transporte"] || r["DT"] || r["dt"] || "").trim() || null,
+        ordem: String(r["Ordem"] || r["ordem"] || "").trim() || null,
+        remessa: String(r["Remessa"] || r["remessa"] || "").trim() || null,
+        data_agenda: r["Data agenda"] || r["data_agenda"] || null,
+        hora_agenda: r["Hora agenda"] || r["hora_agenda"] || null,
+        transportadora: String(r["Nome agente de frete"] || r["Transportadora"] || "").trim() || null,
+        cliente: String(r["Nome do emissor da ordem"] || r["Cliente"] || "").trim() || null,
+        tipo_carga: String(r["Tipo de carga"] || "").trim() || null,
+        perfil_carga: String(r["Perfil de carregamento"] || "").trim() || null,
+        peso: num(r["Peso total"]),
+        cubagem: num(r["Volume"]),
+        total_caixas: num(r["Qtd.remessa"]),
+        he: num(r["HE"]),
+        ho: num(r["HO"]),
+        status_global: "Agendado"
+      })).filter(r => r.dt);
+
+      if(!map.length) return alert("Nenhuma linha válida encontrada no Excel.");
+      status.textContent = `Importando ${map.length} registros...`;
+      const { error } = await sb.from("agendas").upsert(map, { onConflict:"dt" });
+      if(error){ console.error(error); status.textContent = "Erro na importação."; return alert("Erro ao importar Excel."); }
+      status.textContent = `${map.length} registros importados com sucesso.`;
+      await carregarTudo();
+      showToast("Importação concluída");
+    }
+
+    async function salvarMotorista(){
+      const payload = {
+        nome: document.getElementById("m_nome").value.trim() || null,
+        cpf: document.getElementById("m_cpf").value.trim() || null,
+        telefone: document.getElementById("m_telefone").value.trim() || null
+      };
+      if(!payload.nome) return alert("Informe o nome do motorista.");
+      const { error } = await sb.from("motoristas").insert([payload]);
+      if(error){ console.error(error); return alert("Erro ao salvar motorista."); }
+      document.getElementById("m_nome").value = "";
+      document.getElementById("m_cpf").value = "";
+      document.getElementById("m_telefone").value = "";
+      await carregarCadastros();
+      showToast("Motorista salvo");
+    }
+
+    function carregarMotoristas(){
+      document.getElementById("listaMotoristas").innerHTML = (window._motoristas || []).map(m => `<tr><td>${esc(m.nome)}</td><td>${esc(m.cpf)}</td><td>${esc(m.telefone)}</td></tr>`).join("");
+    }
+
+    async function salvarTransportadora(){
+      const payload = {
+        nome: document.getElementById("t_nome").value.trim() || null,
+        cnpj: document.getElementById("t_cnpj").value.trim() || null
+      };
+      if(!payload.nome) return alert("Informe o nome da transportadora.");
+      const { error } = await sb.from("transportadoras").insert([payload]);
+      if(error){ console.error(error); return alert("Erro ao salvar transportadora."); }
+      document.getElementById("t_nome").value = "";
+      document.getElementById("t_cnpj").value = "";
+      await carregarCadastros();
+      showToast("Transportadora salva");
+    }
+
+    function carregarTransportadoras(){
+      document.getElementById("listaTransportadoras").innerHTML = (window._transportadoras || []).map(t => `<tr><td>${esc(t.nome)}</td><td>${esc(t.cnpj)}</td></tr>`).join("");
+    }
+
+    function initDragDrop(){
+      const items = document.querySelectorAll("#dashboardBoard .item[draggable='true']");
+      const lanes = document.querySelectorAll("#dashboardBoard .lane[data-status]");
+      items.forEach(item => {
+        item.addEventListener("dragstart", e => e.dataTransfer.setData("text/plain", item.dataset.id));
+      });
+      lanes.forEach(lane => {
+        lane.addEventListener("dragover", e => e.preventDefault());
+        lane.addEventListener("drop", async e => {
+          e.preventDefault();
+          const id = e.dataTransfer.getData("text/plain");
+          const status = lane.dataset.status;
+          if(id && status) await mudarStatus(id, status);
+        });
+      });
+    }
+
     (function iniciar(){
       const hoje = new Date();
-      const p = n => String(n).padStart(2,"0");
+      const p = n => String(n).padStart(2, "0");
       document.getElementById("filtroData").value = `${hoje.getFullYear()}-${p(hoje.getMonth()+1)}-${p(hoje.getDate())}`;
     })();
 
-
-    document.getElementById("loginEmail").addEventListener("keydown", (e) => {
-      if(e.key === "Enter") login();
-    });
     async function boot(){
       await testarConexao();
       await verificarSessao();
     }
 
     boot();
-    let draggedId = null;
-
-function initDragDrop(){
-
-  document.querySelectorAll(".item").forEach(el => {
-    el.draggable = true;
-
-    el.addEventListener("dragstart", e => {
-      draggedId = el.dataset.id;
-    });
-  });
-
-  document.querySelectorAll(".lane").forEach(lane => {
-
-    lane.addEventListener("dragover", e => {
-      e.preventDefault();
-    });
-
-    lane.addEventListener("drop", async e => {
-      e.preventDefault();
-
-      const novoStatus = lane.dataset.status;
-
-      if(!draggedId) return;
-
-      await moverStatusDrag(draggedId, novoStatus);
-
-      draggedId = null;
-    });
-  });
-}
-
-async function moverStatusDrag(id, status){
-
-  const { error } = await sb
-    .from("agendas")
-    .update({ status_global: status })
-    .eq("id", id);
-
-  if(error){
-    alert("Erro ao mover");
-    return;
-  }
-
-  await carregarTudo();
-}
-    async function salvarMotorista(){
-
-  const payload = {
-    nome: document.getElementById("m_nome").value,
-    cpf: document.getElementById("m_cpf").value,
-    telefone: document.getElementById("m_telefone").value
-  };
-
-  await sb.from("motoristas").insert([payload]);
-  carregarMotoristas();
-}
-
-async function carregarMotoristas(){
-
-  const { data } = await sb.from("motoristas").select("*");
-
-  document.getElementById("listaMotoristas").innerHTML =
-    data.map(m => `
-      <tr>
-        <td>${m.nome}</td>
-        <td>${m.cpf}</td>
-        <td>${m.telefone}</td>
-      </tr>
-    `).join("");
-}
-
-async function salvarTransportadora(){
-
-  const payload = {
-    nome: document.getElementById("t_nome").value,
-    cnpj: document.getElementById("t_cnpj").value
-  };
-
-  await sb.from("transportadoras").insert([payload]);
-  carregarTransportadoras();
-}
-
-async function carregarTransportadoras(){
-
-  const { data } = await sb.from("transportadoras").select("*");
-
-  document.getElementById("listaTransportadoras").innerHTML =
-    data.map(t => `
-      <tr>
-        <td>${t.nome}</td>
-      </tr>
-    `).join("");
-}
   </script>
 </body>
 </html>
