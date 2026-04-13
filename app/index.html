@@ -1634,20 +1634,7 @@ function definirTurno(hora){
     type: "bar",
     data: { labels: turnos, datasets: [{ label: "HO", data: hoData }] }
   });
-
-  document.getElementById("statusEtiquetagem").innerHTML = `
-    <div class="kpi"><div class="label">Total</div><div class="value">${rows.length}</div></div>
-    <div class="kpi"><div class="label">Realizado</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div></div>
-    <div class="kpi"><div class="label">Pendente</div><div class="value">${rows.filter(x=>x.status_global!=="Expedido").length}</div></div>
-  `;
 }
-  // 🔹 STATUS
-  document.getElementById("statusEtiquetagem").innerHTML = `
-    <div class="kpi"><div class="label">Total</div><div class="value">${rows.length}</div></div>
-    <div class="kpi"><div class="label">Realizado</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div></div>
-    <div class="kpi"><div class="label">Pendente</div><div class="value">${rows.filter(x=>x.status_global!=="Expedido").length}</div></div>
-  `;
-    
     async function registrarCheckin(){
       const id = document.getElementById("c_dt").value;
       if(!id){
