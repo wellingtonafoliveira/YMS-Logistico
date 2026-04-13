@@ -16,11 +16,11 @@
     :root{
       --bg:#020617;
       --panel:rgba(8,15,29,0.68);
-      --panel-2:rgba(15,23,42,0.76);
-      --panel-3:rgba(17,24,39,0.72);
+      --panel-2:rgba(15,23,42,0.78);
+      --panel-3:rgba(17,24,39,0.74);
       --panel-hover:rgba(20,32,56,0.88);
       --line:rgba(255,255,255,0.10);
-      --line-2:rgba(255,255,255,0.06);
+      --line-soft:rgba(255,255,255,0.06);
       --text:#f8fafc;
       --muted:#cbd5e1;
       --muted-2:#94a3b8;
@@ -32,7 +32,8 @@
       --purple:#8b5cf6;
       --shadow:0 24px 60px rgba(0,0,0,.35);
       --shadow-soft:0 14px 35px rgba(0,0,0,.22);
-      --radius:22px;
+      --radius:24px;
+      --max:1240px;
     }
 
     html{
@@ -46,7 +47,7 @@
       overflow-x:hidden;
       position:relative;
       background:
-        linear-gradient(rgba(0,0,0,.60), rgba(0,0,0,.60)),
+        linear-gradient(rgba(0,0,0,.62), rgba(0,0,0,.62)),
         url("Foto armazém.jpg") center center / cover no-repeat fixed;
     }
 
@@ -66,7 +67,8 @@
     .topbar,
     .hero,
     .section,
-    .footer{
+    .footer,
+    .to-top{
       position:relative;
       z-index:1;
     }
@@ -74,15 +76,15 @@
     .topbar{
       position:sticky;
       top:14px;
-      width:min(1240px, calc(100% - 28px));
+      width:min(var(--max), calc(100% - 28px));
       margin:14px auto 0;
       padding:14px 18px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:16px;
+      gap:18px;
       border:1px solid var(--line);
-      background:rgba(2,6,23,.58);
+      background:rgba(2,6,23,.62);
       backdrop-filter:blur(16px);
       -webkit-backdrop-filter:blur(16px);
       border-radius:20px;
@@ -97,8 +99,8 @@
     }
 
     .brand img{
-      width:50px;
-      height:50px;
+      width:52px;
+      height:52px;
       object-fit:contain;
       background:rgba(255,255,255,.95);
       border-radius:14px;
@@ -152,9 +154,9 @@
     }
 
     .hero{
-      width:min(1240px, calc(100% - 28px));
+      width:min(var(--max), calc(100% - 28px));
       margin:20px auto 0;
-      padding:36px;
+      padding:38px;
       border:1px solid var(--line);
       background:var(--panel);
       backdrop-filter:blur(18px);
@@ -165,6 +167,7 @@
       grid-template-columns:1.15fr .85fr;
       gap:28px;
       align-items:center;
+      overflow:hidden;
     }
 
     .hero-left .tag{
@@ -182,11 +185,11 @@
     }
 
     .hero-left h1{
-      font-size:60px;
+      font-size:62px;
       line-height:1.02;
       margin-bottom:16px;
-      text-shadow:0 8px 28px rgba(0,0,0,.32);
       letter-spacing:-1px;
+      text-shadow:0 8px 28px rgba(0,0,0,.32);
     }
 
     .hero-left p{
@@ -243,7 +246,7 @@
       background:var(--panel-2);
       border:1px solid var(--line);
       border-radius:20px;
-      padding:18px;
+      padding:20px;
       box-shadow:var(--shadow-soft);
       position:relative;
       overflow:hidden;
@@ -287,18 +290,17 @@
     }
 
     .section{
-      width:min(1240px, calc(100% - 28px));
+      width:min(var(--max), calc(100% - 28px));
       margin:26px auto 0;
-      padding:0;
     }
 
     .section-panel{
       border:1px solid var(--line);
-      background:rgba(2,6,23,.48);
+      background:rgba(2,6,23,.50);
       backdrop-filter:blur(16px);
       -webkit-backdrop-filter:blur(16px);
       border-radius:28px;
-      padding:32px;
+      padding:34px;
       box-shadow:var(--shadow-soft);
     }
 
@@ -316,8 +318,8 @@
     .section-head p{
       color:var(--muted);
       font-size:16px;
-      line-height:1.7;
-      max-width:840px;
+      line-height:1.75;
+      max-width:860px;
       margin:0 auto;
     }
 
@@ -391,7 +393,7 @@
       background:rgba(8,15,29,.62);
       border:1px solid var(--line);
       border-radius:20px;
-      padding:20px;
+      padding:22px;
       backdrop-filter:blur(12px);
       -webkit-backdrop-filter:blur(12px);
       box-shadow:0 10px 26px rgba(0,0,0,.16);
@@ -405,6 +407,47 @@
     .benefit p{
       color:var(--muted);
       line-height:1.75;
+      font-size:14px;
+    }
+
+    .about-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:22px;
+    }
+
+    .about-box{
+      background:var(--panel-3);
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:26px;
+      box-shadow:0 14px 32px rgba(0,0,0,.18);
+    }
+
+    .about-box h3{
+      font-size:24px;
+      margin-bottom:12px;
+    }
+
+    .about-box p{
+      color:var(--muted);
+      line-height:1.85;
+      font-size:15px;
+    }
+
+    .about-list{
+      display:grid;
+      gap:14px;
+      margin-top:18px;
+    }
+
+    .about-item{
+      padding:14px 16px;
+      border-radius:16px;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line-soft);
+      color:var(--muted);
+      line-height:1.7;
       font-size:14px;
     }
 
@@ -424,7 +467,7 @@
       gap:12px;
       padding:18px 20px;
       background:rgba(255,255,255,.04);
-      border-bottom:1px solid var(--line-2);
+      border-bottom:1px solid var(--line-soft);
       flex-wrap:wrap;
     }
 
@@ -445,14 +488,80 @@
       background:#0f172a;
     }
 
+    .cta-box{
+      text-align:center;
+      padding:10px 0 0;
+    }
+
+    .cta-box h3{
+      font-size:34px;
+      margin-bottom:12px;
+    }
+
+    .cta-box p{
+      max-width:860px;
+      margin:0 auto;
+      color:var(--muted);
+      line-height:1.85;
+      font-size:16px;
+    }
+
+    .cta-actions{
+      display:flex;
+      justify-content:center;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-top:26px;
+    }
+
     .footer{
-      width:min(1240px, calc(100% - 28px));
+      width:min(var(--max), calc(100% - 28px));
       margin:28px auto 24px;
       text-align:center;
       padding:22px 20px;
       color:#d1d5db;
       font-size:13px;
       border-top:1px solid rgba(255,255,255,.08);
+    }
+
+    .to-top{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      width:52px;
+      height:52px;
+      border:none;
+      border-radius:16px;
+      background:linear-gradient(135deg,var(--blue-2),var(--blue));
+      color:#fff;
+      font-size:20px;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 14px 30px rgba(37,99,235,.30);
+      transition:.25s ease;
+      z-index:20;
+    }
+
+    .to-top:hover{
+      transform:translateY(-3px);
+    }
+
+    .reveal{
+      opacity:0;
+      transform:translateY(22px);
+      animation:fadeUp .8s ease forwards;
+    }
+
+    .delay-1{animation-delay:.08s}
+    .delay-2{animation-delay:.16s}
+    .delay-3{animation-delay:.24s}
+    .delay-4{animation-delay:.32s}
+
+    @keyframes fadeUp{
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
     }
 
     @media (max-width:1024px){
@@ -470,6 +579,10 @@
       }
 
       .benefits{
+        grid-template-columns:1fr;
+      }
+
+      .about-grid{
         grid-template-columns:1fr;
       }
 
@@ -503,7 +616,8 @@
         grid-template-columns:1fr;
       }
 
-      .actions .btn{
+      .actions .btn,
+      .cta-actions .btn{
         width:100%;
       }
 
@@ -511,7 +625,8 @@
         padding:24px 18px;
       }
 
-      .section-head h2{
+      .section-head h2,
+      .cta-box h3{
         font-size:30px;
       }
 
@@ -523,7 +638,7 @@
 </head>
 <body>
 
-  <header class="topbar">
+  <header class="topbar reveal">
     <div class="brand">
       <img src="logo.png" alt="Gestão Logística Plus">
       <div class="brand-text">
@@ -534,12 +649,14 @@
 
     <div class="nav">
       <button class="nav-btn" onclick="rolarPara('funcionalidades')">Funcionalidades</button>
-      <button class="nav-btn" onclick="rolarPara('indicadores-powerbi')">Indicadores Power BI</button>
+      <button class="nav-btn" onclick="rolarPara('sobre')">Sobre</button>
+      <button class="nav-btn" onclick="rolarPara('indicadores-powerbi')">Power BI</button>
+      <button class="nav-btn" onclick="rolarPara('contato')">Contato</button>
       <button class="nav-btn primary" onclick="irSistema()">Entrar no Sistema</button>
     </div>
   </header>
 
-  <section class="hero">
+  <section class="hero reveal delay-1">
     <div class="hero-left">
       <div class="tag">Plataforma logística em tempo real</div>
       <h1>Controle premium da sua operação logística</h1>
@@ -579,7 +696,7 @@
     </div>
   </section>
 
-  <section class="section" id="funcionalidades">
+  <section class="section reveal delay-2" id="funcionalidades">
     <div class="section-panel">
       <div class="section-head">
         <h2>Funcionalidades do Sistema</h2>
@@ -658,7 +775,40 @@
     </div>
   </section>
 
-  <section class="section" id="indicadores-powerbi">
+  <section class="section reveal delay-3" id="sobre">
+    <div class="section-panel">
+      <div class="section-head">
+        <h2>Sobre a Plataforma</h2>
+        <p>
+          O Gestão Logística Plus foi pensado para integrar operação e gestão
+          em uma única experiência, trazendo mais visibilidade, padronização e controle.
+        </p>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-box">
+          <h3>Uma plataforma construída para operação real</h3>
+          <p>
+            A proposta do sistema é simplificar a rotina logística, centralizando informações
+            essenciais da agenda, do pátio, das docas, da separação, da expedição e dos
+            indicadores em um ambiente único, moderno e objetivo.
+          </p>
+        </div>
+
+        <div class="about-box">
+          <h3>Diferenciais estratégicos</h3>
+          <div class="about-list">
+            <div class="about-item">Visão em tempo real da operação logística.</div>
+            <div class="about-item">Controle integrado de pátio, docas e expedição.</div>
+            <div class="about-item">Espaço para indicadores gerenciais com Power BI.</div>
+            <div class="about-item">Interface visual focada em rapidez e tomada de decisão.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section reveal delay-4" id="indicadores-powerbi">
     <div class="section-panel">
       <div class="section-head">
         <h2>Indicadores Power BI</h2>
@@ -678,16 +828,36 @@
         <iframe
           class="powerbi-frame"
           title="Indicadores Power BI"
-          src="https://app.powerbi.com/reportEmbed?reportId=6a2fe4d6-a145-4fd4-bb8d-d53dd0664d6f&autoAuth=true&ctid=00dc7aea-54cb-4612-b935-503f5544df37"
+          src="SEU_LINK_POWERBI_AQUI"
           allowfullscreen="true">
         </iframe>
       </div>
     </div>
   </section>
 
+  <section class="section" id="contato">
+    <div class="section-panel">
+      <div class="cta-box">
+        <h3>Leve sua operação para um novo nível</h3>
+        <p>
+          Reúna controle operacional, visibilidade em tempo real e inteligência gerencial
+          em uma única plataforma. Tenha mais organização, mais produtividade e mais clareza
+          para evoluir a sua operação logística.
+        </p>
+
+        <div class="cta-actions">
+          <button class="btn btn-primary" onclick="irSistema()">Entrar no Sistema</button>
+          <button class="btn btn-green" onclick="irCheckin()">Check-in Motorista</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="footer">
-    Gestão Logística Plus © 2026 • Todos os direitos reservados
+    Wellington Alves © 2026 • Todos os direitos reservados
   </div>
+
+  <button class="to-top" onclick="window.scrollTo({top:0, behavior:'smooth'})">↑</button>
 
   <script>
     function irSistema(){
