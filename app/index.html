@@ -1606,50 +1606,47 @@ function definirTurno(hora){
       }).join("");
     }
 
-    function renderCheckin(){
-      const rows = linhasFiltradas().filter(r => ["Pronto Expedição","No Pátio"].includes(r.status_global));
-      document.getElementById("c_dt").innerHTML =
-        `<option value="">Selecione</option>` +
-        rows.map(r => `<option value="${r.id}">${r.dt} - ${r.transportadora || ""}</option>`).join("");
-    }
-
     function renderRelatorios(){
 
   const rows = linhasFiltradas();
 
-document.getElementById("relatorioResumo").innerHTML = `
-  <div class="kpi"><div class="label">Total Caixas</div><div class="value">${rows.reduce((a,b)=>a+(b.total_caixas||0),0)}</div></div>
-  <div class="kpi"><div class="label">Picking (HE)</div><div class="value">${rows.reduce((a,b)=>a+(b.caixas_he||0),0)}</div></div>
-  <div class="kpi"><div class="label">Paletes (HO)</div><div class="value">${rows.reduce((a,b)=>a+(b.paletes_ho||0),0)}</div></div>
-`;
+  document.getElementById("relatorioResumo").innerHTML = `
+    <div class="kpi"><div class="label">Total Caixas</div><div class="value">${rows.reduce((a,b)=>a+(b.total_caixas||0),0)}</div></div>
+    <div class="kpi"><div class="label">Picking (HE)</div><div class="value">${rows.reduce((a,b)=>a+(b.he||0),0)}</div></div>
+    <div class="kpi"><div class="label">Paletes (HO)</div><div class="value">${rows.reduce((a,b)=>a+(b.ho||0),0)}</div></div>
+  `;
 
   const turnos = ["T1","T2","T3","Sem turno"];
 
-const heData = turnos.map(t => {
-  if(t === "Sem turno"){
-    return rows
-      .filter(r => !r.turno_separacao)
-      .reduce((a,b)=>a+(b.caixas_he||0),0);
-  }
+  const heData = turnos.map(t =>
+    rows.filter(r => (t === "Sem turno" ? !r.turno_separacao : r.turno_separacao === t))
+        .reduce((a,b)=>a+(b.he||0),0)
+  );
 
-  return rows
-    .filter(r => r.turno_separacao === t)
-    .reduce((a,b)=>a+(b.caixas_he||0),0);
-});
+  const hoData = turnos.map(t =>
+    rows.filter(r => (t === "Sem turno" ? !r.turno_separacao : r.turno_separacao === t))
+        .reduce((a,b)=>a+(b.ho||0),0)
+  );
 
-const hoData = turnos.map(t => {
-  if(t === "Sem turno"){
-    return rows
-      .filter(r => !r.turno_separacao)
-      .reduce((a,b)=>a+(b.paletes_ho||0),0);
-  }
+  if(window.chartHE) window.chartHE.destroy();
+  if(window.chartHO) window.chartHO.destroy();
 
-  return rows
-    .filter(r => r.turno_separacao === t)
-    .reduce((a,b)=>a+(b.paletes_ho||0),0);
-});
+  window.chartHE = new Chart(document.getElementById("graficoHE"), {
+    type: "bar",
+    data: { labels: turnos, datasets: [{ label: "HE", data: heData }] }
+  });
 
+  window.chartHO = new Chart(document.getElementById("graficoHO"), {
+    type: "bar",
+    data: { labels: turnos, datasets: [{ label: "HO", data: hoData }] }
+  });
 
+  document.getElementById("statusEtiquetagem").innerHTML = `
+    <div class="kpi"><div class="label">Total</div><div class="value">${rows.length}</div></div>
+    <div class="kpi"><div class="label">Realizado</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div></div>
+    <div class="kpi"><div class="label">Pendente</div><div class="value">${rows.filter(x=>x.status_global!=="Expedido").length}</div></div>
+  `;
+}
   // 🔹 STATUS
   document.getElementById("statusEtiquetagem").innerHTML = `
     <div class="kpi"><div class="label">Total</div><div class="value">${rows.length}</div></div>
