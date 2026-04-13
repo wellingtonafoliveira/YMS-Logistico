@@ -1943,6 +1943,7 @@ function normalizarHora(valor){
     function abrirDTCompleta(item){
       dtAtual = item;
       document.getElementById("dtModal").classList.add("show");
+      aplicarModoModal();
       const blocoExpedicao = document.getElementById("blocoExpedicao");
 
   if(viewAtualGlobal === "separacao"){
