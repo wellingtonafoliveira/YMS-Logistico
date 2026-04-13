@@ -1106,7 +1106,9 @@
     }
 
     function setView(view, btn){
+      
       viewAtualGlobal = view;
+      
       const targetBtn = btn || document.getElementById(`menu-${view}`);
       document.getElementById("pageTitle").textContent = targetBtn ? targetBtn.textContent : view;
       document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
