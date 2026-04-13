@@ -1340,6 +1340,56 @@ function definirTurno(hora){
       renderRelatorios();
       carregarSelectPatio();
     }
+    function aplicarModoModal(){
+
+  const info = document.getElementById("blocoInfo");
+  const sep = document.getElementById("blocoSeparacao");
+  const exp = document.getElementById("blocoExpedicao");
+
+  // reset padrão
+  info.style.display = "block";
+  sep.style.display = "block";
+  exp.style.display = "block";
+
+  const bloquearCampos = (container, bloquear) => {
+    container.querySelectorAll("input, select, textarea").forEach(el => {
+      el.disabled = bloquear;
+    });
+  };
+
+  // 🔥 REGRAS POR TELA
+  switch(viewAtualGlobal){
+
+    case "agenda":
+      sep.style.display = "none";
+      exp.style.display = "none";
+      bloquearCampos(info, false);
+      break;
+
+    case "separacao":
+      exp.style.display = "none";
+      bloquearCampos(info, true); // não altera dados base
+      bloquearCampos(sep, false);
+      break;
+
+    case "expedicao":
+      bloquearCampos(info, true);
+      bloquearCampos(sep, true);
+      bloquearCampos(exp, false);
+      break;
+
+    case "patio":
+      bloquearCampos(info, true);
+      bloquearCampos(sep, true);
+      bloquearCampos(exp, false);
+      break;
+
+    default:
+      bloquearCampos(info, false);
+      bloquearCampos(sep, false);
+      bloquearCampos(exp, false);
+  }
+}
 
     async function iniciarRealtime(){
       if(realtimeChannel){
