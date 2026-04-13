@@ -1653,8 +1653,7 @@ function definirTurno(hora){
     <div class="kpi"><div class="label">Realizado</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div></div>
     <div class="kpi"><div class="label">Pendente</div><div class="value">${rows.filter(x=>x.status_global!=="Expedido").length}</div></div>
   `;
-}
-
+    
     async function registrarCheckin(){
       const id = document.getElementById("c_dt").value;
       if(!id){
