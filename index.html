@@ -4,146 +4,299 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gestão Logística Plus</title>
+<link rel="icon" type="image/png" href="logo.png">
 
 <style>
-*{box-sizing:border-box}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+:root{
+  --bg-dark: #030712;
+  --bg-card: rgba(15, 23, 42, 0.72);
+  --bg-card-hover: rgba(30, 41, 59, 0.82);
+  --border: rgba(255,255,255,0.10);
+  --text: #f8fafc;
+  --muted: #cbd5e1;
+  --blue: #3b82f6;
+  --green: #22c55e;
+  --shadow: 0 20px 50px rgba(0,0,0,.35);
+  --radius: 18px;
+}
 
 body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  color:#fff;
-  min-height:100vh;
-  position:relative;
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
   background:
-    linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+    linear-gradient(rgba(0,0,0,.58), rgba(0,0,0,.58)),
     url("Foto armazém.jpg") center center / cover no-repeat fixed;
 }
 
-/* camada extra opcional para escurecer mais */
 body::before{
   content:"";
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.35);
-  z-index:0;
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at top left, rgba(59,130,246,.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(34,197,94,.10), transparent 25%),
+    rgba(0,0,0,.28);
+  z-index: 0;
 }
 
-/* garante conteúdo acima do fundo */
 .hero,
 .section,
 .footer{
-  position:relative;
-  z-index:1;
+  position: relative;
+  z-index: 1;
 }
 
-/* HERO */
 .hero{
-  text-align:center;
-  padding:100px 20px 50px;
+  min-height: 72vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px 30px;
+}
+
+.hero-box{
+  width: 100%;
+  max-width: 1100px;
+  background: rgba(2, 6, 23, 0.38);
+  border: 1px solid rgba(255,255,255,.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 28px;
+  padding: 50px 40px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.logo-wrap{
+  display:flex;
+  justify-content:center;
+  margin-bottom: 20px;
+}
+
+.logo{
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  background: rgba(255,255,255,.95);
+  border-radius: 20px;
+  padding: 10px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.25);
+}
+
+.hero .tag{
+  display:inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(59,130,246,.15);
+  border: 1px solid rgba(59,130,246,.30);
+  color: #dbeafe;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .2px;
+  margin-bottom: 18px;
 }
 
 .hero h1{
-  font-size:48px;
-  margin-bottom:10px;
-  text-shadow:0 4px 18px rgba(0,0,0,.45);
+  font-size: 54px;
+  line-height: 1.05;
+  margin-bottom: 14px;
+  text-shadow: 0 6px 24px rgba(0,0,0,.35);
 }
 
 .hero p{
-  color:#d1d5db;
-  font-size:18px;
-  max-width:700px;
-  margin:0 auto;
-  text-shadow:0 2px 10px rgba(0,0,0,.45);
+  max-width: 760px;
+  margin: 0 auto;
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--muted);
+  text-shadow: 0 2px 10px rgba(0,0,0,.35);
 }
 
-/* GRID */
+.actions{
+  display:flex;
+  justify-content:center;
+  gap:16px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.btn{
+  border:none;
+  border-radius: 12px;
+  padding: 15px 26px;
+  font-weight: 800;
+  font-size: 15px;
+  cursor:pointer;
+  transition: .25s ease;
+  box-shadow: 0 10px 24px rgba(0,0,0,.22);
+}
+
+.btn:hover{
+  transform: translateY(-3px);
+}
+
+.btn-primary{
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #fff;
+}
+
+.btn-green{
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #fff;
+}
+
+.hero-stats{
+  margin-top: 34px;
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.stat{
+  background: rgba(15, 23, 42, .50);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.stat strong{
+  display:block;
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.stat span{
+  color: var(--muted);
+  font-size: 14px;
+}
+
 .section{
-  padding:40px 20px 60px;
-  max-width:1100px;
-  margin:auto;
+  max-width: 1180px;
+  margin: auto;
+  padding: 30px 20px 70px;
 }
 
-.section h2{
-  margin-bottom:24px;
-  text-shadow:0 2px 10px rgba(0,0,0,.4);
+.section-head{
+  text-align:center;
+  margin-bottom: 28px;
+}
+
+.section-head h2{
+  font-size: 34px;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 12px rgba(0,0,0,.35);
+}
+
+.section-head p{
+  color: var(--muted);
+  font-size: 16px;
 }
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:20px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 22px;
 }
 
 .card{
-  background:rgba(17,24,39,0.72);
-  backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);
-  border-radius:14px;
-  padding:20px;
-  border:1px solid rgba(255,255,255,0.08);
-  transition:.3s;
-  box-shadow:0 8px 24px rgba(0,0,0,.25);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: .28s ease;
+  box-shadow: 0 12px 28px rgba(0,0,0,.18);
 }
 
 .card:hover{
-  transform:translateY(-5px);
-  border-color:#3b82f6;
+  transform: translateY(-6px);
+  background: var(--bg-card-hover);
+  border-color: rgba(59,130,246,.35);
+  box-shadow: 0 18px 36px rgba(0,0,0,.22);
+}
+
+.icon{
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 24px;
+  margin-bottom: 16px;
+  background: rgba(59,130,246,.14);
+  border: 1px solid rgba(59,130,246,.20);
 }
 
 .card h3{
-  margin-bottom:10px;
+  font-size: 20px;
+  margin-bottom: 10px;
 }
 
 .card p{
-  font-size:14px;
-  color:#d1d5db;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--muted);
 }
-
-/* BOTÕES */
-.actions{
-  display:flex;
-  justify-content:center;
-  gap:20px;
-  margin-top:30px;
-  flex-wrap:wrap;
-}
-
-.btn{
-  padding:14px 25px;
-  border:none;
-  border-radius:10px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:.25s;
-  box-shadow:0 8px 20px rgba(0,0,0,.25);
-}
-
-.btn:hover{
-  transform:translateY(-2px);
-}
-
-.btn-primary{background:#3b82f6;color:#fff;}
-.btn-green{background:#22c55e;color:#fff;}
 
 .footer{
   text-align:center;
-  padding:30px;
-  color:#d1d5db;
-  font-size:12px;
-  text-shadow:0 2px 8px rgba(0,0,0,.4);
+  padding: 26px 20px 34px;
+  color: #d1d5db;
+  font-size: 13px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.35);
 }
 
-@media (max-width:768px){
+@media (max-width: 900px){
   .hero{
-    padding:80px 20px 40px;
+    min-height: auto;
+    padding-top: 40px;
+  }
+
+  .hero-box{
+    padding: 34px 22px;
   }
 
   .hero h1{
-    font-size:34px;
+    font-size: 38px;
   }
 
   .hero p{
-    font-size:16px;
+    font-size: 16px;
+  }
+
+  .hero-stats{
+    grid-template-columns: 1fr;
+  }
+
+  .section-head h2{
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 520px){
+  .logo{
+    width: 72px;
+    height: 72px;
+  }
+
+  .hero h1{
+    font-size: 32px;
+  }
+
+  .btn{
+    width: 100%;
+    max-width: 320px;
   }
 }
 </style>
@@ -151,70 +304,109 @@ body::before{
 
 <body>
 
-<div class="hero">
-  <h1>Gestão Logística Plus</h1>
-  <p>Plataforma completa para gestão de pátio, cargas e operações logísticas</p>
+<section class="hero">
+  <div class="hero-box">
+    <div class="logo-wrap">
+      <img src="logo.png" alt="Gestão Logística Plus" class="logo">
+    </div>
 
-  <div class="actions">
-    <button class="btn btn-primary" onclick="irSistema()">Entrar no Sistema</button>
-    <button class="btn btn-green" onclick="irCheckin()">Check-in Motorista</button>
+    <div class="tag">YMS • Gestão de Pátio • Operação em Tempo Real</div>
+
+    <h1>Gestão Logística Plus</h1>
+    <p>
+      Plataforma completa para controle de pátio, agendamento de cargas,
+      ocupação de docas, check-in de motoristas e acompanhamento operacional
+      em tempo real.
+    </p>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="irSistema()">Entrar no Sistema</button>
+      <button class="btn btn-green" onclick="irCheckin()">Check-in Motorista</button>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <strong>Tempo Real</strong>
+        <span>Acompanhamento operacional contínuo</span>
+      </div>
+      <div class="stat">
+        <strong>Controle Total</strong>
+        <span>Agenda, pátio, docas e expedição integrados</span>
+      </div>
+      <div class="stat">
+        <strong>Alta Visibilidade</strong>
+        <span>Fluxo logístico centralizado em uma só plataforma</span>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
-<div class="section">
-  <h2>🚛 Funcionalidades do Sistema</h2>
+<section class="section">
+  <div class="section-head">
+    <h2>Funcionalidades do Sistema</h2>
+    <p>Uma plataforma única para controlar toda a operação logística com eficiência e visibilidade.</p>
+  </div>
+
   <div class="grid">
 
     <div class="card">
-      <h3>📊 Dashboard</h3>
-      <p>Visão geral da operação com indicadores em tempo real.</p>
+      <div class="icon">📊</div>
+      <h3>Dashboard</h3>
+      <p>Visão geral da operação com indicadores estratégicos, produtividade, status das cargas e acompanhamento em tempo real.</p>
     </div>
 
     <div class="card">
-      <h3>📅 Agenda</h3>
-      <p>Controle completo das cargas agendadas.</p>
+      <div class="icon">📅</div>
+      <h3>Agenda</h3>
+      <p>Controle completo das cargas agendadas, horários, transportadoras, clientes e planejamento operacional do dia.</p>
     </div>
 
     <div class="card">
-      <h3>🏢 Pátio</h3>
-      <p>Painel visual estilo Kanban com movimentação de cargas.</p>
+      <div class="icon">🏢</div>
+      <h3>Pátio</h3>
+      <p>Painel visual com acompanhamento das movimentações, fila de chegada, status dos veículos e avanço das etapas logísticas.</p>
     </div>
 
     <div class="card">
-      <h3>🚪 Docas</h3>
-      <p>Controle de ocupação e fluxo de carregamento.</p>
+      <div class="icon">🚪</div>
+      <h3>Docas</h3>
+      <p>Gestão da ocupação das docas com visibilidade de disponibilidade, carregamento em andamento e gargalos operacionais.</p>
     </div>
 
     <div class="card">
-      <h3>📦 Separação</h3>
-      <p>Acompanhamento da preparação das cargas.</p>
+      <div class="icon">📦</div>
+      <h3>Separação</h3>
+      <p>Monitoramento da preparação das cargas com evolução por etapa, conferência e apoio à produtividade da operação.</p>
     </div>
 
     <div class="card">
-      <h3>🚚 Expedição</h3>
-      <p>Gestão de saída e carregamento de veículos.</p>
+      <div class="icon">🚚</div>
+      <h3>Expedição</h3>
+      <p>Gestão da saída das cargas com controle de faturamento, romaneio, carregamento e conclusão do fluxo operacional.</p>
     </div>
 
     <div class="card">
-      <h3>📝 Check-in</h3>
-      <p>Registro automatizado da chegada de motoristas.</p>
+      <div class="icon">📝</div>
+      <h3>Check-in</h3>
+      <p>Registro estruturado da chegada dos motoristas com captura rápida de informações e direcionamento operacional.</p>
     </div>
 
     <div class="card">
-      <h3>📈 Resultados</h3>
-      <p>Indicadores, gráficos e análise da operação.</p>
+      <div class="icon">📈</div>
+      <h3>Resultados</h3>
+      <p>Indicadores, métricas e análises da operação para suportar decisões, produtividade e melhoria contínua.</p>
     </div>
 
   </div>
-</div>
+</section>
 
 <div class="footer">
-  Gestão Logística Plus © 2026
+  Gestão Logística Plus © 2026 • Todos os direitos reservados
 </div>
 
 <script>
 function irSistema(){
-  window.location.href = "https://gestaologisticaplus.com.br/app/index.html";
+  window.location.href = "https://app.gestaologisticaplus.com.br/app/index.html";
 }
 
 function irCheckin(){
