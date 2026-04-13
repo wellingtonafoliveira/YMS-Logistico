@@ -15,21 +15,32 @@
 
     :root{
       --bg:#020617;
-      --panel:rgba(8,15,29,0.68);
-      --panel-2:rgba(15,23,42,0.78);
-      --panel-3:rgba(17,24,39,0.74);
-      --panel-hover:rgba(20,32,56,0.88);
+      --panel:rgba(8,15,29,0.70);
+      --panel-2:rgba(15,23,42,0.80);
+      --panel-3:rgba(17,24,39,0.76);
+      --panel-hover:rgba(20,32,56,0.90);
       --line:rgba(255,255,255,0.10);
       --line-soft:rgba(255,255,255,0.06);
+
       --text:#f8fafc;
       --muted:#cbd5e1;
       --muted-2:#94a3b8;
+
       --blue:#3b82f6;
       --blue-2:#2563eb;
+
       --green:#22c55e;
       --green-2:#16a34a;
+
       --cyan:#06b6d4;
+      --cyan-2:#0891b2;
+
       --purple:#8b5cf6;
+      --purple-2:#7c3aed;
+
+      --orange:#f59e0b;
+      --orange-2:#ea580c;
+
       --shadow:0 24px 60px rgba(0,0,0,.35);
       --shadow-soft:0 14px 35px rgba(0,0,0,.22);
       --radius:24px;
@@ -58,7 +69,7 @@
       background:
         radial-gradient(circle at top left, rgba(59,130,246,.18), transparent 28%),
         radial-gradient(circle at top right, rgba(34,197,94,.10), transparent 24%),
-        radial-gradient(circle at center, rgba(139,92,246,.08), transparent 28%),
+        radial-gradient(circle at center, rgba(139,92,246,.10), transparent 28%),
         linear-gradient(180deg, rgba(2,6,23,.24), rgba(2,6,23,.58));
       z-index:0;
       pointer-events:none;
@@ -176,9 +187,9 @@
       gap:8px;
       padding:9px 14px;
       border-radius:999px;
-      border:1px solid rgba(59,130,246,.28);
-      background:rgba(59,130,246,.12);
-      color:#dbeafe;
+      border:1px solid rgba(245,158,11,.30);
+      background:rgba(245,158,11,.12);
+      color:#fde68a;
       font-size:13px;
       font-weight:800;
       margin-bottom:18px;
@@ -278,6 +289,24 @@
       line-height:1.6;
     }
 
+    .hero-mini .stat:first-child{
+      border-color:rgba(34,197,94,.22);
+      background:
+        linear-gradient(180deg, rgba(34,197,94,.10), rgba(15,23,42,.80));
+    }
+
+    .hero-mini .stat:last-child{
+      border-color:rgba(6,182,212,.24);
+      background:
+        linear-gradient(180deg, rgba(6,182,212,.10), rgba(15,23,42,.80));
+    }
+
+    .destaque{
+      border-color:rgba(139,92,246,.22);
+      background:
+        linear-gradient(180deg, rgba(139,92,246,.10), rgba(15,23,42,.82));
+    }
+
     .destaque h3{
       font-size:20px;
       margin-bottom:10px;
@@ -353,7 +382,6 @@
     .card:hover{
       transform:translateY(-6px);
       background:var(--panel-hover);
-      border-color:rgba(59,130,246,.35);
       box-shadow:0 20px 40px rgba(0,0,0,.22);
     }
 
@@ -366,9 +394,7 @@
       justify-content:center;
       font-size:25px;
       margin-bottom:16px;
-      background:rgba(59,130,246,.13);
-      border:1px solid rgba(59,130,246,.20);
-      box-shadow:0 10px 20px rgba(59,130,246,.08);
+      box-shadow:0 10px 20px rgba(0,0,0,.10);
     }
 
     .card h3{
@@ -382,6 +408,62 @@
       color:var(--muted);
     }
 
+    .card-dashboard .icon{
+      background:rgba(59,130,246,.13);
+      border:1px solid rgba(59,130,246,.20);
+      color:#dbeafe;
+    }
+    .card-dashboard:hover{ border-color:rgba(59,130,246,.35); }
+
+    .card-agenda .icon{
+      background:rgba(139,92,246,.13);
+      border:1px solid rgba(139,92,246,.22);
+      color:#ede9fe;
+    }
+    .card-agenda:hover{ border-color:rgba(139,92,246,.35); }
+
+    .card-patio .icon{
+      background:rgba(34,197,94,.13);
+      border:1px solid rgba(34,197,94,.22);
+      color:#dcfce7;
+    }
+    .card-patio:hover{ border-color:rgba(34,197,94,.35); }
+
+    .card-docas .icon{
+      background:rgba(6,182,212,.13);
+      border:1px solid rgba(6,182,212,.22);
+      color:#cffafe;
+    }
+    .card-docas:hover{ border-color:rgba(6,182,212,.35); }
+
+    .card-separacao .icon{
+      background:rgba(245,158,11,.13);
+      border:1px solid rgba(245,158,11,.22);
+      color:#fde68a;
+    }
+    .card-separacao:hover{ border-color:rgba(245,158,11,.35); }
+
+    .card-expedicao .icon{
+      background:rgba(37,99,235,.13);
+      border:1px solid rgba(37,99,235,.22);
+      color:#dbeafe;
+    }
+    .card-expedicao:hover{ border-color:rgba(37,99,235,.35); }
+
+    .card-checkin .icon{
+      background:rgba(34,197,94,.13);
+      border:1px solid rgba(34,197,94,.22);
+      color:#dcfce7;
+    }
+    .card-checkin:hover{ border-color:rgba(34,197,94,.35); }
+
+    .card-resultados .icon{
+      background:rgba(6,182,212,.13);
+      border:1px solid rgba(6,182,212,.22);
+      color:#cffafe;
+    }
+    .card-resultados:hover{ border-color:rgba(6,182,212,.35); }
+
     .benefits{
       margin-top:26px;
       display:grid;
@@ -390,7 +472,6 @@
     }
 
     .benefit{
-      background:rgba(8,15,29,.62);
       border:1px solid var(--line);
       border-radius:20px;
       padding:22px;
@@ -410,6 +491,21 @@
       font-size:14px;
     }
 
+    .benefit:nth-child(1){
+      background:linear-gradient(180deg, rgba(34,197,94,.10), rgba(8,15,29,.78));
+      border-color:rgba(34,197,94,.20);
+    }
+
+    .benefit:nth-child(2){
+      background:linear-gradient(180deg, rgba(59,130,246,.10), rgba(8,15,29,.78));
+      border-color:rgba(59,130,246,.20);
+    }
+
+    .benefit:nth-child(3){
+      background:linear-gradient(180deg, rgba(6,182,212,.10), rgba(8,15,29,.78));
+      border-color:rgba(6,182,212,.20);
+    }
+
     .about-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -422,6 +518,14 @@
       border-radius:22px;
       padding:26px;
       box-shadow:0 14px 32px rgba(0,0,0,.18);
+    }
+
+    .about-box:first-child{
+      border-color:rgba(59,130,246,.16);
+    }
+
+    .about-box:last-child{
+      border-color:rgba(139,92,246,.16);
     }
 
     .about-box h3{
@@ -451,11 +555,20 @@
       font-size:14px;
     }
 
+    .about-item:nth-child(1){ border-left:3px solid var(--blue); }
+    .about-item:nth-child(2){ border-left:3px solid var(--green); }
+    .about-item:nth-child(3){ border-left:3px solid var(--cyan); }
+    .about-item:nth-child(4){ border-left:3px solid var(--purple); }
+
+    #indicadores-powerbi .section-head h2{
+      color:#cffafe;
+    }
+
     .powerbi-wrap{
       margin-top:8px;
       border-radius:22px;
       overflow:hidden;
-      border:1px solid var(--line);
+      border:1px solid rgba(6,182,212,.22);
       background:rgba(2,6,23,.55);
       box-shadow:0 16px 34px rgba(0,0,0,.20);
     }
@@ -466,13 +579,14 @@
       align-items:center;
       gap:12px;
       padding:18px 20px;
-      background:rgba(255,255,255,.04);
+      background:linear-gradient(90deg, rgba(6,182,212,.12), rgba(59,130,246,.08));
       border-bottom:1px solid var(--line-soft);
       flex-wrap:wrap;
     }
 
     .powerbi-head strong{
       font-size:18px;
+      color:#cffafe;
     }
 
     .powerbi-head span{
@@ -532,12 +646,12 @@
       height:52px;
       border:none;
       border-radius:16px;
-      background:linear-gradient(135deg,var(--blue-2),var(--blue));
+      background:linear-gradient(135deg,var(--cyan-2),var(--cyan));
       color:#fff;
       font-size:20px;
       font-weight:900;
       cursor:pointer;
-      box-shadow:0 14px 30px rgba(37,99,235,.30);
+      box-shadow:0 14px 30px rgba(8,145,178,.30);
       transition:.25s ease;
       z-index:20;
     }
@@ -707,49 +821,49 @@
       </div>
 
       <div class="grid">
-        <div class="card">
+        <div class="card card-dashboard">
           <div class="icon">📊</div>
           <h3>Dashboard</h3>
           <p>Indicadores operacionais, produtividade, status das cargas e visão executiva em tempo real.</p>
         </div>
 
-        <div class="card">
+        <div class="card card-agenda">
           <div class="icon">📅</div>
           <h3>Agenda</h3>
           <p>Gestão das cargas agendadas com data, hora, cliente, transportadora e planejamento diário.</p>
         </div>
 
-        <div class="card">
+        <div class="card card-patio">
           <div class="icon">🏢</div>
           <h3>Pátio</h3>
           <p>Painel visual do fluxo das cargas, fila de chegada, presença de motoristas e movimentações.</p>
         </div>
 
-        <div class="card">
+        <div class="card card-docas">
           <div class="icon">🚪</div>
           <h3>Docas</h3>
           <p>Controle da ocupação, disponibilidade, alocação e andamento do carregamento por doca.</p>
         </div>
 
-        <div class="card">
+        <div class="card card-separacao">
           <div class="icon">📦</div>
           <h3>Separação</h3>
           <p>Acompanhamento da preparação da carga com visibilidade de etapa, turno e conferência.</p>
         </div>
 
-        <div class="card">
+        <div class="card card-expedicao">
           <div class="icon">🚚</div>
           <h3>Expedição</h3>
           <p>Gestão do carregamento, faturamento, romaneio, notas e saída final dos veículos.</p>
         </div>
 
-        <div class="card">
+        <div class="card card-checkin">
           <div class="icon">📝</div>
           <h3>Check-in</h3>
           <p>Registro da chegada do motorista com informações rápidas para direcionamento operacional.</p>
         </div>
 
-        <div class="card">
+        <div class="card card-resultados">
           <div class="icon">📈</div>
           <h3>Resultados</h3>
           <p>Métricas, gráficos, análises e apoio à tomada de decisão para melhoria contínua.</p>
@@ -854,7 +968,7 @@
   </section>
 
   <div class="footer">
-    Wellington Alves © 2026 • Todos os direitos reservados
+    Gestão Logística Plus © 2026 • Todos os direitos reservados
   </div>
 
   <button class="to-top" onclick="window.scrollTo({top:0, behavior:'smooth'})">↑</button>
