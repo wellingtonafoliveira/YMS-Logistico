@@ -3,199 +3,729 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Check-in Motorista</title>
+<title>Check-in Motorista | Gestão Logística Plus</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+:root{
+  --bg:#07101d;
+  --bg-2:#08111f;
+  --bg-image:url('caminões.jpg');
+  --card:rgba(17,28,47,.88);
+  --card-2:rgba(13,23,39,.96);
+  --line:rgba(255,255,255,.08);
+  --text:#eef4ff;
+  --muted:#9cb0cf;
+  --blue:#3b82f6;
+  --blue-2:#2563eb;
+  --green:#22c55e;
+  --green-2:#16a34a;
+  --red:#ef4444;
+  --red-2:#dc2626;
+  --shadow:0 25px 60px rgba(0,0,0,.35);
+  --radius:24px;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
 body{
-  margin:0;
-  font-family:Arial;
-  background:#0b1220;
-  color:#fff;
+  min-height:100vh;
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  color:var(--text);
+  background:
+    linear-gradient(rgba(7,16,29,.58), rgba(7,16,29,.72)),
+    var(--bg-image) center center / cover no-repeat fixed;
+}
+
+.page{
+  min-height:100vh;
   display:flex;
-  justify-content:center;
   align-items:center;
-  height:100vh;
+  justify-content:center;
+  padding:28px 16px;
+  background:
+    radial-gradient(circle at top left, rgba(59,130,246,.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(6,182,212,.10), transparent 24%),
+    linear-gradient(180deg,rgba(7,16,29,.60),rgba(8,17,31,.70) 55%,rgba(7,16,29,.72));
+}
+
+.shell{
+  width:min(1120px,100%);
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:20px;
+  align-items:stretch;
+}
+
+.hero,
+.container{
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(14px);
+}
+
+.hero{
+  padding:34px;
+  background:
+    linear-gradient(180deg, rgba(17,28,47,.92), rgba(11,22,39,.92));
+  position:relative;
+  overflow:hidden;
+}
+
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:-30% auto auto -12%;
+  width:280px;
+  height:280px;
+  border-radius:999px;
+  background:radial-gradient(circle, rgba(59,130,246,.28), transparent 65%);
+  pointer-events:none;
+}
+
+.hero::after{
+  content:"";
+  position:absolute;
+  right:-60px;
+  bottom:-60px;
+  width:260px;
+  height:260px;
+  border-radius:999px;
+  background:radial-gradient(circle, rgba(34,197,94,.18), transparent 65%);
+  pointer-events:none;
+}
+
+.brand{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:28px;
+}
+
+.brand-badge{
+  width:58px;
+  height:58px;
+  border-radius:18px;
+  display:grid;
+  place-items:center;
+  font-size:24px;
+  font-weight:900;
+  color:#fff;
+  background:linear-gradient(135deg,var(--blue),#06b6d4);
+  box-shadow:0 14px 34px rgba(59,130,246,.28);
+}
+
+.brand-copy small{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-bottom:5px;
+}
+
+.brand-copy strong{
+  font-size:22px;
+  line-height:1.1;
+}
+
+.hero h1{
+  position:relative;
+  z-index:1;
+  margin:0 0 12px;
+  font-size:42px;
+  line-height:1.05;
+}
+
+.hero p{
+  position:relative;
+  z-index:1;
+  margin:0;
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.7;
+  max-width:520px;
+}
+
+.hero-grid{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-top:28px;
+}
+
+.mini-card{
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:16px;
+}
+
+.mini-card strong{
+  display:block;
+  font-size:13px;
+  margin-bottom:8px;
+}
+
+.mini-card span{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
+
+.flow{
+  position:relative;
+  z-index:1;
+  margin-top:22px;
+  padding:16px 18px;
+  border-radius:18px;
+  border:1px solid rgba(59,130,246,.16);
+  background:linear-gradient(180deg, rgba(59,130,246,.10), rgba(6,182,212,.04));
+}
+
+.flow strong{
+  display:block;
+  margin-bottom:8px;
+  font-size:13px;
+}
+
+.flow span{
+  color:#dce9ff;
+  font-size:13px;
+  line-height:1.7;
 }
 
 .container{
-  background:#111827;
-  padding:25px;
-  border-radius:12px;
-  width:400px;
+  background:linear-gradient(180deg,var(--card),var(--card-2));
+  padding:28px;
 }
 
-h2{
-  text-align:center;
-  margin-bottom:15px;
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  margin-bottom:18px;
+}
+
+.header h2{
+  margin:0 0 8px;
+  font-size:28px;
+}
+
+.header p{
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
+
+.step{
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(59,130,246,.18);
+  background:rgba(59,130,246,.10);
+  color:#dce9ff;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.card{
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  padding:18px;
+}
+
+.card + .card{
+  margin-top:14px;
+}
+
+.card-title{
+  margin:0 0 14px;
+  font-size:15px;
+}
+
+.fields{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.field.full{
+  grid-column:1 / -1;
+}
+
+label{
+  display:block;
+  margin-bottom:6px;
+  font-size:12px;
+  color:var(--muted);
+  font-weight:800;
 }
 
 input, select{
   width:100%;
-  padding:10px;
-  margin:6px 0;
-  background:#1f2937;
-  border:none;
+  padding:13px 14px;
+  background:#0d1728;
+  border:1px solid rgba(255,255,255,.10);
   color:#fff;
-  border-radius:6px;
+  border-radius:14px;
+  font-size:14px;
+  outline:none;
+  transition:.2s;
+}
+
+input::placeholder{
+  color:#7f93b3;
+}
+
+input:focus, select:focus{
+  border-color:rgba(59,130,246,.55);
+  box-shadow:0 0 0 4px rgba(59,130,246,.12);
+}
+
+.helper{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+}
+
+.vehicle-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.vehicle-option{
+  position:relative;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  padding:14px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.vehicle-option:hover{
+  transform:translateY(-1px);
+  border-color:rgba(59,130,246,.30);
+}
+
+.vehicle-option.active{
+  border-color:rgba(59,130,246,.55);
+  background:linear-gradient(180deg, rgba(59,130,246,.16), rgba(37,99,235,.08));
+  box-shadow:0 0 0 3px rgba(59,130,246,.10);
+}
+
+.vehicle-option input{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  cursor:pointer;
+}
+
+.vehicle-icon{
+  font-size:22px;
+  margin-bottom:8px;
+}
+
+.vehicle-option strong{
+  display:block;
+  margin-bottom:6px;
+  font-size:14px;
+}
+
+.vehicle-option span{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+
+.plate-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
 }
 
 button{
   width:100%;
-  padding:12px;
-  background:#22c55e;
+  padding:14px 16px;
+  background:linear-gradient(135deg,var(--green),var(--green-2));
   border:none;
-  color:#fff;
+  color:#08110a;
   cursor:pointer;
-  margin-top:10px;
-  border-radius:6px;
-  font-weight:bold;
+  margin-top:16px;
+  border-radius:16px;
+  font-weight:900;
+  font-size:15px;
+  transition:.2s;
+  box-shadow:0 16px 32px rgba(34,197,94,.22);
 }
 
 button:hover{
-  opacity:0.9;
+  transform:translateY(-1px);
+  filter:brightness(1.03);
+}
+
+button:disabled{
+  opacity:.65;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.message{
+  margin-top:14px;
+  border-radius:16px;
+  padding:13px 14px;
+  font-size:13px;
+  line-height:1.6;
+  border:1px solid transparent;
 }
 
 .success{
-  text-align:center;
-  margin-top:10px;
-  color:#22c55e;
+  background:rgba(34,197,94,.10);
+  color:#bbf7d0;
+  border-color:rgba(34,197,94,.24);
 }
 
 .error{
+  background:rgba(239,68,68,.10);
+  color:#fecaca;
+  border-color:rgba(239,68,68,.24);
+}
+
+.footer-note{
+  margin-top:12px;
   text-align:center;
-  margin-top:10px;
-  color:#ef4444;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.copyright{
+  margin-top:8px;
+  text-align:center;
+  color:var(--muted);
+  font-size:11px;
+  opacity:.9;
+}
+
+@media (max-width:960px){
+  .shell{
+    grid-template-columns:1fr;
+  }
+
+  .hero h1{
+    font-size:34px;
+  }
+}
+
+@media (max-width:640px){
+  .container, .hero{
+    padding:22px;
+  }
+
+  .fields, .vehicle-grid, .plate-grid, .hero-grid{
+    grid-template-columns:1fr;
+  }
+
+  .header{
+    flex-direction:column;
+  }
+
+  .header h2{
+    font-size:24px;
+  }
+
+  .hero h1{
+    font-size:30px;
+  }
 }
 </style>
 </head>
 
 <body>
+<div class="page">
+  <div class="shell">
+    <section class="hero">
+      <div class="brand">
+        <div class="brand-badge">GL+</div>
+        <div class="brand-copy">
+          <small>Gestão Logística Plus</small>
+          <strong>Check-in integrado à operação</strong>
+        </div>
+      </div>
 
-<div class="container">
-  <h2>Check-in Motorista</h2>
+      <h1>Entrada rápida, visual mais premium e fluxo mais claro.</h1>
+      <p>Registre a chegada do motorista com mais organização, mantendo o mesmo padrão visual da plataforma e melhorando a experiência na portaria.</p>
 
-  <input id="dt" placeholder="Número do Transporte (DT)">
-  <input id="motorista" placeholder="Nome do Motorista">
-  <input id="transportadora" placeholder="Transportadora">
+      <div class="hero-grid">
+        <div class="mini-card">
+          <strong>Mais clareza</strong>
+          <span>Campos organizados, identificação visual e leitura mais rápida para uso operacional.</span>
+        </div>
+        <div class="mini-card">
+          <strong>Mesmo padrão</strong>
+          <span>Visual alinhado com a página de entrada, com fundo escuro, brilho suave e cards premium.</span>
+        </div>
+        <div class="mini-card">
+          <strong>Fluxo objetivo</strong>
+          <span>Seleção do veículo, placas e confirmação em uma sequência simples e intuitiva.</span>
+        </div>
+        <div class="mini-card">
+          <strong>Pronto para uso</strong>
+          <span>Layout responsivo, mensagens mais elegantes e mesma lógica de check-in já usada no sistema.</span>
+        </div>
+      </div>
 
-  <select id="tipoVeiculo" onchange="alterarTipo()">
-    <option value="">Tipo de Veículo</option>
-    <option value="simples">Caminhão Simples (1 placa)</option>
-    <option value="carreta">Carreta (2 placas)</option>
-    <option value="bitrem">Bitrem (3 placas)</option>
-    <option value="rodotrem">Rodotrem (4 placas)</option>
-  </select>
+      <div class="flow">
+        <strong>Fluxo operacional</strong>
+        <span>Identificação da DT → Dados do motorista → Tipo de veículo → Placas → Check-in concluído</span>
+      </div>
+    </section>
 
-  <div id="placas"></div>
+    <section class="container">
+      <div class="header">
+        <div>
+          <h2>Check-in Motorista</h2>
+          <p>Preencha os dados abaixo para registrar a chegada do veículo no sistema.</p>
+        </div>
+        <div class="step">Etapa única</div>
+      </div>
 
-  <button onclick="fazerCheckin()">Realizar Check-in</button>
+      <div class="card">
+        <h3 class="card-title">Dados principais</h3>
+        <div class="fields">
+          <div class="field">
+            <label for="dt">Número do Transporte (DT)</label>
+            <input id="dt" placeholder="Ex.: 12345" inputmode="numeric" maxlength="10">
+            <div class="helper">Informe a DT cadastrada na agenda.</div>
+          </div>
 
-  <div id="msg"></div>
+          <div class="field">
+            <label for="transportadora">Transportadora</label>
+            <input id="transportadora" placeholder="Nome da transportadora">
+          </div>
+
+          <div class="field full">
+            <label for="motorista">Nome do Motorista</label>
+            <input id="motorista" placeholder="Nome completo do motorista">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Tipo de veículo</h3>
+        <div class="vehicle-grid" id="vehicleGrid">
+          <label class="vehicle-option" data-value="simples">
+            <input type="radio" name="tipoVeiculoRadio" value="simples">
+            <div class="vehicle-icon">🚚</div>
+            <strong>Caminhão Simples</strong>
+            <span>1 placa</span>
+          </label>
+
+          <label class="vehicle-option" data-value="carreta">
+            <input type="radio" name="tipoVeiculoRadio" value="carreta">
+            <div class="vehicle-icon">🚛</div>
+            <strong>Carreta</strong>
+            <span>2 placas</span>
+          </label>
+
+          <label class="vehicle-option" data-value="bitrem">
+            <input type="radio" name="tipoVeiculoRadio" value="bitrem">
+            <div class="vehicle-icon">🚛</div>
+            <strong>Bitrem</strong>
+            <span>3 placas</span>
+          </label>
+
+          <label class="vehicle-option" data-value="rodotrem">
+            <input type="radio" name="tipoVeiculoRadio" value="rodotrem">
+            <div class="vehicle-icon">🚛</div>
+            <strong>Rodotrem</strong>
+            <span>4 placas</span>
+          </label>
+        </div>
+        <input type="hidden" id="tipoVeiculo">
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Placas do conjunto</h3>
+        <div id="placas" class="plate-grid"></div>
+        <div class="helper">As placas são exibidas automaticamente conforme o tipo de veículo selecionado.</div>
+      </div>
+
+      <button id="btnCheckin" onclick="fazerCheckin()">Realizar Check-in</button>
+
+      <div id="msg"></div>
+
+      <div class="footer-note">Gestão Logística Plus • Check-in de Motoristas</div>
+      <div class="copyright">© 2026 Gestão Logística Plus. Todos os direitos reservados.</div>
+    </section>
+  </div>
 </div>
 
 <script>
-
 const SUPABASE_URL = "https://jwprwgptefhvqzdewnfr.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ePs_koxCzHKOsejBKA3BGA_fj3ENPIp";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+const VEHICLE_PLATES = {
+  simples: 1,
+  carreta: 2,
+  bitrem: 3,
+  rodotrem: 4
+};
+
+function selecionarVeiculo(tipo){
+  document.getElementById("tipoVeiculo").value = tipo || "";
+
+  document.querySelectorAll(".vehicle-option").forEach(option => {
+    option.classList.toggle("active", option.dataset.value === tipo);
+    const radio = option.querySelector('input[type="radio"]');
+    if(radio) radio.checked = option.dataset.value === tipo;
+  });
+
+  alterarTipo();
+}
+
 function alterarTipo(){
   const tipo = document.getElementById("tipoVeiculo").value;
   const div = document.getElementById("placas");
-
-  let quantidade = 0;
-
-  if(tipo === "simples") quantidade = 1;
-  if(tipo === "carreta") quantidade = 2;
-  if(tipo === "bitrem") quantidade = 3;
-  if(tipo === "rodotrem") quantidade = 4;
+  const quantidade = VEHICLE_PLATES[tipo] || 0;
 
   let html = "";
 
-  for(let i=1;i<=quantidade;i++){
-    html += `<input id="placa${i}" placeholder="Placa ${i}">`;
+  for(let i = 1; i <= quantidade; i++){
+    html += `
+      <div class="field">
+        <label for="placa${i}">Placa ${i}</label>
+        <input id="placa${i}" placeholder="Ex.: ABC1D23" maxlength="8" oninput="formatarPlaca(this)">
+      </div>
+    `;
   }
 
   div.innerHTML = html;
 }
 
-async function fazerCheckin(){
+function formatarPlaca(input){
+  let valor = String(input.value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if(valor.length > 8) valor = valor.slice(0, 8);
+  input.value = valor;
+}
 
-  const dt = document.getElementById("dt").value.trim();
-  const motorista = document.getElementById("motorista").value.trim();
-  const transportadora = document.getElementById("transportadora").value.trim();
-  const tipo = document.getElementById("tipoVeiculo").value;
-
-  if(!dt || !motorista || !tipo){
-    mostrarErro("Preencha os campos obrigatórios");
-    return;
-  }
-
-  // 🔥 CAPTURA PLACAS
-  const placas = [];
-  document.querySelectorAll("#placas input").forEach(i=>{
-    if(i.value) placas.push(i.value.toUpperCase());
-  });
-
-  if(placas.length === 0){
-    mostrarErro("Informe pelo menos uma placa");
-    return;
-  }
-
-  // 🔥 VERIFICA SE DT EXISTE
-  const { data: existe, error: erroBusca } = await sb
-    .from("agendas")
-    .select("dt")
-    .eq("dt", dt)
-    .single();
-
-  if(erroBusca || !existe){
-    mostrarErro("DT não encontrada no sistema");
-    return;
-  }
-
-  // 🔥 ATUALIZA AGENDA
-  const { error } = await sb
-    .from("agendas")
-    .update({
-      motorista: motorista,
-      transportadora: transportadora,
-      tipo_veiculo: tipo,
-      placas: placas,
-      chegada_motorista: new Date().toISOString(),
-      status_global: "No Pátio"
-    })
-    .eq("dt", dt);
-
-  if(error){
-    console.error("ERRO:", error);
-    mostrarErro(error.message);
-    return;
-  }
-
-  mostrarSucesso("Check-in realizado com sucesso 🚛");
-  limparCampos();
+function limparMensagem(){
+  document.getElementById("msg").innerHTML = "";
 }
 
 function mostrarSucesso(msg){
-  document.getElementById("msg").innerHTML =
-    `<div class="success">${msg}</div>`;
+  document.getElementById("msg").innerHTML = `<div class="message success">${msg}</div>`;
 }
 
 function mostrarErro(msg){
-  document.getElementById("msg").innerHTML =
-    `<div class="error">${msg}</div>`;
+  document.getElementById("msg").innerHTML = `<div class="message error">${msg}</div>`;
 }
 
 function limparCampos(){
-  document.querySelectorAll("input").forEach(i => i.value = "");
+  document.getElementById("dt").value = "";
+  document.getElementById("motorista").value = "";
+  document.getElementById("transportadora").value = "";
   document.getElementById("tipoVeiculo").value = "";
   document.getElementById("placas").innerHTML = "";
+  document.querySelectorAll('input[name="tipoVeiculoRadio"]').forEach(r => r.checked = false);
+  document.querySelectorAll(".vehicle-option").forEach(option => option.classList.remove("active"));
 }
 
+async function fazerCheckin(){
+  limparMensagem();
+
+  const btn = document.getElementById("btnCheckin");
+  btn.disabled = true;
+  btn.textContent = "Processando...";
+
+  try{
+    const dt = document.getElementById("dt").value.trim();
+    const motorista = document.getElementById("motorista").value.trim();
+    const transportadora = document.getElementById("transportadora").value.trim();
+    const tipo = document.getElementById("tipoVeiculo").value;
+
+    if(!dt || !motorista || !tipo){
+      mostrarErro("Preencha DT, nome do motorista e tipo de veículo.");
+      return;
+    }
+
+    const placas = [];
+    document.querySelectorAll("#placas input").forEach(input => {
+      const valor = input.value.trim().toUpperCase();
+      if(valor) placas.push(valor);
+    });
+
+    if(placas.length === 0){
+      mostrarErro("Informe pelo menos uma placa.");
+      return;
+    }
+
+    const quantidadeEsperada = VEHICLE_PLATES[tipo] || 0;
+    if(placas.length !== quantidadeEsperada){
+      mostrarErro(`Informe ${quantidadeEsperada} placa(s) para o tipo de veículo selecionado.`);
+      return;
+    }
+
+    const { data: existe, error: erroBusca } = await sb
+      .from("agendas")
+      .select("dt")
+      .eq("dt", dt)
+      .maybeSingle();
+
+    if(erroBusca || !existe){
+      mostrarErro("DT não encontrada no sistema.");
+      return;
+    }
+
+    const { error } = await sb
+      .from("agendas")
+      .update({
+        motorista: motorista,
+        transportadora: transportadora || null,
+        tipo_veiculo: tipo,
+        placas: placas,
+        chegada_motorista: new Date().toISOString(),
+        status_global: "No Pátio"
+      })
+      .eq("dt", dt);
+
+    if(error){
+      console.error("ERRO:", error);
+      mostrarErro(error.message || "Erro ao realizar check-in.");
+      return;
+    }
+
+    mostrarSucesso("Check-in realizado com sucesso 🚛");
+    limparCampos();
+  }catch(err){
+    console.error(err);
+    mostrarErro("Ocorreu um erro inesperado ao processar o check-in.");
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "Realizar Check-in";
+  }
+}
+
+document.querySelectorAll(".vehicle-option").forEach(option => {
+  option.addEventListener("click", () => selecionarVeiculo(option.dataset.value));
+});
+
+document.getElementById("dt").addEventListener("input", (e) => {
+  e.target.value = e.target.value.replace(/\D/g, "");
+});
 </script>
 
 </body>
