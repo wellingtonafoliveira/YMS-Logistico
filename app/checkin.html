@@ -5,25 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Check-in Motorista | Gestão Logística Plus</title>
 <link rel="icon" type="image/png" href="logo.png">
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
   --bg:#07101d;
   --bg-2:#08111f;
-  --bg-image:url('caminões.jpg');
+  --bg-image:url('caminhões.jpg');
   --card:rgba(17,28,47,.88);
   --card-2:rgba(13,23,39,.96);
   --line:rgba(255,255,255,.08);
   --text:#eef4ff;
   --muted:#9cb0cf;
   --blue:#3b82f6;
-  --blue-2:#2563eb;
   --green:#22c55e;
   --green-2:#16a34a;
-  --red:#ef4444;
-  --red-2:#dc2626;
   --shadow:0 25px 60px rgba(0,0,0,.35);
   --radius:24px;
 }
@@ -69,8 +65,7 @@ body{
 
 .hero{
   padding:34px;
-  background:
-    linear-gradient(180deg, rgba(17,28,47,.92), rgba(11,22,39,.92));
+  background:linear-gradient(180deg, rgba(17,28,47,.92), rgba(11,22,39,.92));
   position:relative;
   overflow:hidden;
 }
@@ -192,7 +187,7 @@ body{
   padding:16px 18px;
   border-radius:18px;
   border:1px solid rgba(59,130,246,.16);
-  background:linear-gradient(180deg, rgba(59,130,246,.10), rgba(6,182,212,.04));
+  background:linear-gradient(180deg, rgba(59,130,246,.12), rgba(6,182,212,.04));
 }
 
 .flow strong{
@@ -362,6 +357,13 @@ input:focus, select:focus{
   gap:12px;
 }
 
+.inline-actions{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+
 button{
   width:100%;
   padding:14px 16px;
@@ -388,7 +390,79 @@ button:disabled{
   transform:none;
 }
 
+.btn-secondary{
+  width:100%;
+  padding:12px 14px;
+  background:#152640;
+  border:1px solid var(--line);
+  color:#fff;
+  cursor:pointer;
+  border-radius:14px;
+  font-weight:800;
+  font-size:14px;
+  transition:.2s;
+  box-shadow:none;
+  margin-top:0;
+}
 
+.btn-secondary:hover{
+  transform:translateY(-1px);
+}
+
+.info-banner{
+  margin-top:14px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
+}
+
+.readonly{
+  background:#0a1322;
+  border-color:rgba(255,255,255,.06);
+}
+
+.summary-card{
+  margin-top:14px;
+  border:1px solid rgba(59,130,246,.18);
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(59,130,246,.10), rgba(6,182,212,.04));
+  padding:16px;
+  display:none;
+}
+
+.summary-card.show{
+  display:block;
+}
+
+.summary-title{
+  margin:0 0 12px;
+  font-size:14px;
+}
+
+.summary-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px 16px;
+}
+
+.summary-item{
+  min-height:44px;
+}
+
+.summary-item label{
+  margin-bottom:4px;
+  font-size:11px;
+}
+
+.summary-item strong{
+  font-size:13px;
+  color:#fff;
+  line-height:1.5;
+}
 
 .queue-card{
   margin-top:14px;
@@ -439,98 +513,6 @@ button:disabled{
   color:var(--muted);
   font-size:12px;
   line-height:1.6;
-}
-
-@media (max-width:640px){
-  .queue-grid{
-    grid-template-columns:1fr;
-  }
-}
-.summary-card{
-  margin-top:14px;
-  border:1px solid rgba(59,130,246,.18);
-  border-radius:18px;
-  background:linear-gradient(180deg, rgba(59,130,246,.10), rgba(6,182,212,.04));
-  padding:16px;
-  display:none;
-}
-
-.summary-card.show{
-  display:block;
-}
-
-.summary-title{
-  margin:0 0 12px;
-  font-size:14px;
-}
-
-.summary-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px 16px;
-}
-
-.summary-item{
-  min-height:44px;
-}
-
-.summary-item label{
-  margin-bottom:4px;
-  font-size:11px;
-}
-
-.summary-item strong{
-  font-size:13px;
-  color:#fff;
-  line-height:1.5;
-}
-
-.inline-actions{
-  display:flex;
-  gap:10px;
-  margin-top:12px;
-  flex-wrap:wrap;
-}
-
-.btn-secondary{
-  width:100%;
-  padding:12px 14px;
-  background:#152640;
-  border:1px solid var(--line);
-  color:#fff;
-  cursor:pointer;
-  border-radius:14px;
-  font-weight:800;
-  font-size:14px;
-  transition:.2s;
-  box-shadow:none;
-  margin-top:0;
-}
-
-.btn-secondary:hover{
-  transform:translateY(-1px);
-}
-
-.info-banner{
-  margin-top:14px;
-  padding:12px 14px;
-  border-radius:14px;
-  background:rgba(255,255,255,.04);
-  border:1px solid var(--line);
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.6;
-}
-
-.readonly{
-  background:#0a1322;
-  border-color:rgba(255,255,255,.06);
-}
-
-@media (max-width:640px){
-  .summary-grid{
-    grid-template-columns:1fr;
-  }
 }
 
 .message{
@@ -584,7 +566,7 @@ button:disabled{
     padding:22px;
   }
 
-  .fields, .vehicle-grid, .plate-grid, .hero-grid{
+  .fields, .vehicle-grid, .plate-grid, .hero-grid, .summary-grid, .queue-grid{
     grid-template-columns:1fr;
   }
 
@@ -631,7 +613,7 @@ button:disabled{
         </div>
         <div class="mini-card">
           <strong>Orientação ao motorista</strong>
-          <span>Selecione o tipo de veículo correto e preencha as placas do conjunto. Nesta versão, o sistema grava placa_cavalo, placa_carreta, placa_reboque_1 e placa_reboque_2.</span>
+          <span>Selecione o tipo de veículo correto e preencha todas as placas solicitadas na tela.</span>
         </div>
         <div class="mini-card">
           <strong>Após o envio</strong>
@@ -665,12 +647,51 @@ button:disabled{
 
           <div class="field">
             <label for="transportadora">Transportadora</label>
-            <input id="transportadora" placeholder="Nome da transportadora">
+            <input id="transportadora" class="readonly" placeholder="Será preenchida automaticamente" readonly>
           </div>
 
           <div class="field full">
             <label for="motorista">Nome do Motorista</label>
             <input id="motorista" placeholder="Nome completo do motorista">
+          </div>
+        </div>
+
+        <div class="inline-actions">
+          <button type="button" class="btn-secondary" id="btnBuscarDT">Consultar DT</button>
+        </div>
+
+        <div class="info-banner">
+          Consulte a DT antes de concluir o check-in. O sistema localizará a carga e validará se ela já não está em processo.
+        </div>
+
+        <div class="summary-card" id="dtSummary">
+          <h3 class="summary-title">Resumo da DT localizada</h3>
+          <div class="summary-grid">
+            <div class="summary-item"><label>DT</label><strong id="s_dt">-</strong></div>
+            <div class="summary-item"><label>Status atual</label><strong id="s_status">-</strong></div>
+            <div class="summary-item"><label>Cliente</label><strong id="s_cliente">-</strong></div>
+            <div class="summary-item"><label>Transportadora</label><strong id="s_transportadora">-</strong></div>
+            <div class="summary-item"><label>Data agenda</label><strong id="s_data">-</strong></div>
+            <div class="summary-item"><label>Hora agenda</label><strong id="s_hora">-</strong></div>
+            <div class="summary-item"><label>Tipo de carga</label><strong id="s_tipo_carga">-</strong></div>
+            <div class="summary-item"><label>Doca agenda</label><strong id="s_doca">-</strong></div>
+          </div>
+        </div>
+
+        <div class="queue-card" id="queueCard">
+          <h3 class="queue-title">Fila estimada de atendimento</h3>
+          <div class="queue-grid">
+            <div class="queue-kpi">
+              <label>Número na fila</label>
+              <strong id="q_posicao">-</strong>
+            </div>
+            <div class="queue-kpi">
+              <label>Tempo estimado de espera</label>
+              <strong id="q_tempo">-</strong>
+            </div>
+          </div>
+          <div class="queue-helper" id="q_info">
+            A estimativa considera os veículos já registrados no pátio antes deste check-in.
           </div>
         </div>
       </div>
@@ -715,8 +736,7 @@ button:disabled{
         <div class="helper">Selecione o tipo de veículo e preencha todas as placas solicitadas na tela. Confira os dados antes de concluir o check-in para evitar divergências no atendimento.</div>
       </div>
 
-      <button id="btnCheckin" onclick="fazerCheckin()" disabled>Realizar Check-in</button>
-
+      <button id="btnCheckin" disabled>Realizar Check-in</button>
       <div id="msg"></div>
 
       <div class="footer-note">Gestão Logística Plus • Check-in de Motoristas</div>
@@ -726,173 +746,365 @@ button:disabled{
 </div>
 
 <script>
-const SUPABASE_URL = "https://jwprwgptefhvqzdewnfr.supabase.co";
-const SUPABASE_KEY = "sb_publishable_ePs_koxCzHKOsejBKA3BGA_fj3ENPIp";
+(() => {
+  const SUPABASE_URL = "https://jwprwgptefhvqzdewnfr.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_ePs_koxCzHKOsejBKA3BGA_fj3ENPIp";
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const VEHICLE_PLATES = {
+    simples: 1,
+    carreta: 2,
+    bitrem: 3,
+    rodotrem: 4
+  };
 
-const STATUS_BLOQUEADOS_CHECKIN = ["No Pátio","Em Doca","Em Carregamento","Expedido"];
-let agendaSelecionada = null;
-const TEMPO_MEDIO_POR_VEICULO_MIN = 20;
+  const STATUS_BLOQUEADOS_CHECKIN = ["No Pátio", "Em Doca", "Em Carregamento", "Expedido"];
+  const TEMPO_MEDIO_POR_VEICULO_MIN = 20;
 
-function formatarTempoEspera(minutos){
-  if(minutos <= 0) return "Sem espera";
-  const horas = Math.floor(minutos / 60);
-  const mins = minutos % 60;
-  if(horas > 0 && mins > 0) return `${horas}h ${mins}min`;
-  if(horas > 0) return `${horas}h`;
-  return `${mins}min`;
-}
+  const state = {
+    agendaSelecionada: null
+  };
 
-function mostrarFila(posicao, minutos, info){
-  document.getElementById("q_posicao").textContent = posicao ? `${posicao}º` : "-";
-  document.getElementById("q_tempo").textContent = formatarTempoEspera(minutos || 0);
-  document.getElementById("q_info").textContent = info || "A estimativa considera os veículos já registrados no pátio antes deste check-in.";
-  document.getElementById("queueCard").classList.add("show");
-}
+  const el = {
+    dt: document.getElementById("dt"),
+    motorista: document.getElementById("motorista"),
+    transportadora: document.getElementById("transportadora"),
+    tipoVeiculo: document.getElementById("tipoVeiculo"),
+    placas: document.getElementById("placas"),
+    msg: document.getElementById("msg"),
+    btnBuscarDT: document.getElementById("btnBuscarDT"),
+    btnCheckin: document.getElementById("btnCheckin"),
+    dtSummary: document.getElementById("dtSummary"),
+    queueCard: document.getElementById("queueCard"),
+    qPosicao: document.getElementById("q_posicao"),
+    qTempo: document.getElementById("q_tempo"),
+    qInfo: document.getElementById("q_info"),
+    sDt: document.getElementById("s_dt"),
+    sStatus: document.getElementById("s_status"),
+    sCliente: document.getElementById("s_cliente"),
+    sTransportadora: document.getElementById("s_transportadora"),
+    sData: document.getElementById("s_data"),
+    sHora: document.getElementById("s_hora"),
+    sTipoCarga: document.getElementById("s_tipo_carga"),
+    sDoca: document.getElementById("s_doca")
+  };
 
-function limparFila(){
-  document.getElementById("q_posicao").textContent = "-";
-  document.getElementById("q_tempo").textContent = "-";
-  document.getElementById("q_info").textContent = "A estimativa considera os veículos já registrados no pátio antes deste check-in.";
-  document.getElementById("queueCard").classList.remove("show");
-}
-
-async function calcularFilaEstimada(agenda, incluirAtual = false){
-  const { data, error } = await sb
-    .from("agendas")
-    .select("id, dt, status_global, chegada_motorista, data_agenda")
-    .eq("status_global", "No Pátio")
-    .not("chegada_motorista", "is", null)
-    .order("chegada_motorista", { ascending: true });
-
-  if(error){
-    console.error("Erro ao calcular fila:", error);
-    return { posicao: null, minutos: 0, info: "Não foi possível calcular a fila neste momento." };
+  function fmtDateBr(value) {
+    if (!value) return "-";
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? value : d.toLocaleDateString("pt-BR");
   }
 
-  const baseData = agenda?.data_agenda || null;
-  let filas = (data || []).filter(item => item.id !== agenda?.id);
-
-  if(baseData){
-    filas = filas.filter(item => item.data_agenda === baseData);
+  function formatarTempoEspera(minutos) {
+    if (minutos <= 0) return "Sem espera";
+    const horas = Math.floor(minutos / 60);
+    const mins = minutos % 60;
+    if (horas > 0 && mins > 0) return `${horas}h ${mins}min`;
+    if (horas > 0) return `${horas}h`;
+    return `${mins}min`;
   }
 
-  const veiculosNaFrente = filas.length;
-  const posicao = incluirAtual ? veiculosNaFrente + 1 : (veiculosNaFrente > 0 ? veiculosNaFrente : 0);
-  const minutos = veiculosNaFrente * TEMPO_MEDIO_POR_VEICULO_MIN;
+  function limparMensagem() {
+    el.msg.innerHTML = "";
+  }
 
-  const info = incluirAtual
-    ? `Estimativa baseada em ${veiculosNaFrente} veículo(s) já aguardando no pátio.`
-    : `Há ${veiculosNaFrente} veículo(s) aguardando no pátio neste momento.`;
+  function mostrarSucesso(msg) {
+    el.msg.innerHTML = `<div class="message success">${msg}</div>`;
+  }
 
-  return { posicao, minutos, info, veiculosNaFrente };
-}
+  function mostrarErro(msg) {
+    el.msg.innerHTML = `<div class="message error">${msg}</div>`;
+  }
 
-function fmtDateBr(v){
-  if(!v) return "-";
-  const d = new Date(v);
-  if(Number.isNaN(d.getTime())) return v;
-  return d.toLocaleDateString("pt-BR");
-}
+  function formatarPlacaInput(input) {
+    let valor = String(input.value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (valor.length > 8) valor = valor.slice(0, 8);
+    input.value = valor;
+  }
 
-function preencherResumoDT(agenda){
-  document.getElementById("s_dt").textContent = agenda.dt || "-";
-  document.getElementById("s_status").textContent = agenda.status_global || "-";
-  document.getElementById("s_cliente").textContent = agenda.cliente || "-";
-  document.getElementById("s_transportadora").textContent = agenda.transportadora || "-";
-  document.getElementById("s_data").textContent = agenda.data_agenda ? fmtDateBr(agenda.data_agenda) : "-";
-  document.getElementById("s_hora").textContent = agenda.hora_agenda || "-";
-  document.getElementById("s_tipo_carga").textContent = agenda.tipo_carga || "-";
-  document.getElementById("s_doca").textContent = agenda.doca_agenda || "-";
-  document.getElementById("dtSummary").classList.add("show");
-}
+  function renderPlateInputs() {
+    const tipo = el.tipoVeiculo.value;
+    const quantidade = VEHICLE_PLATES[tipo] || 0;
 
-function limparResumoDT(){
-  agendaSelecionada = null;
-  document.getElementById("dtSummary").classList.remove("show");
-  document.getElementById("transportadora").value = "";
-  limparFila();
-  const btn = document.getElementById("btnCheckin");
-  btn.disabled = true;
-}
+    if (!quantidade) {
+      el.placas.innerHTML = "";
+      return;
+    }
 
-async function buscarDT(){
-  limparMensagem();
+    const html = Array.from({ length: quantidade }, (_, index) => {
+      const i = index + 1;
+      return `
+        <div class="field">
+          <label for="placa${i}">Placa ${i}</label>
+          <input id="placa${i}" placeholder="Ex.: ABC1D23" maxlength="8" autocomplete="off">
+        </div>
+      `;
+    }).join("");
 
-  const dt = document.getElementById("dt").value.trim();
-  if(!dt){
-    mostrarErro("Informe a DT para consultar.");
+    el.placas.innerHTML = html;
+
+    el.placas.querySelectorAll("input").forEach((input) => {
+      input.addEventListener("input", () => formatarPlacaInput(input));
+    });
+  }
+
+  function selecionarVeiculo(tipo) {
+    el.tipoVeiculo.value = tipo || "";
+
+    document.querySelectorAll(".vehicle-option").forEach((option) => {
+      const ativo = option.dataset.value === tipo;
+      option.classList.toggle("active", ativo);
+      const radio = option.querySelector('input[type="radio"]');
+      if (radio) radio.checked = ativo;
+    });
+
+    renderPlateInputs();
+  }
+
+  function mostrarFila(posicao, minutos, info) {
+    el.qPosicao.textContent = posicao ? `${posicao}º` : "-";
+    el.qTempo.textContent = formatarTempoEspera(minutos || 0);
+    el.qInfo.textContent = info || "A estimativa considera os veículos já registrados no pátio antes deste check-in.";
+    el.queueCard.classList.add("show");
+  }
+
+  function limparFila() {
+    el.qPosicao.textContent = "-";
+    el.qTempo.textContent = "-";
+    el.qInfo.textContent = "A estimativa considera os veículos já registrados no pátio antes deste check-in.";
+    el.queueCard.classList.remove("show");
+  }
+
+  function preencherResumoDT(agenda) {
+    el.sDt.textContent = agenda.dt || "-";
+    el.sStatus.textContent = agenda.status_global || "-";
+    el.sCliente.textContent = agenda.cliente || "-";
+    el.sTransportadora.textContent = agenda.transportadora || "-";
+    el.sData.textContent = agenda.data_agenda ? fmtDateBr(agenda.data_agenda) : "-";
+    el.sHora.textContent = agenda.hora_agenda || "-";
+    el.sTipoCarga.textContent = agenda.tipo_carga || "-";
+    el.sDoca.textContent = agenda.doca_agenda || "-";
+    el.dtSummary.classList.add("show");
+  }
+
+  function limparResumoDT() {
+    state.agendaSelecionada = null;
+    el.dtSummary.classList.remove("show");
+    el.transportadora.value = "";
+    limparFila();
+    el.btnCheckin.disabled = true;
+  }
+
+  function limparCampos() {
+    el.dt.value = "";
+    el.motorista.value = "";
+    el.transportadora.value = "";
+    el.tipoVeiculo.value = "";
+    el.placas.innerHTML = "";
+    document.querySelectorAll('input[name="tipoVeiculoRadio"]').forEach((radio) => {
+      radio.checked = false;
+    });
+    document.querySelectorAll(".vehicle-option").forEach((option) => {
+      option.classList.remove("active");
+    });
     limparResumoDT();
-    return;
   }
 
-  const btnBusca = document.getElementById("btnBuscarDT");
-  btnBusca.disabled = true;
-  btnBusca.textContent = "Consultando...";
+  function obterPlacas() {
+    return Array.from(el.placas.querySelectorAll("input"))
+      .map((input) => input.value.trim().toUpperCase())
+      .filter(Boolean);
+  }
 
-  try{
-    const { data: agenda, error } = await sb
+  async function calcularFilaEstimada(agenda, incluirAtual = false) {
+    const { data, error } = await sb
       .from("agendas")
-      .select("id, dt, cliente, transportadora, data_agenda, hora_agenda, tipo_carga, doca_agenda, status_global, observacao_geral")
-      .eq("dt", dt)
-      .maybeSingle();
+      .select("id, dt, status_global, chegada_motorista, data_agenda")
+      .eq("status_global", "No Pátio")
+      .not("chegada_motorista", "is", null)
+      .order("chegada_motorista", { ascending: true });
 
-    if(error || !agenda){
-      limparResumoDT();
-      mostrarErro("DT não encontrada no sistema.");
-      return;
+    if (error) {
+      console.error("Erro ao calcular fila:", error);
+      return { posicao: null, minutos: 0, info: "Não foi possível calcular a fila neste momento.", veiculosNaFrente: 0 };
     }
 
-    agendaSelecionada = agenda;
-    preencherResumoDT(agenda);
-    document.getElementById("transportadora").value = agenda.transportadora || "";
+    const baseData = agenda?.data_agenda || null;
+    let filas = (data || []).filter((item) => item.id !== agenda?.id);
 
-    const fila = await calcularFilaEstimada(agenda, true);
-    mostrarFila(fila.posicao, fila.minutos, fila.info);
-
-    if(STATUS_BLOQUEADOS_CHECKIN.includes(agenda.status_global)){
-      document.getElementById("btnCheckin").disabled = true;
-      mostrarErro(`Esta DT já está com status "${agenda.status_global}" e não permite novo check-in.`);
-      return;
+    if (baseData) {
+      filas = filas.filter((item) => item.data_agenda === baseData);
     }
 
-    document.getElementById("btnCheckin").disabled = false;
-    mostrarSucesso("DT localizada com sucesso. Agora preencha os demais dados e conclua o check-in.");
-  }catch(err){
-    console.error(err);
-    limparResumoDT();
-    mostrarErro("Ocorreu um erro ao consultar a DT.");
-  }finally{
-    btnBusca.disabled = false;
-    btnBusca.textContent = "Consultar DT";
+    const veiculosNaFrente = filas.length;
+    const posicao = incluirAtual ? veiculosNaFrente + 1 : (veiculosNaFrente > 0 ? veiculosNaFrente : 0);
+    const minutos = veiculosNaFrente * TEMPO_MEDIO_POR_VEICULO_MIN;
+    const info = incluirAtual
+      ? `Estimativa baseada em ${veiculosNaFrente} veículo(s) já aguardando no pátio.`
+      : `Há ${veiculosNaFrente} veículo(s) aguardando no pátio neste momento.`;
+
+    return { posicao, minutos, info, veiculosNaFrente };
   }
-}
 
+  async function buscarDT() {
+    limparMensagem();
 
-const VEHICLE_PLATES = {
-  simples: 1,
-  carreta: 2,
-  bitrem: 3,
-  rodotrem: 4
-};
+    const dt = el.dt.value.trim();
+    if (!dt) {
+      mostrarErro("Informe a DT para consultar.");
+      limparResumoDT();
+      return;
+    }
 
-function selecionarVeiculo(tipo){
-  document.getElementById("tipoVeiculo").value = tipo || "";
+    el.btnBuscarDT.disabled = true;
+    el.btnBuscarDT.textContent = "Consultando...";
 
-  document.querySelectorAll(".vehicle-option").forEach(option => {
-  option.addEventListener("click", () => selecionarVeiculo(option.dataset.value));
-});
+    try {
+      const { data: agenda, error } = await sb
+        .from("agendas")
+        .select("id, dt, cliente, transportadora, data_agenda, hora_agenda, tipo_carga, doca_agenda, status_global")
+        .eq("dt", dt)
+        .maybeSingle();
 
-document.querySelectorAll('input[name="tipoVeiculoRadio"]').forEach(radio => {
-  radio.addEventListener("change", (e) => selecionarVeiculo(e.target.value));
-});
-document.getElementById("dt").addEventListener("input", (e) => {
-  e.target.value = e.target.value.replace(/\D/g, "");
-  limparResumoDT();
-  limparMensagem();
-});
+      if (error || !agenda) {
+        limparResumoDT();
+        mostrarErro("DT não encontrada no sistema.");
+        return;
+      }
+
+      state.agendaSelecionada = agenda;
+      preencherResumoDT(agenda);
+      el.transportadora.value = agenda.transportadora || "";
+
+      const fila = await calcularFilaEstimada(agenda, true);
+      mostrarFila(fila.posicao, fila.minutos, fila.info);
+
+      if (STATUS_BLOQUEADOS_CHECKIN.includes(agenda.status_global)) {
+        el.btnCheckin.disabled = true;
+        mostrarErro(`Esta DT já está com status "${agenda.status_global}" e não permite novo check-in.`);
+        return;
+      }
+
+      el.btnCheckin.disabled = false;
+      mostrarSucesso("DT localizada com sucesso. Agora preencha os demais dados e conclua o check-in.");
+    } catch (err) {
+      console.error(err);
+      limparResumoDT();
+      mostrarErro("Ocorreu um erro ao consultar a DT.");
+    } finally {
+      el.btnBuscarDT.disabled = false;
+      el.btnBuscarDT.textContent = "Consultar DT";
+    }
+  }
+
+  async function fazerCheckin() {
+    limparMensagem();
+
+    el.btnCheckin.disabled = true;
+    el.btnCheckin.textContent = "Processando...";
+
+    try {
+      const dt = el.dt.value.trim();
+      const motorista = el.motorista.value.trim();
+      const transportadora = el.transportadora.value.trim();
+      const tipo = el.tipoVeiculo.value;
+
+      if (!state.agendaSelecionada || state.agendaSelecionada.dt !== dt) {
+        mostrarErro("Consulte a DT antes de realizar o check-in.");
+        return;
+      }
+
+      if (STATUS_BLOQUEADOS_CHECKIN.includes(state.agendaSelecionada.status_global)) {
+        mostrarErro(`Esta DT já está com status "${state.agendaSelecionada.status_global}" e não permite novo check-in.`);
+        return;
+      }
+
+      if (!dt || !motorista || !tipo) {
+        mostrarErro("Preencha DT, nome do motorista e tipo de veículo.");
+        return;
+      }
+
+      const placas = obterPlacas();
+      if (!placas.length) {
+        mostrarErro("Informe pelo menos uma placa.");
+        return;
+      }
+
+      const quantidadeEsperada = VEHICLE_PLATES[tipo] || 0;
+      if (placas.length !== quantidadeEsperada) {
+        mostrarErro(`Informe ${quantidadeEsperada} placa(s) para o tipo de veículo selecionado.`);
+        return;
+      }
+
+      const payload = {
+        motorista,
+        transportadora: transportadora || state.agendaSelecionada.transportadora || null,
+        tipo_veiculo: tipo,
+        placa_cavalo: placas[0] || null,
+        placa_carreta: placas[1] || null,
+        placa_reboque_1: placas[2] || null,
+        placa_reboque_2: placas[3] || null,
+        presente_ausente: "Presente",
+        chegada_motorista: new Date().toISOString(),
+        status_global: "No Pátio"
+      };
+
+      const { error } = await sb
+        .from("agendas")
+        .update(payload)
+        .eq("id", state.agendaSelecionada.id);
+
+      if (error) {
+        console.error("ERRO:", error);
+        mostrarErro(error.message || "Erro ao realizar check-in.");
+        return;
+      }
+
+      const filaAtualizada = await calcularFilaEstimada(state.agendaSelecionada, false);
+      const posicaoFinal = filaAtualizada.veiculosNaFrente + 1;
+      const tempoFinal = filaAtualizada.veiculosNaFrente * TEMPO_MEDIO_POR_VEICULO_MIN;
+
+      mostrarFila(
+        posicaoFinal,
+        tempoFinal,
+        "Sua posição foi estimada com base nos veículos já aguardando no pátio antes do seu check-in."
+      );
+
+      mostrarSucesso(`Check-in realizado com sucesso 🚛 Número na fila: ${posicaoFinal}º. Tempo estimado: ${formatarTempoEspera(tempoFinal)}.`);
+    } catch (err) {
+      console.error(err);
+      mostrarErro("Ocorreu um erro inesperado ao processar o check-in.");
+    } finally {
+      el.btnCheckin.textContent = "Realizar Check-in";
+      if (state.agendaSelecionada && !STATUS_BLOQUEADOS_CHECKIN.includes(state.agendaSelecionada.status_global)) {
+        el.btnCheckin.disabled = false;
+      } else {
+        el.btnCheckin.disabled = true;
+      }
+    }
+  }
+
+  function bindEvents() {
+    document.querySelectorAll(".vehicle-option").forEach((option) => {
+      option.addEventListener("click", () => selecionarVeiculo(option.dataset.value));
+    });
+
+    document.querySelectorAll('input[name="tipoVeiculoRadio"]').forEach((radio) => {
+      radio.addEventListener("change", (e) => selecionarVeiculo(e.target.value));
+    });
+
+    el.dt.addEventListener("input", (e) => {
+      e.target.value = e.target.value.replace(/\D/g, "");
+      limparResumoDT();
+      limparMensagem();
+    });
+
+    el.btnBuscarDT.addEventListener("click", buscarDT);
+    el.btnCheckin.addEventListener("click", fazerCheckin);
+  }
+
+  bindEvents();
+})();
 </script>
-
 </body>
 </html>
