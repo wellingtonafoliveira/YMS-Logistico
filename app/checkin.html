@@ -687,28 +687,33 @@ async function fazerCheckin(){
       return;
     }
 
-    const { data: existe, error: erroBusca } = await sb
+    const { data: agenda, error: erroBusca } = await sb
       .from("agendas")
-      .select("dt")
+      .select("id, dt, transportadora, status_global")
       .eq("dt", dt)
       .maybeSingle();
 
-    if(erroBusca || !existe){
+    if(erroBusca || !agenda){
       mostrarErro("DT não encontrada no sistema.");
       return;
     }
 
+    const payload = {
+      motorista: motorista,
+      transportadora: transportadora || agenda.transportadora || null,
+      tipo_veiculo: tipo,
+      placa_cavalo: placas[0] || null,
+      placa_carreta: placas[1] || null,
+      placas: placas,
+      presente_ausente: "Presente",
+      chegada_motorista: new Date().toISOString(),
+      status_global: "No Pátio"
+    };
+
     const { error } = await sb
       .from("agendas")
-      .update({
-        motorista: motorista,
-        transportadora: transportadora || null,
-        tipo_veiculo: tipo,
-        placas: placas,
-        chegada_motorista: new Date().toISOString(),
-        status_global: "No Pátio"
-      })
-      .eq("dt", dt);
+      .update(payload)
+      .eq("id", agenda.id);
 
     if(error){
       console.error("ERRO:", error);
