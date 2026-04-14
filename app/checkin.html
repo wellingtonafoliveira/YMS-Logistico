@@ -336,7 +336,7 @@ input:focus, select:focus{
   position:absolute;
   inset:0;
   opacity:0;
-  cursor:pointer;
+  pointer-events:none;
 }
 
 .vehicle-icon{
@@ -890,7 +890,13 @@ function selecionarVeiculo(tipo){
 }
 
 function alterarTipo(){
-  const tipo = document.getElementById("tipoVeiculo").value;
+  let tipo = document.getElementById("tipoVeiculo").value;
+  const radioSelecionado = document.querySelector('input[name="tipoVeiculoRadio"]:checked');
+  if(!tipo && radioSelecionado){
+    tipo = radioSelecionado.value;
+    document.getElementById("tipoVeiculo").value = tipo;
+  }
+
   const div = document.getElementById("placas");
   const quantidade = VEHICLE_PLATES[tipo] || 0;
 
@@ -1058,7 +1064,13 @@ document.querySelectorAll(".vehicle-option").forEach(option => {
 }
 
 function alterarTipo(){
-  const tipo = document.getElementById("tipoVeiculo").value;
+  let tipo = document.getElementById("tipoVeiculo").value;
+  const radioSelecionado = document.querySelector('input[name="tipoVeiculoRadio"]:checked');
+  if(!tipo && radioSelecionado){
+    tipo = radioSelecionado.value;
+    document.getElementById("tipoVeiculo").value = tipo;
+  }
+
   const div = document.getElementById("placas");
   const quantidade = VEHICLE_PLATES[tipo] || 0;
 
@@ -1208,6 +1220,9 @@ document.querySelectorAll(".vehicle-option").forEach(option => {
   option.addEventListener("click", () => selecionarVeiculo(option.dataset.value));
 });
 
+document.querySelectorAll('input[name="tipoVeiculoRadio"]').forEach(radio => {
+  radio.addEventListener("change", (e) => selecionarVeiculo(e.target.value));
+});
 document.getElementById("dt").addEventListener("input", (e) => {
   e.target.value = e.target.value.replace(/\D/g, "");
   limparResumoDT();
