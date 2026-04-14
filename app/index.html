@@ -32,6 +32,7 @@
     }
 
     *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
     html,body{margin:0;padding:0}
     body{
       font-family:Inter,Segoe UI,Arial,sans-serif;
@@ -67,6 +68,142 @@
     }
 
     .hidden{display:none !important}
+
+    ::-webkit-scrollbar{width:10px;height:10px}
+    ::-webkit-scrollbar-track{background:rgba(255,255,255,.04);border-radius:999px}
+    ::-webkit-scrollbar-thumb{background:rgba(152,171,200,.30);border-radius:999px}
+    ::-webkit-scrollbar-thumb:hover{background:rgba(152,171,200,.45)}
+
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(10px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .topbar,
+    .card,
+    .kpi,
+    .lane,
+    .dock,
+    .item,
+    .modal-card,
+    .report-hero-card,
+    .section-hero-card,
+    .login-box{
+      animation:fadeUp .35s ease both;
+    }
+
+    .kpi,
+    .card,
+    .lane,
+    .dock,
+    .item,
+    .modal-card,
+    .report-hero-card,
+    .section-hero-card,
+    .section-mini,
+    .report-mini,
+    .modal-summary-card{
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+    .kpi:hover,
+    .card:hover,
+    .dock:hover,
+    .item:hover,
+    .modal-card:hover,
+    .report-hero-card:hover,
+    .section-hero-card:hover,
+    .section-mini:hover,
+    .report-mini:hover,
+    .modal-summary-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 20px 40px rgba(0,0,0,.20);
+      border-color:rgba(255,255,255,.12);
+    }
+
+    .premium-shell{
+      position:relative;
+    }
+
+    .focus-ring:focus{
+      outline:none;
+      box-shadow:0 0 0 4px rgba(59,130,246,.14);
+      border-color:rgba(59,130,246,.55);
+    }
+
+    .btn,
+    .mini,
+    .logout-btn,
+    .menu button,
+    .sidebar-toggle{
+      position:relative;
+      overflow:hidden;
+    }
+
+    .btn::after,
+    .mini::after,
+    .logout-btn::after,
+    .sidebar-toggle::after,
+    .menu button::before{
+      pointer-events:none;
+    }
+
+    .btn:active,
+    .mini:active,
+    .logout-btn:active,
+    .sidebar-toggle:active{
+      transform:translateY(0) scale(.99);
+    }
+
+    .table-wrap{
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    }
+
+    .table-wrap th:first-child,
+    .table-wrap td:first-child{
+      padding-left:14px;
+    }
+
+    .table-wrap th:last-child,
+    .table-wrap td:last-child{
+      padding-right:14px;
+    }
+
+    .soft-glow{
+      position:relative;
+    }
+
+    .soft-glow::after{
+      content:"";
+      position:absolute;
+      inset:auto -60px -60px auto;
+      width:150px;
+      height:150px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(59,130,246,.10), transparent 70%);
+      pointer-events:none;
+    }
+
+    .card-title-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .card-title-row p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .login-box input,
+    input,select,textarea,
+    .btn,.mini{
+      will-change:transform;
+    }
 
     .login-screen{
       min-height:100vh;
@@ -133,7 +270,12 @@
       transition:.2s;
     }
 
-    .login-box input{margin-bottom:10px;padding:13px 14px}
+    .login-box input{
+      margin-bottom:10px;
+      padding:14px 15px;
+      border-radius:16px;
+      background:rgba(13,23,40,.88);
+    }
 
     .login-box input:focus,
     input:focus,select:focus,textarea:focus{
@@ -150,13 +292,14 @@
 
     .login-box button{
       width:100%;
-      padding:13px;
+      padding:14px;
       background:linear-gradient(135deg,var(--blue),#2563eb);
       color:#fff;
       border:none;
-      border-radius:14px;
-      font-weight:800;
+      border-radius:16px;
+      font-weight:900;
       cursor:pointer;
+      box-shadow:0 16px 28px rgba(37,99,235,.22);
     }
 
     .login-box button:hover,
@@ -922,7 +1065,14 @@
       .section-hero{grid-template-columns:1fr}
       .stage-kpi-grid{grid-template-columns:1fr}
     }
-    footer{text-align:center;margin-top:auto;padding:20px 0 6px;color:var(--muted);font-size:12px}
+    footer{
+      text-align:center;
+      margin-top:auto;
+      padding:24px 0 10px;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.02em;
+    }
 
     canvas{max-width:100%}
 
@@ -1002,14 +1152,14 @@
       <button class="logout-btn" onclick="logout()">Sair</button>
     </aside>
 
-    <main class="main">
+    <main class="main premium-shell">
       <div class="topbar">
         <div class="title">
           <div class="topbar-badge">Gestão Logística Plus • Operação em tempo real</div>
           <h1 id="pageTitle">Dashboard</h1>
           <p>Gestão integrada da agenda, pátio, expedição e docas, com visão operacional mais premium e leitura mais inteligente da operação.</p>
         </div>
-        <div class="actions">
+        <div class="actions soft-glow">
           <div>
             <label>Filtrar por data</label>
             <input type="date" id="filtroData" onchange="carregarTudo()">
@@ -1018,21 +1168,21 @@
         </div>
       </div>
 
-      <div class="card hidden" style="margin-bottom:16px" id="statusConexaoCard">
+      <div class="card hidden soft-glow" style="margin-bottom:16px" id="statusConexaoCard">
         <div id="statusConexao" style="color:var(--muted)">Conectando ao Supabase...</div>
       </div>
 
       <section id="view-dashboard">
         <div class="grid grid-4" id="dashboardKpis"></div>
-        <div class="card" style="margin-top:16px">
-          <h2>Torre de etapas</h2>
+        <div class="card soft-glow" style="margin-top:16px">
+          <div class="card-title-row"><div><h2 style="margin:0">Torre de etapas</h2><p>Visão consolidada das etapas da operação com rolagem dedicada por coluna.</p></div><span class="premium-badge">Tempo real</span></div>
           <div class="board" id="dashboardBoard"></div>
         </div>
       </section>
 
       <section id="view-agenda" class="hidden">
         <div class="section-hero">
-          <div class="section-hero-card">
+          <div class="section-hero-card soft-glow">
             <h3>Central da agenda operacional</h3>
             <p>Visual mais premium para organizar as DTs do dia, acompanhar janelas e distribuir melhor a operação com leitura rápida de cliente, transportadora, doca e SLA.</p>
             <div class="section-mini-grid">
@@ -1046,7 +1196,7 @@
               </div>
             </div>
           </div>
-          <div class="section-hero-card">
+          <div class="section-hero-card soft-glow">
             <h3>Resumo rápido da agenda</h3>
             <p>Cadastre novas DTs, acompanhe o planejamento do dia e visualize rapidamente o volume previsto da operação antes da execução no pátio e na expedição.</p>
           </div>
@@ -1125,7 +1275,7 @@
 
       <section id="view-separacao" class="hidden">
         <div class="section-hero">
-          <div class="section-hero-card">
+          <div class="section-hero-card soft-glow">
             <h3>Operação de separação</h3>
             <p>Acompanhe com mais clareza o avanço da separação, os conferentes envolvidos, turnos e gargalos da operação antes da carga seguir para expedição.</p>
             <div class="section-mini-grid">
@@ -1139,7 +1289,7 @@
               </div>
             </div>
           </div>
-          <div class="section-hero-card">
+          <div class="section-hero-card soft-glow">
             <h3>Leitura operacional</h3>
             <p>Visual premium com foco em status, conferente, turno e SLA para acelerar a identificação do que está pendente e do que já está pronto.</p>
           </div>
@@ -1171,7 +1321,7 @@
 
       <section id="view-expedicao" class="hidden">
         <div class="section-hero">
-          <div class="section-hero-card">
+          <div class="section-hero-card soft-glow">
             <h3>Expedição em destaque</h3>
             <p>Monitore o que já foi preparado para saída, o que está pronto para expedição e o que já entrou no fluxo do pátio, com visão mais moderna e leitura executiva.</p>
             <div class="section-mini-grid">
@@ -1185,7 +1335,7 @@
               </div>
             </div>
           </div>
-          <div class="section-hero-card">
+          <div class="section-hero-card soft-glow">
             <h3>Leitura de saída</h3>
             <p>Consolide conferente, faturamento, status e SLA em uma única visão para facilitar a tomada de decisão na expedição.</p>
           </div>
@@ -1217,7 +1367,7 @@
 
       <section id="view-patio" class="hidden">
         <div class="section-hero">
-          <div class="section-hero-card">
+          <div class="section-hero-card soft-glow">
             <h3>Pátio em tempo real</h3>
             <p>Visual premium para acompanhar veículos aguardando, em doca, em carregamento e já expedidos, com leitura rápida para tomada de decisão operacional.</p>
             <div class="section-mini-grid">
@@ -1231,7 +1381,7 @@
               </div>
             </div>
           </div>
-          <div class="section-hero-card">
+          <div class="section-hero-card soft-glow">
             <h3>Movimentação inteligente</h3>
             <p>Controle a passagem da DT por cada etapa operacional e ajuste rapidamente motorista, placas, presença e doca de carregamento.</p>
           </div>
@@ -1289,7 +1439,7 @@
 
       <section id="view-docas" class="hidden">
         <div class="section-hero">
-          <div class="section-hero-card">
+          <div class="section-hero-card soft-glow">
             <h3>Torre de docas premium</h3>
             <p>Visão moderna das docas com leitura de ocupação, DT em atendimento, motorista, placas e início de operação.</p>
             <div class="section-mini-grid">
@@ -1303,7 +1453,7 @@
               </div>
             </div>
           </div>
-          <div class="section-hero-card">
+          <div class="section-hero-card soft-glow">
             <h3>Ocupação inteligente</h3>
             <p>Identifique rapidamente gargalos, utilização das docas e veículos em processo, tudo no mesmo padrão visual premium.</p>
           </div>
@@ -1326,7 +1476,7 @@
 
       <section id="view-checkin" class="hidden">
         <div class="section-hero">
-          <div class="section-hero-card">
+          <div class="section-hero-card soft-glow">
             <h3>Check-in interno</h3>
             <p>Registre a chegada do motorista com visual premium, leitura operacional mais clara e consolidação das placas e presença diretamente no fluxo interno.</p>
             <div class="section-mini-grid">
@@ -1340,7 +1490,7 @@
               </div>
             </div>
           </div>
-          <div class="section-hero-card">
+          <div class="section-hero-card soft-glow">
             <h3>Consolidação de chegada</h3>
             <p>Visualize motorista, placas, presença, chegada e status em um só lugar, mantendo coerência com o restante do sistema premium.</p>
           </div>
@@ -1404,7 +1554,7 @@
 
       <section id="view-relatorios" class="hidden">
         <div class="report-hero">
-          <div class="report-hero-card">
+          <div class="report-hero-card soft-glow">
             <h3>Central de resultados operacionais</h3>
             <p>Visual moderno para acompanhar volume, produtividade e comportamento da operação ao longo do dia, com leitura mais executiva e foco em decisão.</p>
             <div class="report-mini-grid">
@@ -1418,7 +1568,7 @@
               </div>
             </div>
           </div>
-          <div class="report-hero-card">
+          <div class="report-hero-card soft-glow">
             <h3>Leitura rápida</h3>
             <p>Os indicadores abaixo destacam caixas, picking, pallets e peso total, enquanto os gráficos mostram a distribuição por turno em um formato mais premium.</p>
           </div>
@@ -1441,8 +1591,103 @@
       </section>
 
       <section id="view-admin" class="hidden">
-        <div class="card" id="areaAdmin" style="display:none;">
-          <h2>Importar Agenda (Excel)</h2>
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Administração do sistema</h3>
+            <p>Área exclusiva para importação da agenda, gestão de usuários internos e acompanhamento técnico da integração com o Supabase.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Usuários carregados</span>
+                <strong id="adminUsuariosRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Status técnico</span>
+                <strong id="adminStatusRef">Pronto</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Controle administrativo</h3>
+            <p>Cadastre novos usuários do sistema com perfil e status de acesso, mantendo a operação organizada e centralizada no próprio painel interno.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-2" id="areaAdmin" style="display:none;">
+          <div class="card form-card-premium">
+            <div class="section-toolbar">
+              <div>
+                <h2>Novo usuário</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Cadastro administrativo integrado ao sistema</p>
+              </div>
+              <span class="premium-badge">Admin</span>
+            </div>
+            <div class="fields">
+              <div><label>Nome</label><input id="u_nome"></div>
+              <div><label>Email</label><input id="u_email" type="email"></div>
+              <div><label>Senha inicial</label><input id="u_senha" type="password"></div>
+              <div>
+                <label>Perfil</label>
+                <select id="u_perfil">
+                  <option value="operacao">operacao</option>
+                  <option value="assistente">assistente</option>
+                  <option value="portaria">portaria</option>
+                  <option value="conferente">conferente</option>
+                  <option value="gestao">gestao</option>
+                  <option value="analista">analista</option>
+                  <option value="admin">admin</option>
+                </select>
+              </div>
+              <div>
+                <label>Status</label>
+                <select id="u_ativo">
+                  <option value="true">Ativo</option>
+                  <option value="false">Inativo</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn btn-success" onclick="criarUsuarioAdmin()">Cadastrar usuário</button>
+              <button class="btn btn-light" onclick="carregarUsuariosAdmin()">Atualizar lista</button>
+            </div>
+            <p id="statusUsuarioAdmin" style="color:var(--muted);margin-top:10px"></p>
+          </div>
+
+          <div class="card premium-table-card">
+            <div class="premium-table-head">
+              <div>
+                <h2>Usuários do sistema</h2>
+                <p>Lista administrativa dos usuários cadastrados em <code>public.usuarios</code>.</p>
+              </div>
+              <div class="group">
+                <span class="soft-stat" id="usuariosSoftStat">0 usuários</span>
+                <span class="premium-badge">Controle de acesso</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Perfil</th>
+                    <th>Ativo</th>
+                    <th>Criado em</th>
+                  </tr>
+                </thead>
+                <tbody id="listaUsuariosAdmin"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card soft-glow" style="margin-top:16px">
+          <div class="section-toolbar">
+            <div>
+              <h2>Importar Agenda (Excel)</h2>
+              <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Importação da agenda operacional com pré-visualização</p>
+            </div>
+            <span class="premium-badge">Importação</span>
+          </div>
           <input type="file" id="fileInput" accept=".xlsx,.xls">
           <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
             <button class="btn btn-light" onclick="preVisualizarExcel()">Pré-visualizar</button>
@@ -1526,7 +1771,7 @@
       <div class="modal-head">
         <div>
           <h2 style="margin:0">Tela completa da DT</h2>
-          <div id="dtModalSub" style="color:var(--muted);margin-top:6px"></div>
+          <div id="dtModalSub" style="color:var(--muted);margin-top:6px;font-size:13px;line-height:1.6"></div>
         </div>
         <div id="dtModalStatusWrap"></div>
         <button class="btn btn-light" onclick="fecharDTModal()">Fechar</button>
@@ -1552,7 +1797,7 @@
       </div>
 
       <div class="modal-grid">
-        <div class="modal-card" id="blocoInfo">
+        <div class="modal-card soft-glow" id="blocoInfo">
           <div class="modal-section-title">
             <h3>Informações gerais</h3>
             <span class="modal-pill">Base da operação</span>
@@ -1585,7 +1830,7 @@
           </div>
         </div>
 
-        <div class="modal-card" id="blocoSeparacao">
+        <div class="modal-card soft-glow" id="blocoSeparacao">
           <div class="modal-section-title">
             <h3>Separação / Recebimento</h3>
             <span class="modal-pill">Operação interna</span>
@@ -1609,7 +1854,7 @@
           </div>
         </div>
 
-        <div class="modal-card" id="blocoExpedicao">
+        <div class="modal-card soft-glow" id="blocoExpedicao">
           <div class="modal-section-title">
             <h3>Expedição / Pátio</h3>
             <span class="modal-pill">Movimentação e saída</span>
@@ -1657,6 +1902,10 @@
     const SUPABASE_KEY = "sb_publishable_ePs_koxCzHKOsejBKA3BGA_fj3ENPIp";
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    const ADMIN_CREATE_USER_ENDPOINT = ""; // Ex.: https://SEU-PROJETO.functions.supabase.co/admin-create-user
+    let usuariosAdmin = [];
+
+
     let registros = [];
     let realtimeChannel = null;
     let usuarioPerfil = null;
@@ -1666,6 +1915,110 @@
     let viewAtualGlobal = "dashboard";
     let chartHE = null;
     let chartHO = null;
+
+    function fmtBoolAtivo(v){
+      return v ? "Sim" : "Não";
+    }
+
+    async function carregarUsuariosAdmin(){
+      if(usuarioPerfil !== "admin") return;
+      const status = document.getElementById("statusUsuarioAdmin");
+      if(status) status.textContent = "Carregando usuários...";
+      const { data, error } = await sb
+        .from("usuarios")
+        .select("id,nome,email,perfil,ativo,created_at")
+        .order("created_at", { ascending:false });
+
+      if(error){
+        console.error(error);
+        if(status) status.textContent = "Erro ao carregar usuários.";
+        return;
+      }
+
+      usuariosAdmin = data || [];
+      document.getElementById("adminUsuariosRef").textContent = usuariosAdmin.length;
+      document.getElementById("usuariosSoftStat").textContent = `${usuariosAdmin.length} usuários`;
+      document.getElementById("listaUsuariosAdmin").innerHTML = usuariosAdmin.map(u => `
+        <tr>
+          <td>${esc(u.nome)}</td>
+          <td>${esc(u.email)}</td>
+          <td>${esc(u.perfil)}</td>
+          <td>${esc(fmtBoolAtivo(u.ativo))}</td>
+          <td>${fmtDateTime(u.created_at)}</td>
+        </tr>
+      `).join("");
+
+      if(status) status.textContent = "Lista atualizada.";
+    }
+
+    async function criarUsuarioAdmin(){
+      if(usuarioPerfil !== "admin") return alert("Apenas admin pode cadastrar usuários.");
+
+      const nome = document.getElementById("u_nome").value.trim();
+      const email = document.getElementById("u_email").value.trim().toLowerCase();
+      const senha = document.getElementById("u_senha").value;
+      const perfil = document.getElementById("u_perfil").value;
+      const ativo = document.getElementById("u_ativo").value === "true";
+      const status = document.getElementById("statusUsuarioAdmin");
+
+      if(!nome || !email || !senha){
+        return alert("Preencha nome, email e senha inicial.");
+      }
+
+      if(!ADMIN_CREATE_USER_ENDPOINT){
+        if(status){
+          status.textContent = "Defina o endpoint seguro de criação de usuário no arquivo.";
+        }
+        return alert("Configure o endpoint seguro de criação de usuário antes de usar esta função.");
+      }
+
+      try{
+        if(status) status.textContent = "Cadastrando usuário...";
+
+        const { data: sessao } = await sb.auth.getSession();
+        const token = sessao?.session?.access_token || "";
+
+        const resp = await fetch(ADMIN_CREATE_USER_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ nome, email, senha, perfil, ativo })
+        });
+
+        const result = await resp.json().catch(() => ({}));
+
+        if(!resp.ok){
+          console.error(result);
+          if(status) status.textContent = result.error || "Erro ao cadastrar usuário.";
+          return alert(result.error || "Erro ao cadastrar usuário.");
+        }
+
+        document.getElementById("u_nome").value = "";
+        document.getElementById("u_email").value = "";
+        document.getElementById("u_senha").value = "";
+        document.getElementById("u_perfil").value = "operacao";
+        document.getElementById("u_ativo").value = "true";
+
+        if(status) status.textContent = "Usuário cadastrado com sucesso.";
+        showToast("Usuário cadastrado com sucesso");
+        await carregarUsuariosAdmin();
+      }catch(err){
+        console.error(err);
+        if(status) status.textContent = "Erro ao chamar endpoint de criação.";
+        alert("Erro ao criar usuário.");
+      }
+    }
+
+
+    try{
+      const savedSidebar = localStorage.getItem("glp_sidebar_collapsed");
+      if(savedSidebar === "1"){
+        document.getElementById("app")?.classList.add("sidebar-collapsed");
+      }
+    }catch(_){}
+
 
     function atualizarVisibilidadeStatusConexao(){
       const card = document.getElementById("statusConexaoCard");
@@ -1678,10 +2031,13 @@
       if(!app) return;
       app.classList.toggle("sidebar-collapsed");
       const btn = document.getElementById("sidebarToggle");
+      const recolhido = app.classList.contains("sidebar-collapsed");
       if(btn){
-        const recolhido = app.classList.contains("sidebar-collapsed");
         btn.title = recolhido ? "Expandir menu" : "Ocultar menu";
       }
+      try{
+        localStorage.setItem("glp_sidebar_collapsed", recolhido ? "1" : "0");
+      }catch(_){}
     }
 
 
@@ -1755,7 +2111,7 @@
     function setView(view, btn){
       viewAtualGlobal = view;
       const targetBtn = btn || document.getElementById(`menu-${view}`);
-      const titulo = targetBtn?.querySelector(".menu-text")?.textContent || targetBtn?.textContent || view;
+      const titulo = (targetBtn?.querySelector(".menu-text")?.textContent || targetBtn?.textContent || view).trim();
       document.getElementById("pageTitle").textContent = titulo;
       document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
       if(targetBtn) targetBtn.classList.add("active");
@@ -1766,6 +2122,9 @@
       const viewEl = document.getElementById(`view-${view}`);
       if(viewEl) viewEl.classList.remove("hidden");
       atualizarVisibilidadeStatusConexao();
+      if(view === "admin" && usuarioPerfil === "admin"){
+        carregarUsuariosAdmin();
+      }
     }
 
     function calcSla(row){
@@ -1797,11 +2156,15 @@
         const el = document.getElementById("statusConexao");
         el.textContent = "Conectado ao Supabase.";
         el.style.color = "#22c55e";
+        const adminStatus = document.getElementById("adminStatusRef");
+        if(adminStatus) adminStatus.textContent = "Online";
       }catch(e){
         console.error(e);
         const el = document.getElementById("statusConexao");
         el.textContent = "Erro de conexão. Verifique URL, key, RLS e estrutura SQL.";
         el.style.color = "#ef4444";
+        const adminStatus = document.getElementById("adminStatusRef");
+        if(adminStatus) adminStatus.textContent = "Erro";
       }
     }
 
@@ -1839,6 +2202,7 @@
       await carregarPerfil(user.email, user.id);
       await carregarCadastros();
       await carregarTudo();
+      setView(viewAtualGlobal);
       await iniciarRealtime();
     }
 
@@ -1868,8 +2232,11 @@
       document.getElementById("userNome").textContent = data.nome || email || "Usuário logado";
       document.getElementById("userEmail").textContent = data.email || email || "-";
       document.getElementById("userPerfil").textContent = `Perfil: ${usuarioPerfil}`;
-      document.getElementById("areaAdmin").style.display = usuarioPerfil === "admin" ? "block" : "none";
+      document.getElementById("areaAdmin").style.display = usuarioPerfil === "admin" ? "grid" : "none";
       aplicarPermissoes();
+      if(usuarioPerfil === "admin"){
+        carregarUsuariosAdmin();
+      }
     }
 
     function aplicarPermissoes(){
