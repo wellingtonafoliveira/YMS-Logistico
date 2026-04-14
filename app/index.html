@@ -649,6 +649,144 @@
       margin-bottom:16px;
     }
 
+    .section-hero{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:16px;
+      margin-bottom:16px;
+    }
+
+    .section-hero-card{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px;
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.12), transparent 24%),
+        linear-gradient(180deg, rgba(17,28,47,.90), rgba(13,23,39,.82));
+      padding:20px;
+      box-shadow:0 16px 34px rgba(0,0,0,.16);
+    }
+
+    .section-hero-card h3{
+      margin:0 0 8px;
+      font-size:18px;
+    }
+
+    .section-hero-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+
+    .section-mini-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+      margin-top:16px;
+    }
+
+    .section-mini{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      padding:14px;
+    }
+
+    .section-mini span{
+      display:block;
+      color:var(--muted);
+      font-size:11px;
+      margin-bottom:8px;
+      text-transform:uppercase;
+      font-weight:800;
+      letter-spacing:.04em;
+    }
+
+    .section-mini strong{
+      font-size:22px;
+      line-height:1;
+    }
+
+    .section-toolbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .section-toolbar .group{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .premium-table-card{
+      padding:0;
+      overflow:hidden;
+    }
+
+    .premium-table-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      padding:18px 18px 10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    .premium-table-head h2{
+      margin:0;
+    }
+
+    .premium-table-head p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .premium-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(59,130,246,.10);
+      border:1px solid rgba(59,130,246,.18);
+      color:#dce9ff;
+      font-size:11px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .table-wrap table{
+      background:linear-gradient(180deg, rgba(12,23,40,.98), rgba(10,19,34,.98));
+    }
+
+    .table-wrap tbody tr{
+      transition:.18s;
+    }
+
+    .table-wrap tbody tr:hover{
+      background:rgba(59,130,246,.06);
+    }
+
+    .soft-stat{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      color:#dbe7ff;
+      font-size:12px;
+      font-weight:800;
+    }
+
     .report-hero-card{
       border:1px solid rgba(255,255,255,.08);
       border-radius:22px;
@@ -727,6 +865,7 @@
       .modal-grid{grid-template-columns:1fr}
       .modal-summary{grid-template-columns:repeat(2,1fr)}
       .report-hero{grid-template-columns:1fr}
+      .section-hero{grid-template-columns:1fr}
     }
     footer{text-align:center;margin-top:auto;padding:20px 0 6px;color:var(--muted);font-size:12px}
 
@@ -837,9 +976,36 @@
       </section>
 
       <section id="view-agenda" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card">
+            <h3>Central da agenda operacional</h3>
+            <p>Visual mais premium para organizar as DTs do dia, acompanhar janelas e distribuir melhor a operação com leitura rápida de cliente, transportadora, doca e SLA.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Agenda filtrada</span>
+                <strong id="agendaDataRef">Todos</strong>
+              </div>
+              <div class="section-mini">
+                <span>Total do dia</span>
+                <strong id="agendaTotalRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card">
+            <h3>Resumo rápido da agenda</h3>
+            <p>Cadastre novas DTs, acompanhe o planejamento do dia e visualize rapidamente o volume previsto da operação antes da execução no pátio e na expedição.</p>
+          </div>
+        </div>
+
         <div class="grid grid-2">
           <div class="card">
-            <h2>Nova DT</h2>
+            <div class="section-toolbar">
+              <div>
+                <h2>Nova DT</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Cadastro rápido da programação operacional</p>
+              </div>
+              <span class="premium-badge">Planejamento</span>
+            </div>
             <div class="fields">
               <div><label>DT</label><input id="a_dt"></div>
               <div><label>Ordem</label><input id="a_ordem"></div>
@@ -867,13 +1033,28 @@
           </div>
 
           <div class="card">
-            <h2>Resumo do dia</h2>
+            <div class="section-toolbar">
+              <div>
+                <h2>Resumo do dia</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Leitura executiva da agenda filtrada</p>
+              </div>
+              <span class="premium-badge">Indicadores</span>
+            </div>
             <div class="grid grid-4" id="agendaKpis"></div>
           </div>
         </div>
 
-        <div class="card" style="margin-top:16px">
-          <h2>Agenda do dia</h2>
+        <div class="card premium-table-card" style="margin-top:16px">
+          <div class="premium-table-head">
+            <div>
+              <h2>Agenda do dia</h2>
+              <p>Lista moderna da programação com foco em janela, doca, status e SLA.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="agendaSoftStat">0 registros</span>
+              <span class="premium-badge">Operação planejada</span>
+            </div>
+          </div>
           <div class="table-wrap">
             <table>
               <thead>
@@ -888,8 +1069,38 @@
       </section>
 
       <section id="view-separacao" class="hidden">
-        <div class="card">
-          <h2>Separação</h2>
+        <div class="section-hero">
+          <div class="section-hero-card">
+            <h3>Operação de separação</h3>
+            <p>Acompanhe com mais clareza o avanço da separação, os conferentes envolvidos, turnos e gargalos da operação antes da carga seguir para expedição.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Em separação</span>
+                <strong id="sepEmAndamentoRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Separadas</span>
+                <strong id="sepConcluidoRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card">
+            <h3>Leitura operacional</h3>
+            <p>Visual premium com foco em status, conferente, turno e SLA para acelerar a identificação do que está pendente e do que já está pronto.</p>
+          </div>
+        </div>
+
+        <div class="card premium-table-card">
+          <div class="premium-table-head">
+            <div>
+              <h2>Separação</h2>
+              <p>Controle das etapas internas de separação e recebimento.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="separacaoSoftStat">0 registros</span>
+              <span class="premium-badge">Execução interna</span>
+            </div>
+          </div>
           <div class="table-wrap">
             <table>
               <thead>
@@ -904,8 +1115,38 @@
       </section>
 
       <section id="view-expedicao" class="hidden">
-        <div class="card">
-          <h2>Expedição</h2>
+        <div class="section-hero">
+          <div class="section-hero-card">
+            <h3>Expedição em destaque</h3>
+            <p>Monitore o que já foi preparado para saída, o que está pronto para expedição e o que já entrou no fluxo do pátio, com visão mais moderna e leitura executiva.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Pronto expedição</span>
+                <strong id="expProntoRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>No pátio</span>
+                <strong id="expPatioRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card">
+            <h3>Leitura de saída</h3>
+            <p>Consolide conferente, faturamento, status e SLA em uma única visão para facilitar a tomada de decisão na expedição.</p>
+          </div>
+        </div>
+
+        <div class="card premium-table-card">
+          <div class="premium-table-head">
+            <div>
+              <h2>Expedição</h2>
+              <p>Painel premium para acompanhamento da saída e da integração com o pátio.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="expedicaoSoftStat">0 registros</span>
+              <span class="premium-badge">Saída operacional</span>
+            </div>
+          </div>
           <div class="table-wrap">
             <table>
               <thead>
@@ -1631,11 +1872,23 @@
 
     function renderAgenda(){
       const rows = linhasFiltradas();
-      document.getElementById("agendaKpis").innerHTML = `
-        <div class="kpi"><div class="label">DTs do dia</div><div class="value">${rows.length}</div><div class="sub">cadastros filtrados</div></div>
-        <div class="kpi"><div class="label">Agendadas</div><div class="value">${rows.filter(x=>x.status_global==="Agendado").length}</div><div class="sub">planejamento</div></div>
-        <div class="kpi"><div class="label">Com doca</div><div class="value">${rows.filter(x=>x.doca_agenda).length}</div><div class="sub">pré-definidas</div></div>
-        <div class="kpi"><div class="label">Peso total</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0)}</div><div class="sub">kg planejados</div></div>`;
+      const dataRef = dataFiltrada() ? fmtDate(dataFiltrada()) : "Todos";
+      const cards = [
+        { label:"DTs do dia", value: rows.length, sub:"cadastros filtrados", cls:"status-blue", icon:"🗓️" },
+        { label:"Agendadas", value: rows.filter(x=>x.status_global==="Agendado").length, sub:"planejamento", cls:"status-gray", icon:"📌" },
+        { label:"Com doca", value: rows.filter(x=>x.doca_agenda).length, sub:"pré-definidas", cls:"status-purple", icon:"🚪" },
+        { label:"Peso total", value: rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0), sub:"kg planejados", cls:"status-cyan", icon:"⚖️" }
+      ];
+      document.getElementById("agendaKpis").innerHTML = cards.map(k => `
+        <div class="kpi ${k.cls}">
+          <div class="kpi-icon">${k.icon}</div>
+          <div class="label">${k.label}</div>
+          <div class="value">${k.value}</div>
+          <div class="sub">${k.sub}</div>
+        </div>`).join("");
+      document.getElementById("agendaDataRef").textContent = dataRef;
+      document.getElementById("agendaTotalRef").textContent = rows.length;
+      document.getElementById("agendaSoftStat").textContent = `${rows.length} registros`;
       document.getElementById("agendaTabela").innerHTML = rows.map(r => {
         const sla = calcSla(r);
         return `<tr>
@@ -1649,6 +1902,9 @@
 
     function renderSeparacao(){
       const rows = linhasFiltradas().filter(r => ["Agendado","Em Separação","Separado"].includes(r.status_global));
+      document.getElementById("sepEmAndamentoRef").textContent = rows.filter(r => r.status_global === "Em Separação").length;
+      document.getElementById("sepConcluidoRef").textContent = rows.filter(r => r.status_global === "Separado").length;
+      document.getElementById("separacaoSoftStat").textContent = `${rows.length} registros`;
       document.getElementById("separacaoTabela").innerHTML = rows.map(r => {
         const sla = calcSla(r);
         return `<tr>
@@ -1661,6 +1917,9 @@
 
     function renderExpedicao(){
       const rows = linhasFiltradas().filter(r => ["Separado","Pronto Expedição","No Pátio"].includes(r.status_global));
+      document.getElementById("expProntoRef").textContent = rows.filter(r => r.status_global === "Pronto Expedição").length;
+      document.getElementById("expPatioRef").textContent = rows.filter(r => r.status_global === "No Pátio").length;
+      document.getElementById("expedicaoSoftStat").textContent = `${rows.length} registros`;
       document.getElementById("expedicaoTabela").innerHTML = rows.map(r => {
         const sla = calcSla(r);
         return `<tr>
