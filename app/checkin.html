@@ -719,7 +719,7 @@ button:disabled{
 
       <div id="msg"></div>
 
-      <div class="footer-note">Check-in de Motoristas</div>
+      <div class="footer-note">Gestão Logística Plus • Check-in de Motoristas</div>
       <div class="copyright">© 2026 Gestão Logística Plus. Todos os direitos reservados.</div>
     </section>
   </div>
@@ -1054,14 +1054,6 @@ async function fazerCheckin(){
   }
 }
 
-document.querySelectorAll(".vehicle-option").forEach(option => {
-    option.classList.toggle("active", option.dataset.value === tipo);
-    const radio = option.querySelector('input[type="radio"]');
-    if(radio) radio.checked = option.dataset.value === tipo;
-  });
-
-  alterarTipo();
-}
 
 function alterarTipo(){
   let tipo = document.getElementById("tipoVeiculo").value;
