@@ -486,7 +486,7 @@ button:disabled{
         </div>
         <div class="mini-card">
           <strong>Orientação ao motorista</strong>
-          <span>Selecione o tipo de veículo correto e preencha todas as placas do conjunto conforme solicitado na tela.</span>
+          <span>Selecione o tipo de veículo correto e preencha as placas do conjunto. No banco atual, o sistema grava diretamente placa_cavalo e placa_carreta.</span>
         </div>
         <div class="mini-card">
           <strong>Após o envio</strong>
@@ -567,7 +567,7 @@ button:disabled{
       <div class="card">
         <h3 class="card-title">Placas do conjunto</h3>
         <div id="placas" class="plate-grid"></div>
-        <div class="helper">As placas são exibidas automaticamente conforme o tipo de veículo selecionado.</div>
+        <div class="helper">As placas são exibidas automaticamente conforme o tipo de veículo selecionado. No banco atual, as duas primeiras são gravadas em placa_cavalo e placa_carreta.</div>
       </div>
 
       <button id="btnCheckin" onclick="fazerCheckin()">Realizar Check-in</button>
@@ -689,7 +689,7 @@ async function fazerCheckin(){
 
     const { data: agenda, error: erroBusca } = await sb
       .from("agendas")
-      .select("id, dt, transportadora, status_global")
+      .select("id, dt, transportadora, observacao_geral, status_global")
       .eq("dt", dt)
       .maybeSingle();
 
@@ -698,16 +698,32 @@ async function fazerCheckin(){
       return;
     }
 
+    let observacaoGeral = agenda.observacao_geral || "";
+
+    if(placas.length > 2){
+      const placasExtras = placas.slice(2).join(" / ");
+      const marcador = "Placas extras:";
+      const linhaExtra = `${marcador} ${placasExtras}`;
+
+      if(observacaoGeral.includes(marcador)){
+        observacaoGeral = observacaoGeral.replace(/Placas extras:\s*.*/i, linhaExtra).trim();
+      } else {
+        observacaoGeral = observacaoGeral
+          ? `${observacaoGeral}\n${linhaExtra}`
+          : linhaExtra;
+      }
+    }
+
     const payload = {
       motorista: motorista,
       transportadora: transportadora || agenda.transportadora || null,
       tipo_veiculo: tipo,
       placa_cavalo: placas[0] || null,
       placa_carreta: placas[1] || null,
-      placas: placas,
       presente_ausente: "Presente",
       chegada_motorista: new Date().toISOString(),
-      status_global: "No Pátio"
+      status_global: "No Pátio",
+      observacao_geral: observacaoGeral || null
     };
 
     const { error } = await sb
@@ -721,7 +737,11 @@ async function fazerCheckin(){
       return;
     }
 
-    mostrarSucesso("Check-in realizado com sucesso 🚛");
+    const msgExtra = placas.length > 2
+      ? " As placas extras foram registradas em observação geral."
+      : "";
+
+    mostrarSucesso("Check-in realizado com sucesso 🚛" + msgExtra);
     limparCampos();
   }catch(err){
     console.error(err);
