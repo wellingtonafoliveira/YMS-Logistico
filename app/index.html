@@ -2220,14 +2220,15 @@
       const { data, error } = await sb.from("usuarios").select("id,nome,email,perfil").eq("email", email).maybeSingle();
       if(error) console.error(error);
       if(!data){
-        usuarioPerfil = "admin";
-        document.getElementById("userNome").textContent = email || "Usuário logado";
-        document.getElementById("userEmail").textContent = email || "-";
-        document.getElementById("userPerfil").textContent = "Perfil: admin";
-        document.getElementById("areaAdmin").style.display = "block";
-        aplicarPermissoes();
-        return;
-      }
+  usuarioPerfil = null;
+  document.getElementById("userNome").textContent = email || "Usuário logado";
+  document.getElementById("userEmail").textContent = email || "-";
+  document.getElementById("userPerfil").textContent = "Perfil: sem cadastro";
+  document.getElementById("areaAdmin").style.display = "none";
+  document.getElementById("menu-admin").style.display = "none";
+  document.getElementById("loginErro").textContent = "Seu usuário não possui perfil cadastrado no sistema.";
+  return;
+}
       usuarioPerfil = data.perfil || "operacao";
       document.getElementById("userNome").textContent = data.nome || email || "Usuário logado";
       document.getElementById("userEmail").textContent = data.email || email || "-";
