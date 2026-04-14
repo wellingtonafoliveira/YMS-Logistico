@@ -537,10 +537,33 @@
         <div class="card" id="areaAdmin" style="display:none;">
           <h2>Importar Agenda (Excel)</h2>
           <input type="file" id="fileInput" accept=".xlsx,.xls">
-          <div style="margin-top:10px">
+          <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-light" onclick="preVisualizarExcel()">Pré-visualizar</button>
             <button class="btn btn-primary" onclick="importarExcel()">Importar</button>
           </div>
           <p id="statusUpload" style="color:var(--muted)"></p>
+
+          <div class="card" style="margin-top:16px;display:none" id="previewBox">
+            <h3>Pré-visualização da importação</h3>
+            <div class="grid grid-4" id="previewResumo"></div>
+            <div class="table-wrap" style="margin-top:16px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>DT</th>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Cliente</th>
+                    <th>Transportadora</th>
+                    <th>Tipo Veículo</th>
+                    <th>Total Caixas</th>
+                    <th>Peso</th>
+                  </tr>
+                </thead>
+                <tbody id="previewTabela"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1365,16 +1388,8 @@
       await carregarTudo();
     }
 
-    async function importarExcel(){
-      if(usuarioPerfil !== "admin") return alert("Apenas admin pode importar a agenda.");
-
-      const input = document.getElementById("fileInput");
-      const status = document.getElementById("statusUpload");
-      if(!input.files?.length) return alert("Selecione um arquivo Excel.");
-
-      const file = input.files[0];
-      status.textContent = "Lendo arquivo...";
-
+    
+    async function parseAgendaExcel(file){
       function limparCabecalho(v){
         return String(v ?? "")
           .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -1412,6 +1427,12 @@
         return Number.isFinite(n) ? n : null;
       }
 
+      function intPlanilha(v){
+        const n = numPlanilha(v);
+        if(n === null) return null;
+        return Math.round(n);
+      }
+
       function normalizarDataPlanilha(v){
         if(v === null || v === undefined || v === "") return null;
 
@@ -1422,7 +1443,6 @@
         }
 
         const txt = String(v).trim();
-
         const br = txt.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
         if(br){
           let [, d, m, y] = br;
@@ -1460,60 +1480,139 @@
         return null;
       }
 
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type:"array" });
+
+      let registrosImportacao = [];
+      let linhasLidas = 0;
+
+      for(const nomeAba of workbook.SheetNames){
+        const sheet = workbook.Sheets[nomeAba];
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval:"" });
+
+        for(const row of rows){
+          linhasLidas++;
+
+          const dt = String(get(row, [
+            "Nº transporte","No transporte","Numero transporte","DT","TRANSPORTE","CARRO"
+          ]) || "").trim();
+
+          if(!dt) continue;
+
+          registrosImportacao.push({
+            dt,
+            ordem: String(get(row, ["Ordem","ORDEM"]) || "").trim() || null,
+            remessa: String(get(row, ["Remessa","REMESSA"]) || "").trim() || null,
+            data_agenda: normalizarDataPlanilha(get(row, ["Data agenda","DATA AGENDA","DATA"])),
+            hora_agenda: normalizarHoraPlanilha(get(row, ["Hora agenda","HORA AGENDA","HORA"])),
+            transportadora: String(get(row, ["Nome agente de frete","Transportadora","TRANSPORTADOR","TRANSPORTADORA"]) || "").trim() || null,
+            cliente: String(get(row, ["Nome do emissor da ordem","Cliente","CLIENTE"]) || "").trim() || null,
+            tipo_carga: String(get(row, ["Tipo de carga","TPCARGA"]) || "").trim() || null,
+            tipo_veiculo: String(get(row, ["Tipo de veículo","Tipo de veiculo","TPCARRO","TIPO VEICULO"]) || "").trim() || null,
+            tipo_frete: String(get(row, ["Tipo de frete","TPFRETE"]) || "").trim() || null,
+            perfil_carga: String(get(row, ["Perfil de carregamento","PERFILCARGA"]) || "").trim() || null,
+            doca_agenda: String(get(row, ["Doca agenda","DOCA"]) || "").trim() || null,
+            peso: numPlanilha(get(row, ["Peso total","PESO"])),
+            cubagem: numPlanilha(get(row, ["Volume","CUBAGEM"])),
+            tonelagem: numPlanilha(get(row, ["Tonelagem","TON"])),
+            total_caixas: intPlanilha(get(row, ["Qtd.remessa","Qtd remessa","TOTAL","TOTAL CAIXAS"])),
+            he: intPlanilha(get(row, ["HE"])),
+            ho: intPlanilha(get(row, ["HO","PalletsHO","PALLETSHO"])),
+            status_global: "Agendado"
+          });
+        }
+      }
+
+      const mapa = new Map();
+      for(const item of registrosImportacao){
+        mapa.set(item.dt, item);
+      }
+
+      const registrosUnicos = Array.from(mapa.values()).filter(r => r.dt);
+
+      return {
+        totalAbas: workbook.SheetNames.length,
+        linhasLidas,
+        registrosUnicos
+      };
+    }
+
+    function renderPreviewImportacao(resultado){
+      const box = document.getElementById("previewBox");
+      const resumo = document.getElementById("previewResumo");
+      const tabela = document.getElementById("previewTabela");
+
+      const rows = resultado.registrosUnicos || [];
+      box.style.display = rows.length ? "block" : "none";
+
+      resumo.innerHTML = `
+        <div class="kpi"><div class="label">Abas lidas</div><div class="value">${resultado.totalAbas}</div><div class="sub">arquivo Excel</div></div>
+        <div class="kpi"><div class="label">Linhas lidas</div><div class="value">${resultado.linhasLidas}</div><div class="sub">todas as abas</div></div>
+        <div class="kpi"><div class="label">Registros válidos</div><div class="value">${rows.length}</div><div class="sub">com DT reconhecida</div></div>
+        <div class="kpi"><div class="label">Prévia exibida</div><div class="value">${Math.min(rows.length, 20)}</div><div class="sub">primeiras linhas</div></div>
+      `;
+
+      tabela.innerHTML = rows.slice(0, 20).map(r => `
+        <tr>
+          <td>${esc(r.dt)}</td>
+          <td>${fmtDate(r.data_agenda)}</td>
+          <td>${esc(r.hora_agenda)}</td>
+          <td>${esc(r.cliente)}</td>
+          <td>${esc(r.transportadora)}</td>
+          <td>${esc(r.tipo_veiculo)}</td>
+          <td>${esc(r.total_caixas)}</td>
+          <td>${esc(r.peso)}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function preVisualizarExcel(){
+      if(usuarioPerfil !== "admin") return alert("Apenas admin pode pré-visualizar a agenda.");
+
+      const input = document.getElementById("fileInput");
+      const status = document.getElementById("statusUpload");
+      if(!input.files?.length) return alert("Selecione um arquivo Excel.");
+
+      status.textContent = "Lendo arquivo para pré-visualização...";
+
       try{
-        const data = await file.arrayBuffer();
-        const workbook = XLSX.read(data, { type:"array" });
-        let registrosImportacao = [];
+        const resultado = await parseAgendaExcel(input.files[0]);
 
-        for(const nomeAba of workbook.SheetNames){
-          const sheet = workbook.Sheets[nomeAba];
-          const rows = XLSX.utils.sheet_to_json(sheet, { defval:"" });
-
-          for(const row of rows){
-            const dt = String(get(row, [
-              "Nº transporte","No transporte","Numero transporte","DT","TRANSPORTE","CARRO"
-            ]) || "").trim();
-
-            if(!dt) continue;
-
-            const registro = {
-              dt,
-              ordem: String(get(row, ["Ordem","ORDEM"]) || "").trim() || null,
-              remessa: String(get(row, ["Remessa","REMESSA"]) || "").trim() || null,
-              data_agenda: normalizarDataPlanilha(get(row, ["Data agenda","DATA AGENDA","DATA"])),
-              hora_agenda: normalizarHoraPlanilha(get(row, ["Hora agenda","HORA AGENDA","HORA"])),
-              transportadora: String(get(row, ["Nome agente de frete","Transportadora","TRANSPORTADOR","TRANSPORTADORA"]) || "").trim() || null,
-              cliente: String(get(row, ["Nome do emissor da ordem","Cliente","CLIENTE"]) || "").trim() || null,
-              tipo_carga: String(get(row, ["Tipo de carga","TPCARGA"]) || "").trim() || null,
-              tipo_veiculo: String(get(row, ["Tipo de veículo","Tipo de veiculo","TPCARRO","TIPO VEICULO"]) || "").trim() || null,
-              tipo_frete: String(get(row, ["Tipo de frete","TPFRETE"]) || "").trim() || null,
-              perfil_carga: String(get(row, ["Perfil de carregamento","PERFILCARGA"]) || "").trim() || null,
-              doca_agenda: String(get(row, ["Doca agenda","DOCA"]) || "").trim() || null,
-              peso: numPlanilha(get(row, ["Peso total","PESO"])),
-              cubagem: numPlanilha(get(row, ["Volume","CUBAGEM"])),
-              tonelagem: numPlanilha(get(row, ["Tonelagem","TON"])),
-              total_caixas: numPlanilha(get(row, ["Qtd.remessa","Qtd remessa","TOTAL","TOTAL CAIXAS"])),
-              he: numPlanilha(get(row, ["HE"])),
-              ho: numPlanilha(get(row, ["HO","PalletsHO","PALLETSHO"])),
-              status_global: "Agendado"
-            };
-
-            registrosImportacao.push(registro);
-          }
-        }
-
-        const mapa = new Map();
-        for(const item of registrosImportacao){
-          mapa.set(item.dt, item);
-        }
-
-        const registrosUnicos = Array.from(mapa.values()).filter(r => r.dt);
-
-        if(!registrosUnicos.length){
+        if(!resultado.registrosUnicos.length){
+          document.getElementById("previewBox").style.display = "none";
           status.textContent = "Nenhuma linha válida encontrada no arquivo.";
           return alert("Nenhuma linha válida encontrada no Excel.");
         }
 
+        renderPreviewImportacao(resultado);
+        status.textContent = `${resultado.registrosUnicos.length} registros prontos para importação.`;
+      }catch(err){
+        console.error(err);
+        status.textContent = "Erro ao ler o arquivo.";
+        alert("Erro ao processar o Excel.");
+      }
+    }
+
+    async function importarExcel(){
+      if(usuarioPerfil !== "admin") return alert("Apenas admin pode importar a agenda.");
+
+      const input = document.getElementById("fileInput");
+      const status = document.getElementById("statusUpload");
+      if(!input.files?.length) return alert("Selecione um arquivo Excel.");
+
+      status.textContent = "Lendo arquivo...";
+
+      try{
+        const resultado = await parseAgendaExcel(input.files[0]);
+        const registrosUnicos = resultado.registrosUnicos || [];
+
+        if(!registrosUnicos.length){
+          document.getElementById("previewBox").style.display = "none";
+          status.textContent = "Nenhuma linha válida encontrada no arquivo.";
+          return alert("Nenhuma linha válida encontrada no Excel.");
+        }
+
+        renderPreviewImportacao(resultado);
         status.textContent = `Importando ${registrosUnicos.length} registros...`;
 
         const { error } = await sb.from("agendas").upsert(registrosUnicos, { onConflict:"dt" });
