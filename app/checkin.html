@@ -389,6 +389,63 @@ button:disabled{
 }
 
 
+
+.queue-card{
+  margin-top:14px;
+  border:1px solid rgba(34,197,94,.20);
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(34,197,94,.10), rgba(22,163,74,.04));
+  padding:16px;
+  display:none;
+}
+
+.queue-card.show{
+  display:block;
+}
+
+.queue-title{
+  margin:0 0 12px;
+  font-size:14px;
+}
+
+.queue-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.queue-kpi{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  background:rgba(255,255,255,.04);
+  padding:14px;
+}
+
+.queue-kpi label{
+  display:block;
+  margin-bottom:8px;
+  font-size:11px;
+  color:var(--muted);
+  font-weight:800;
+}
+
+.queue-kpi strong{
+  font-size:24px;
+  line-height:1;
+}
+
+.queue-helper{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
+}
+
+@media (max-width:640px){
+  .queue-grid{
+    grid-template-columns:1fr;
+  }
+}
 .summary-card{
   margin-top:14px;
   border:1px solid rgba(59,130,246,.18);
@@ -662,7 +719,7 @@ button:disabled{
 
       <div id="msg"></div>
 
-      <div class="footer-note">Gestão Logística Plus • Check-in de Motoristas</div>
+      <div class="footer-note">Check-in de Motoristas</div>
       <div class="copyright">© 2026 Gestão Logística Plus. Todos os direitos reservados.</div>
     </section>
   </div>
@@ -676,6 +733,61 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const STATUS_BLOQUEADOS_CHECKIN = ["No Pátio","Em Doca","Em Carregamento","Expedido"];
 let agendaSelecionada = null;
+const TEMPO_MEDIO_POR_VEICULO_MIN = 20;
+
+function formatarTempoEspera(minutos){
+  if(minutos <= 0) return "Sem espera";
+  const horas = Math.floor(minutos / 60);
+  const mins = minutos % 60;
+  if(horas > 0 && mins > 0) return `${horas}h ${mins}min`;
+  if(horas > 0) return `${horas}h`;
+  return `${mins}min`;
+}
+
+function mostrarFila(posicao, minutos, info){
+  document.getElementById("q_posicao").textContent = posicao ? `${posicao}º` : "-";
+  document.getElementById("q_tempo").textContent = formatarTempoEspera(minutos || 0);
+  document.getElementById("q_info").textContent = info || "A estimativa considera os veículos já registrados no pátio antes deste check-in.";
+  document.getElementById("queueCard").classList.add("show");
+}
+
+function limparFila(){
+  document.getElementById("q_posicao").textContent = "-";
+  document.getElementById("q_tempo").textContent = "-";
+  document.getElementById("q_info").textContent = "A estimativa considera os veículos já registrados no pátio antes deste check-in.";
+  document.getElementById("queueCard").classList.remove("show");
+}
+
+async function calcularFilaEstimada(agenda, incluirAtual = false){
+  const { data, error } = await sb
+    .from("agendas")
+    .select("id, dt, status_global, chegada_motorista, data_agenda")
+    .eq("status_global", "No Pátio")
+    .not("chegada_motorista", "is", null)
+    .order("chegada_motorista", { ascending: true });
+
+  if(error){
+    console.error("Erro ao calcular fila:", error);
+    return { posicao: null, minutos: 0, info: "Não foi possível calcular a fila neste momento." };
+  }
+
+  const baseData = agenda?.data_agenda || null;
+  let filas = (data || []).filter(item => item.id !== agenda?.id);
+
+  if(baseData){
+    filas = filas.filter(item => item.data_agenda === baseData);
+  }
+
+  const veiculosNaFrente = filas.length;
+  const posicao = incluirAtual ? veiculosNaFrente + 1 : (veiculosNaFrente > 0 ? veiculosNaFrente : 0);
+  const minutos = veiculosNaFrente * TEMPO_MEDIO_POR_VEICULO_MIN;
+
+  const info = incluirAtual
+    ? `Estimativa baseada em ${veiculosNaFrente} veículo(s) já aguardando no pátio.`
+    : `Há ${veiculosNaFrente} veículo(s) aguardando no pátio neste momento.`;
+
+  return { posicao, minutos, info, veiculosNaFrente };
+}
 
 function fmtDateBr(v){
   if(!v) return "-";
@@ -700,6 +812,7 @@ function limparResumoDT(){
   agendaSelecionada = null;
   document.getElementById("dtSummary").classList.remove("show");
   document.getElementById("transportadora").value = "";
+  limparFila();
   const btn = document.getElementById("btnCheckin");
   btn.disabled = true;
 }
@@ -734,6 +847,9 @@ async function buscarDT(){
     agendaSelecionada = agenda;
     preencherResumoDT(agenda);
     document.getElementById("transportadora").value = agenda.transportadora || "";
+
+    const fila = await calcularFilaEstimada(agenda, true);
+    mostrarFila(fila.posicao, fila.minutos, fila.info);
 
     if(STATUS_BLOQUEADOS_CHECKIN.includes(agenda.status_global)){
       document.getElementById("btnCheckin").disabled = true;
@@ -904,12 +1020,21 @@ async function fazerCheckin(){
       return;
     }
 
+    const filaAtualizada = await calcularFilaEstimada(agendaSelecionada, false);
+    const posicaoFinal = filaAtualizada.veiculosNaFrente + 1;
+    const tempoFinal = filaAtualizada.veiculosNaFrente * TEMPO_MEDIO_POR_VEICULO_MIN;
+
+    mostrarFila(
+      posicaoFinal,
+      tempoFinal,
+      `Sua posição foi estimada com base nos veículos já aguardando no pátio antes do seu check-in.`
+    );
+
     const msgExtra = placas.length > 2
       ? " As placas extras foram registradas em observação geral."
       : "";
 
-    mostrarSucesso("Check-in realizado com sucesso 🚛" + msgExtra);
-    limparCampos();
+    mostrarSucesso(`Check-in realizado com sucesso 🚛 Número na fila: ${posicaoFinal}º. Tempo estimado: ${formatarTempoEspera(tempoFinal)}.` + msgExtra);
   }catch(err){
     console.error(err);
     mostrarErro("Ocorreu um erro inesperado ao processar o check-in.");
