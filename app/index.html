@@ -298,16 +298,52 @@
       gap:16px;
       flex-wrap:wrap;
       margin-bottom:18px;
-      padding:18px 20px;
-      border:1px solid var(--line);
-      border-radius:24px;
-      background:linear-gradient(180deg, rgba(17,28,47,.82), rgba(13,23,39,.74));
-      backdrop-filter:blur(18px);
-      box-shadow:var(--shadow);
+      padding:22px 24px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:28px;
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,.14), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(6,182,212,.08), transparent 26%),
+        linear-gradient(180deg, rgba(17,28,47,.88), rgba(13,23,39,.76));
+      backdrop-filter:blur(20px);
+      box-shadow:0 24px 60px rgba(0,0,0,.28);
+      position:relative;
+      overflow:hidden;
     }
-    .title h1{margin:0;font-size:34px}
-    .title p{margin:8px 0 0;color:var(--muted)}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+
+    .topbar::after{
+      content:"";
+      position:absolute;
+      inset:auto -80px -80px auto;
+      width:220px;
+      height:220px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(34,197,94,.10), transparent 70%);
+      pointer-events:none;
+    }
+    .title h1{
+      margin:0;
+      font-size:36px;
+      line-height:1.05;
+      letter-spacing:-.02em;
+    }
+    .title p{
+      margin:10px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+      max-width:720px;
+    }
+    .actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:end;
+      padding:12px 14px;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+    }
 
     .card{
       background:linear-gradient(180deg,rgba(17,28,47,.90),rgba(13,23,39,.84));
@@ -323,10 +359,29 @@
     .grid-3{grid-template-columns:repeat(3,1fr)}
     .grid-4{grid-template-columns:repeat(4,1fr)}
 
-    .kpi{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:18px;padding:16px}
-    .kpi .label{font-size:12px;color:var(--muted);margin-bottom:8px}
-    .kpi .value{font-size:30px;font-weight:900}
-    .kpi .sub{font-size:11px;color:var(--muted);margin-top:6px}
+    .kpi{
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.12), transparent 26%),
+        linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      padding:18px;
+      position:relative;
+      overflow:hidden;
+      box-shadow:0 18px 36px rgba(0,0,0,.18);
+    }
+    .kpi::before{
+      content:"";
+      position:absolute;
+      inset:0 auto 0 0;
+      width:4px;
+      border-radius:22px 0 0 22px;
+      background:linear-gradient(180deg,var(--blue),var(--cyan));
+      opacity:.9;
+    }
+    .kpi .label{font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
+    .kpi .value{font-size:34px;font-weight:900;line-height:1}
+    .kpi .sub{font-size:11px;color:var(--muted);margin-top:8px}
 
     h2{margin:0 0 14px;font-size:18px}
     h3{margin:0 0 10px;font-size:15px}
@@ -412,9 +467,105 @@
     .toast{position:fixed;right:20px;bottom:20px;background:#111827;border:1px solid rgba(255,255,255,.12);color:#fff;padding:12px 14px;border-radius:14px;box-shadow:var(--shadow);z-index:100;display:none;max-width:320px}
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:20px;z-index:200;backdrop-filter:blur(4px)}
     .modal.show{display:flex}
-    .modal-content{width:min(1400px,100%);max-height:92vh;overflow:auto;background:linear-gradient(180deg,rgba(17,28,47,.98),rgba(13,23,39,.98));border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
-    .modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+    .modal-content{
+      width:min(1480px,100%);
+      max-height:94vh;
+      overflow:auto;
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.12), transparent 22%),
+        linear-gradient(180deg,rgba(17,28,47,.98),rgba(13,23,39,.98));
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:28px;
+      padding:22px;
+      box-shadow:0 28px 80px rgba(0,0,0,.42);
+    }
+    .modal-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+      margin-bottom:18px;
+      padding:14px 16px;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      position:sticky;
+      top:-22px;
+      z-index:5;
+      backdrop-filter:blur(16px);
+    }
 
+
+    .modal-section-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin:0 0 14px;
+    }
+
+    .modal-section-title h3{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.01em;
+    }
+
+    .modal-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(59,130,246,.12);
+      border:1px solid rgba(59,130,246,.20);
+      color:#dce9ff;
+      font-size:11px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .modal-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:16px;
+    }
+
+    .modal-card{
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.08), transparent 26%),
+        linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px;
+      padding:18px;
+      box-shadow:0 16px 30px rgba(0,0,0,.16);
+    }
+
+    .modal-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+      padding-top:16px;
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+
+    .topbar-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(59,130,246,.10);
+      border:1px solid rgba(59,130,246,.18);
+      color:#dce9ff;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+
+    @media (max-width:1400px){
+      .modal-grid{grid-template-columns:1fr}
+    }
     footer{text-align:center;margin-top:auto;padding:20px 0 6px;color:var(--muted);font-size:12px}
 
     canvas{max-width:100%}
@@ -498,8 +649,9 @@
     <main class="main">
       <div class="topbar">
         <div class="title">
+          <div class="topbar-badge">Gestão Logística Plus • Operação em tempo real</div>
           <h1 id="pageTitle">Dashboard</h1>
-          <p>Gestão integrada da agenda, operação e pátio.</p>
+          <p>Gestão integrada da agenda, pátio, expedição e docas, com visão operacional mais premium e leitura mais inteligente da operação.</p>
         </div>
         <div class="actions">
           <div>
@@ -786,12 +938,16 @@
           <h2 style="margin:0">Tela completa da DT</h2>
           <div id="dtModalSub" style="color:var(--muted);margin-top:6px"></div>
         </div>
+        <div id="dtModalStatusWrap"></div>
         <button class="btn btn-light" onclick="fecharDTModal()">Fechar</button>
       </div>
 
-      <div class="grid grid-3">
-        <div class="card" id="blocoInfo">
-          <h3>Informações gerais</h3>
+      <div class="modal-grid">
+        <div class="modal-card" id="blocoInfo">
+          <div class="modal-section-title">
+            <h3>Informações gerais</h3>
+            <span class="modal-pill">Base da operação</span>
+          </div>
           <div class="fields" style="grid-template-columns:repeat(2,1fr)">
             <div><label>DT</label><input id="m_dt" disabled></div>
             <div><label>Ordem</label><input id="m_ordem"></div>
@@ -820,8 +976,11 @@
           </div>
         </div>
 
-        <div class="card" id="blocoSeparacao">
-          <h3>Separação / Recebimento</h3>
+        <div class="modal-card" id="blocoSeparacao">
+          <div class="modal-section-title">
+            <h3>Separação / Recebimento</h3>
+            <span class="modal-pill">Operação interna</span>
+          </div>
           <div class="fields" style="grid-template-columns:repeat(2,1fr)">
             <div><label>Doca planejada</label><select id="m_doca_planejada"></select></div>
             <div><label>Tipo separação</label>
@@ -841,8 +1000,11 @@
           </div>
         </div>
 
-        <div class="card" id="blocoExpedicao">
-          <h3>Expedição / Pátio</h3>
+        <div class="modal-card" id="blocoExpedicao">
+          <div class="modal-section-title">
+            <h3>Expedição / Pátio</h3>
+            <span class="modal-pill">Movimentação e saída</span>
+          </div>
           <div class="fields" style="grid-template-columns:repeat(2,1fr)">
             <div><label>Conferente expedição</label><select id="m_conf_expedicao"></select></div>
             <div><label>Faturado</label>
@@ -872,7 +1034,7 @@
         </div>
       </div>
 
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+      <div class="modal-actions">
         <button class="btn btn-success" onclick="salvarDTModal()">Salvar DT</button>
         <button class="btn btn-light" onclick="fecharDTModal()">Fechar</button>
       </div>
@@ -1450,6 +1612,10 @@
       if(!row){ alert("DT não encontrada."); return; }
       dtAtual = row;
       document.getElementById("dtModalSub").textContent = `DT ${row.dt || "-"} • ${row.transportadora || "-"} • ${row.cliente || "-"}`;
+      const statusWrap = document.getElementById("dtModalStatusWrap");
+      if(statusWrap){
+        statusWrap.innerHTML = `<span class="chip ${clsStatus(row.status_global)}">${esc(row.status_global || "Sem status")}</span>`;
+      }
       const set = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? ""; };
       set("m_dt", row.dt);
       set("m_ordem", row.ordem);
