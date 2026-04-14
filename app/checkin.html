@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Check-in Motorista | Gestão Logística Plus</title>
+<link rel="icon" type="image/png" href="logo.png">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -106,17 +107,22 @@ body{
   margin-bottom:28px;
 }
 
-.brand-badge{
-  width:58px;
-  height:58px;
+.brand-logo-wrap{
+  width:64px;
+  height:64px;
   border-radius:18px;
-  display:grid;
-  place-items:center;
-  font-size:24px;
-  font-weight:900;
-  color:#fff;
-  background:linear-gradient(135deg,var(--blue),#06b6d4);
-  box-shadow:0 14px 34px rgba(59,130,246,.28);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 14px 34px rgba(59,130,246,.20);
+  padding:8px;
+}
+
+.brand-logo{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
 }
 
 .brand-copy small{
@@ -457,38 +463,40 @@ button:disabled{
   <div class="shell">
     <section class="hero">
       <div class="brand">
-        <div class="brand-badge">GL+</div>
+        <div class="brand-logo-wrap">
+          <img src="logo.png" alt="Gestão Logística Plus" class="brand-logo">
+        </div>
         <div class="brand-copy">
           <small>Gestão Logística Plus</small>
           <strong>Check-in integrado à operação</strong>
         </div>
       </div>
 
-      <h1>Entrada rápida, visual mais premium e fluxo mais claro.</h1>
-      <p>Registre a chegada do motorista com mais organização, mantendo o mesmo padrão visual da plataforma e melhorando a experiência na portaria.</p>
+      <h1>Bem-vindo ao check-in do motorista.</h1>
+      <p>Preencha suas informações com atenção para registrar sua chegada no pátio. Este processo ajuda a agilizar o atendimento, a liberação e o direcionamento correto da sua operação.</p>
 
       <div class="hero-grid">
         <div class="mini-card">
-          <strong>Mais clareza</strong>
-          <span>Campos organizados, identificação visual e leitura mais rápida para uso operacional.</span>
+          <strong>Antes de começar</strong>
+          <span>Tenha em mãos o número da DT, seu nome, a transportadora e as placas do veículo ou conjunto.</span>
         </div>
         <div class="mini-card">
-          <strong>Mesmo padrão</strong>
-          <span>Visual alinhado com a página de entrada, com fundo escuro, brilho suave e cards premium.</span>
+          <strong>Preenchimento correto</strong>
+          <span>Informe os dados exatamente como cadastrados para evitar erro na localização da carga e no registro do check-in.</span>
         </div>
         <div class="mini-card">
-          <strong>Fluxo objetivo</strong>
-          <span>Seleção do veículo, placas e confirmação em uma sequência simples e intuitiva.</span>
+          <strong>Orientação ao motorista</strong>
+          <span>Selecione o tipo de veículo correto e preencha todas as placas do conjunto conforme solicitado na tela.</span>
         </div>
         <div class="mini-card">
-          <strong>Pronto para uso</strong>
-          <span>Layout responsivo, mensagens mais elegantes e mesma lógica de check-in já usada no sistema.</span>
+          <strong>Após o envio</strong>
+          <span>Depois de concluir, aguarde a confirmação do sistema e siga as orientações da portaria ou da equipe operacional.</span>
         </div>
       </div>
 
       <div class="flow">
-        <strong>Fluxo operacional</strong>
-        <span>Identificação da DT → Dados do motorista → Tipo de veículo → Placas → Check-in concluído</span>
+        <strong>Como funciona</strong>
+        <span>Informe a DT → Preencha seus dados → Selecione o veículo → Digite as placas → Conclua o check-in</span>
       </div>
     </section>
 
