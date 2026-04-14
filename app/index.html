@@ -265,12 +265,44 @@
 
     .menu{display:flex;flex-direction:column;gap:10px}
     .menu button{
-      border:none;background:#13233a;color:var(--text);padding:13px 14px;border-radius:14px;text-align:left;
-      font-weight:800;cursor:pointer;border:1px solid transparent;
+      border:none;
+      background:linear-gradient(180deg,rgba(19,35,58,.92),rgba(15,28,46,.84));
+      color:var(--text);
+      padding:13px 14px;
+      border-radius:16px;
+      text-align:left;
+      font-weight:800;
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.06);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      position:relative;
+      overflow:hidden;
+    }
+    .menu button::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, rgba(59,130,246,.12), transparent 45%);
+      opacity:0;
+      transition:.2s;
+      pointer-events:none;
     }
     .menu button:hover,.menu button.active{
-      background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;transform:translateX(2px);
+      background:linear-gradient(135deg,#1d4ed8,#2563eb);
+      color:#fff;
+      transform:translateX(2px);
       border-color:rgba(255,255,255,.12);
+      box-shadow:0 14px 28px rgba(37,99,235,.18);
+    }
+    .menu button:hover::after,.menu button.active::after{opacity:1}
+    .menu-icon{
+      width:18px;
+      display:inline-flex;
+      justify-content:center;
+      font-size:15px;
+      flex-shrink:0;
     }
 
     .sidebar-note{
@@ -362,22 +394,41 @@
     .kpi{
       background:
         radial-gradient(circle at top right, rgba(59,130,246,.12), transparent 26%),
-        linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));
+        linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
       border:1px solid rgba(255,255,255,.10);
       border-radius:22px;
       padding:18px;
       position:relative;
       overflow:hidden;
       box-shadow:0 18px 36px rgba(0,0,0,.18);
+      min-height:124px;
     }
     .kpi::before{
       content:"";
       position:absolute;
       inset:0 auto 0 0;
-      width:4px;
+      width:5px;
       border-radius:22px 0 0 22px;
       background:linear-gradient(180deg,var(--blue),var(--cyan));
       opacity:.9;
+    }
+    .kpi.status-green::before{background:linear-gradient(180deg,#22c55e,#16a34a)}
+    .kpi.status-orange::before{background:linear-gradient(180deg,#f59e0b,#f97316)}
+    .kpi.status-red::before{background:linear-gradient(180deg,#ef4444,#dc2626)}
+    .kpi.status-purple::before{background:linear-gradient(180deg,#8b5cf6,#7c3aed)}
+    .kpi.status-cyan::before{background:linear-gradient(180deg,#06b6d4,#0891b2)}
+    .kpi.status-gray::before{background:linear-gradient(180deg,#64748b,#475569)}
+    .kpi-icon{
+      width:36px;
+      height:36px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      margin-bottom:10px;
+      font-size:16px;
     }
     .kpi .label{font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
     .kpi .value{font-size:34px;font-weight:900;line-height:1}
@@ -540,6 +591,97 @@
       box-shadow:0 16px 30px rgba(0,0,0,.16);
     }
 
+    .modal-summary{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-bottom:16px;
+    }
+
+    .modal-summary-card{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.10), transparent 26%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      padding:14px;
+      min-height:94px;
+    }
+
+    .modal-summary-card span{
+      display:block;
+      font-size:11px;
+      color:var(--muted);
+      margin-bottom:8px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      font-weight:800;
+    }
+
+    .modal-summary-card strong{
+      display:block;
+      font-size:18px;
+      line-height:1.2;
+    }
+
+    .report-hero{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:16px;
+      margin-bottom:16px;
+    }
+
+    .report-hero-card{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px;
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.12), transparent 24%),
+        linear-gradient(180deg, rgba(17,28,47,.90), rgba(13,23,39,.82));
+      padding:20px;
+      box-shadow:0 16px 34px rgba(0,0,0,.16);
+    }
+
+    .report-hero-card h3{
+      margin:0 0 8px;
+      font-size:18px;
+    }
+
+    .report-hero-card p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+
+    .report-mini-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+      margin-top:16px;
+    }
+
+    .report-mini{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      padding:14px;
+    }
+
+    .report-mini span{
+      display:block;
+      color:var(--muted);
+      font-size:11px;
+      margin-bottom:8px;
+      text-transform:uppercase;
+      font-weight:800;
+      letter-spacing:.04em;
+    }
+
+    .report-mini strong{
+      font-size:22px;
+      line-height:1;
+    }
+
     .modal-actions{
       display:flex;
       gap:10px;
@@ -565,6 +707,8 @@
 
     @media (max-width:1400px){
       .modal-grid{grid-template-columns:1fr}
+      .modal-summary{grid-template-columns:repeat(2,1fr)}
+      .report-hero{grid-template-columns:1fr}
     }
     footer{text-align:center;margin-top:auto;padding:20px 0 6px;color:var(--muted);font-size:12px}
 
@@ -625,7 +769,7 @@
       </div>
 
       <div class="menu">
-        <button id="menu-dashboard" data-short="Dash" class="active" onclick="setView('dashboard', this)"><span class="menu-text">Dashboard</span></button>
+        <button id="menu-dashboard" data-short="Dash" class="active" onclick="setView('dashboard', this)"><span class="menu-icon">📊</span><span class="menu-icon">🗓️</span><span class="menu-icon">📦</span><span class="menu-icon">🚚</span><span class="menu-icon">🏁</span><span class="menu-icon">👤</span><span class="menu-icon">🏢</span><span class="menu-icon">🚪</span><span class="menu-icon">✅</span><span class="menu-icon">📈</span><span class="menu-icon">⚙️</span><span class="menu-icon">🗓️</span><span class="menu-icon">📦</span><span class="menu-icon">🚚</span><span class="menu-icon">🏁</span><span class="menu-icon">👤</span><span class="menu-icon">🏢</span><span class="menu-icon">🚪</span><span class="menu-icon">✅</span><span class="menu-icon">📈</span><span class="menu-icon">⚙️</span><span class="menu-text">Dashboard</span></button>
         <button id="menu-agenda" data-short="Ag" onclick="setView('agenda', this)"><span class="menu-text">Agenda</span></button>
         <button id="menu-separacao" data-short="Sep" onclick="setView('separacao', this)"><span class="menu-text">Separação</span></button>
         <button id="menu-expedicao" data-short="Exp" onclick="setView('expedicao', this)"><span class="menu-text">Expedição</span></button>
@@ -836,17 +980,40 @@
       </section>
 
       <section id="view-relatorios" class="hidden">
+        <div class="report-hero">
+          <div class="report-hero-card">
+            <h3>Central de resultados operacionais</h3>
+            <p>Visual moderno para acompanhar volume, produtividade e comportamento da operação ao longo do dia, com leitura mais executiva e foco em decisão.</p>
+            <div class="report-mini-grid">
+              <div class="report-mini">
+                <span>Filtro aplicado</span>
+                <strong id="relatorioDataRef">Todos</strong>
+              </div>
+              <div class="report-mini">
+                <span>Status expedido</span>
+                <strong id="relatorioExpedidoRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="report-hero-card">
+            <h3>Leitura rápida</h3>
+            <p>Os indicadores abaixo destacam caixas, picking, pallets e peso total, enquanto os gráficos mostram a distribuição por turno em um formato mais premium.</p>
+          </div>
+        </div>
+
         <div class="card">
           <h2>Resultados gerais</h2>
           <div class="grid grid-4" id="relatorioResumo"></div>
         </div>
-        <div class="card" style="margin-top:16px">
-          <h2>Separação HE</h2>
-          <canvas id="graficoHE" height="120"></canvas>
-        </div>
-        <div class="card" style="margin-top:16px">
-          <h2>Separação HO</h2>
-          <canvas id="graficoHO" height="120"></canvas>
+        <div class="grid grid-2" style="margin-top:16px">
+          <div class="card">
+            <h2>Separação HE</h2>
+            <canvas id="graficoHE" height="120"></canvas>
+          </div>
+          <div class="card">
+            <h2>Separação HO</h2>
+            <canvas id="graficoHO" height="120"></canvas>
+          </div>
         </div>
       </section>
 
@@ -940,6 +1107,25 @@
         </div>
         <div id="dtModalStatusWrap"></div>
         <button class="btn btn-light" onclick="fecharDTModal()">Fechar</button>
+      </div>
+
+      <div class="modal-summary" id="dtResumoExecutivo">
+        <div class="modal-summary-card">
+          <span>DT</span>
+          <strong id="resumo_dt">-</strong>
+        </div>
+        <div class="modal-summary-card">
+          <span>Status</span>
+          <strong id="resumo_status">-</strong>
+        </div>
+        <div class="modal-summary-card">
+          <span>Transportadora</span>
+          <strong id="resumo_transportadora">-</strong>
+        </div>
+        <div class="modal-summary-card">
+          <span>Doca / Janela</span>
+          <strong id="resumo_doca">-</strong>
+        </div>
       </div>
 
       <div class="modal-grid">
@@ -1398,15 +1584,23 @@
 
     function renderDashboard(){
       const rows = linhasFiltradas();
-      document.getElementById("dashboardKpis").innerHTML = `
-        <div class="kpi"><div class="label">Agendadas</div><div class="value">${rows.filter(x=>x.status_global==="Agendado").length}</div><div class="sub">planejamento</div></div>
-        <div class="kpi"><div class="label">Em separação</div><div class="value">${rows.filter(x=>x.status_global==="Em Separação").length}</div><div class="sub">andamento</div></div>
-        <div class="kpi"><div class="label">Separadas</div><div class="value">${rows.filter(x=>x.status_global==="Separado").length}</div><div class="sub">prontas</div></div>
-        <div class="kpi"><div class="label">No pátio</div><div class="value">${rows.filter(x=>x.status_global==="No Pátio").length}</div><div class="sub">chegadas</div></div>
-        <div class="kpi"><div class="label">Em doca</div><div class="value">${rows.filter(x=>x.status_global==="Em Doca").length}</div><div class="sub">ocupação</div></div>
-        <div class="kpi"><div class="label">Carregando</div><div class="value">${rows.filter(x=>x.status_global==="Em Carregamento").length}</div><div class="sub">execução</div></div>
-        <div class="kpi"><div class="label">Expedidas</div><div class="value">${rows.filter(x=>x.status_global==="Expedido").length}</div><div class="sub">concluídas</div></div>
-        <div class="kpi"><div class="label">Atrasadas</div><div class="value">${rows.filter(x=>calcSla(x).label==="Atrasado").length}</div><div class="sub">SLA</div></div>`;
+      const cards = [
+        { label:"Agendadas", value: rows.filter(x=>x.status_global==="Agendado").length, sub:"planejamento", cls:"status-gray", icon:"🗓️" },
+        { label:"Em separação", value: rows.filter(x=>x.status_global==="Em Separação").length, sub:"andamento", cls:"status-orange", icon:"📦" },
+        { label:"Separadas", value: rows.filter(x=>x.status_global==="Separado").length, sub:"prontas", cls:"status-green", icon:"✅" },
+        { label:"No pátio", value: rows.filter(x=>x.status_global==="No Pátio").length, sub:"chegadas", cls:"status-blue", icon:"🏁" },
+        { label:"Em doca", value: rows.filter(x=>x.status_global==="Em Doca").length, sub:"ocupação", cls:"status-purple", icon:"🚪" },
+        { label:"Carregando", value: rows.filter(x=>x.status_global==="Em Carregamento").length, sub:"execução", cls:"status-cyan", icon:"🚚" },
+        { label:"Expedidas", value: rows.filter(x=>x.status_global==="Expedido").length, sub:"concluídas", cls:"status-green", icon:"📤" },
+        { label:"Atrasadas", value: rows.filter(x=>calcSla(x).label==="Atrasado").length, sub:"SLA", cls:"status-red", icon:"⏱️" }
+      ];
+      document.getElementById("dashboardKpis").innerHTML = cards.map(k => `
+        <div class="kpi ${k.cls}">
+          <div class="kpi-icon">${k.icon}</div>
+          <div class="label">${k.label}</div>
+          <div class="value">${k.value}</div>
+          <div class="sub">${k.sub}</div>
+        </div>`).join("");
       document.getElementById("dashboardBoard").innerHTML = STAGES.map(st => {
         const itens = rows.filter(r => r.status_global === st);
         return `<div class="lane" data-status="${esc(st)}">
@@ -1501,18 +1695,57 @@
 
     function renderRelatorios(){
       const rows = linhasFiltradas();
-      document.getElementById("relatorioResumo").innerHTML = `
-        <div class="kpi"><div class="label">Total Caixas</div><div class="value">${rows.reduce((a,b)=>a+(b.total_caixas||0),0)}</div></div>
-        <div class="kpi"><div class="label">Picking (HE)</div><div class="value">${rows.reduce((a,b)=>a+(b.he||0),0)}</div></div>
-        <div class="kpi"><div class="label">Paletes (HO)</div><div class="value">${rows.reduce((a,b)=>a+(b.ho||0),0)}</div></div>
-        <div class="kpi"><div class="label">Peso</div><div class="value">${rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0)}</div></div>`;
+      const dataRef = dataFiltrada() ? fmtDate(dataFiltrada()) : "Todos";
+      document.getElementById("relatorioDataRef").textContent = dataRef;
+      document.getElementById("relatorioExpedidoRef").textContent = rows.filter(x => x.status_global === "Expedido").length;
+
+      const cards = [
+        { label:"Total Caixas", value: rows.reduce((a,b)=>a+(b.total_caixas||0),0), cls:"status-blue", icon:"📦" },
+        { label:"Picking (HE)", value: rows.reduce((a,b)=>a+(b.he||0),0), cls:"status-orange", icon:"🧮" },
+        { label:"Paletes (HO)", value: rows.reduce((a,b)=>a+(b.ho||0),0), cls:"status-purple", icon:"🪵" },
+        { label:"Peso", value: rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0), cls:"status-cyan", icon:"⚖️" }
+      ];
+
+      document.getElementById("relatorioResumo").innerHTML = cards.map(k => `
+        <div class="kpi ${k.cls}">
+          <div class="kpi-icon">${k.icon}</div>
+          <div class="label">${k.label}</div>
+          <div class="value">${k.value}</div>
+          <div class="sub">indicador consolidado</div>
+        </div>`).join("");
+
       const turnos = ["T1","T2","T3","Sem turno"];
       const heData = turnos.map(t => rows.filter(r => (t === "Sem turno" ? !r.turno_separacao : r.turno_separacao === t)).reduce((a,b)=>a+(b.he||0),0));
       const hoData = turnos.map(t => rows.filter(r => (t === "Sem turno" ? !r.turno_separacao : r.turno_separacao === t)).reduce((a,b)=>a+(b.ho||0),0));
+
       if(chartHE) chartHE.destroy();
       if(chartHO) chartHO.destroy();
-      chartHE = new Chart(document.getElementById("graficoHE"), { type:"bar", data:{ labels:turnos, datasets:[{ label:"HE", data:heData }] }, options:{ responsive:true, plugins:{ legend:{ labels:{ color:'#eef4ff' } } }, scales:{ x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }, y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } } } } });
-      chartHO = new Chart(document.getElementById("graficoHO"), { type:"bar", data:{ labels:turnos, datasets:[{ label:"HO", data:hoData }] }, options:{ responsive:true, plugins:{ legend:{ labels:{ color:'#eef4ff' } } }, scales:{ x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }, y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } } } } });
+
+      chartHE = new Chart(document.getElementById("graficoHE"), {
+        type:"bar",
+        data:{ labels:turnos, datasets:[{ label:"HE", data:heData, borderRadius:8 }] },
+        options:{
+          responsive:true,
+          plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
+          scales:{
+            x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } },
+            y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }
+          }
+        }
+      });
+
+      chartHO = new Chart(document.getElementById("graficoHO"), {
+        type:"bar",
+        data:{ labels:turnos, datasets:[{ label:"HO", data:hoData, borderRadius:8 }] },
+        options:{
+          responsive:true,
+          plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
+          scales:{
+            x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } },
+            y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }
+          }
+        }
+      });
     }
 
     function carregarSelectPatio(){
@@ -1616,6 +1849,16 @@
       if(statusWrap){
         statusWrap.innerHTML = `<span class="chip ${clsStatus(row.status_global)}">${esc(row.status_global || "Sem status")}</span>`;
       }
+      const resumo = {
+        dt: document.getElementById("resumo_dt"),
+        status: document.getElementById("resumo_status"),
+        transportadora: document.getElementById("resumo_transportadora"),
+        doca: document.getElementById("resumo_doca")
+      };
+      if(resumo.dt) resumo.dt.textContent = row.dt || "-";
+      if(resumo.status) resumo.status.textContent = row.status_global || "-";
+      if(resumo.transportadora) resumo.transportadora.textContent = row.transportadora || "-";
+      if(resumo.doca) resumo.doca.textContent = `${row.doca_carregamento || row.doca_agenda || row.doca_planejada || "-"} • ${row.hora_agenda || "Sem janela"}`;
       const set = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? ""; };
       set("m_dt", row.dt);
       set("m_ordem", row.ordem);
