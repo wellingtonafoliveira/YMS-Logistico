@@ -454,6 +454,8 @@
               <div><label>Motorista</label><input id="p_motorista"></div>
               <div><label>Placa cavalo</label><input id="p_placa_cavalo"></div>
               <div><label>Placa carreta</label><input id="p_placa_carreta"></div>
+              <div><label>Placa reboque 1</label><input id="p_placa_reboque_1"></div>
+              <div><label>Placa reboque 2</label><input id="p_placa_reboque_2"></div>
               <div><label>Presença</label>
                 <select id="p_presenca">
                   <option value="">Selecione</option>
@@ -488,6 +490,8 @@
             <div><label>Motorista</label><input id="c_motorista"></div>
             <div><label>Placa cavalo</label><input id="c_placa_cavalo"></div>
             <div><label>Placa carreta</label><input id="c_placa_carreta"></div>
+            <div><label>Placa reboque 1</label><input id="c_placa_reboque_1"></div>
+            <div><label>Placa reboque 2</label><input id="c_placa_reboque_2"></div>
             <div><label>Presença</label>
               <select id="c_presenca">
                 <option value="">Selecione</option>
@@ -505,7 +509,7 @@
             <table>
               <thead>
                 <tr>
-                  <th>DT</th><th>Transportadora</th><th>Motorista</th><th>Placa</th><th>Presença</th><th>Chegada</th><th>Status</th><th>Ações</th>
+                  <th>DT</th><th>Transportadora</th><th>Motorista</th><th>Placas</th><th>Presença</th><th>Chegada</th><th>Status</th><th>Ações</th>
                 </tr>
               </thead>
               <tbody id="checkinTabela"></tbody>
@@ -665,6 +669,8 @@
             <div><label>Motorista</label><input id="m_motorista"></div>
             <div><label>Placa cavalo</label><input id="m_placa_cavalo"></div>
             <div><label>Placa carreta</label><input id="m_placa_carreta"></div>
+            <div><label>Placa reboque 1</label><input id="m_placa_reboque_1"></div>
+            <div><label>Placa reboque 2</label><input id="m_placa_reboque_2"></div>
             <div><label>Presença</label>
               <select id="m_presente_ausente"><option value="">Selecione</option><option>Presente</option><option>Ausente</option><option>Atrasado</option></select>
             </div>
@@ -730,6 +736,12 @@
         .replaceAll(">","&gt;")
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#39;');
+    }
+
+    function formatPlacas(row){
+      return [row?.placa_cavalo, row?.placa_carreta, row?.placa_reboque_1, row?.placa_reboque_2]
+        .filter(Boolean)
+        .join(" / ");
     }
 
     function fmtDate(v){
@@ -1084,7 +1096,7 @@
       document.getElementById("patioBoard").innerHTML = grupos.map(g => {
         const itens = rows.filter(r => r.status_global === g);
         return `<div class="lane"><div class="lane-head"><h3>${g}</h3><span class="count">${itens.length}</span></div>
-          ${itens.map(r => { const sla = calcSla(r); return `<div class="item" onclick="abrirDTPorId('${esc(r.id)}')"><strong>DT ${esc(r.dt || "-")}</strong><div class="meta">${esc(r.transportadora || "-")}<br>Motorista: ${esc(r.motorista || "-")}<br>Placa: ${esc(r.placa_cavalo || "-")}<br>Doca: ${esc(r.doca_carregamento || r.doca_agenda || "-")}<br><span class="${sla.cls}">${sla.label}</span></div></div>`; }).join("") || `<div class="meta">Sem registros.</div>`}
+          ${itens.map(r => { const sla = calcSla(r); return `<div class="item" onclick="abrirDTPorId('${esc(r.id)}')"><strong>DT ${esc(r.dt || "-")}</strong><div class="meta">${esc(r.transportadora || "-")}<br>Motorista: ${esc(r.motorista || "-")}<br>Placas: ${esc(formatPlacas(r) || "-")}<br>Doca: ${esc(r.doca_carregamento || r.doca_agenda || "-")}<br><span class="${sla.cls}">${sla.label}</span></div></div>`; }).join("") || `<div class="meta">Sem registros.</div>`}
         </div>`;
       }).join("");
     }
@@ -1098,7 +1110,7 @@
           return `<div class="dock free"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">Livre</span></div><div class="meta">Sem veículo na doca.</div></div>`;
         }
         const sla = calcSla(atual);
-        return `<div class="dock busy" onclick="abrirDTPorId('${esc(atual.id)}')"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">${esc(atual.status_global)}</span></div><div class="meta">DT: ${esc(atual.dt || "-")}<br>Transportadora: ${esc(atual.transportadora || "-")}<br>Motorista: ${esc(atual.motorista || "-")}<br>Placa: ${esc(atual.placa_cavalo || "-")}<br>Início: ${fmtDateTime(atual.inicio_carregamento)}<br><span class="${sla.cls}">${sla.label}</span></div></div>`;
+        return `<div class="dock busy" onclick="abrirDTPorId('${esc(atual.id)}')"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">${esc(atual.status_global)}</span></div><div class="meta">DT: ${esc(atual.dt || "-")}<br>Transportadora: ${esc(atual.transportadora || "-")}<br>Motorista: ${esc(atual.motorista || "-")}<br>Placas: ${esc(formatPlacas(atual) || "-")}<br>Início: ${fmtDateTime(atual.inicio_carregamento)}<br><span class="${sla.cls}">${sla.label}</span></div></div>`;
       }).join("");
     }
 
@@ -1109,7 +1121,7 @@
           <td>${esc(r.dt)}</td>
           <td>${esc(r.transportadora)}</td>
           <td>${esc(r.motorista)}</td>
-          <td>${esc(r.placa_cavalo || r.placa_carreta)}</td>
+          <td>${esc(formatPlacas(r) || "-")}</td>
           <td>${esc(r.presente_ausente)}</td>
           <td>${fmtDateTime(r.chegada_motorista)}</td>
           <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span></td>
@@ -1150,6 +1162,8 @@
       document.getElementById("p_motorista").value = r?.motorista || "";
       document.getElementById("p_placa_cavalo").value = r?.placa_cavalo || "";
       document.getElementById("p_placa_carreta").value = r?.placa_carreta || "";
+      document.getElementById("p_placa_reboque_1").value = r?.placa_reboque_1 || "";
+      document.getElementById("p_placa_reboque_2").value = r?.placa_reboque_2 || "";
       document.getElementById("p_presenca").value = r?.presente_ausente || "";
     }
 
@@ -1162,6 +1176,8 @@
         motorista: document.getElementById("p_motorista").value.trim() || null,
         placa_cavalo: document.getElementById("p_placa_cavalo").value.trim() || null,
         placa_carreta: document.getElementById("p_placa_carreta").value.trim() || null,
+        placa_reboque_1: document.getElementById("p_placa_reboque_1").value.trim() || null,
+        placa_reboque_2: document.getElementById("p_placa_reboque_2").value.trim() || null,
         presente_ausente: document.getElementById("p_presenca").value || null
       };
       if(status === "No Pátio") payload.chegada_motorista = new Date().toISOString();
@@ -1181,6 +1197,8 @@
         motorista: document.getElementById("c_motorista").value.trim() || null,
         placa_cavalo: document.getElementById("c_placa_cavalo").value.trim() || null,
         placa_carreta: document.getElementById("c_placa_carreta").value.trim() || null,
+        placa_reboque_1: document.getElementById("c_placa_reboque_1").value.trim() || null,
+        placa_reboque_2: document.getElementById("c_placa_reboque_2").value.trim() || null,
         presente_ausente: document.getElementById("c_presenca").value || null,
         observacao_geral: document.getElementById("c_obs").value.trim() || null,
         chegada_motorista: new Date().toISOString(),
@@ -1267,6 +1285,8 @@
       set("m_motorista", row.motorista);
       set("m_placa_cavalo", row.placa_cavalo);
       set("m_placa_carreta", row.placa_carreta);
+      set("m_placa_reboque_1", row.placa_reboque_1);
+      set("m_placa_reboque_2", row.placa_reboque_2);
       set("m_presente_ausente", row.presente_ausente);
       set("m_chegada_motorista", toInputDateTime(row.chegada_motorista));
       set("m_doca_carregamento", row.doca_carregamento);
@@ -1328,6 +1348,8 @@
         motorista: document.getElementById("m_motorista").value.trim() || null,
         placa_cavalo: document.getElementById("m_placa_cavalo").value.trim() || null,
         placa_carreta: document.getElementById("m_placa_carreta").value.trim() || null,
+        placa_reboque_1: document.getElementById("m_placa_reboque_1").value.trim() || null,
+        placa_reboque_2: document.getElementById("m_placa_reboque_2").value.trim() || null,
         presente_ausente: document.getElementById("m_presente_ausente").value || null,
         chegada_motorista: document.getElementById("m_chegada_motorista").value || null,
         doca_carregamento: document.getElementById("m_doca_carregamento").value || null,
