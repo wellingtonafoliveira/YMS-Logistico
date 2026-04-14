@@ -631,7 +631,7 @@ button:disabled{
         </div>
         <div class="mini-card">
           <strong>Orientação ao motorista</strong>
-          <span>Selecione o tipo de veículo correto e preencha as placas do conjunto. No banco atual, o sistema grava diretamente placa_cavalo e placa_carreta.</span>
+          <span>Selecione o tipo de veículo correto e preencha as placas do conjunto. Nesta versão, o sistema grava placa_cavalo, placa_carreta, placa_reboque_1 e placa_reboque_2.</span>
         </div>
         <div class="mini-card">
           <strong>Após o envio</strong>
@@ -712,7 +712,7 @@ button:disabled{
       <div class="card">
         <h3 class="card-title">Placas do conjunto</h3>
         <div id="placas" class="plate-grid"></div>
-        <div class="helper">As placas são exibidas automaticamente conforme o tipo de veículo selecionado. No banco atual, as duas primeiras são gravadas em placa_cavalo e placa_carreta.</div>
+        <div class="helper">As placas são exibidas automaticamente conforme o tipo de veículo selecionado. Nesta versão, o sistema grava até 4 placas: cavalo, carreta, reboque 1 e reboque 2.</div>
       </div>
 
       <button id="btnCheckin" onclick="fazerCheckin()" disabled>Realizar Check-in</button>
@@ -987,32 +987,17 @@ async function fazerCheckin(){
       return;
     }
 
-    let observacaoGeral = agendaSelecionada.observacao_geral || "";
-
-    if(placas.length > 2){
-      const placasExtras = placas.slice(2).join(" / ");
-      const marcador = "CHECK-IN | Placas extras:";
-      const linhaExtra = `${marcador} ${placasExtras}`;
-
-      if(observacaoGeral.includes(marcador)){
-        observacaoGeral = observacaoGeral.replace(/CHECK-IN \| Placas extras:\s*.*/i, linhaExtra).trim();
-      } else {
-        observacaoGeral = observacaoGeral
-          ? `${observacaoGeral}\n${linhaExtra}`
-          : linhaExtra;
-      }
-    }
-
     const payload = {
       motorista: motorista,
       transportadora: transportadora || agendaSelecionada.transportadora || null,
       tipo_veiculo: tipo,
       placa_cavalo: placas[0] || null,
       placa_carreta: placas[1] || null,
+      placa_reboque_1: placas[2] || null,
+      placa_reboque_2: placas[3] || null,
       presente_ausente: "Presente",
       chegada_motorista: new Date().toISOString(),
-      status_global: "No Pátio",
-      observacao_geral: observacaoGeral || null
+      status_global: "No Pátio"
     };
 
     const { error } = await sb
@@ -1036,11 +1021,7 @@ async function fazerCheckin(){
       `Sua posição foi estimada com base nos veículos já aguardando no pátio antes do seu check-in.`
     );
 
-    const msgExtra = placas.length > 2
-      ? " As placas extras foram registradas em observação geral."
-      : "";
-
-    mostrarSucesso(`Check-in realizado com sucesso 🚛 Número na fila: ${posicaoFinal}º. Tempo estimado: ${formatarTempoEspera(tempoFinal)}.` + msgExtra);
+    mostrarSucesso(`Check-in realizado com sucesso 🚛 Número na fila: ${posicaoFinal}º. Tempo estimado: ${formatarTempoEspera(tempoFinal)}.`);
   }catch(err){
     console.error(err);
     mostrarErro("Ocorreu um erro inesperado ao processar o check-in.");
@@ -1054,161 +1035,7 @@ async function fazerCheckin(){
   }
 }
 
-
-function alterarTipo(){
-  let tipo = document.getElementById("tipoVeiculo").value;
-  const radioSelecionado = document.querySelector('input[name="tipoVeiculoRadio"]:checked');
-  if(!tipo && radioSelecionado){
-    tipo = radioSelecionado.value;
-    document.getElementById("tipoVeiculo").value = tipo;
-  }
-
-  const div = document.getElementById("placas");
-  const quantidade = VEHICLE_PLATES[tipo] || 0;
-
-  let html = "";
-
-  for(let i = 1; i <= quantidade; i++){
-    html += `
-      <div class="field">
-        <label for="placa${i}">Placa ${i}</label>
-        <input id="placa${i}" placeholder="Ex.: ABC1D23" maxlength="8" oninput="formatarPlaca(this)">
-      </div>
-    `;
-  }
-
-  div.innerHTML = html;
-}
-
-function formatarPlaca(input){
-  let valor = String(input.value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
-  if(valor.length > 8) valor = valor.slice(0, 8);
-  input.value = valor;
-}
-
-function limparMensagem(){
-  document.getElementById("msg").innerHTML = "";
-}
-
-function mostrarSucesso(msg){
-  document.getElementById("msg").innerHTML = `<div class="message success">${msg}</div>`;
-}
-
-function mostrarErro(msg){
-  document.getElementById("msg").innerHTML = `<div class="message error">${msg}</div>`;
-}
-
-function limparCampos(){
-  document.getElementById("dt").value = "";
-  document.getElementById("motorista").value = "";
-  document.getElementById("transportadora").value = "";
-  document.getElementById("tipoVeiculo").value = "";
-  document.getElementById("placas").innerHTML = "";
-  document.querySelectorAll('input[name="tipoVeiculoRadio"]').forEach(r => r.checked = false);
-  document.querySelectorAll(".vehicle-option").forEach(option => option.classList.remove("active"));
-}
-
-async function fazerCheckin(){
-  limparMensagem();
-
-  const btn = document.getElementById("btnCheckin");
-  btn.disabled = true;
-  btn.textContent = "Processando...";
-
-  try{
-    const dt = document.getElementById("dt").value.trim();
-    const motorista = document.getElementById("motorista").value.trim();
-    const transportadora = document.getElementById("transportadora").value.trim();
-    const tipo = document.getElementById("tipoVeiculo").value;
-
-    if(!dt || !motorista || !tipo){
-      mostrarErro("Preencha DT, nome do motorista e tipo de veículo.");
-      return;
-    }
-
-    const placas = [];
-    document.querySelectorAll("#placas input").forEach(input => {
-      const valor = input.value.trim().toUpperCase();
-      if(valor) placas.push(valor);
-    });
-
-    if(placas.length === 0){
-      mostrarErro("Informe pelo menos uma placa.");
-      return;
-    }
-
-    const quantidadeEsperada = VEHICLE_PLATES[tipo] || 0;
-    if(placas.length !== quantidadeEsperada){
-      mostrarErro(`Informe ${quantidadeEsperada} placa(s) para o tipo de veículo selecionado.`);
-      return;
-    }
-
-    const { data: agenda, error: erroBusca } = await sb
-      .from("agendas")
-      .select("id, dt, transportadora, observacao_geral, status_global")
-      .eq("dt", dt)
-      .maybeSingle();
-
-    if(erroBusca || !agenda){
-      mostrarErro("DT não encontrada no sistema.");
-      return;
-    }
-
-    let observacaoGeral = agenda.observacao_geral || "";
-
-    if(placas.length > 2){
-      const placasExtras = placas.slice(2).join(" / ");
-      const marcador = "Placas extras:";
-      const linhaExtra = `${marcador} ${placasExtras}`;
-
-      if(observacaoGeral.includes(marcador)){
-        observacaoGeral = observacaoGeral.replace(/Placas extras:\s*.*/i, linhaExtra).trim();
-      } else {
-        observacaoGeral = observacaoGeral
-          ? `${observacaoGeral}\n${linhaExtra}`
-          : linhaExtra;
-      }
-    }
-
-    const payload = {
-      motorista: motorista,
-      transportadora: transportadora || agenda.transportadora || null,
-      tipo_veiculo: tipo,
-      placa_cavalo: placas[0] || null,
-      placa_carreta: placas[1] || null,
-      presente_ausente: "Presente",
-      chegada_motorista: new Date().toISOString(),
-      status_global: "No Pátio",
-      observacao_geral: observacaoGeral || null
-    };
-
-    const { error } = await sb
-      .from("agendas")
-      .update(payload)
-      .eq("id", agenda.id);
-
-    if(error){
-      console.error("ERRO:", error);
-      mostrarErro(error.message || "Erro ao realizar check-in.");
-      return;
-    }
-
-    const msgExtra = placas.length > 2
-      ? " As placas extras foram registradas em observação geral."
-      : "";
-
-    mostrarSucesso("Check-in realizado com sucesso 🚛" + msgExtra);
-    limparCampos();
-  }catch(err){
-    console.error(err);
-    mostrarErro("Ocorreu um erro inesperado ao processar o check-in.");
-  }finally{
-    btn.disabled = false;
-    btn.textContent = "Realizar Check-in";
-  }
-}
-
-document.querySelectorAll(".vehicle-option").forEach(option => {
+document.querySelectorAll(".vehicle-option")document.querySelectorAll(".vehicle-option").forEach(option => {
   option.addEventListener("click", () => selecionarVeiculo(option.dataset.value));
 });
 
