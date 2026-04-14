@@ -12,8 +12,11 @@
     :root{
       --bg:#08111f;
       --sidebar:#0b1627;
+      --sidebar-collapsed:96px;
+      --app-max:1800px;
       --card:#111c2f;
       --card-2:#16253c;
+      --glass:rgba(8,17,31,.72);
       --line:rgba(255,255,255,.08);
       --text:#eef4ff;
       --muted:#98abc8;
@@ -37,6 +40,30 @@
         radial-gradient(circle at top right, rgba(6,182,212,.10), transparent 22%),
         linear-gradient(180deg,#07101d,#08111f 55%,#07101d);
       color:var(--text);
+      min-height:100vh;
+      position:relative;
+      overflow-x:hidden;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        linear-gradient(rgba(7,16,29,.62), rgba(7,16,29,.76)),
+        url('Foto armazém.jpg') center center / cover no-repeat;
+      z-index:-2;
+    }
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,.16), transparent 25%),
+        radial-gradient(circle at bottom right, rgba(34,197,94,.10), transparent 20%);
+      z-index:-1;
+      pointer-events:none;
     }
 
     .hidden{display:none !important}
@@ -131,17 +158,30 @@
       display:grid;
       grid-template-columns:280px 1fr;
       min-height:100vh;
+      max-width:var(--app-max);
+      margin:0 auto;
+      transition:grid-template-columns .25s ease;
+    }
+
+    .app.sidebar-collapsed{
+      grid-template-columns:var(--sidebar-collapsed) 1fr;
     }
 
     .sidebar{
-      background:rgba(8,17,31,.92);
+      background:linear-gradient(180deg,rgba(8,17,31,.88),rgba(8,17,31,.74));
       border-right:1px solid var(--line);
-      padding:22px 18px;
+      padding:18px 16px 22px;
       position:sticky;
       top:0;
       height:100vh;
       overflow:auto;
-      backdrop-filter:blur(18px);
+      backdrop-filter:blur(20px);
+      transition:padding .25s ease, width .25s ease;
+    }
+
+    .app.sidebar-collapsed .sidebar{
+      padding-left:10px;
+      padding-right:10px;
     }
 
     .brand-wrap{display:flex;align-items:center;gap:12px;margin-bottom:18px}
@@ -151,6 +191,70 @@
     }
     .brand-title{font-size:26px;font-weight:900;line-height:1;letter-spacing:.01em}
     .brand-sub{display:block;font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4}
+
+    .sidebar-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:6px;
+    }
+
+    .sidebar-toggle{
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:#12223a;
+      color:#fff;
+      cursor:pointer;
+      font-size:18px;
+      font-weight:900;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:.2s;
+      flex-shrink:0;
+    }
+
+    .sidebar-toggle:hover{
+      transform:translateY(-1px);
+      filter:brightness(1.05);
+    }
+
+    .app.sidebar-collapsed .brand-wrap{
+      justify-content:center;
+      margin-bottom:14px;
+    }
+
+    .app.sidebar-collapsed .brand-title,
+    .app.sidebar-collapsed .brand-sub,
+    .app.sidebar-collapsed .user-box,
+    .app.sidebar-collapsed .sidebar-note,
+    .app.sidebar-collapsed .logout-btn,
+    .app.sidebar-collapsed .menu button span{
+      display:none !important;
+    }
+
+    .app.sidebar-collapsed .menu button{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:13px 10px;
+      min-height:48px;
+    }
+
+    .menu button .menu-text{
+      display:inline;
+    }
+
+    .app.sidebar-collapsed .menu button::before{
+      content:attr(data-short);
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
 
     .user-box{
       margin-bottom:16px;padding:14px;border:1px solid var(--line);
@@ -180,15 +284,38 @@
       color:#fff;padding:11px 12px;border-radius:14px;font-weight:800;cursor:pointer;
     }
 
-    .main{padding:24px;display:flex;flex-direction:column;min-height:100vh}
-    .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+    .main{
+      padding:24px;
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
+      background:linear-gradient(180deg, rgba(8,17,31,.34), rgba(8,17,31,.20));
+    }
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+      padding:18px 20px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:linear-gradient(180deg, rgba(17,28,47,.82), rgba(13,23,39,.74));
+      backdrop-filter:blur(18px);
+      box-shadow:var(--shadow);
+    }
     .title h1{margin:0;font-size:34px}
     .title p{margin:8px 0 0;color:var(--muted)}
     .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
 
     .card{
-      background:linear-gradient(180deg,rgba(17,28,47,.95),rgba(13,23,39,.95));
-      border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;backdrop-filter:blur(14px);
+      background:linear-gradient(180deg,rgba(17,28,47,.90),rgba(13,23,39,.84));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+      backdrop-filter:blur(16px);
     }
 
     .grid{display:grid;gap:16px}
@@ -238,9 +365,34 @@
     .mini.orange{background:#d97706}
     .mini.red{background:#b91c1c}
 
-    .board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-    .lane{background:#0d1728;border:1px solid var(--line);border-radius:16px;padding:12px;min-height:260px}
-    .lane-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .board{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(260px,1fr));
+      gap:12px;
+      overflow-x:auto;
+      padding-bottom:6px;
+    }
+    .lane{
+      background:#0d1728;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      min-height:260px;
+      max-height:540px;
+      overflow-y:auto;
+      overflow-x:hidden;
+    }
+    .lane-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+      position:sticky;
+      top:0;
+      background:#0d1728;
+      padding-bottom:8px;
+      z-index:2;
+    }
     .count{background:#152640;border:1px solid var(--line);color:var(--muted);font-size:11px;padding:4px 8px;border-radius:999px;font-weight:900}
     .item{background:linear-gradient(180deg,#14233a,#102034);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px;margin-bottom:10px;cursor:pointer;transition:.2s}
     .item:hover{transform:translateY(-1px)}
@@ -272,10 +424,20 @@
       .grid-2,.board,.dock-grid,.fields{grid-template-columns:1fr}
     }
     @media (max-width:900px){
-      .app{grid-template-columns:1fr}
+      .app,
+      .app.sidebar-collapsed{grid-template-columns:1fr}
       .sidebar{position:relative;height:auto}
       .main{padding:16px}
       .title h1{font-size:28px}
+      .app.sidebar-collapsed .user-box,
+      .app.sidebar-collapsed .sidebar-note,
+      .app.sidebar-collapsed .logout-btn,
+      .app.sidebar-collapsed .menu button span{
+        display:block !important;
+      }
+      .app.sidebar-collapsed .menu button::before{
+        display:none;
+      }
     }
   </style>
 </head>
@@ -294,12 +456,15 @@
 
   <div class="app hidden" id="app">
     <aside class="sidebar">
-      <div class="brand-wrap">
-        <img src="logo.png" alt="YMS" class="brand-logo">
-        <div>
-          <div class="brand-title">YMS</div>
-          <small class="brand-sub">Agenda, operação e pátio em tempo real</small>
+      <div class="sidebar-top">
+        <div class="brand-wrap">
+          <img src="logo.png" alt="YMS" class="brand-logo">
+          <div>
+            <div class="brand-title">YMS</div>
+            <small class="brand-sub">Agenda, operação e pátio em tempo real</small>
+          </div>
         </div>
+        <button class="sidebar-toggle" id="sidebarToggle" type="button" title="Ocultar menu">☰</button>
       </div>
 
       <div class="user-box">
@@ -309,17 +474,17 @@
       </div>
 
       <div class="menu">
-        <button id="menu-dashboard" class="active" onclick="setView('dashboard', this)">Dashboard</button>
-        <button id="menu-agenda" onclick="setView('agenda', this)">Agenda</button>
-        <button id="menu-separacao" onclick="setView('separacao', this)">Separação</button>
-        <button id="menu-expedicao" onclick="setView('expedicao', this)">Expedição</button>
-        <button id="menu-patio" onclick="setView('patio', this)">Pátio</button>
-        <button id="menu-motoristas" onclick="setView('motoristas', this)">Motoristas</button>
-        <button id="menu-transportadoras" onclick="setView('transportadoras', this)">Transportadoras</button>
-        <button id="menu-docas" onclick="setView('docas', this)">Docas</button>
-        <button id="menu-checkin" onclick="setView('checkin', this)">Check-in</button>
-        <button id="menu-relatorios" onclick="setView('relatorios', this)">Relatórios</button>
-        <button id="menu-admin" onclick="setView('admin', this)">Admin</button>
+        <button id="menu-dashboard" data-short="Dash" class="active" onclick="setView('dashboard', this)"><span class="menu-text">Dashboard</span></button>
+        <button id="menu-agenda" data-short="Ag" onclick="setView('agenda', this)"><span class="menu-text">Agenda</span></button>
+        <button id="menu-separacao" data-short="Sep" onclick="setView('separacao', this)"><span class="menu-text">Separação</span></button>
+        <button id="menu-expedicao" data-short="Exp" onclick="setView('expedicao', this)"><span class="menu-text">Expedição</span></button>
+        <button id="menu-patio" data-short="Pat" onclick="setView('patio', this)"><span class="menu-text">Pátio</span></button>
+        <button id="menu-motoristas" data-short="Mot" onclick="setView('motoristas', this)"><span class="menu-text">Motoristas</span></button>
+        <button id="menu-transportadoras" data-short="Trn" onclick="setView('transportadoras', this)"><span class="menu-text">Transportadoras</span></button>
+        <button id="menu-docas" data-short="Doc" onclick="setView('docas', this)"><span class="menu-text">Docas</span></button>
+        <button id="menu-checkin" data-short="Chk" onclick="setView('checkin', this)"><span class="menu-text">Check-in</span></button>
+        <button id="menu-relatorios" data-short="Rel" onclick="setView('relatorios', this)"><span class="menu-text">Relatórios</span></button>
+        <button id="menu-admin" data-short="Adm" onclick="setView('admin', this)"><span class="menu-text">Admin</span></button>
       </div>
 
       <div class="sidebar-note">
@@ -345,7 +510,7 @@
         </div>
       </div>
 
-      <div class="card" style="margin-bottom:16px">
+      <div class="card hidden" style="margin-bottom:16px" id="statusConexaoCard">
         <div id="statusConexao" style="color:var(--muted)">Conectando ao Supabase...</div>
       </div>
 
@@ -610,7 +775,7 @@
         </div>
       </section>
 
-      <footer>© 2026 Wellington Alves - Sistema de Gestão Logística</footer>
+      <footer>© 2026 Gestão Logística Plus — Todos os direitos reservados</footer>
     </main>
   </div>
 
@@ -731,6 +896,24 @@
     let chartHE = null;
     let chartHO = null;
 
+    function atualizarVisibilidadeStatusConexao(){
+      const card = document.getElementById("statusConexaoCard");
+      if(!card) return;
+      card.classList.toggle("hidden", viewAtualGlobal !== "admin");
+    }
+
+    function alternarSidebar(){
+      const app = document.getElementById("app");
+      if(!app) return;
+      app.classList.toggle("sidebar-collapsed");
+      const btn = document.getElementById("sidebarToggle");
+      if(btn){
+        const recolhido = app.classList.contains("sidebar-collapsed");
+        btn.title = recolhido ? "Expandir menu" : "Ocultar menu";
+      }
+    }
+
+
     const STAGES = ["Agendado","Em Separação","Separado","Pronto Expedição","No Pátio","Em Doca","Em Carregamento","Expedido"];
 
     function clsStatus(s){
@@ -801,7 +984,8 @@
     function setView(view, btn){
       viewAtualGlobal = view;
       const targetBtn = btn || document.getElementById(`menu-${view}`);
-      document.getElementById("pageTitle").textContent = targetBtn ? targetBtn.textContent : view;
+      const titulo = targetBtn?.querySelector(".menu-text")?.textContent || targetBtn?.textContent || view;
+      document.getElementById("pageTitle").textContent = titulo;
       document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
       if(targetBtn) targetBtn.classList.add("active");
       ["dashboard","agenda","separacao","expedicao","patio","motoristas","transportadoras","docas","checkin","relatorios","admin"].forEach(v => {
@@ -810,6 +994,7 @@
       });
       const viewEl = document.getElementById(`view-${view}`);
       if(viewEl) viewEl.classList.remove("hidden");
+      atualizarVisibilidadeStatusConexao();
     }
 
     function calcSla(row){
