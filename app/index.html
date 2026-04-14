@@ -716,6 +716,60 @@
       margin-bottom:14px;
     }
 
+    .stage-kpi-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+      margin-top:16px;
+    }
+
+    .stage-kpi{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      padding:14px;
+    }
+
+    .stage-kpi span{
+      display:block;
+      color:var(--muted);
+      font-size:11px;
+      text-transform:uppercase;
+      font-weight:800;
+      margin-bottom:8px;
+      letter-spacing:.04em;
+    }
+
+    .stage-kpi strong{
+      font-size:24px;
+      line-height:1;
+    }
+
+    .board-premium .lane{
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.08), transparent 28%),
+        linear-gradient(180deg,#0d1728,#0b1424);
+    }
+
+    .board-premium .item{
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,.05), transparent 24%),
+        linear-gradient(180deg,#14233a,#102034);
+      border-radius:14px;
+      box-shadow:0 10px 24px rgba(0,0,0,.14);
+    }
+
+    .dock-grid-premium .dock{
+      min-height:190px;
+      box-shadow:0 14px 28px rgba(0,0,0,.14);
+    }
+
+    .form-card-premium{
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.10), transparent 24%),
+        linear-gradient(180deg,rgba(17,28,47,.90),rgba(13,23,39,.84));
+    }
+
     .section-toolbar .group{
       display:flex;
       gap:10px;
@@ -866,6 +920,7 @@
       .modal-summary{grid-template-columns:repeat(2,1fr)}
       .report-hero{grid-template-columns:1fr}
       .section-hero{grid-template-columns:1fr}
+      .stage-kpi-grid{grid-template-columns:1fr}
     }
     footer{text-align:center;margin-top:auto;padding:20px 0 6px;color:var(--muted);font-size:12px}
 
@@ -1161,13 +1216,50 @@
       </section>
 
       <section id="view-patio" class="hidden">
-        <div class="grid grid-2">
-          <div class="card">
-            <h2>Painel do pátio</h2>
-            <div class="board" id="patioBoard"></div>
+        <div class="section-hero">
+          <div class="section-hero-card">
+            <h3>Pátio em tempo real</h3>
+            <p>Visual premium para acompanhar veículos aguardando, em doca, em carregamento e já expedidos, com leitura rápida para tomada de decisão operacional.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>No pátio</span>
+                <strong id="patioNoPatioRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Em carregamento</span>
+                <strong id="patioCarregandoRef">0</strong>
+              </div>
+            </div>
           </div>
-          <div class="card">
-            <h2>Movimentação rápida</h2>
+          <div class="section-hero-card">
+            <h3>Movimentação inteligente</h3>
+            <p>Controle a passagem da DT por cada etapa operacional e ajuste rapidamente motorista, placas, presença e doca de carregamento.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card premium-table-card">
+            <div class="premium-table-head">
+              <div>
+                <h2>Painel do pátio</h2>
+                <p>Leitura visual das etapas do pátio em tempo real.</p>
+              </div>
+              <div class="group">
+                <span class="soft-stat" id="patioSoftStat">0 registros</span>
+                <span class="premium-badge">Fluxo operacional</span>
+              </div>
+            </div>
+            <div class="board board-premium" id="patioBoard"></div>
+          </div>
+
+          <div class="card form-card-premium">
+            <div class="section-toolbar">
+              <div>
+                <h2>Movimentação rápida</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Atualize a etapa da DT com mais clareza</p>
+              </div>
+              <span class="premium-badge">Ação rápida</span>
+            </div>
             <div class="fields" style="grid-template-columns:repeat(2,1fr)">
               <div><label>DT</label><select id="p_dt" onchange="preencherPatio()"></select></div>
               <div><label>Doca carregamento</label><select id="p_doca"></select></div>
@@ -1196,44 +1288,116 @@
       </section>
 
       <section id="view-docas" class="hidden">
-        <div class="card">
-          <h2>Torre de docas</h2>
-          <div class="dock-grid" id="docasGrid"></div>
+        <div class="section-hero">
+          <div class="section-hero-card">
+            <h3>Torre de docas premium</h3>
+            <p>Visão moderna das docas com leitura de ocupação, DT em atendimento, motorista, placas e início de operação.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Docas livres</span>
+                <strong id="docasLivreRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Docas ocupadas</span>
+                <strong id="docasOcupadaRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card">
+            <h3>Ocupação inteligente</h3>
+            <p>Identifique rapidamente gargalos, utilização das docas e veículos em processo, tudo no mesmo padrão visual premium.</p>
+          </div>
+        </div>
+
+        <div class="card premium-table-card">
+          <div class="premium-table-head">
+            <div>
+              <h2>Torre de docas</h2>
+              <p>Painel premium da ocupação das docas.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="docasSoftStat">0 docas</span>
+              <span class="premium-badge">Ocupação</span>
+            </div>
+          </div>
+          <div class="dock-grid dock-grid-premium" id="docasGrid" style="padding:18px"></div>
         </div>
       </section>
 
       <section id="view-checkin" class="hidden">
-        <div class="card">
-          <h2>Check-in do motorista</h2>
-          <div class="fields">
-            <div><label>DT</label><select id="c_dt"></select></div>
-            <div><label>Motorista</label><input id="c_motorista"></div>
-            <div><label>Placa cavalo</label><input id="c_placa_cavalo"></div>
-            <div><label>Placa carreta</label><input id="c_placa_carreta"></div>
-            <div><label>Placa reboque 1</label><input id="c_placa_reboque_1"></div>
-            <div><label>Placa reboque 2</label><input id="c_placa_reboque_2"></div>
-            <div><label>Presença</label>
-              <select id="c_presenca">
-                <option value="">Selecione</option>
-                <option>Presente</option>
-                <option>Ausente</option>
-                <option>Atrasado</option>
-              </select>
+        <div class="section-hero">
+          <div class="section-hero-card">
+            <h3>Check-in interno</h3>
+            <p>Registre a chegada do motorista com visual premium, leitura operacional mais clara e consolidação das placas e presença diretamente no fluxo interno.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Check-ins hoje</span>
+                <strong id="checkinHojeRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Presentes</span>
+                <strong id="checkinPresenteRef">0</strong>
+              </div>
             </div>
-            <div class="full"><label>Observação</label><textarea id="c_obs"></textarea></div>
           </div>
-          <div style="margin-top:12px">
-            <button class="btn btn-success" onclick="registrarCheckin()">Registrar check-in</button>
+          <div class="section-hero-card">
+            <h3>Consolidação de chegada</h3>
+            <p>Visualize motorista, placas, presença, chegada e status em um só lugar, mantendo coerência com o restante do sistema premium.</p>
           </div>
-          <div class="table-wrap" style="margin-top:16px">
-            <table>
-              <thead>
-                <tr>
-                  <th>DT</th><th>Transportadora</th><th>Motorista</th><th>Placas</th><th>Presença</th><th>Chegada</th><th>Status</th><th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="checkinTabela"></tbody>
-            </table>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card form-card-premium">
+            <div class="section-toolbar">
+              <div>
+                <h2>Registrar check-in</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Movimente rapidamente a DT para o pátio</p>
+              </div>
+              <span class="premium-badge">Portaria interna</span>
+            </div>
+            <div class="fields">
+              <div><label>DT</label><select id="c_dt"></select></div>
+              <div><label>Motorista</label><input id="c_motorista"></div>
+              <div><label>Placa cavalo</label><input id="c_placa_cavalo"></div>
+              <div><label>Placa carreta</label><input id="c_placa_carreta"></div>
+              <div><label>Placa reboque 1</label><input id="c_placa_reboque_1"></div>
+              <div><label>Placa reboque 2</label><input id="c_placa_reboque_2"></div>
+              <div><label>Presença</label>
+                <select id="c_presenca">
+                  <option value="">Selecione</option>
+                  <option>Presente</option>
+                  <option>Ausente</option>
+                  <option>Atrasado</option>
+                </select>
+              </div>
+              <div class="full"><label>Observação</label><textarea id="c_obs"></textarea></div>
+            </div>
+            <div style="margin-top:12px">
+              <button class="btn btn-success" onclick="registrarCheckin()">Registrar check-in</button>
+            </div>
+          </div>
+
+          <div class="card premium-table-card">
+            <div class="premium-table-head">
+              <div>
+                <h2>Histórico de check-in</h2>
+                <p>Lista premium das chegadas registradas.</p>
+              </div>
+              <div class="group">
+                <span class="soft-stat" id="checkinSoftStat">0 registros</span>
+                <span class="premium-badge">Chegadas</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>DT</th><th>Transportadora</th><th>Motorista</th><th>Placas</th><th>Presença</th><th>Chegada</th><th>Status</th><th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="checkinTabela"></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
@@ -1934,6 +2098,9 @@
     function renderPatio(){
       const rows = linhasFiltradas().filter(r => ["No Pátio","Em Doca","Em Carregamento","Expedido"].includes(r.status_global));
       const grupos = ["No Pátio","Em Doca","Em Carregamento","Expedido"];
+      document.getElementById("patioNoPatioRef").textContent = rows.filter(r => r.status_global === "No Pátio").length;
+      document.getElementById("patioCarregandoRef").textContent = rows.filter(r => r.status_global === "Em Carregamento").length;
+      document.getElementById("patioSoftStat").textContent = `${rows.length} registros`;
       document.getElementById("patioBoard").innerHTML = grupos.map(g => {
         const itens = rows.filter(r => r.status_global === g);
         return `<div class="lane"><div class="lane-head"><h3>${g}</h3><span class="count">${itens.length}</span></div>
@@ -1945,18 +2112,28 @@
     function renderDocas(){
       const rows = linhasFiltradas();
       const nomesDoca = docas.length ? docas.map(d => d.nome) : ["Doca 1","Doca 2","Doca 3","Doca 4"];
+      let livres = 0;
+      let ocupadas = 0;
       document.getElementById("docasGrid").innerHTML = nomesDoca.map(nome => {
         const atual = rows.find(r => (r.doca_carregamento || r.doca_agenda || r.doca_planejada) === nome && ["Em Doca","Em Carregamento"].includes(r.status_global));
         if(!atual){
+          livres++;
           return `<div class="dock free"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">Livre</span></div><div class="meta">Sem veículo na doca.</div></div>`;
         }
+        ocupadas++;
         const sla = calcSla(atual);
         return `<div class="dock busy" onclick="abrirDTPorId('${esc(atual.id)}')"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">${esc(atual.status_global)}</span></div><div class="meta">DT: ${esc(atual.dt || "-")}<br>Transportadora: ${esc(atual.transportadora || "-")}<br>Motorista: ${esc(atual.motorista || "-")}<br>Placas: ${esc(formatPlacas(atual) || "-")}<br>Início: ${fmtDateTime(atual.inicio_carregamento)}<br><span class="${sla.cls}">${sla.label}</span></div></div>`;
       }).join("");
+      document.getElementById("docasLivreRef").textContent = livres;
+      document.getElementById("docasOcupadaRef").textContent = ocupadas;
+      document.getElementById("docasSoftStat").textContent = `${nomesDoca.length} docas`;
     }
 
     function renderCheckin(){
       const rows = linhasFiltradas().filter(r => r.motorista || r.chegada_motorista || ["No Pátio","Em Doca","Em Carregamento","Expedido"].includes(r.status_global));
+      document.getElementById("checkinHojeRef").textContent = rows.length;
+      document.getElementById("checkinPresenteRef").textContent = rows.filter(r => r.presente_ausente === "Presente").length;
+      document.getElementById("checkinSoftStat").textContent = `${rows.length} registros`;
       document.getElementById("checkinTabela").innerHTML = rows.map(r => `
         <tr>
           <td>${esc(r.dt)}</td>
