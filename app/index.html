@@ -75,33 +75,51 @@
       justify-content:center;
       padding:24px;
       background:
-        radial-gradient(circle at top, rgba(59,130,246,.20) 0%, rgba(8,17,31,.85) 40%, #07101d 100%);
+        radial-gradient(circle at top left, rgba(59,130,246,.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(34,197,94,.10), transparent 24%),
+        linear-gradient(180deg, rgba(7,16,29,.88), rgba(8,17,31,.92));
+      position:relative;
+      overflow:hidden;
+    }
+
+    .login-screen::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(rgba(7,16,29,.58), rgba(7,16,29,.74)),
+        url('Foto armazém.jpg') center center / cover no-repeat;
+      z-index:0;
     }
 
     .login-box{
-      width:min(410px,100%);
-      background:linear-gradient(180deg,rgba(17,28,47,.98),rgba(13,23,39,.98));
-      border:1px solid var(--line);
-      border-radius:24px;
-      box-shadow:var(--shadow);
-      padding:32px 28px;
+      width:min(460px,100%);
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.12), transparent 28%),
+        linear-gradient(180deg,rgba(17,28,47,.96),rgba(13,23,39,.94));
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:28px;
+      box-shadow:0 28px 70px rgba(0,0,0,.34);
+      padding:34px 30px;
       text-align:center;
-      backdrop-filter:blur(16px);
+      backdrop-filter:blur(18px);
+      position:relative;
+      z-index:1;
     }
 
     .login-box img{
-      width:84px;
-      height:84px;
+      width:92px;
+      height:92px;
       object-fit:contain;
-      margin-bottom:14px;
+      margin-bottom:16px;
       background:#fff;
-      border-radius:20px;
-      padding:6px;
-      box-shadow:0 10px 30px rgba(0,0,0,.25);
+      border-radius:22px;
+      padding:8px;
+      box-shadow:0 14px 34px rgba(0,0,0,.25);
     }
 
-    .login-box h2{margin:0 0 6px;font-size:28px}
-    .login-box p{margin:0 0 18px;color:var(--muted);font-size:13px}
+    .login-box h2{margin:0 0 8px;font-size:30px;letter-spacing:-.02em}
+    .login-box p{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.7}
 
     .login-box input,
     input,select,textarea{
@@ -740,8 +758,8 @@
   <div class="login-screen" id="loginScreen">
     <div class="login-box">
       <img src="logo.png" alt="YMS">
-      <h2>Login</h2>
-      <p>Acesse o sistema de gestão logística</p>
+      <h2>Entrar no sistema</h2>
+      <p>Acesse a operação interna com o mesmo padrão visual premium da plataforma.</p>
       <input type="email" id="loginEmail" placeholder="Email">
       <input type="password" id="loginSenha" placeholder="Senha">
       <button onclick="login()">Entrar</button>
@@ -769,8 +787,8 @@
       </div>
 
       <div class="menu">
-        <button id="menu-dashboard" data-short="Dash" class="active" onclick="setView('dashboard', this)"><span class="menu-icon">📊</span><span class="menu-icon">🗓️</span><span class="menu-icon">📦</span><span class="menu-icon">🚚</span><span class="menu-icon">🏁</span><span class="menu-icon">👤</span><span class="menu-icon">🏢</span><span class="menu-icon">🚪</span><span class="menu-icon">✅</span><span class="menu-icon">📈</span><span class="menu-icon">⚙️</span><span class="menu-icon">🗓️</span><span class="menu-icon">📦</span><span class="menu-icon">🚚</span><span class="menu-icon">🏁</span><span class="menu-icon">👤</span><span class="menu-icon">🏢</span><span class="menu-icon">🚪</span><span class="menu-icon">✅</span><span class="menu-icon">📈</span><span class="menu-icon">⚙️</span><span class="menu-text">Dashboard</span></button>
-        <button id="menu-agenda" data-short="Ag" onclick="setView('agenda', this)"><span class="menu-text">Agenda</span></button>
+        <button id="menu-dashboard" data-short="Dash" class="active" onclick="setView('dashboard', this)"><span class="menu-icon">📊</span><span class="menu-text">Dashboard</span></button>
+        <button id="menu-agenda" data-short="Ag" onclick="setView('agenda', this)"><span class="menu-icon">🗓️</span><span class="menu-text">Agenda</span></button>
         <button id="menu-separacao" data-short="Sep" onclick="setView('separacao', this)"><span class="menu-text">Separação</span></button>
         <button id="menu-expedicao" data-short="Exp" onclick="setView('expedicao', this)"><span class="menu-text">Expedição</span></button>
         <button id="menu-patio" data-short="Pat" onclick="setView('patio', this)"><span class="menu-text">Pátio</span></button>
@@ -778,8 +796,8 @@
         <button id="menu-transportadoras" data-short="Trn" onclick="setView('transportadoras', this)"><span class="menu-text">Transportadoras</span></button>
         <button id="menu-docas" data-short="Doc" onclick="setView('docas', this)"><span class="menu-text">Docas</span></button>
         <button id="menu-checkin" data-short="Chk" onclick="setView('checkin', this)"><span class="menu-text">Check-in</span></button>
-        <button id="menu-relatorios" data-short="Rel" onclick="setView('relatorios', this)"><span class="menu-text">Relatórios</span></button>
-        <button id="menu-admin" data-short="Adm" onclick="setView('admin', this)"><span class="menu-text">Admin</span></button>
+        <button id="menu-relatorios" data-short="Rel" onclick="setView('relatorios', this)"><span class="menu-icon">📈</span><span class="menu-text">Relatórios</span></button>
+        <button id="menu-admin" data-short="Adm" onclick="setView('admin', this)"><span class="menu-icon">⚙️</span><span class="menu-text">Admin</span></button>
       </div>
 
       <div class="sidebar-note">
@@ -990,7 +1008,7 @@
                 <strong id="relatorioDataRef">Todos</strong>
               </div>
               <div class="report-mini">
-                <span>Status expedido</span>
+                <span>Expedidas no filtro</span>
                 <strong id="relatorioExpedidoRef">0</strong>
               </div>
             </div>
@@ -1699,11 +1717,34 @@
       document.getElementById("relatorioDataRef").textContent = dataRef;
       document.getElementById("relatorioExpedidoRef").textContent = rows.filter(x => x.status_global === "Expedido").length;
 
+      const caixasRealizado = rows
+        .filter(r => r.status_global === "Expedido")
+        .reduce((a,b)=>a+(b.total_caixas||0),0);
+      const caixasPendente = rows
+        .filter(r => r.status_global !== "Expedido")
+        .reduce((a,b)=>a+(b.total_caixas||0),0);
+
+      const heRealizado = rows
+        .filter(r => r.status_global === "Expedido")
+        .reduce((a,b)=>a+(b.he||0),0);
+      const hePendente = rows
+        .filter(r => r.status_global !== "Expedido")
+        .reduce((a,b)=>a+(b.he||0),0);
+
+      const hoRealizado = rows
+        .filter(r => r.status_global === "Expedido")
+        .reduce((a,b)=>a+(b.ho||0),0);
+      const hoPendente = rows
+        .filter(r => r.status_global !== "Expedido")
+        .reduce((a,b)=>a+(b.ho||0),0);
+
       const cards = [
-        { label:"Total Caixas", value: rows.reduce((a,b)=>a+(b.total_caixas||0),0), cls:"status-blue", icon:"📦" },
-        { label:"Picking (HE)", value: rows.reduce((a,b)=>a+(b.he||0),0), cls:"status-orange", icon:"🧮" },
-        { label:"Paletes (HO)", value: rows.reduce((a,b)=>a+(b.ho||0),0), cls:"status-purple", icon:"🪵" },
-        { label:"Peso", value: rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0), cls:"status-cyan", icon:"⚖️" }
+        { label:"Caixas pendente", value: caixasPendente, cls:"status-orange", icon:"📦" },
+        { label:"Caixas realizado", value: caixasRealizado, cls:"status-green", icon:"✅" },
+        { label:"HE pendente", value: hePendente, cls:"status-orange", icon:"🧮" },
+        { label:"HE realizado", value: heRealizado, cls:"status-green", icon:"🎯" },
+        { label:"HO pendente", value: hoPendente, cls:"status-purple", icon:"🪵" },
+        { label:"HO realizado", value: hoRealizado, cls:"status-cyan", icon:"🚛" }
       ];
 
       document.getElementById("relatorioResumo").innerHTML = cards.map(k => `
@@ -1714,16 +1755,24 @@
           <div class="sub">indicador consolidado</div>
         </div>`).join("");
 
-      const turnos = ["T1","T2","T3","Sem turno"];
-      const heData = turnos.map(t => rows.filter(r => (t === "Sem turno" ? !r.turno_separacao : r.turno_separacao === t)).reduce((a,b)=>a+(b.he||0),0));
-      const hoData = turnos.map(t => rows.filter(r => (t === "Sem turno" ? !r.turno_separacao : r.turno_separacao === t)).reduce((a,b)=>a+(b.ho||0),0));
+      const turnos = ["T1","T2","T3"];
+      const heData = turnos.map(t => rows.filter(r => r.turno_separacao === t).reduce((a,b)=>a+(b.he||0),0));
+      const hoData = turnos.map(t => rows.filter(r => r.turno_separacao === t).reduce((a,b)=>a+(b.ho||0),0));
 
       if(chartHE) chartHE.destroy();
       if(chartHO) chartHO.destroy();
 
       chartHE = new Chart(document.getElementById("graficoHE"), {
         type:"bar",
-        data:{ labels:turnos, datasets:[{ label:"HE", data:heData, borderRadius:8 }] },
+        data:{
+          labels:turnos,
+          datasets:[{
+            label:"HE",
+            data:heData,
+            borderRadius:8,
+            backgroundColor:["#3b82f6","#f59e0b","#8b5cf6"]
+          }]
+        },
         options:{
           responsive:true,
           plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
@@ -1736,7 +1785,15 @@
 
       chartHO = new Chart(document.getElementById("graficoHO"), {
         type:"bar",
-        data:{ labels:turnos, datasets:[{ label:"HO", data:hoData, borderRadius:8 }] },
+        data:{
+          labels:turnos,
+          datasets:[{
+            label:"HO",
+            data:hoData,
+            borderRadius:8,
+            backgroundColor:["#06b6d4","#22c55e","#ef4444"]
+          }]
+        },
         options:{
           responsive:true,
           plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
