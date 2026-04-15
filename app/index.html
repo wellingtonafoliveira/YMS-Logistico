@@ -1948,6 +1948,10 @@
       }
     }
 
+
+    .login-screen.hidden{display:none !important}
+    .app.hidden{display:none !important}
+    .sidebar-backdrop.hidden{display:none !important; opacity:0 !important; pointer-events:none !important}
 </style>
 </head>
 <body>
@@ -3251,6 +3255,8 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     async function entrarSistema(user){
       document.getElementById("loginScreen").classList.add("hidden");
       document.getElementById("app").classList.remove("hidden");
+      const backdrop = document.getElementById("sidebarBackdrop");
+      if(backdrop) backdrop.classList.add("hidden");
       await carregarPerfil(user.email, user.id);
       await carregarCadastros();
       await carregarTudo();
@@ -3261,6 +3267,8 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     function bloquearSistema(){
       document.getElementById("app").classList.add("hidden");
       document.getElementById("loginScreen").classList.remove("hidden");
+      const backdrop = document.getElementById("sidebarBackdrop");
+      if(backdrop) backdrop.classList.add("hidden");
       document.getElementById("loginErro").textContent = "";
     }
 
@@ -3272,12 +3280,14 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       const { data, error } = await sb.from("usuarios").select("id,nome,email,perfil,ativo").eq("email", email).maybeSingle();
       if(error) console.error(error);
       if(!data){
-        usuarioPerfil = "admin";
+        usuarioPerfil = null;
         document.getElementById("userNome").textContent = email || "Usuário logado";
         document.getElementById("userEmail").textContent = email || "-";
-        document.getElementById("userPerfil").textContent = "Perfil: admin";
-        document.getElementById("areaAdmin").style.display = "block";
-        aplicarPermissoes();
+        document.getElementById("userPerfil").textContent = "Perfil: sem cadastro";
+        document.getElementById("areaAdmin").style.display = "none";
+        const menuAdmin = document.getElementById("menu-admin");
+        if(menuAdmin) menuAdmin.style.display = "none";
+        document.getElementById("loginErro").textContent = "Seu usuário não possui perfil cadastrado no sistema.";
         return;
       }
       if(data.ativo !== true){
