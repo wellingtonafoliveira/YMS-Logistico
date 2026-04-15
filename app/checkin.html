@@ -671,7 +671,7 @@ button:disabled{
           <h2>Check-in Motorista</h2>
           <p>Preencha os dados abaixo para registrar a chegada do veículo no sistema.</p>
         </div>
-        <div class="step">Etapa única</div>
+        <div class="step">Conectado à fila real</div>
       </div>
 
       <div class="card">
@@ -695,8 +695,8 @@ button:disabled{
 
           <div class="field full">
             <label for="telefone_motorista">Telefone do Motorista</label>
-            <input id="telefone_motorista" placeholder="Ex.: 11999998888" inputmode="tel" maxlength="15">
-            <div class="helper">Informe o telefone para que a operação possa enviar mensagem ao motorista quando necessário.</div>
+            <input id="telefone_motorista" placeholder="Ex.: (11) 99999-8888" inputmode="tel" maxlength="16">
+            <div class="helper">Esse telefone será usado pela operação para enviar mensagem ao motorista quando necessário.</div>
           </div>
         </div>
 
@@ -715,6 +715,7 @@ button:disabled{
             <div class="summary-item"><label>Status atual</label><strong id="s_status">-</strong></div>
             <div class="summary-item"><label>Cliente</label><strong id="s_cliente">-</strong></div>
             <div class="summary-item"><label>Transportadora</label><strong id="s_transportadora">-</strong></div>
+            <div class="summary-item"><label>Telefone motorista</label><strong id="s_telefone_motorista">-</strong></div>
             <div class="summary-item"><label>Data agenda</label><strong id="s_data">-</strong></div>
             <div class="summary-item"><label>Hora agenda</label><strong id="s_hora">-</strong></div>
             <div class="summary-item"><label>Tipo de carga</label><strong id="s_tipo_carga">-</strong></div>
@@ -735,7 +736,7 @@ button:disabled{
             </div>
           </div>
           <div class="queue-helper" id="q_info">
-            A estimativa considera os veículos já registrados no pátio antes deste check-in.
+            A estimativa considera a fila operacional real do pátio.
           </div>
         </div>
       </div>
@@ -828,6 +829,7 @@ button:disabled{
     sStatus: document.getElementById("s_status"),
     sCliente: document.getElementById("s_cliente"),
     sTransportadora: document.getElementById("s_transportadora"),
+    sTelefoneMotorista: document.getElementById("s_telefone_motorista"),
     sData: document.getElementById("s_data"),
     sHora: document.getElementById("s_hora"),
     sTipoCarga: document.getElementById("s_tipo_carga"),
@@ -849,6 +851,16 @@ button:disabled{
     return `${mins}min`;
   }
 
+  function formatarTelefoneResumo(valor) {
+    const numeros = somenteNumeros(valor);
+    if (!numeros) return "-";
+    if (numeros.length <= 2) return numeros;
+    if (numeros.length <= 7) return `(${numeros.slice(0,2)}) ${numeros.slice(2)}`;
+    const parte1 = numeros.slice(2, numeros.length === 10 ? 6 : 7);
+    const parte2 = numeros.slice(numeros.length === 10 ? 6 : 7);
+    return `(${numeros.slice(0,2)}) ${parte1}-${parte2}`;
+  }
+
   function limparMensagem() {
     el.msg.innerHTML = "";
   }
@@ -867,25 +879,38 @@ button:disabled{
     input.value = valor;
   }
 
+  function somenteNumeros(valor) {
+    return String(valor || "").replace(/\D/g, "");
+  }
+
   function formatarTelefoneInput(input) {
-    const numeros = String(input.value || "").replace(/\D/g, "").slice(0, 11);
+    const numeros = somenteNumeros(input.value).slice(0, 11);
     if (numeros.length <= 2) {
       input.value = numeros;
       return;
     }
     if (numeros.length <= 7) {
-      input.value = `(${numeros.slice(0,2)}) ${numeros.slice(2)}`;
+      input.value = `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
       return;
     }
-    if (numeros.length <= 11) {
-      const parte1 = numeros.slice(2, numeros.length === 10 ? 6 : 7);
-      const parte2 = numeros.slice(numeros.length === 10 ? 6 : 7);
-      input.value = `(${numeros.slice(0,2)}) ${parte1}-${parte2}`;
-    }
+    const parte1 = numeros.slice(2, numeros.length === 10 ? 6 : 7);
+    const parte2 = numeros.slice(numeros.length === 10 ? 6 : 7);
+    input.value = `(${numeros.slice(0, 2)}) ${parte1}-${parte2}`;
   }
 
-  function telefoneSomenteNumeros(valor) {
-    return String(valor || "").replace(/\D/g, "");
+  async function rpcEntrarFilaPatio(agendaId, observacao = null) {
+    const { data, error } = await sb.rpc("rpc_entrar_fila_patio", {
+      p_agenda_id: agendaId,
+      p_doca_destino: null,
+      p_observacao: observacao,
+      p_usuario_id: null,
+      p_usuario_nome: "checkin_externo",
+      p_usuario_email: null,
+      p_perfil: "checkin_externo"
+    });
+
+    if (error) throw error;
+    return data;
   }
 
   function renderPlateInputs() {
@@ -930,14 +955,14 @@ button:disabled{
   function mostrarFila(posicao, minutos, info) {
     el.qPosicao.textContent = posicao ? `${posicao}º` : "-";
     el.qTempo.textContent = formatarTempoEspera(minutos || 0);
-    el.qInfo.textContent = info || "A estimativa considera os veículos já registrados no pátio antes deste check-in.";
+    el.qInfo.textContent = info || "A estimativa considera a fila operacional real do pátio.";
     el.queueCard.classList.add("show");
   }
 
   function limparFila() {
     el.qPosicao.textContent = "-";
     el.qTempo.textContent = "-";
-    el.qInfo.textContent = "A estimativa considera os veículos já registrados no pátio antes deste check-in.";
+    el.qInfo.textContent = "A estimativa considera a fila operacional real do pátio.";
     el.queueCard.classList.remove("show");
   }
 
@@ -946,6 +971,7 @@ button:disabled{
     el.sStatus.textContent = agenda.status_global || "-";
     el.sCliente.textContent = agenda.cliente || "-";
     el.sTransportadora.textContent = agenda.transportadora || "-";
+    el.sTelefoneMotorista.textContent = agenda.telefone_motorista ? formatarTelefoneResumo(agenda.telefone_motorista) : "-";
     el.sData.textContent = agenda.data_agenda ? fmtDateBr(agenda.data_agenda) : "-";
     el.sHora.textContent = agenda.hora_agenda || "-";
     el.sTipoCarga.textContent = agenda.tipo_carga || "-";
@@ -984,6 +1010,30 @@ button:disabled{
   }
 
   async function calcularFilaEstimada(agenda, incluirAtual = false) {
+    try {
+      const { data, error } = await sb
+        .from("v_patio_fila_operacional")
+        .select("agenda_id, dt, status_fila, chegada_patio_at");
+
+      if (!error && data) {
+        const filas = (data || []).filter((item) =>
+          item.agenda_id !== agenda?.id &&
+          ["aguardando", "chamado"].includes(item.status_fila)
+        );
+
+        const veiculosNaFrente = filas.length;
+        const posicao = incluirAtual ? veiculosNaFrente + 1 : (veiculosNaFrente > 0 ? veiculosNaFrente : 0);
+        const minutos = veiculosNaFrente * TEMPO_MEDIO_POR_VEICULO_MIN;
+        const info = incluirAtual
+          ? `Estimativa baseada em ${veiculosNaFrente} veículo(s) já aguardando na fila operacional do pátio.`
+          : `Há ${veiculosNaFrente} veículo(s) aguardando na fila operacional neste momento.`;
+
+        return { posicao, minutos, info, veiculosNaFrente };
+      }
+    } catch (err) {
+      console.warn("Fila real do pátio indisponível, usando fallback.", err);
+    }
+
     const { data, error } = await sb
       .from("agendas")
       .select("id, dt, status_global, chegada_motorista, data_agenda")
@@ -1029,7 +1079,7 @@ button:disabled{
     try {
       const { data: agenda, error } = await sb
         .from("agendas")
-        .select("id, dt, cliente, transportadora, data_agenda, hora_agenda, tipo_carga, doca_agenda, status_global")
+        .select("id, dt, cliente, transportadora, telefone_motorista, data_agenda, hora_agenda, tipo_carga, doca_agenda, status_global")
         .eq("dt", dt)
         .maybeSingle();
 
@@ -1042,6 +1092,7 @@ button:disabled{
       state.agendaSelecionada = agenda;
       preencherResumoDT(agenda);
       el.transportadora.value = agenda.transportadora || "";
+      el.telefoneMotorista.value = agenda.telefone_motorista ? formatarTelefoneResumo(agenda.telefone_motorista) : "";
 
       const fila = await calcularFilaEstimada(agenda, true);
       mostrarFila(fila.posicao, fila.minutos, fila.info);
@@ -1073,7 +1124,7 @@ button:disabled{
     try {
       const dt = el.dt.value.trim();
       const motorista = el.motorista.value.trim();
-      const telefoneMotorista = telefoneSomenteNumeros(el.telefoneMotorista.value);
+      const telefoneMotorista = somenteNumeros(el.telefoneMotorista.value);
       const transportadora = el.transportadora.value.trim();
       const tipo = el.tipoVeiculo.value;
 
@@ -1134,6 +1185,19 @@ button:disabled{
         return;
       }
 
+      try {
+        await rpcEntrarFilaPatio(state.agendaSelecionada.id, "Check-in externo realizado pelo motorista");
+      } catch (rpcErr) {
+        console.error("Erro na RPC de fila:", rpcErr);
+        mostrarErro("Check-in salvo, mas houve falha ao entrar na fila real do pátio. Verifique a RPC rpc_entrar_fila_patio.");
+        return;
+      }
+
+      state.agendaSelecionada = {
+        ...state.agendaSelecionada,
+        ...payload
+      };
+
       const filaAtualizada = await calcularFilaEstimada(state.agendaSelecionada, false);
       const posicaoFinal = filaAtualizada.veiculosNaFrente + 1;
       const tempoFinal = filaAtualizada.veiculosNaFrente * TEMPO_MEDIO_POR_VEICULO_MIN;
@@ -1141,18 +1205,17 @@ button:disabled{
       mostrarFila(
         posicaoFinal,
         tempoFinal,
-        "Sua posição foi estimada com base nos veículos já aguardando no pátio antes do seu check-in."
+        "Sua posição foi estimada com base na fila operacional real do pátio."
       );
 
       mostrarSucesso(`Check-in realizado com sucesso 🚛 Número na fila: ${posicaoFinal}º. Tempo estimado: ${formatarTempoEspera(tempoFinal)}.`);
+      el.btnCheckin.disabled = true;
     } catch (err) {
       console.error(err);
       mostrarErro("Ocorreu um erro inesperado ao processar o check-in.");
     } finally {
       el.btnCheckin.textContent = "Realizar Check-in";
-      if (state.agendaSelecionada && !STATUS_BLOQUEADOS_CHECKIN.includes(state.agendaSelecionada.status_global)) {
-        el.btnCheckin.disabled = false;
-      } else {
+      if (!state.agendaSelecionada || STATUS_BLOQUEADOS_CHECKIN.includes(state.agendaSelecionada.status_global)) {
         el.btnCheckin.disabled = true;
       }
     }
@@ -1174,6 +1237,7 @@ button:disabled{
     });
 
     el.telefoneMotorista.addEventListener("input", (e) => formatarTelefoneInput(e.target));
+
     el.btnBuscarDT.addEventListener("click", buscarDT);
     el.btnCheckin.addEventListener("click", fazerCheckin);
   }
