@@ -692,6 +692,12 @@ button:disabled{
             <label for="motorista">Nome do Motorista</label>
             <input id="motorista" placeholder="Nome completo do motorista">
           </div>
+
+          <div class="field full">
+            <label for="telefone_motorista">Telefone do Motorista</label>
+            <input id="telefone_motorista" placeholder="Ex.: 11999998888" inputmode="tel" maxlength="15">
+            <div class="helper">Informe o telefone para que a operação possa enviar mensagem ao motorista quando necessário.</div>
+          </div>
         </div>
 
         <div class="inline-actions">
@@ -806,6 +812,7 @@ button:disabled{
   const el = {
     dt: document.getElementById("dt"),
     motorista: document.getElementById("motorista"),
+    telefoneMotorista: document.getElementById("telefone_motorista"),
     transportadora: document.getElementById("transportadora"),
     tipoVeiculo: document.getElementById("tipoVeiculo"),
     placas: document.getElementById("placas"),
@@ -858,6 +865,27 @@ button:disabled{
     let valor = String(input.value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
     if (valor.length > 8) valor = valor.slice(0, 8);
     input.value = valor;
+  }
+
+  function formatarTelefoneInput(input) {
+    const numeros = String(input.value || "").replace(/\D/g, "").slice(0, 11);
+    if (numeros.length <= 2) {
+      input.value = numeros;
+      return;
+    }
+    if (numeros.length <= 7) {
+      input.value = `(${numeros.slice(0,2)}) ${numeros.slice(2)}`;
+      return;
+    }
+    if (numeros.length <= 11) {
+      const parte1 = numeros.slice(2, numeros.length === 10 ? 6 : 7);
+      const parte2 = numeros.slice(numeros.length === 10 ? 6 : 7);
+      input.value = `(${numeros.slice(0,2)}) ${parte1}-${parte2}`;
+    }
+  }
+
+  function telefoneSomenteNumeros(valor) {
+    return String(valor || "").replace(/\D/g, "");
   }
 
   function renderPlateInputs() {
@@ -936,6 +964,7 @@ button:disabled{
   function limparCampos() {
     el.dt.value = "";
     el.motorista.value = "";
+    el.telefoneMotorista.value = "";
     el.transportadora.value = "";
     el.tipoVeiculo.value = "";
     el.placas.innerHTML = "";
@@ -1044,6 +1073,7 @@ button:disabled{
     try {
       const dt = el.dt.value.trim();
       const motorista = el.motorista.value.trim();
+      const telefoneMotorista = telefoneSomenteNumeros(el.telefoneMotorista.value);
       const transportadora = el.transportadora.value.trim();
       const tipo = el.tipoVeiculo.value;
 
@@ -1062,6 +1092,11 @@ button:disabled{
         return;
       }
 
+      if (!telefoneMotorista || telefoneMotorista.length < 10) {
+        mostrarErro("Informe um telefone válido do motorista.");
+        return;
+      }
+
       const placas = obterPlacas();
       if (!placas.length) {
         mostrarErro("Informe pelo menos uma placa.");
@@ -1076,6 +1111,7 @@ button:disabled{
 
       const payload = {
         motorista,
+        telefone_motorista: telefoneMotorista,
         transportadora: transportadora || state.agendaSelecionada.transportadora || null,
         tipo_veiculo: tipo,
         placa_cavalo: placas[0] || null,
@@ -1137,6 +1173,7 @@ button:disabled{
       limparMensagem();
     });
 
+    el.telefoneMotorista.addEventListener("input", (e) => formatarTelefoneInput(e.target));
     el.btnBuscarDT.addEventListener("click", buscarDT);
     el.btnCheckin.addEventListener("click", fazerCheckin);
   }
