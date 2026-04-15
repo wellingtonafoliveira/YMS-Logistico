@@ -1952,6 +1952,142 @@
     .login-screen.hidden{display:none !important}
     .app.hidden{display:none !important}
     .sidebar-backdrop.hidden{display:none !important; opacity:0 !important; pointer-events:none !important}
+
+    .brazil-map-wrap{
+      position:relative;
+      min-height:560px;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:26px;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.08), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .brazil-map-stage{
+      position:relative;
+      width:100%;
+      min-height:560px;
+      padding:18px;
+    }
+
+    .brazil-map-svg{
+      width:100%;
+      height:560px;
+      opacity:.92;
+      filter:drop-shadow(0 18px 36px rgba(0,0,0,.18));
+    }
+
+    #ufPointsLayer{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+    }
+
+    .uf-point{
+      position:absolute;
+      transform:translate(-50%,-50%);
+      pointer-events:auto;
+      cursor:default;
+    }
+
+    .uf-point-dot{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      border:2px solid rgba(255,255,255,.22);
+      background:radial-gradient(circle at 30% 30%, rgba(96,165,250,.95), rgba(37,99,235,.88));
+      color:#fff;
+      font-size:11px;
+      font-weight:900;
+      box-shadow:0 10px 28px rgba(37,99,235,.30);
+    }
+
+    .uf-point-label{
+      margin-top:6px;
+      padding:5px 8px;
+      border-radius:999px;
+      background:rgba(8,20,37,.90);
+      border:1px solid rgba(255,255,255,.08);
+      color:#dbeafe;
+      font-size:11px;
+      font-weight:800;
+      white-space:nowrap;
+      text-align:center;
+      box-shadow:0 10px 18px rgba(0,0,0,.14);
+    }
+
+    .uf-map-grid{
+      display:grid;
+      grid-template-columns:repeat(5, minmax(0, 1fr));
+      gap:12px;
+    }
+
+    .uf-card{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.10), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      padding:14px;
+      min-height:108px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      box-shadow:0 10px 24px rgba(0,0,0,.10);
+    }
+
+    .uf-card.active{
+      border-color:rgba(59,130,246,.28);
+      box-shadow:0 14px 30px rgba(37,99,235,.12);
+    }
+
+    .uf-card-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:8px;
+    }
+
+    .uf-card-top strong{
+      font-size:24px;
+      line-height:1;
+    }
+
+    .uf-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:30px;
+      height:30px;
+      border-radius:999px;
+      background:rgba(59,130,246,.12);
+      border:1px solid rgba(59,130,246,.20);
+      color:#dbeafe;
+      font-size:12px;
+      font-weight:900;
+      padding:0 8px;
+    }
+
+    .uf-card-meta{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.7;
+    }
+
+    @media (max-width:1200px){
+      .uf-map-grid{grid-template-columns:repeat(4, minmax(0, 1fr))}
+    }
+
+    @media (max-width:900px){
+      .uf-map-grid{grid-template-columns:repeat(3, minmax(0, 1fr))}
+    }
+
+    @media (max-width:640px){
+      .uf-map-grid{grid-template-columns:repeat(2, minmax(0, 1fr))}
+    }
 </style>
 </head>
 <body>
@@ -2060,6 +2196,7 @@
         <button id="menu-docas" data-short="Doc" onclick="setView('docas', this)"><span class="menu-text">Docas</span></button>
         <button id="menu-checkin" data-short="Chk" onclick="setView('checkin', this)"><span class="menu-text">Check-in</span></button>
         <button id="menu-relatorios" data-short="Rel" onclick="setView('relatorios', this)"><span class="menu-icon">📈</span><span class="menu-text">Relatórios</span></button>
+        <button id="menu-mapa" data-short="UF" onclick="setView('mapa', this)"><span class="menu-icon">🗺️</span><span class="menu-text">Mapa UF</span></button>
         <button id="menu-admin" data-short="Adm" onclick="setView('admin', this)"><span class="menu-icon">⚙️</span><span class="menu-text">Admin</span></button>
       </div>
 
@@ -2148,6 +2285,7 @@
               <div><label>Hora agenda</label><input id="a_hora_agenda" type="time"></div>
               <div><label>Transportadora</label><input id="a_transportadora"></div>
               <div><label>Cliente</label><input id="a_cliente"></div>
+              <div><label>UF</label><input id="a_uf" placeholder="Ex.: SP" maxlength="2"></div>
               <div><label>Tipo de carga</label><input id="a_tipo_carga"></div>
               <div><label>Tipo de veículo</label><input id="a_tipo_veiculo"></div>
               <div><label>Tipo de frete</label><input id="a_tipo_frete"></div>
@@ -2193,7 +2331,7 @@
             <table>
               <thead>
                 <tr>
-                  <th>DT</th><th>Data</th><th>Hora</th><th>Cliente</th><th>Transportadora</th><th>Doca</th><th>Status</th><th>SLA</th><th>Ações</th>
+                  <th>DT</th><th>Data</th><th>Hora</th><th>Cliente</th><th>UF</th><th>Transportadora</th><th>Doca</th><th>Status</th><th>SLA</th><th>Ações</th>
                 </tr>
               </thead>
               <tbody id="agendaTabela"></tbody>
@@ -2519,6 +2657,91 @@
         </div>
       </section>
 
+      <section id="view-mapa" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Mapa de entregas por UF</h3>
+            <p>Use a coluna UF para visualizar a distribuição das entregas no sistema, identificar concentração de carga por estado e acompanhar os pontos de entrega em um painel territorial mais visual.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>UFs com entregas</span>
+                <strong id="mapaUfAtivas">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>UF líder</span>
+                <strong id="mapaUfTop">-</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Mapa operacional</h3>
+            <p>Os pontos abaixo representam as entregas por estado no filtro aplicado. Quanto maior o ponto, maior a concentração de DTs naquele destino.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card soft-glow">
+            <div class="card-title-row">
+              <div>
+                <h2 style="margin:0">Mapa territorial</h2>
+                <p>Pontos de entrega por UF em um mapa visual do Brasil.</p>
+              </div>
+              <span class="premium-badge">Entregas por estado</span>
+            </div>
+            <div class="brazil-map-wrap">
+              <div class="brazil-map-stage" id="brazilMapStage">
+                <svg class="brazil-map-svg" viewBox="0 0 800 620" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="mapGlow" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#143055"/>
+                      <stop offset="100%" stop-color="#0b1f38"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M177 123 L265 84 L358 108 L428 81 L512 108 L609 94 L691 147 L676 235 L711 304 L652 383 L588 420 L548 507 L432 523 L345 480 L248 504 L185 435 L120 410 L102 335 L132 278 L118 218 Z"
+                        fill="url(#mapGlow)" stroke="rgba(255,255,255,.18)" stroke-width="2" />
+                </svg>
+                <div id="ufPointsLayer"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card soft-glow">
+            <div class="card-title-row">
+              <div>
+                <h2 style="margin:0">Top destinos</h2>
+                <p>Estados com maior volume de DTs no filtro atual.</p>
+              </div>
+              <span class="premium-badge">Concentração</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>UF</th>
+                    <th>DTs</th>
+                    <th>Caixas</th>
+                    <th>HE</th>
+                    <th>HO</th>
+                  </tr>
+                </thead>
+                <tbody id="mapaTabelaUF"></tbody>
+              </table>
+            </div>
+
+            <div class="card" style="margin-top:16px">
+              <div class="card-title-row">
+                <div>
+                  <h2 style="margin:0">Resumo por UF</h2>
+                  <p>Leitura rápida dos estados com entregas ativas.</p>
+                </div>
+                <span class="premium-badge">Resumo</span>
+              </div>
+              <div class="uf-map-grid" id="ufMapGrid"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="view-admin" class="hidden">
         <div class="section-hero">
           <div class="section-hero-card soft-glow">
@@ -2721,6 +2944,10 @@
           <strong id="resumo_transportadora">-</strong>
         </div>
         <div class="modal-summary-card">
+          <span>UF</span>
+          <strong id="resumo_uf">-</strong>
+        </div>
+        <div class="modal-summary-card">
           <span>Doca / Janela</span>
           <strong id="resumo_doca">-</strong>
         </div>
@@ -2737,6 +2964,7 @@
             <div><label>Ordem</label><input id="m_ordem"></div>
             <div><label>Remessa</label><input id="m_remessa"></div>
             <div><label>Cliente</label><input id="m_cliente"></div>
+            <div><label>UF</label><input id="m_uf" maxlength="2"></div>
             <div><label>Transportadora</label><input id="m_transportadora"></div>
             <div><label>Data agenda</label><input id="m_data_agenda" type="date"></div>
             <div><label>Hora agenda</label><input id="m_hora_agenda" type="time"></div>
@@ -3391,6 +3619,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       renderDocas();
       renderCheckin();
       renderRelatorios();
+      renderMapa();
       carregarSelectPatio();
       carregarSelectCheckin();
     }
@@ -3424,6 +3653,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         hora_agenda: document.getElementById("a_hora_agenda").value || null,
         transportadora: document.getElementById("a_transportadora").value.trim() || null,
         cliente: document.getElementById("a_cliente").value.trim() || null,
+        uf: (document.getElementById("a_uf").value.trim() || "").toUpperCase() || null,
         tipo_carga: document.getElementById("a_tipo_carga").value.trim() || null,
         tipo_veiculo: document.getElementById("a_tipo_veiculo").value.trim() || null,
         tipo_frete: document.getElementById("a_tipo_frete").value.trim() || null,
@@ -3484,7 +3714,8 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         { label:"DTs do dia", value: rows.length, sub:"cadastros filtrados", cls:"status-blue", icon:"🗓️" },
         { label:"Agendadas", value: rows.filter(x=>x.status_global==="Agendado").length, sub:"planejamento", cls:"status-gray", icon:"📌" },
         { label:"Com doca", value: rows.filter(x=>x.doca_agenda).length, sub:"pré-definidas", cls:"status-purple", icon:"🚪" },
-        { label:"Peso total", value: rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0), sub:"kg planejados", cls:"status-cyan", icon:"⚖️" }
+        { label:"Peso total", value: rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0), sub:"kg planejados", cls:"status-cyan", icon:"⚖️" },
+        { label:"UFs ativas", value: new Set(rows.map(x => String(x.uf || "").toUpperCase()).filter(Boolean)).size, sub:"destinos no filtro", cls:"status-green", icon:"🗺️" }
       ];
       document.getElementById("agendaKpis").innerHTML = cards.map(k => `
         <div class="kpi ${k.cls}">
@@ -3499,7 +3730,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       document.getElementById("agendaTabela").innerHTML = rows.map(r => {
         const sla = calcSla(r);
         return `<tr>
-          <td>${esc(r.dt)}</td><td>${fmtDate(r.data_agenda)}</td><td>${esc(r.hora_agenda)}</td><td>${esc(r.cliente)}</td><td>${esc(r.transportadora)}</td><td>${esc(r.doca_agenda)}</td>
+          <td>${esc(r.dt)}</td><td>${fmtDate(r.data_agenda)}</td><td>${esc(r.hora_agenda)}</td><td>${esc(r.cliente)}</td><td>${esc(r.uf || "-")}</td><td>${esc(r.transportadora)}</td><td>${esc(r.doca_agenda)}</td>
           <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span></td>
           <td><span class="${sla.cls}">${sla.label}</span></td>
           <td><div class="mini-actions"><button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button><button class="mini orange" onclick="mudarStatus('${esc(r.id)}','Em Separação')">Separação</button></div></td>
@@ -3588,6 +3819,85 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
           <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span></td>
           <td><div class="mini-actions"><button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button></div></td>
         </tr>`).join("");
+    }
+
+
+    function renderMapa(){
+      const rows = linhasFiltradas();
+      const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
+      const UF_COORDS = {
+        AC:{x:120,y:330}, AL:{x:620,y:330}, AP:{x:505,y:125}, AM:{x:240,y:205}, BA:{x:575,y:330},
+        CE:{x:625,y:238}, DF:{x:470,y:330}, ES:{x:585,y:408}, GO:{x:440,y:340}, MA:{x:555,y:238},
+        MT:{x:340,y:305}, MS:{x:355,y:400}, MG:{x:520,y:390}, PA:{x:455,y:185}, PB:{x:666,y:265},
+        PR:{x:475,y:465}, PE:{x:645,y:292}, PI:{x:575,y:270}, RJ:{x:560,y:430}, RN:{x:690,y:238},
+        RS:{x:410,y:555}, RO:{x:185,y:285}, RR:{x:278,y:95}, SC:{x:455,y:515}, SP:{x:485,y:430},
+        SE:{x:610,y:352}, TO:{x:470,y:245}
+      };
+
+      const ufData = UFS.map(uf => {
+        const itens = rows.filter(r => String(r.uf || "").toUpperCase() === uf);
+        return {
+          uf,
+          total: itens.length,
+          caixas: itens.reduce((a,b)=>a+(Number(b.total_caixas)||0),0),
+          he: itens.reduce((a,b)=>a+(Number(b.he)||0),0),
+          ho: itens.reduce((a,b)=>a+(Number(b.ho)||0),0),
+          coord: UF_COORDS[uf]
+        };
+      });
+
+      const ativas = ufData.filter(x => x.total > 0);
+      const top = [...ativas].sort((a,b)=>b.total-a.total)[0] || null;
+
+      const mapaUfAtivas = document.getElementById("mapaUfAtivas");
+      const mapaUfTop = document.getElementById("mapaUfTop");
+      if(mapaUfAtivas) mapaUfAtivas.textContent = ativas.length;
+      if(mapaUfTop) mapaUfTop.textContent = top ? `${top.uf} • ${top.total}` : "-";
+
+      const grid = document.getElementById("ufMapGrid");
+      if(grid){
+        grid.innerHTML = ufData.map(item => `
+          <div class="uf-card ${item.total > 0 ? "active" : ""}">
+            <div class="uf-card-top">
+              <strong>${item.uf}</strong>
+              <span class="uf-badge">${item.total}</span>
+            </div>
+            <div class="uf-card-meta">
+              DTs: ${item.total}<br>
+              Caixas: ${item.caixas || 0}
+            </div>
+          </div>
+        `).join("");
+      }
+
+      const layer = document.getElementById("ufPointsLayer");
+      if(layer){
+        layer.innerHTML = ativas.map(item => {
+          const size = Math.max(18, Math.min(44, 16 + (item.total * 3)));
+          const left = item.coord?.x || 0;
+          const top = item.coord?.y || 0;
+          return `
+            <div class="uf-point" style="left:${left}px; top:${top}px;" title="${item.uf} • ${item.total} DTs • ${item.caixas} caixas">
+              <div class="uf-point-dot" style="width:${size}px;height:${size}px;">${item.total}</div>
+              <div class="uf-point-label">${item.uf}</div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      const tbody = document.getElementById("mapaTabelaUF");
+      if(tbody){
+        const topRows = [...ativas].sort((a,b)=>b.total-a.total || b.caixas-a.caixas).slice(0,10);
+        tbody.innerHTML = topRows.length ? topRows.map(item => `
+          <tr>
+            <td>${item.uf}</td>
+            <td>${item.total}</td>
+            <td>${item.caixas}</td>
+            <td>${item.he}</td>
+            <td>${item.ho}</td>
+          </tr>
+        `).join("") : `<tr><td colspan="5" style="color:var(--muted)">Nenhuma UF encontrada no filtro atual.</td></tr>`;
+      }
     }
 
     function renderRelatorios(){
@@ -3789,17 +4099,20 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         dt: document.getElementById("resumo_dt"),
         status: document.getElementById("resumo_status"),
         transportadora: document.getElementById("resumo_transportadora"),
+        uf: document.getElementById("resumo_uf"),
         doca: document.getElementById("resumo_doca")
       };
       if(resumo.dt) resumo.dt.textContent = row.dt || "-";
       if(resumo.status) resumo.status.textContent = row.status_global || "-";
       if(resumo.transportadora) resumo.transportadora.textContent = row.transportadora || "-";
+      if(resumo.uf) resumo.uf.textContent = row.uf || "-";
       if(resumo.doca) resumo.doca.textContent = `${row.doca_carregamento || row.doca_agenda || row.doca_planejada || "-"} • ${row.hora_agenda || "Sem janela"}`;
       const set = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? ""; };
       set("m_dt", row.dt);
       set("m_ordem", row.ordem);
       set("m_remessa", row.remessa);
       set("m_cliente", row.cliente);
+      set("m_uf", row.uf);
       set("m_transportadora", row.transportadora);
       set("m_data_agenda", row.data_agenda);
       set("m_hora_agenda", row.hora_agenda);
@@ -3863,6 +4176,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         ordem: document.getElementById("m_ordem").value.trim() || null,
         remessa: document.getElementById("m_remessa").value.trim() || null,
         cliente: document.getElementById("m_cliente").value.trim() || null,
+        uf: (document.getElementById("m_uf").value.trim() || "").toUpperCase() || null,
         transportadora: document.getElementById("m_transportadora").value.trim() || null,
         data_agenda: document.getElementById("m_data_agenda").value || null,
         hora_agenda: document.getElementById("m_hora_agenda").value || null,
