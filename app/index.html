@@ -69,6 +69,34 @@
 
     .hidden{display:none !important}
 
+    .sidebar-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.42);
+      backdrop-filter:blur(2px);
+      opacity:0;
+      pointer-events:none;
+      transition:.22s ease;
+      z-index:260;
+    }
+
+    .topbar-menu-toggle{
+      display:none;
+      width:46px;
+      height:46px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg,rgba(19,35,58,.92),rgba(15,28,46,.84));
+      color:#fff;
+      cursor:pointer;
+      align-items:center;
+      justify-content:center;
+      font-size:20px;
+      font-weight:900;
+      flex-shrink:0;
+    }
+
+
     ::-webkit-scrollbar{width:10px;height:10px}
     ::-webkit-scrollbar-track{background:rgba(255,255,255,.04);border-radius:999px}
     ::-webkit-scrollbar-thumb{background:rgba(152,171,200,.30);border-radius:999px}
@@ -129,6 +157,52 @@
       outline:none;
       box-shadow:0 0 0 4px rgba(59,130,246,.14);
       border-color:rgba(59,130,246,.55);
+    }
+
+    .sidebar-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(2,10,22,.58);
+      backdrop-filter:blur(3px);
+      z-index:80;
+    }
+
+    .mobile-menu-toggle{
+      position:fixed;
+      right:16px;
+      top:16px;
+      width:48px;
+      height:48px;
+      border:none;
+      border-radius:16px;
+      background:linear-gradient(135deg,#1d4ed8,#2563eb);
+      color:#fff;
+      font-size:20px;
+      font-weight:900;
+      box-shadow:0 18px 36px rgba(37,99,235,.28);
+      z-index:95;
+      cursor:pointer;
+    }
+
+    .human-text{
+      color:#c9d8f4;
+      line-height:1.75;
+    }
+
+    .section-hero-card p,
+    .report-hero-card p,
+    .title p,
+    .brand-sub,
+    .sidebar-note{
+      color:#b8cae8;
+    }
+
+    .sidebar{
+      z-index:90;
+    }
+
+    .menu button{
+      min-height:46px;
     }
 
     .btn,
@@ -662,6 +736,77 @@
       z-index:2;
     }
     .count{background:#152640;border:1px solid var(--line);color:var(--muted);font-size:11px;padding:4px 8px;border-radius:999px;font-weight:900}
+    .lane h3{margin:0;font-size:15px}
+    .lane.stage-gray{
+      border-color:rgba(100,116,139,.35);
+      box-shadow:inset 3px 0 0 rgba(100,116,139,.85);
+    }
+    .lane.stage-orange{
+      border-color:rgba(245,158,11,.35);
+      box-shadow:inset 3px 0 0 rgba(245,158,11,.90);
+    }
+    .lane.stage-green{
+      border-color:rgba(34,197,94,.35);
+      box-shadow:inset 3px 0 0 rgba(34,197,94,.90);
+    }
+    .lane.stage-blue{
+      border-color:rgba(59,130,246,.35);
+      box-shadow:inset 3px 0 0 rgba(59,130,246,.90);
+    }
+    .lane.stage-purple{
+      border-color:rgba(139,92,246,.35);
+      box-shadow:inset 3px 0 0 rgba(139,92,246,.90);
+    }
+    .lane.stage-cyan{
+      border-color:rgba(6,182,212,.35);
+      box-shadow:inset 3px 0 0 rgba(6,182,212,.90);
+    }
+
+    .lane.stage-gray .lane-head h3{color:#cbd5e1}
+    .lane.stage-orange .lane-head h3{color:#fbbf24}
+    .lane.stage-green .lane-head h3{color:#4ade80}
+    .lane.stage-blue .lane-head h3{color:#60a5fa}
+    .lane.stage-purple .lane-head h3{color:#a78bfa}
+    .lane.stage-cyan .lane-head h3{color:#22d3ee}
+
+    .lane.stage-gray .count{
+      background:rgba(100,116,139,.16);
+      border-color:rgba(100,116,139,.28);
+      color:#cbd5e1;
+    }
+    .lane.stage-orange .count{
+      background:rgba(245,158,11,.14);
+      border-color:rgba(245,158,11,.26);
+      color:#fbbf24;
+    }
+    .lane.stage-green .count{
+      background:rgba(34,197,94,.14);
+      border-color:rgba(34,197,94,.26);
+      color:#4ade80;
+    }
+    .lane.stage-blue .count{
+      background:rgba(59,130,246,.14);
+      border-color:rgba(59,130,246,.26);
+      color:#93c5fd;
+    }
+    .lane.stage-purple .count{
+      background:rgba(139,92,246,.14);
+      border-color:rgba(139,92,246,.26);
+      color:#c4b5fd;
+    }
+    .lane.stage-cyan .count{
+      background:rgba(6,182,212,.14);
+      border-color:rgba(6,182,212,.26);
+      color:#67e8f9;
+    }
+
+    .lane.stage-gray .item:hover{border-color:rgba(100,116,139,.30)}
+    .lane.stage-orange .item:hover{border-color:rgba(245,158,11,.30)}
+    .lane.stage-green .item:hover{border-color:rgba(34,197,94,.30)}
+    .lane.stage-blue .item:hover{border-color:rgba(59,130,246,.30)}
+    .lane.stage-purple .item:hover{border-color:rgba(139,92,246,.30)}
+    .lane.stage-cyan .item:hover{border-color:rgba(6,182,212,.30)}
+
     .item{background:linear-gradient(180deg,#14233a,#102034);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px;margin-bottom:10px;cursor:pointer;transition:.2s}
     .item:hover{transform:translateY(-1px)}
     .item strong{display:block;margin-bottom:6px}
@@ -1083,23 +1228,61 @@
     }
     @media (max-width:900px){
       .app,
-      .app.sidebar-collapsed{grid-template-columns:1fr}
-      .sidebar{position:relative;height:auto}
-      .main{padding:16px}
+      .app.sidebar-collapsed{
+        display:block;
+      }
+
+      .sidebar{
+        position:fixed;
+        left:0;
+        top:0;
+        width:min(86vw,320px);
+        height:100vh;
+        z-index:320;
+        transform:translateX(0);
+        transition:transform .24s ease;
+        box-shadow:0 24px 60px rgba(0,0,0,.34);
+      }
+
+      .app.sidebar-collapsed .sidebar{
+        transform:translateX(-108%);
+      }
+
+      .app:not(.sidebar-collapsed) ~ .sidebar-backdrop,
+      .sidebar-backdrop.show{
+        opacity:1;
+        pointer-events:auto;
+      }
+
+      .main{
+        padding:16px;
+      }
+
       .title h1{font-size:28px}
+
       .app.sidebar-collapsed .user-box,
       .app.sidebar-collapsed .sidebar-note,
       .app.sidebar-collapsed .logout-btn,
       .app.sidebar-collapsed .menu button span{
         display:block !important;
       }
+
       .app.sidebar-collapsed .menu button::before{
         display:none;
       }
-    }
-  </style>
+
+      .topbar-menu-toggle{
+        display:inline-flex;
+      }
+
+      .topbar{
+        align-items:center;
+      }
+    }  </style>
 </head>
 <body>
+  <button class="mobile-menu-toggle hidden" id="mobileMenuToggle" type="button" aria-label="Abrir menu">☰</button>
+  <div class="sidebar-backdrop hidden" id="sidebarBackdrop"></div>
   <div class="login-screen" id="loginScreen">
     <div class="login-box">
       <img src="logo.png" alt="YMS">
@@ -1112,6 +1295,7 @@
     </div>
   </div>
 
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
   <div class="app hidden" id="app">
     <aside class="sidebar">
       <div class="sidebar-top">
@@ -1122,7 +1306,7 @@
             <small class="brand-sub">Agenda, operação e pátio em tempo real</small>
           </div>
         </div>
-        <button class="sidebar-toggle" id="sidebarToggle" type="button" title="Ocultar menu">☰</button>
+        <button class="sidebar-toggle" id="sidebarToggle" type="button" title="Ocultar menu"><span id="sidebarToggleIcon">❮</span></button>
       </div>
 
       <div class="user-box">
@@ -1146,8 +1330,8 @@
       </div>
 
       <div class="sidebar-note">
-        <strong>Fluxo:</strong><br>
-        Agendado → Em Separação → Separado → Pronto Expedição → No Pátio → Em Doca → Em Carregamento → Expedido
+        <strong>Fluxo operacional:</strong><br>
+        Acompanhe cada etapa da carga com mais clareza, previsibilidade e menos esforço visual.
       </div>
 
       <button class="logout-btn" onclick="logout()">Sair</button>
@@ -1155,10 +1339,11 @@
 
     <main class="main premium-shell">
       <div class="topbar">
+        <button class="topbar-menu-toggle" id="topbarMenuToggle" type="button" title="Ocultar menu"><span id="topbarMenuToggleIcon">❮</span></button>
         <div class="title">
           <div class="topbar-badge">Gestão Logística Plus • Operação em tempo real</div>
           <h1 id="pageTitle">Dashboard</h1>
-          <p>Gestão integrada da agenda, pátio, expedição e docas, com visão operacional mais premium e leitura mais inteligente da operação.</p>
+          <p>Gestão integrada da agenda, pátio, expedição e docas, com uma leitura mais clara, humana e confortável para quem opera o sistema todos os dias.</p>
         </div>
         <div class="actions soft-glow">
           <div>
@@ -1174,6 +1359,15 @@
       </div>
 
       <section id="view-dashboard">
+        <div class="card soft-glow" style="margin-bottom:16px">
+          <div class="card-title-row">
+            <div>
+              <h2 style="margin:0">Visão do dia</h2>
+              <p>Uma leitura mais leve da operação para ajudar a equipe a identificar prioridades sem excesso de informação.</p>
+            </div>
+            <span class="premium-badge">Mais humano</span>
+          </div>
+        </div>
         <div class="grid grid-4" id="dashboardKpis"></div>
         <div class="card soft-glow" style="margin-top:16px">
           <div class="card-title-row"><div><h2 style="margin:0">Torre de etapas</h2><p>Visão consolidada das etapas da operação com rolagem dedicada por coluna.</p></div><span class="premium-badge">Tempo real</span></div>
@@ -1595,7 +1789,7 @@
         <div class="section-hero">
           <div class="section-hero-card soft-glow">
             <h3>Administração do sistema</h3>
-            <p>Área exclusiva para importação da agenda, gestão de usuários internos e acompanhamento técnico da integração com o Supabase.</p>
+            <p>Área exclusiva para importação da agenda, gestão de usuários internos e acompanhamento técnico da integração com o Supabase, mantendo o controle mais simples e confiável.</p>
             <div class="section-mini-grid">
               <div class="section-mini">
                 <span>Usuários carregados</span>
@@ -2112,6 +2306,9 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(savedSidebar === "1"){
         document.getElementById("app")?.classList.add("sidebar-collapsed");
       }
+      if(window.innerWidth <= 900 && !savedSidebar){
+        document.getElementById("app")?.classList.add("sidebar-collapsed");
+      }
     }catch(_){}
 
 
@@ -2121,22 +2318,51 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       card.classList.toggle("hidden", viewAtualGlobal !== "admin");
     }
 
-    function alternarSidebar(){
+    function atualizarIconesSidebar(){
+      const app = document.getElementById("app");
+      const recolhido = !!app?.classList.contains("sidebar-collapsed");
+      const sidebarBtn = document.getElementById("sidebarToggle");
+      const topbarBtn = document.getElementById("topbarMenuToggle");
+      const sidebarIcon = document.getElementById("sidebarToggleIcon");
+      const topbarIcon = document.getElementById("topbarMenuToggleIcon");
+      const backdrop = document.getElementById("sidebarBackdrop");
+
+      if(sidebarBtn) sidebarBtn.title = recolhido ? "Expandir menu" : "Ocultar menu";
+      if(topbarBtn) topbarBtn.title = recolhido ? "Expandir menu" : "Ocultar menu";
+      if(sidebarIcon) sidebarIcon.textContent = recolhido ? "❯" : "❮";
+      if(topbarIcon) topbarIcon.textContent = recolhido ? "☰" : "✕";
+      if(backdrop){
+        const mobile = window.matchMedia("(max-width: 900px)").matches;
+        backdrop.classList.toggle("show", mobile && !recolhido);
+      }
+    }
+
+    function alternarSidebar(forceState){
       const app = document.getElementById("app");
       if(!app) return;
-      app.classList.toggle("sidebar-collapsed");
-      const btn = document.getElementById("sidebarToggle");
-      const recolhido = app.classList.contains("sidebar-collapsed");
-      if(btn){
-        btn.title = recolhido ? "Expandir menu" : "Ocultar menu";
+      if(typeof forceState === "boolean"){
+        app.classList.toggle("sidebar-collapsed", forceState);
+      }else{
+        app.classList.toggle("sidebar-collapsed");
       }
+      const recolhido = app.classList.contains("sidebar-collapsed");
       try{
         localStorage.setItem("glp_sidebar_collapsed", recolhido ? "1" : "0");
       }catch(_){}
+      atualizarIconesSidebar();
     }
 
-
     const STAGES = ["Agendado","Em Separação","Separado","Pronto Expedição","No Pátio","Em Doca","Em Carregamento","Expedido"];
+    const STAGE_COLOR_CLASS = {
+      "Agendado":"stage-gray",
+      "Em Separação":"stage-orange",
+      "Separado":"stage-green",
+      "Pronto Expedição":"stage-cyan",
+      "No Pátio":"stage-blue",
+      "Em Doca":"stage-purple",
+      "Em Carregamento":"stage-cyan",
+      "Expedido":"stage-green"
+    };
 
     function clsStatus(s){
       return {
@@ -2217,6 +2443,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       const viewEl = document.getElementById(`view-${view}`);
       if(viewEl) viewEl.classList.remove("hidden");
       atualizarVisibilidadeStatusConexao();
+    atualizarIconesSidebar();
       if(view === "admin" && usuarioPerfil === "admin"){
         carregarUsuariosAdmin();
       }
@@ -2499,7 +2726,8 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         </div>`).join("");
       document.getElementById("dashboardBoard").innerHTML = STAGES.map(st => {
         const itens = rows.filter(r => r.status_global === st);
-        return `<div class="lane" data-status="${esc(st)}">
+        const laneClass = STAGE_COLOR_CLASS[st] || "";
+        return `<div class="lane ${laneClass}" data-status="${esc(st)}">
           <div class="lane-head"><h3>${esc(st)}</h3><span class="count">${itens.length}</span></div>
           ${itens.map(r => `<div class="item" draggable="true" data-id="${esc(r.id)}" onclick="abrirDTPorId('${esc(r.id)}')"><strong>DT ${esc(r.dt || "-")}</strong><div class="meta">${esc(r.transportadora || "-")}<br>${esc(r.cliente || "-")}</div></div>`).join("") || `<div class="meta">Sem registros.</div>`}
         </div>`;
