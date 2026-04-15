@@ -279,18 +279,16 @@
       will-change:transform;
     }
 
+    
     .login-screen{
       min-height:100vh;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:24px;
-      background:
-        radial-gradient(circle at top left, rgba(59,130,246,.18), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(34,197,94,.10), transparent 24%),
-        linear-gradient(180deg, rgba(7,16,29,.88), rgba(8,17,31,.92));
+      padding:34px;
       position:relative;
       overflow:hidden;
+      background:#07101d;
     }
 
     .login-screen::before{
@@ -298,39 +296,173 @@
       position:absolute;
       inset:0;
       background:
-        linear-gradient(rgba(7,16,29,.58), rgba(7,16,29,.74)),
-        url('Foto armazém.jpg') center center / cover no-repeat;
+        linear-gradient(90deg, rgba(5,12,24,.90) 0%, rgba(5,12,24,.80) 34%, rgba(5,12,24,.58) 58%, rgba(5,12,24,.82) 100%),
+        linear-gradient(180deg, rgba(7,16,29,.18), rgba(7,16,29,.58)),
+        url('gestao-de-patio.jpg') center center / cover no-repeat;
       z-index:0;
+      transform:scale(1.02);
     }
 
-    .login-box{
-      width:min(460px,100%);
+    .login-screen::after{
+      content:"";
+      position:absolute;
+      inset:0;
       background:
-        radial-gradient(circle at top right, rgba(59,130,246,.12), transparent 28%),
-        linear-gradient(180deg,rgba(17,28,47,.96),rgba(13,23,39,.94));
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:28px;
-      box-shadow:0 28px 70px rgba(0,0,0,.34);
-      padding:34px 30px;
-      text-align:center;
-      backdrop-filter:blur(18px);
+        radial-gradient(circle at 18% 24%, rgba(59,130,246,.18), transparent 22%),
+        radial-gradient(circle at 80% 18%, rgba(34,197,94,.10), transparent 18%),
+        radial-gradient(circle at 75% 80%, rgba(6,182,212,.10), transparent 16%);
+      z-index:0;
+      pointer-events:none;
+    }
+
+    .login-layout{
+      width:min(1320px, 100%);
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:28px;
+      align-items:stretch;
       position:relative;
       z-index:1;
     }
 
-    .login-box img{
-      width:92px;
-      height:92px;
-      object-fit:contain;
-      margin-bottom:16px;
-      background:#fff;
-      border-radius:22px;
-      padding:8px;
-      box-shadow:0 14px 34px rgba(0,0,0,.25);
+    .login-showcase{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:34px;
+      background:
+        linear-gradient(180deg, rgba(7,16,29,.18), rgba(7,16,29,.10));
+      backdrop-filter:blur(6px);
+      padding:36px 34px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      min-height:640px;
+      box-shadow:0 24px 70px rgba(0,0,0,.24);
     }
 
-    .login-box h2{margin:0 0 8px;font-size:30px;letter-spacing:-.02em}
-    .login-box p{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.7}
+    .login-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      width:max-content;
+      padding:9px 14px;
+      border-radius:999px;
+      background:rgba(59,130,246,.12);
+      border:1px solid rgba(59,130,246,.20);
+      color:#dbeafe;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.02em;
+      margin-bottom:18px;
+    }
+
+    .login-hero h1{
+      margin:0;
+      font-size:54px;
+      line-height:1.02;
+      letter-spacing:-.04em;
+      max-width:720px;
+    }
+
+    .login-hero p{
+      margin:18px 0 0;
+      max-width:700px;
+      color:#c4d2ea;
+      font-size:17px;
+      line-height:1.85;
+    }
+
+    .login-features{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:14px;
+      margin-top:26px;
+    }
+
+    .login-feature{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px;
+      background:linear-gradient(180deg, rgba(17,28,47,.72), rgba(13,23,39,.44));
+      backdrop-filter:blur(10px);
+      padding:16px 16px 15px;
+      box-shadow:0 14px 34px rgba(0,0,0,.12);
+    }
+
+    .login-feature strong{
+      display:block;
+      font-size:15px;
+      margin-bottom:8px;
+    }
+
+    .login-feature span{
+      color:#b7c8e4;
+      font-size:13px;
+      line-height:1.7;
+      display:block;
+    }
+
+    .login-flow{
+      margin-top:18px;
+      border:1px solid rgba(59,130,246,.16);
+      border-radius:24px;
+      background:linear-gradient(180deg, rgba(17,28,47,.62), rgba(13,23,39,.38));
+      padding:18px 18px 16px;
+    }
+
+    .login-flow strong{
+      display:block;
+      margin-bottom:10px;
+      font-size:15px;
+    }
+
+    .login-flow p{
+      margin:0;
+      color:#d5e7ff;
+      font-size:15px;
+      line-height:1.9;
+    }
+
+    .login-box{
+      width:100%;
+      max-width:460px;
+      margin-left:auto;
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.14), transparent 24%),
+        linear-gradient(180deg,rgba(17,28,47,.96),rgba(13,23,39,.94));
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:32px;
+      box-shadow:0 28px 80px rgba(0,0,0,.34);
+      padding:38px 32px 30px;
+      text-align:center;
+      backdrop-filter:blur(18px);
+      position:relative;
+      z-index:1;
+      align-self:center;
+    }
+
+    .login-box img{
+      width:90px;
+      height:90px;
+      object-fit:contain;
+      margin-bottom:18px;
+      background:#fff;
+      border-radius:24px;
+      padding:10px;
+      box-shadow:0 16px 40px rgba(0,0,0,.24);
+    }
+
+    .login-box h2{
+      margin:0 0 10px;
+      font-size:42px;
+      line-height:1.05;
+      letter-spacing:-.04em;
+    }
+
+    .login-box p{
+      margin:0 0 22px;
+      color:#b7c8e4;
+      font-size:14px;
+      line-height:1.8;
+    }
 
     .login-box input,
     input,select,textarea{
@@ -345,9 +477,9 @@
     }
 
     .login-box input{
-      margin-bottom:10px;
-      padding:14px 15px;
-      border-radius:16px;
+      margin-bottom:12px;
+      padding:15px 16px;
+      border-radius:18px;
       background:rgba(13,23,40,.88);
     }
 
@@ -366,14 +498,16 @@
 
     .login-box button{
       width:100%;
-      padding:14px;
+      padding:15px;
+      margin-top:2px;
       background:linear-gradient(135deg,var(--blue),#2563eb);
       color:#fff;
       border:none;
-      border-radius:16px;
+      border-radius:18px;
       font-weight:900;
       cursor:pointer;
       box-shadow:0 16px 28px rgba(37,99,235,.22);
+      font-size:15px;
     }
 
     .login-box button:hover,
@@ -382,12 +516,20 @@
       filter:brightness(1.04);
     }
 
+    .login-note{
+      margin-top:16px;
+      color:#8fa5c8;
+      font-size:12px;
+      line-height:1.7;
+    }
+
     .login-error{
       margin-top:10px;
       font-size:12px;
       color:#fca5a5;
       min-height:16px;
     }
+
 
     .app{
       display:grid;
