@@ -2401,7 +2401,7 @@
           </div>
           <div class="section-hero-card soft-glow">
             <h3>Movimentação inteligente</h3>
-            <p>Controle a passagem da DT por cada etapa operacional, registre fila real do pátio, chame o motorista e use ligação direta quando houver telefone disponível.</p>
+            <p>Controle a passagem da DT por cada etapa operacional, registre a fila real do pátio, chame o motorista no sistema e envie mensagem direta quando houver telefone disponível.</p>
           </div>
         </div>
 
@@ -3377,19 +3377,10 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       return row?.telefone_motorista || row?.telefone || "";
     }
 
-    function abrirLigacao(telefone){
-      const tel = normalizarTelefone(telefone);
-      if(!tel){
-        alert("Telefone do motorista não disponível para ligação.");
-        return;
-      }
-      window.open(`tel:${tel}`, "_self");
-    }
-
     function abrirWhatsApp(telefone, mensagem){
       const tel = normalizarTelefone(telefone);
       if(!tel){
-        alert("Telefone do motorista não disponível para WhatsApp.");
+        alert("Telefone do motorista não disponível para envio de mensagem.");
         return;
       }
       const texto = encodeURIComponent(mensagem || "Favor seguir para a próxima etapa operacional.");
@@ -4119,8 +4110,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
             const callRow = ["aguardando","chamado"].includes(r.status_fila) ? `
               <div class="queue-action-row">
                 <button class="mini green" onclick="event.stopPropagation();chamarMotorista('${esc(r.id)}')">Chamar</button>
-                <button class="mini blue" onclick="event.stopPropagation();ligarMotoristaDaFila('${esc(r.id)}')" ${phone ? "" : "disabled"}>Ligar</button>
-                <button class="mini orange" onclick="event.stopPropagation();whatsappMotoristaDaFila('${esc(r.id)}')" ${phone ? "" : "disabled"}>WhatsApp</button>
+                <button class="mini orange" onclick="event.stopPropagation();enviarMensagemMotoristaDaFila('${esc(r.id)}')" ${phone ? "" : "disabled"}>Enviar mensagem</button>
                 ${r.call_count ? `<span class="log-badge">${r.call_count} chamada(s)</span>` : ``}
               </div>` : ``;
             return `<div class="item" onclick="abrirDTPorId('${esc(r.agenda_id || r.id)}')">
@@ -4156,7 +4146,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         ocupadas++;
         const sla = calcSla(atual);
         const phone = getTelefoneMotorista(atual);
-        return `<div class="dock busy" onclick="abrirDTPorId('${esc(atual.agenda_id || atual.id)}')"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">${esc(atual.status_global || atual.status_fila || "Em Doca")}</span></div><div class="meta">DT: ${esc(atual.dt || "-")}<br>Transportadora: ${esc(atual.transportadora || "-")}<br>Motorista: ${esc(atual.motorista || "-")}<br>Placas: ${esc(formatPlacas(atual) || "-")}<br>Início: ${fmtDateTime(atual.inicio_carregamento || atual.chamado_at)}<br><span class="${sla.cls}">${sla.label}</span><div class="queue-action-row"><button class="mini blue" onclick="event.stopPropagation();ligarMotoristaDaFila('${esc(atual.id || atual.agenda_id)}')" ${phone ? "" : "disabled"}>Ligar</button></div></div></div>`;
+        return `<div class="dock busy" onclick="abrirDTPorId('${esc(atual.agenda_id || atual.id)}')"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">${esc(atual.status_global || atual.status_fila || "Em Doca")}</span></div><div class="meta">DT: ${esc(atual.dt || "-")}<br>Transportadora: ${esc(atual.transportadora || "-")}<br>Motorista: ${esc(atual.motorista || "-")}<br>Placas: ${esc(formatPlacas(atual) || "-")}<br>Início: ${fmtDateTime(atual.inicio_carregamento || atual.chamado_at)}<br><span class="${sla.cls}">${sla.label}</span><div class="queue-action-row"><button class="mini orange" onclick="event.stopPropagation();enviarMensagemMotoristaDaFila('${esc(atual.id || atual.agenda_id)}')" ${phone ? "" : "disabled"}>Enviar mensagem</button></div></div></div>`;
       }).join("");
       document.getElementById("docasLivreRef").textContent = livres;
       document.getElementById("docasOcupadaRef").textContent = ocupadas;
@@ -4901,20 +4891,15 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       document.getElementById("listaTransportadoras").innerHTML = (window._transportadoras || []).map(t => `<tr><td>${esc(t.nome)}</td><td>${esc(t.cnpj)}</td></tr>`).join("");
     }
 
-    function ligarMotoristaDaFila(id){
+    function enviarMensagemMotoristaDaFila(id){
       const fila = patioFilaRegistros.find(r => r.id === id || r.agenda_id === id);
       if(!fila) return alert("Registro da fila não encontrado.");
       const telefone = getTelefoneMotorista(fila);
       if(!telefone) return alert("Telefone do motorista não está disponível no registro.");
-      abrirLigacao(telefone);
-    }
-
-    function whatsappMotoristaDaFila(id){
-      const fila = patioFilaRegistros.find(r => r.id === id || r.agenda_id === id);
-      if(!fila) return alert("Registro da fila não encontrado.");
-      const telefone = getTelefoneMotorista(fila);
-      if(!telefone) return alert("Telefone do motorista não está disponível no registro.");
-      abrirWhatsApp(telefone, `Olá, motorista da DT ${fila.dt || "-"}, favor seguir para a próxima etapa operacional.`);
+      abrirWhatsApp(
+        telefone,
+        `Olá, motorista da DT ${fila.dt || "-"}, favor seguir para a próxima etapa operacional. ${fila.doca_destino ? "Dirija-se para " + fila.doca_destino + "." : ""}`
+      );
     }
 
     function filtrarPorKpi(label){
