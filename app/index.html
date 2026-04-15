@@ -2440,6 +2440,7 @@
               <div><label>DT</label><select id="p_dt" onchange="preencherPatio()"></select></div>
               <div><label>Doca carregamento</label><select id="p_doca"></select></div>
               <div><label>Motorista</label><input id="p_motorista"></div>
+              <div><label>Telefone motorista</label><input id="p_telefone_motorista" placeholder="11999998888"></div>
               <div><label>Placa cavalo</label><input id="p_placa_cavalo"></div>
               <div><label>Placa carreta</label><input id="p_placa_carreta"></div>
               <div><label>Placa reboque 1</label><input id="p_placa_reboque_1"></div>
@@ -2534,6 +2535,7 @@
             <div class="fields">
               <div><label>DT</label><select id="c_dt"></select></div>
               <div><label>Motorista</label><input id="c_motorista"></div>
+              <div><label>Telefone motorista</label><input id="c_telefone_motorista" placeholder="11999998888"></div>
               <div><label>Telefone motorista</label><input id="c_telefone_motorista" placeholder="11999999999"></div>
               <div><label>Placa cavalo</label><input id="c_placa_cavalo"></div>
               <div><label>Placa carreta</label><input id="c_placa_carreta"></div>
@@ -2569,7 +2571,7 @@
               <table>
                 <thead>
                   <tr>
-                    <th>DT</th><th>Transportadora</th><th>Motorista</th><th>Placas</th><th>Presença</th><th>Chegada</th><th>Status</th><th>Ações</th>
+                    <th>DT</th><th>Transportadora</th><th>Motorista</th><th>Telefone</th><th>Placas</th><th>Presença</th><th>Chegada</th><th>Status</th><th>Ações</th>
                   </tr>
                 </thead>
                 <tbody id="checkinTabela"></tbody>
@@ -2947,6 +2949,7 @@
             <div><label>Operador</label><input id="m_operador"></div>
             <div><label>Mão de obra</label><input id="m_mao_obra"></div>
             <div><label>Motorista</label><input id="m_motorista"></div>
+            <div><label>Telefone motorista</label><input id="m_telefone_motorista" placeholder="11999998888"></div>
             <div><label>Placa cavalo</label><input id="m_placa_cavalo"></div>
             <div><label>Placa carreta</label><input id="m_placa_carreta"></div>
             <div><label>Placa reboque 1</label><input id="m_placa_reboque_1"></div>
@@ -3371,6 +3374,23 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
 
     function normalizarTelefone(v){
       return String(v || "").replace(/\D/g, "");
+    }
+
+    function formatarTelefoneVisual(valor){
+      const numeros = normalizarTelefone(valor).slice(0, 11);
+      if(numeros.length <= 2) return numeros;
+      if(numeros.length <= 7) return `(${numeros.slice(0,2)}) ${numeros.slice(2)}`;
+      const parte1 = numeros.slice(2, numeros.length === 10 ? 6 : 7);
+      const parte2 = numeros.slice(numeros.length === 10 ? 6 : 7);
+      return `(${numeros.slice(0,2)}) ${parte1}-${parte2}`;
+    }
+
+    function aplicarMascaraTelefone(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.addEventListener("input", () => {
+        el.value = formatarTelefoneVisual(el.value);
+      });
     }
 
     function getTelefoneMotorista(row){
@@ -4163,11 +4183,17 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
           <td>${esc(r.dt)}</td>
           <td>${esc(r.transportadora)}</td>
           <td>${esc(r.motorista)}</td>
+          <td>${esc(formatarTelefoneVisual(r.telefone_motorista || "") || "-")}</td>
           <td>${esc(formatPlacas(r) || "-")}</td>
           <td>${esc(r.presente_ausente)}</td>
           <td>${fmtDateTime(r.chegada_motorista)}</td>
           <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span></td>
-          <td><div class="mini-actions"><button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button></div></td>
+          <td>
+            <div class="mini-actions">
+              <button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button>
+              <button class="mini orange" onclick="enviarMensagemPorAgenda('${esc(r.id)}')" ${getTelefoneMotorista(r) ? "" : "disabled"}>Enviar mensagem</button>
+            </div>
+          </td>
         </tr>`).join("");
     }
 
@@ -4290,6 +4316,16 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       return data;
     }
 
+    async function rpcLinkWhatsappMotoristaFila(filaId, mensagem = null){
+      const payload = {
+        p_fila_id: filaId,
+        p_mensagem: mensagem
+      };
+      const { data, error } = await sb.rpc("rpc_link_whatsapp_motorista", payload);
+      if(error) throw error;
+      return data;
+    }
+
     async function rpcEnviarParaDocaFila(filaId, doca){
       const { data: sessao } = await sb.auth.getSession();
       const user = sessao?.session?.user || null;
@@ -4324,6 +4360,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       const r = registros.find(x => x.id === id);
       document.getElementById("p_doca").value = r?.doca_carregamento || r?.doca_agenda || "";
       document.getElementById("p_motorista").value = r?.motorista || "";
+      document.getElementById("p_telefone_motorista").value = formatarTelefoneVisual(r?.telefone_motorista || "");
       document.getElementById("p_placa_cavalo").value = r?.placa_cavalo || "";
       document.getElementById("p_placa_carreta").value = r?.placa_carreta || "";
       document.getElementById("p_placa_reboque_1").value = r?.placa_reboque_1 || "";
@@ -4361,6 +4398,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         status_global: status,
         doca_carregamento: document.getElementById("p_doca").value || null,
         motorista: document.getElementById("p_motorista").value.trim() || null,
+        telefone_motorista: normalizarTelefone(document.getElementById("p_telefone_motorista").value) || null,
         placa_cavalo: document.getElementById("p_placa_cavalo").value.trim() || null,
         placa_carreta: document.getElementById("p_placa_carreta").value.trim() || null,
         placa_reboque_1: document.getElementById("p_placa_reboque_1").value.trim() || null,
@@ -4382,8 +4420,11 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(!requirePermission("checkin_operate", "Seu perfil não pode registrar check-in.")) return;
       const id = document.getElementById("c_dt").value;
       if(!id) return alert("Selecione a DT.");
+      const telefoneMotorista = normalizarTelefone(document.getElementById("c_telefone_motorista").value);
+      if(!telefoneMotorista || telefoneMotorista.length < 10) return alert("Informe um telefone válido do motorista.");
       const payload = {
         motorista: document.getElementById("c_motorista").value.trim() || null,
+        telefone_motorista: telefoneMotorista,
         placa_cavalo: document.getElementById("c_placa_cavalo").value.trim() || null,
         placa_carreta: document.getElementById("c_placa_carreta").value.trim() || null,
         placa_reboque_1: document.getElementById("c_placa_reboque_1").value.trim() || null,
@@ -4523,6 +4564,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       set("m_operador", row.operador);
       set("m_mao_obra", row.mao_obra);
       set("m_motorista", row.motorista);
+      set("m_telefone_motorista", formatarTelefoneVisual(row.telefone_motorista));
       set("m_placa_cavalo", row.placa_cavalo);
       set("m_placa_carreta", row.placa_carreta);
       set("m_placa_reboque_1", row.placa_reboque_1);
@@ -4587,6 +4629,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         operador: document.getElementById("m_operador").value.trim() || null,
         mao_obra: document.getElementById("m_mao_obra").value.trim() || null,
         motorista: document.getElementById("m_motorista").value.trim() || null,
+        telefone_motorista: normalizarTelefone(document.getElementById("m_telefone_motorista").value) || null,
         placa_cavalo: document.getElementById("m_placa_cavalo").value.trim() || null,
         placa_carreta: document.getElementById("m_placa_carreta").value.trim() || null,
         placa_reboque_1: document.getElementById("m_placa_reboque_1").value.trim() || null,
@@ -4891,15 +4934,43 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       document.getElementById("listaTransportadoras").innerHTML = (window._transportadoras || []).map(t => `<tr><td>${esc(t.nome)}</td><td>${esc(t.cnpj)}</td></tr>`).join("");
     }
 
-    function enviarMensagemMotoristaDaFila(id){
+    async function enviarMensagemMotoristaDaFila(id){
       const fila = patioFilaRegistros.find(r => r.id === id || r.agenda_id === id);
       if(!fila) return alert("Registro da fila não encontrado.");
       const telefone = getTelefoneMotorista(fila);
       if(!telefone) return alert("Telefone do motorista não está disponível no registro.");
+      try{
+        const result = await rpcLinkWhatsappMotoristaFila(
+          fila.id,
+          `Olá, motorista da DT ${fila.dt || "-"}, favor seguir para a próxima etapa operacional. ${fila.doca_destino ? "Dirija-se para " + fila.doca_destino + "." : ""}`
+        );
+        if(result?.whatsapp_url){
+          window.open(result.whatsapp_url, "_blank");
+          registrarLogSistema("mensagem_motorista", `Mensagem enviada para o motorista da DT ${fila.dt || "-"}`);
+          return;
+        }
+      }catch(err){
+        console.warn("RPC de WhatsApp indisponível, usando link direto.", err);
+      }
       abrirWhatsApp(
         telefone,
         `Olá, motorista da DT ${fila.dt || "-"}, favor seguir para a próxima etapa operacional. ${fila.doca_destino ? "Dirija-se para " + fila.doca_destino + "." : ""}`
       );
+      registrarLogSistema("mensagem_motorista", `Mensagem enviada para o motorista da DT ${fila.dt || "-"}`);
+    }
+
+    async function enviarMensagemPorAgenda(agendaId){
+      const agenda = registros.find(r => r.id === agendaId);
+      if(!agenda) return alert("Agenda não encontrada.");
+      const fila = patioFilaRegistros.find(r => r.agenda_id === agendaId);
+      if(fila) return await enviarMensagemMotoristaDaFila(fila.id);
+      const telefone = getTelefoneMotorista(agenda);
+      if(!telefone) return alert("Telefone do motorista não está disponível.");
+      abrirWhatsApp(
+        telefone,
+        `Olá, motorista da DT ${agenda.dt || "-"}, favor aguardar ou seguir a orientação operacional recebida.`
+      );
+      registrarLogSistema("mensagem_motorista", `Mensagem enviada para o motorista da DT ${agenda.dt || "-"}`);
     }
 
     function filtrarPorKpi(label){
@@ -4937,6 +5008,9 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       await verificarSessao();
     }
 
+    applyMascaraTelefone("p_telefone_motorista");
+    applyMascaraTelefone("c_telefone_motorista");
+    applyMascaraTelefone("m_telefone_motorista");
     document.getElementById("sidebarToggle")?.addEventListener("click", () => alternarSidebar());
     document.getElementById("topbarMenuToggle")?.addEventListener("click", () => alternarSidebar());
     document.getElementById("mobileMenuToggle")?.addEventListener("click", () => alternarSidebar(false));
