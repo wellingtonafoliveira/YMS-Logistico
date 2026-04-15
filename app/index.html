@@ -258,6 +258,72 @@
       pointer-events:none;
     }
 
+    .welcome-strip{
+      margin-top:18px;
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:stretch;
+      flex-wrap:wrap;
+      padding:16px 18px;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px;
+      background:
+        radial-gradient(circle at top right, rgba(34,197,94,.08), transparent 22%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+    }
+
+    .welcome-main{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:6px;
+      min-width:260px;
+      flex:1 1 320px;
+    }
+
+    .welcome-main strong{
+      font-size:20px;
+      line-height:1.1;
+    }
+
+    .welcome-main span{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+
+    .welcome-meta{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:10px;
+      min-width:min(420px, 100%);
+      flex:1 1 420px;
+    }
+
+    .welcome-pill{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(17,28,47,.72), rgba(13,23,39,.46));
+      padding:12px 14px;
+    }
+
+    .welcome-pill span{
+      display:block;
+      color:var(--muted);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      font-weight:800;
+      margin-bottom:8px;
+    }
+
+    .welcome-pill strong{
+      display:block;
+      font-size:18px;
+      line-height:1;
+    }
+
     .card-title-row{
       display:flex;
       justify-content:space-between;
@@ -1886,8 +1952,6 @@
 </head>
 <body>
   <button class="mobile-menu-toggle hidden" id="mobileMenuToggle" type="button" aria-label="Abrir menu">☰</button>
-  <div class="sidebar-backdrop hidden" id="sidebarBackdrop"></div>
-  
   <div class="login-screen" id="loginScreen">
     <div class="login-layout">
       <div class="login-showcase">
@@ -1960,7 +2024,7 @@
     </div>
   </div>
 
-  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <div class="sidebar-backdrop hidden" id="sidebarBackdrop"></div>
 
   <div class="app hidden" id="app">
     <aside class="sidebar">
@@ -3236,6 +3300,8 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(usuarioPerfil === "admin"){
         carregarUsuariosAdmin();
       }
+      atualizarSaudacaoSistema();
+      carregarTemperaturaSistema();
     }
 
     function aplicarPermissoes(){
