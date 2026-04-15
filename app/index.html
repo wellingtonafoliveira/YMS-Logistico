@@ -1952,6 +1952,64 @@
     .login-screen.hidden{display:none !important}
     .app.hidden{display:none !important}
     .sidebar-backdrop.hidden{display:none !important; opacity:0 !important; pointer-events:none !important}
+
+    .kpi.clickable{cursor:pointer}
+    .kpi.clickable:hover{transform:translateY(-2px) scale(1.01)}
+    .filters-card{
+      margin-top:16px;
+      padding:16px;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+    }
+    .filters-grid{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:10px;
+      align-items:end;
+    }
+    .queue-summary{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .queue-summary .section-mini strong{font-size:24px}
+    .risk-banner{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid rgba(245,158,11,.20);
+      background:linear-gradient(180deg, rgba(245,158,11,.12), rgba(245,158,11,.04));
+      color:#fde68a;
+      font-size:12px;
+      line-height:1.7;
+    }
+    .permission-table table{min-width:760px}
+    .log-badge{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:5px 9px;border-radius:999px;font-size:10px;font-weight:900;
+      background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.20);color:#dbeafe;
+    }
+    .executive-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-top:16px;
+    }
+    .queue-action-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .queue-tag{
+      display:inline-flex;align-items:center;justify-content:center;padding:4px 8px;border-radius:999px;
+      background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.20);color:#bbf7d0;font-size:10px;font-weight:900;
+    }
+    @media (max-width:1400px){
+      .filters-grid{grid-template-columns:repeat(3,1fr)}
+      .queue-summary,.executive-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:900px){
+      .filters-grid,.queue-summary,.executive-grid{grid-template-columns:1fr}
+    }
+
 </style>
 </head>
 <body>
@@ -2078,6 +2136,17 @@
           <div class="topbar-badge">Gestão Logística Plus • Operação em tempo real</div>
           <h1 id="pageTitle">Dashboard</h1>
           <p>Gestão integrada da agenda, pátio, expedição e docas, com uma leitura mais clara, humana e confortável para quem opera o sistema todos os dias.</p>
+          <div class="welcome-strip soft-glow">
+            <div class="welcome-main">
+              <strong id="welcomeGreeting">Bom dia</strong>
+              <span id="welcomeMessage">Aqui está um resumo da operação para apoiar as decisões do turno.</span>
+            </div>
+            <div class="welcome-meta">
+              <div class="welcome-pill"><span>Hora</span><strong id="welcomeTime">--:--</strong></div>
+              <div class="welcome-pill"><span>Data</span><strong id="welcomeDate">--/--/----</strong></div>
+              <div class="welcome-pill"><span>Temperatura</span><strong id="welcomeTemp">22°C</strong></div>
+            </div>
+          </div>
         </div>
         <div class="actions soft-glow">
           <div>
@@ -2129,6 +2198,25 @@
             <h3>Resumo rápido da agenda</h3>
             <p>Cadastre novas DTs, acompanhe o planejamento do dia e visualize rapidamente o volume previsto da operação antes da execução no pátio e na expedição.</p>
           </div>
+        </div>
+
+
+        <div class="filters-card soft-glow">
+          <div class="card-title-row">
+            <div>
+              <h2 style="margin:0">Filtros e validações da agenda</h2>
+              <p>Encontre conflitos, refine a leitura operacional e foque apenas no que precisa de ação.</p>
+            </div>
+            <span class="premium-badge">Filtros fortes</span>
+          </div>
+          <div class="filters-grid">
+            <div><label>Busca rápida</label><input id="agendaFiltroBusca" placeholder="DT, cliente ou transportadora" oninput="renderAgenda();renderDashboard();renderPatio();renderDocas();renderRelatorios()"></div>
+            <div><label>Status</label><select id="agendaFiltroStatus" onchange="renderAgenda();renderDashboard();renderPatio();renderDocas();renderRelatorios()"><option value="">Todos</option><option>Agendado</option><option>Em Separação</option><option>Separado</option><option>Pronto Expedição</option><option>No Pátio</option><option>Em Doca</option><option>Em Carregamento</option><option>Expedido</option></select></div>
+            <div><label>Transportadora</label><input id="agendaFiltroTransportadora" placeholder="Filtrar transportadora" oninput="renderAgenda()"></div>
+            <div><label>Doca</label><input id="agendaFiltroDoca" placeholder="Filtrar doca" oninput="renderAgenda()"></div>
+            <div><label>Exceção</label><select id="agendaFiltroRisco" onchange="renderAgenda();renderDashboard()"><option value="">Todas</option><option value="atraso">Somente atraso</option><option value="sem_doca">Sem doca</option><option value="conflito">Conflitos</option></select></div>
+          </div>
+          <div class="risk-banner" id="agendaRiskBanner">Nenhuma validação executada ainda.</div>
         </div>
 
         <div class="grid grid-2">
@@ -2314,6 +2402,14 @@
             <h3>Movimentação inteligente</h3>
             <p>Controle a passagem da DT por cada etapa operacional e ajuste rapidamente motorista, placas, presença e doca de carregamento.</p>
           </div>
+        </div>
+
+
+        <div class="queue-summary">
+          <div class="section-mini"><span>Fila no pátio</span><strong id="filaPatioTotal">0</strong></div>
+          <div class="section-mini"><span>Tempo médio estimado</span><strong id="filaPatioTempo">0 min</strong></div>
+          <div class="section-mini"><span>Próxima doca livre</span><strong id="filaPatioDoca">-</strong></div>
+          <div class="section-mini"><span>Chamadas realizadas</span><strong id="filaPatioChamadas">0</strong></div>
         </div>
 
         <div class="grid grid-2">
@@ -2504,6 +2600,11 @@
         </div>
 
         <div class="card">
+          <h2>Resultados executivos</h2>
+          <div class="executive-grid" id="relatorioExecutivo"></div>
+        </div>
+
+        <div class="card">
           <h2>Resultados gerais</h2>
           <div class="grid grid-4" id="relatorioResumo"></div>
         </div>
@@ -2605,6 +2706,49 @@
                   </tr>
                 </thead>
                 <tbody id="listaUsuariosAdmin"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="grid grid-2" style="margin-top:16px">
+          <div class="card permission-table soft-glow">
+            <div class="section-toolbar">
+              <div>
+                <h2>Permissões por perfil</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Referência rápida do que cada perfil pode operar.</p>
+              </div>
+              <span class="premium-badge">Governança</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Perfil</th><th>Agenda</th><th>Pátio/Doca</th><th>Check-in</th><th>Admin</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>admin</td><td>Total</td><td>Total</td><td>Total</td><td>Total</td></tr>
+                  <tr><td>gestao</td><td>Visualização + edição</td><td>Visualização</td><td>Visualização</td><td>Não</td></tr>
+                  <tr><td>operacao</td><td>Edição</td><td>Edição</td><td>Edição</td><td>Não</td></tr>
+                  <tr><td>assistente</td><td>Apoio operacional</td><td>Visualização</td><td>Visualização</td><td>Não</td></tr>
+                  <tr><td>portaria</td><td>Não</td><td>Fila e chamada</td><td>Check-in</td><td>Não</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card soft-glow">
+            <div class="section-toolbar">
+              <div>
+                <h2>Logs operacionais</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Últimas ações registradas pelo sistema e pelos usuários.</p>
+              </div>
+              <span class="premium-badge">Rastreabilidade</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Data</th><th>Ação</th><th>Usuário</th><th>Detalhes</th></tr></thead>
+                <tbody id="adminLogsTabela"></tbody>
               </table>
             </div>
           </div>
@@ -2847,6 +2991,18 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     let viewAtualGlobal = "dashboard";
     let chartHE = null;
     let chartHO = null;
+    let agendaFiltroKpi = "";
+    const TEMPO_MEDIO_FILA_MIN = 20;
+    const STATUS_RULES = {
+      "Agendado":["Em Separação","Pronto Expedição","No Pátio"],
+      "Em Separação":["Separado","Agendado"],
+      "Separado":["Pronto Expedição","Em Separação"],
+      "Pronto Expedição":["No Pátio","Separado"],
+      "No Pátio":["Em Doca","Pronto Expedição"],
+      "Em Doca":["Em Carregamento","No Pátio"],
+      "Em Carregamento":["Expedido","Em Doca"],
+      "Expedido":[]
+    };
 
     function fmtBoolAtivo(v){
       return v ? "Sim" : "Não";
@@ -3155,6 +3311,196 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     function dataFiltrada(){ return document.getElementById("filtroData").value; }
     function linhasFiltradas(){ const d = dataFiltrada(); return d ? registros.filter(r => r.data_agenda === d) : registros; }
 
+    function currentUserLabel(){
+      return document.getElementById("userEmail")?.textContent || document.getElementById("userNome")?.textContent || "sistema";
+    }
+
+    function registrarLogSistema(acao, detalhes){
+      try{
+        const logs = JSON.parse(localStorage.getItem("glp_logs") || "[]");
+        logs.unshift({
+          data: new Date().toISOString(),
+          acao,
+          usuario: currentUserLabel(),
+          detalhes
+        });
+        localStorage.setItem("glp_logs", JSON.stringify(logs.slice(0, 300)));
+      }catch(_){}
+      renderAdminLogs();
+    }
+
+    function renderAdminLogs(){
+      const tbody = document.getElementById("adminLogsTabela");
+      if(!tbody) return;
+      let logs = [];
+      try{ logs = JSON.parse(localStorage.getItem("glp_logs") || "[]"); }catch(_){}
+      tbody.innerHTML = logs.length ? logs.slice(0,50).map(l => `
+        <tr>
+          <td>${fmtDateTime(l.data)}</td>
+          <td><span class="log-badge">${esc(l.acao)}</span></td>
+          <td>${esc(l.usuario)}</td>
+          <td>${esc(l.detalhes)}</td>
+        </tr>
+      `).join("") : `<tr><td colspan="4" style="color:var(--muted)">Nenhum log registrado ainda.</td></tr>`;
+    }
+
+    function getAgendaRows(){
+      let rows = linhasFiltradas().slice();
+      const busca = (document.getElementById("agendaFiltroBusca")?.value || "").trim().toLowerCase();
+      const status = document.getElementById("agendaFiltroStatus")?.value || "";
+      const transportadora = (document.getElementById("agendaFiltroTransportadora")?.value || "").trim().toLowerCase();
+      const doca = (document.getElementById("agendaFiltroDoca")?.value || "").trim().toLowerCase();
+      const risco = document.getElementById("agendaFiltroRisco")?.value || "";
+
+      if(busca){
+        rows = rows.filter(r => [r.dt, r.cliente, r.transportadora].some(v => String(v || "").toLowerCase().includes(busca)));
+      }
+      if(status){
+        rows = rows.filter(r => r.status_global === status);
+      }
+      if(agendaFiltroKpi){
+        if(agendaFiltroKpi === "Atrasado"){
+          rows = rows.filter(r => calcSla(r).label === "Atrasado");
+        }else if(agendaFiltroKpi === "Sem doca"){
+          rows = rows.filter(r => !(r.doca_agenda || r.doca_planejada || r.doca_carregamento));
+        }else{
+          rows = rows.filter(r => r.status_global === agendaFiltroKpi);
+        }
+      }
+      if(transportadora){
+        rows = rows.filter(r => String(r.transportadora || "").toLowerCase().includes(transportadora));
+      }
+      if(doca){
+        rows = rows.filter(r => [r.doca_agenda, r.doca_planejada, r.doca_carregamento].some(v => String(v || "").toLowerCase().includes(doca)));
+      }
+      if(risco === "atraso"){
+        rows = rows.filter(r => calcSla(r).label === "Atrasado");
+      }else if(risco === "sem_doca"){
+        rows = rows.filter(r => !(r.doca_agenda || r.doca_planejada || r.doca_carregamento));
+      }else if(risco === "conflito"){
+        const conflitos = detectarConflitosAgenda(rows);
+        const ids = new Set(conflitos.map(x => x.id));
+        rows = rows.filter(r => ids.has(r.id));
+      }
+      return rows;
+    }
+
+    function detectarConflitosAgenda(baseRows = linhasFiltradas()){
+      const conflitos = [];
+      const mapa = new Map();
+      baseRows.forEach(r => {
+        const doca = r.doca_agenda || r.doca_planejada || "";
+        const data = r.data_agenda || "";
+        const hora = r.hora_agenda || "";
+        if(!doca || !data || !hora) return;
+        const key = `${doca}__${data}__${hora}`;
+        if(mapa.has(key)){
+          conflitos.push(r, mapa.get(key));
+        }else{
+          mapa.set(key, r);
+        }
+      });
+      const dedup = new Map();
+      conflitos.forEach(c => dedup.set(c.id, c));
+      return [...dedup.values()];
+    }
+
+    function validarNovaAgenda(payload){
+      const erros = [];
+      if(!payload.dt) erros.push("Informe a DT.");
+      if(!payload.data_agenda) erros.push("Informe a data da agenda.");
+      if(!payload.hora_agenda) erros.push("Informe a hora da agenda.");
+      if(!payload.transportadora) erros.push("Informe a transportadora.");
+      if(!payload.cliente) erros.push("Informe o cliente.");
+      const duplicada = registros.find(r => String(r.dt||"") === String(payload.dt||"") && (r.data_agenda || "") === (payload.data_agenda || ""));
+      if(duplicada) erros.push(`Já existe uma DT ${payload.dt} para a data ${fmtDate(payload.data_agenda)}.`);
+      if(payload.doca_agenda && payload.data_agenda && payload.hora_agenda){
+        const conflito = registros.find(r =>
+          (r.doca_agenda || r.doca_planejada || "") === payload.doca_agenda &&
+          (r.data_agenda || "") === payload.data_agenda &&
+          (r.hora_agenda || "") === payload.hora_agenda
+        );
+        if(conflito) erros.push(`Conflito de doca: ${payload.doca_agenda} já está reservada para a DT ${conflito.dt} nesse horário.`);
+      }
+      return erros;
+    }
+
+    function podeTransicionar(atual, proximo){
+      if(atual === proximo) return true;
+      return (STATUS_RULES[atual] || []).includes(proximo);
+    }
+
+    function automacoesStatus(row, status){
+      const payload = { status_global: status };
+      if(status === "Em Separação" && !row.inicio_separacao) payload.inicio_separacao = new Date().toISOString();
+      if(status === "Separado" && !row.fim_separacao) payload.fim_separacao = new Date().toISOString();
+      if(status === "Pronto Expedição" && !row.fim_separacao) payload.fim_separacao = row.fim_separacao || new Date().toISOString();
+      if(status === "No Pátio" && !row.chegada_motorista) payload.chegada_motorista = new Date().toISOString();
+      if(status === "Em Doca" && !row.data_em_doca) payload.data_em_doca = new Date().toISOString();
+      if(status === "Em Carregamento" && !row.inicio_carregamento) payload.inicio_carregamento = new Date().toISOString();
+      if(status === "Expedido" && !row.fim_carregamento) payload.fim_carregamento = new Date().toISOString();
+      return payload;
+    }
+
+    function atualizarSaudacaoSistema(){
+      const agora = new Date();
+      const h = agora.getHours();
+      let saudacao = "Boa noite";
+      let mensagem = "Acompanhe a operação com mais tranquilidade e visão em tempo real.";
+      if(h >= 5 && h < 12){ saudacao = "Bom dia"; mensagem = "Aqui está um resumo da operação para apoiar as decisões do turno."; }
+      else if(h >= 12 && h < 18){ saudacao = "Boa tarde"; mensagem = "Monitore as etapas do dia com mais clareza, ritmo e previsibilidade."; }
+      const nome = (document.getElementById("userNome")?.textContent || "").split(" ")[0] || "";
+      const greetingEl = document.getElementById("welcomeGreeting");
+      const msgEl = document.getElementById("welcomeMessage");
+      const timeEl = document.getElementById("welcomeTime");
+      const dateEl = document.getElementById("welcomeDate");
+      if(greetingEl) greetingEl.textContent = nome ? `${saudacao}, ${nome}` : saudacao;
+      if(msgEl) msgEl.textContent = mensagem;
+      if(timeEl) timeEl.textContent = agora.toLocaleTimeString("pt-BR", { hour:"2-digit", minute:"2-digit" });
+      if(dateEl) dateEl.textContent = agora.toLocaleDateString("pt-BR");
+    }
+
+    async function carregarTemperaturaSistema(){
+      const tempEl = document.getElementById("welcomeTemp");
+      if(tempEl) tempEl.textContent = "22°C";
+      try{
+        const resp = await fetch("https://api.open-meteo.com/v1/forecast?latitude=-23.5505&longitude=-46.6333&current=temperature_2m");
+        const data = await resp.json();
+        const temp = data?.current?.temperature_2m;
+        if(typeof temp === "number" && tempEl) tempEl.textContent = `${Math.round(temp)}°C`;
+      }catch(_){}
+    }
+
+    function renderFilaPatio(rows){
+      const fila = rows.filter(r => r.status_global === "No Pátio").sort((a,b) => new Date(a.chegada_motorista||0) - new Date(b.chegada_motorista||0));
+      const chamadas = fila.reduce((a,b)=>a+(Number(b.call_count)||0),0);
+      const tempoMedio = fila.length ? `${fila.length * TEMPO_MEDIO_FILA_MIN} min` : "0 min";
+      const proximaDoca = docas.find(d => !rows.some(r => (r.doca_carregamento || r.doca_agenda) === d.nome && ["Em Doca","Em Carregamento"].includes(r.status_global)))?.nome || "-";
+      const set = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
+      set("filaPatioTotal", fila.length);
+      set("filaPatioTempo", tempoMedio);
+      set("filaPatioDoca", proximaDoca);
+      set("filaPatioChamadas", chamadas);
+    }
+
+    async function chamarMotorista(id){
+      const row = registros.find(r => r.id === id);
+      if(!row) return;
+      const callCount = Number(row.call_count || 0) + 1;
+      const payload = {
+        call_count: callCount,
+        last_called_at: new Date().toISOString()
+      };
+      const { error } = await sb.from("agendas").update(payload).eq("id", id);
+      if(error){
+        console.error(error);
+        showToast("Chamada registrada localmente.");
+      }
+      registrarLogSistema("chamada_motorista", `DT ${row.dt} • ${row.motorista || "motorista"} chamado(a)`);
+      showToast(`Chamada registrada para DT ${row.dt}`);
+      await carregarTudo();
+    }
+
     function showToast(msg){
       const el = document.getElementById("toast");
       el.textContent = msg;
@@ -3180,6 +3526,9 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     atualizarIconesSidebar();
       if(view === "admin" && usuarioPerfil === "admin"){
         carregarUsuariosAdmin();
+      }
+      if(window.innerWidth <= 900){
+        alternarSidebar(true);
       }
     }
 
@@ -3310,6 +3659,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(usuarioPerfil === "admin"){
         carregarUsuariosAdmin();
       }
+      renderAdminLogs();
       atualizarSaudacaoSistema();
       carregarTemperaturaSistema();
     }
@@ -3438,29 +3788,31 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         observacao_geral: document.getElementById("a_observacao").value.trim() || null,
         status_global: "Agendado"
       };
-      if(!payload.dt) return alert("Preencha a DT.");
+      const erros = validarNovaAgenda(payload);
+      if(erros.length) return alert(erros.join("\n"));
       const { error } = await sb.from("agendas").insert([payload]);
       if(error){ console.error(error); return alert("Erro ao criar DT."); }
       document.querySelectorAll('#view-agenda input, #view-agenda textarea').forEach(el => el.value = "");
       document.getElementById("a_doca_agenda").value = "";
+      registrarLogSistema("criar_dt", `DT ${payload.dt} criada para ${fmtDate(payload.data_agenda)} às ${payload.hora_agenda || "-"}`);
       await carregarTudo();
       showToast("DT criada com sucesso");
     }
 
     function renderDashboard(){
-      const rows = linhasFiltradas();
+      const rows = getAgendaRows();
       const cards = [
-        { label:"Agendadas", value: rows.filter(x=>x.status_global==="Agendado").length, sub:"planejamento", cls:"status-gray", icon:"🗓️" },
-        { label:"Em separação", value: rows.filter(x=>x.status_global==="Em Separação").length, sub:"andamento", cls:"status-orange", icon:"📦" },
-        { label:"Separadas", value: rows.filter(x=>x.status_global==="Separado").length, sub:"prontas", cls:"status-green", icon:"✅" },
-        { label:"No pátio", value: rows.filter(x=>x.status_global==="No Pátio").length, sub:"chegadas", cls:"status-blue", icon:"🏁" },
-        { label:"Em doca", value: rows.filter(x=>x.status_global==="Em Doca").length, sub:"ocupação", cls:"status-purple", icon:"🚪" },
-        { label:"Carregando", value: rows.filter(x=>x.status_global==="Em Carregamento").length, sub:"execução", cls:"status-cyan", icon:"🚚" },
-        { label:"Expedidas", value: rows.filter(x=>x.status_global==="Expedido").length, sub:"concluídas", cls:"status-green", icon:"📤" },
-        { label:"Atrasadas", value: rows.filter(x=>calcSla(x).label==="Atrasado").length, sub:"SLA", cls:"status-red", icon:"⏱️" }
+        { label:"Agendado", value: rows.filter(x=>x.status_global==="Agendado").length, sub:"planejamento", cls:"status-gray", icon:"🗓️" },
+        { label:"Em Separação", value: rows.filter(x=>x.status_global==="Em Separação").length, sub:"andamento", cls:"status-orange", icon:"📦" },
+        { label:"Separado", value: rows.filter(x=>x.status_global==="Separado").length, sub:"prontas", cls:"status-green", icon:"✅" },
+        { label:"No Pátio", value: rows.filter(x=>x.status_global==="No Pátio").length, sub:"chegadas", cls:"status-blue", icon:"🏁" },
+        { label:"Em Doca", value: rows.filter(x=>x.status_global==="Em Doca").length, sub:"ocupação", cls:"status-purple", icon:"🚪" },
+        { label:"Em Carregamento", value: rows.filter(x=>x.status_global==="Em Carregamento").length, sub:"execução", cls:"status-cyan", icon:"🚚" },
+        { label:"Expedido", value: rows.filter(x=>x.status_global==="Expedido").length, sub:"concluídas", cls:"status-green", icon:"📤" },
+        { label:"Atrasado", value: rows.filter(x=>calcSla(x).label==="Atrasado").length, sub:"exceção", cls:"status-red", icon:"⏱️" }
       ];
       document.getElementById("dashboardKpis").innerHTML = cards.map(k => `
-        <div class="kpi ${k.cls}">
+        <div class="kpi ${k.cls} clickable" onclick="filtrarPorKpi('${esc(k.label)}')">
           <div class="kpi-icon">${k.icon}</div>
           <div class="label">${k.label}</div>
           <div class="value">${k.value}</div>
@@ -3470,24 +3822,33 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         const itens = rows.filter(r => r.status_global === st);
         const laneClass = STAGE_COLOR_CLASS[st] || "";
         return `<div class="lane ${laneClass}" data-status="${esc(st)}">
-          <div class="lane-head"><h3>${esc(st)}</h3><span class="count">${itens.length}</span></div>
-          ${itens.map(r => `<div class="item" draggable="true" data-id="${esc(r.id)}" onclick="abrirDTPorId('${esc(r.id)}')"><strong>DT ${esc(r.dt || "-")}</strong><div class="meta">${esc(r.transportadora || "-")}<br>${esc(r.cliente || "-")}</div></div>`).join("") || `<div class="meta">Sem registros.</div>`}
+          <div class="lane-head"><h3 onclick="filtrarPorKpi('${esc(st)}')" style="cursor:pointer">${esc(st)}</h3><span class="count">${itens.length}</span></div>
+          ${itens.map(r => `<div class="item" draggable="true" data-id="${esc(r.id)}" onclick="abrirDTPorId('${esc(r.id)}')"><strong>DT ${esc(r.dt || "-")}</strong><div class="meta">${esc(r.transportadora || "-")}<br>${esc(r.cliente || "-")}<br><span class="${calcSla(r).cls}">${calcSla(r).label}</span></div></div>`).join("") || `<div class="meta">Sem registros.</div>`}
         </div>`;
       }).join("");
       initDragDrop();
     }
 
     function renderAgenda(){
-      const rows = linhasFiltradas();
+      const rows = getAgendaRows();
+      const baseRows = linhasFiltradas();
+      const conflitos = detectarConflitosAgenda(baseRows);
+      const semDoca = baseRows.filter(r => !(r.doca_agenda || r.doca_planejada || r.doca_carregamento)).length;
+      const atrasos = baseRows.filter(r => calcSla(r).label === "Atrasado").length;
+      const riskBanner = document.getElementById("agendaRiskBanner");
+      if(riskBanner){
+        riskBanner.textContent = `Validações do dia • Conflitos: ${conflitos.length} • Sem doca: ${semDoca} • Atrasadas: ${atrasos}.`;
+      }
+
       const dataRef = dataFiltrada() ? fmtDate(dataFiltrada()) : "Todos";
       const cards = [
         { label:"DTs do dia", value: rows.length, sub:"cadastros filtrados", cls:"status-blue", icon:"🗓️" },
-        { label:"Agendadas", value: rows.filter(x=>x.status_global==="Agendado").length, sub:"planejamento", cls:"status-gray", icon:"📌" },
-        { label:"Com doca", value: rows.filter(x=>x.doca_agenda).length, sub:"pré-definidas", cls:"status-purple", icon:"🚪" },
-        { label:"Peso total", value: rows.reduce((a,b)=>a+(Number(b.peso)||0),0).toFixed(0), sub:"kg planejados", cls:"status-cyan", icon:"⚖️" }
+        { label:"Agendado", value: rows.filter(x=>x.status_global==="Agendado").length, sub:"planejamento", cls:"status-gray", icon:"📌" },
+        { label:"Sem doca", value: rows.filter(x=>!(x.doca_agenda || x.doca_planejada || x.doca_carregamento)).length, sub:"pendência", cls:"status-orange", icon:"🚪" },
+        { label:"Atrasadas", value: rows.filter(x=>calcSla(x).label==="Atrasado").length, sub:"exceção", cls:"status-red", icon:"⏱️" }
       ];
       document.getElementById("agendaKpis").innerHTML = cards.map(k => `
-        <div class="kpi ${k.cls}">
+        <div class="kpi ${k.cls} clickable" onclick="filtrarPorKpi('${esc(k.label)}')">
           <div class="kpi-icon">${k.icon}</div>
           <div class="label">${k.label}</div>
           <div class="value">${k.value}</div>
@@ -3496,13 +3857,18 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       document.getElementById("agendaDataRef").textContent = dataRef;
       document.getElementById("agendaTotalRef").textContent = rows.length;
       document.getElementById("agendaSoftStat").textContent = `${rows.length} registros`;
+      const conflitoIds = new Set(conflitos.map(c => c.id));
       document.getElementById("agendaTabela").innerHTML = rows.map(r => {
         const sla = calcSla(r);
+        const hasConflict = conflitoIds.has(r.id);
+        const acoes = [];
+        acoes.push(`<button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button>`);
+        if(podeTransicionar(r.status_global || "Agendado", "Em Separação")) acoes.push(`<button class="mini orange" onclick="mudarStatus('${esc(r.id)}','Em Separação')">Separação</button>`);
         return `<tr>
-          <td>${esc(r.dt)}</td><td>${fmtDate(r.data_agenda)}</td><td>${esc(r.hora_agenda)}</td><td>${esc(r.cliente)}</td><td>${esc(r.transportadora)}</td><td>${esc(r.doca_agenda)}</td>
-          <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span></td>
+          <td>${esc(r.dt)}</td><td>${fmtDate(r.data_agenda)}</td><td>${esc(r.hora_agenda)}</td><td>${esc(r.cliente)}</td><td>${esc(r.transportadora)}</td><td>${esc(r.doca_agenda || r.doca_planejada || "-")}</td>
+          <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span>${hasConflict ? ` <span class="log-badge">Conflito</span>` : ``}</td>
           <td><span class="${sla.cls}">${sla.label}</span></td>
-          <td><div class="mini-actions"><button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button><button class="mini orange" onclick="mudarStatus('${esc(r.id)}','Em Separação')">Separação</button></div></td>
+          <td><div class="mini-actions">${acoes.join("")}</div></td>
         </tr>`;
       }).join("");
     }
@@ -3539,15 +3905,23 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     function renderPatio(){
-      const rows = linhasFiltradas().filter(r => ["No Pátio","Em Doca","Em Carregamento","Expedido"].includes(r.status_global));
+      const rows = getAgendaRows().filter(r => ["No Pátio","Em Doca","Em Carregamento","Expedido"].includes(r.status_global));
       const grupos = ["No Pátio","Em Doca","Em Carregamento","Expedido"];
       document.getElementById("patioNoPatioRef").textContent = rows.filter(r => r.status_global === "No Pátio").length;
       document.getElementById("patioCarregandoRef").textContent = rows.filter(r => r.status_global === "Em Carregamento").length;
       document.getElementById("patioSoftStat").textContent = `${rows.length} registros`;
+      renderFilaPatio(rows);
+      const filaOrdenada = rows.filter(r => r.status_global === "No Pátio").sort((a,b) => new Date(a.chegada_motorista||0) - new Date(b.chegada_motorista||0));
+      const filaPos = new Map(filaOrdenada.map((r,i)=>[r.id, i+1]));
       document.getElementById("patioBoard").innerHTML = grupos.map(g => {
         const itens = rows.filter(r => r.status_global === g);
         return `<div class="lane"><div class="lane-head"><h3>${g}</h3><span class="count">${itens.length}</span></div>
-          ${itens.map(r => { const sla = calcSla(r); return `<div class="item" onclick="abrirDTPorId('${esc(r.id)}')"><strong>DT ${esc(r.dt || "-")}</strong><div class="meta">${esc(r.transportadora || "-")}<br>Motorista: ${esc(r.motorista || "-")}<br>Placas: ${esc(formatPlacas(r) || "-")}<br>Doca: ${esc(r.doca_carregamento || r.doca_agenda || "-")}<br><span class="${sla.cls}">${sla.label}</span></div></div>`; }).join("") || `<div class="meta">Sem registros.</div>`}
+          ${itens.map(r => {
+            const sla = calcSla(r);
+            const filaTag = g === "No Pátio" ? `<span class="queue-tag">${filaPos.get(r.id)}º na fila</span>` : "";
+            const callBtn = g === "No Pátio" ? `<div class="queue-action-row"><button class="mini green" onclick="event.stopPropagation();chamarMotorista('${esc(r.id)}')">Chamar motorista</button>${r.call_count ? `<span class="log-badge">${r.call_count} chamada(s)</span>` : ``}</div>` : "";
+            return `<div class="item" onclick="abrirDTPorId('${esc(r.id)}')"><strong>DT ${esc(r.dt || "-")}</strong><div class="meta">${esc(r.transportadora || "-")}<br>Motorista: ${esc(r.motorista || "-")}<br>Placas: ${esc(formatPlacas(r) || "-")}<br>Doca: ${esc(r.doca_carregamento || r.doca_agenda || "-")}<br>${filaTag}<br><span class="${sla.cls}">${sla.label}</span>${callBtn}</div></div>`;
+          }).join("") || `<div class="meta">Sem registros.</div>`}
         </div>`;
       }).join("");
     }
@@ -3591,31 +3965,33 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     function renderRelatorios(){
-      const rows = linhasFiltradas();
+      const rows = getAgendaRows();
       const dataRef = dataFiltrada() ? fmtDate(dataFiltrada()) : "Todos";
       document.getElementById("relatorioDataRef").textContent = dataRef;
       document.getElementById("relatorioExpedidoRef").textContent = rows.filter(x => x.status_global === "Expedido").length;
 
-      const caixasRealizado = rows
-        .filter(r => r.status_global === "Expedido")
-        .reduce((a,b)=>a+(b.total_caixas||0),0);
-      const caixasPendente = rows
-        .filter(r => r.status_global !== "Expedido")
-        .reduce((a,b)=>a+(b.total_caixas||0),0);
+      const caixasRealizado = rows.filter(r => r.status_global === "Expedido").reduce((a,b)=>a+(b.total_caixas||0),0);
+      const caixasPendente = rows.filter(r => r.status_global !== "Expedido").reduce((a,b)=>a+(b.total_caixas||0),0);
+      const heRealizado = rows.filter(r => r.status_global === "Expedido").reduce((a,b)=>a+(b.he||0),0);
+      const hePendente = rows.filter(r => r.status_global !== "Expedido").reduce((a,b)=>a+(b.he||0),0);
+      const hoRealizado = rows.filter(r => r.status_global === "Expedido").reduce((a,b)=>a+(b.ho||0),0);
+      const hoPendente = rows.filter(r => r.status_global !== "Expedido").reduce((a,b)=>a+(b.ho||0),0);
 
-      const heRealizado = rows
-        .filter(r => r.status_global === "Expedido")
-        .reduce((a,b)=>a+(b.he||0),0);
-      const hePendente = rows
-        .filter(r => r.status_global !== "Expedido")
-        .reduce((a,b)=>a+(b.he||0),0);
-
-      const hoRealizado = rows
-        .filter(r => r.status_global === "Expedido")
-        .reduce((a,b)=>a+(b.ho||0),0);
-      const hoPendente = rows
-        .filter(r => r.status_global !== "Expedido")
-        .reduce((a,b)=>a+(b.ho||0),0);
+      const slaTotal = rows.filter(r => r.status_global === "Expedido").length || 0;
+      const slaOk = rows.filter(r => r.status_global === "Expedido" && calcSla(r).label !== "Atrasado").length;
+      const percSla = slaTotal ? Math.round((slaOk / slaTotal) * 100) : 0;
+      const mediaFila = rows.filter(r => r.chegada_motorista && r.data_em_doca).reduce((acc, r, _, arr) => {
+        const diff = (new Date(r.data_em_doca) - new Date(r.chegada_motorista)) / 60000;
+        return acc + (Number.isFinite(diff) ? diff : 0);
+      }, 0);
+      const countFila = rows.filter(r => r.chegada_motorista && r.data_em_doca).length || 0;
+      const mediaFilaFinal = countFila ? Math.round(mediaFila / countFila) : 0;
+      const mediaCarga = rows.filter(r => r.inicio_carregamento && r.fim_carregamento).reduce((acc, r) => {
+        const diff = (new Date(r.fim_carregamento) - new Date(r.inicio_carregamento)) / 60000;
+        return acc + (Number.isFinite(diff) ? diff : 0);
+      }, 0);
+      const countCarga = rows.filter(r => r.inicio_carregamento && r.fim_carregamento).length || 0;
+      const mediaCargaFinal = countCarga ? Math.round(mediaCarga / countCarga) : 0;
 
       const cards = [
         { label:"Caixas pendente", value: caixasPendente, cls:"status-orange", icon:"📦" },
@@ -3634,53 +4010,33 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
           <div class="sub">indicador consolidado</div>
         </div>`).join("");
 
+      const exec = document.getElementById("relatorioExecutivo");
+      if(exec){
+        exec.innerHTML = `
+          <div class="section-mini"><span>SLA cumprido</span><strong>${percSla}%</strong></div>
+          <div class="section-mini"><span>Média fila</span><strong>${mediaFilaFinal} min</strong></div>
+          <div class="section-mini"><span>Média carregamento</span><strong>${mediaCargaFinal} min</strong></div>
+          <div class="section-mini"><span>Expedidas</span><strong>${rows.filter(x=>x.status_global==="Expedido").length}</strong></div>
+        `;
+      }
+
       const turnos = ["T1","T2","T3"];
-      const heData = turnos.map(t => rows.filter(r => r.turno_separacao === t).reduce((a,b)=>a+(b.he||0),0));
-      const hoData = turnos.map(t => rows.filter(r => r.turno_separacao === t).reduce((a,b)=>a+(b.ho||0),0));
+      const heData = turnos.map(t => rows.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t).reduce((a,b)=>a+(b.he||0),0));
+      const hoData = turnos.map(t => rows.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t).reduce((a,b)=>a+(b.ho||0),0));
 
       if(chartHE) chartHE.destroy();
       if(chartHO) chartHO.destroy();
 
       chartHE = new Chart(document.getElementById("graficoHE"), {
         type:"bar",
-        data:{
-          labels:turnos,
-          datasets:[{
-            label:"HE",
-            data:heData,
-            borderRadius:8,
-            backgroundColor:["#3b82f6","#f59e0b","#8b5cf6"]
-          }]
-        },
-        options:{
-          responsive:true,
-          plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
-          scales:{
-            x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } },
-            y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }
-          }
-        }
+        data:{ labels:turnos, datasets:[{ label:"HE", data:heData, borderRadius:8, backgroundColor:["#3b82f6","#f59e0b","#8b5cf6"] }] },
+        options:{ responsive:true, plugins:{ legend:{ labels:{ color:'#eef4ff' } } }, scales:{ x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }, y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } } } }
       });
 
       chartHO = new Chart(document.getElementById("graficoHO"), {
         type:"bar",
-        data:{
-          labels:turnos,
-          datasets:[{
-            label:"HO",
-            data:hoData,
-            borderRadius:8,
-            backgroundColor:["#06b6d4","#22c55e","#ef4444"]
-          }]
-        },
-        options:{
-          responsive:true,
-          plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
-          scales:{
-            x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } },
-            y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }
-          }
-        }
+        data:{ labels:turnos, datasets:[{ label:"HO", data:hoData, borderRadius:8, backgroundColor:["#06b6d4","#22c55e","#ef4444"] }] },
+        options:{ responsive:true, plugins:{ legend:{ labels:{ color:'#eef4ff' } } }, scales:{ x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }, y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } } } }
       });
     }
 
@@ -3725,6 +4081,8 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(status === "Expedido") payload.fim_carregamento = new Date().toISOString();
       const { error } = await sb.from("agendas").update(payload).eq("id", id);
       if(error){ console.error(error); return alert("Erro ao atualizar movimentação do pátio."); }
+      const row = registros.find(r => r.id === id);
+      registrarLogSistema("movimentacao_patio", `DT ${row?.dt || "-"} movida para ${status}`);
       await carregarTudo();
       showToast(`DT movida para ${status}`);
     }
@@ -3745,16 +4103,22 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       };
       const { error } = await sb.from("agendas").update(payload).eq("id", id);
       if(error){ console.error(error); return alert("Erro ao registrar check-in."); }
+      const row = registros.find(r => r.id === id);
+      registrarLogSistema("checkin", `DT ${row?.dt || "-"} recebeu check-in interno`);
       await carregarTudo();
       showToast("Check-in registrado");
     }
 
     async function mudarStatus(id, status){
-      const payload = { status_global: status };
-      if(status === "Em Separação" && !registros.find(r => r.id === id)?.inicio_separacao) payload.inicio_separacao = new Date().toISOString();
-      if(status === "Separado" && !registros.find(r => r.id === id)?.fim_separacao) payload.fim_separacao = new Date().toISOString();
+      const row = registros.find(r => r.id === id);
+      if(!row) return alert("DT não encontrada.");
+      if(!podeTransicionar(row.status_global || "Agendado", status)){
+        return alert(`Fluxo bloqueado: não é permitido sair de ${row.status_global || "Agendado"} para ${status}.`);
+      }
+      const payload = automacoesStatus(row, status);
       const { error } = await sb.from("agendas").update(payload).eq("id", id);
       if(error){ console.error(error); return alert("Erro ao alterar status."); }
+      registrarLogSistema("mudar_status", `DT ${row.dt} • ${row.status_global || "Agendado"} → ${status}`);
       await carregarTudo();
       showToast(`Status alterado para ${status}`);
     }
@@ -3913,6 +4277,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       };
       const { error } = await sb.from("agendas").update(payload).eq("id", dtAtual.id);
       if(error){ console.error(error); return alert("Erro ao salvar DT."); }
+      registrarLogSistema("salvar_dt", `DT ${dtAtual.dt} atualizada no modal`);
       showToast("DT salva com sucesso");
       fecharDTModal();
       await carregarTudo();
@@ -4200,6 +4565,13 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       document.getElementById("listaTransportadoras").innerHTML = (window._transportadoras || []).map(t => `<tr><td>${esc(t.nome)}</td><td>${esc(t.cnpj)}</td></tr>`).join("");
     }
 
+    function filtrarPorKpi(label){
+      agendaFiltroKpi = agendaFiltroKpi === label ? "" : label;
+      setView('agenda', document.getElementById('menu-agenda'));
+      renderAgenda();
+      renderDashboard();
+    }
+
     function initDragDrop(){
       const items = document.querySelectorAll("#dashboardBoard .item[draggable='true']");
       const lanes = document.querySelectorAll("#dashboardBoard .lane[data-status]");
@@ -4228,6 +4600,16 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       await verificarSessao();
     }
 
+    document.getElementById("sidebarToggle")?.addEventListener("click", () => alternarSidebar());
+    document.getElementById("topbarMenuToggle")?.addEventListener("click", () => alternarSidebar());
+    document.getElementById("mobileMenuToggle")?.addEventListener("click", () => alternarSidebar(false));
+    document.getElementById("sidebarBackdrop")?.addEventListener("click", () => alternarSidebar(true));
+    window.addEventListener("resize", atualizarIconesSidebar);
+    setInterval(atualizarSaudacaoSistema, 60000);
+    atualizarIconesSidebar();
+    atualizarSaudacaoSistema();
+    carregarTemperaturaSistema();
+    renderAdminLogs();
     boot();
   </script>
 </body>
