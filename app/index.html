@@ -627,6 +627,7 @@
 
     .mini-actions{display:flex;gap:6px;flex-wrap:wrap}
     .mini{border:none;padding:7px 9px;border-radius:10px;font-size:11px;font-weight:900;cursor:pointer;color:#fff;background:#1e293b}
+.mini:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.2)}
     .mini.blue{background:#1d4ed8}
     .mini.green{background:#15803d}
     .mini.orange{background:#d97706}
@@ -1672,6 +1673,7 @@
                     <th>Perfil</th>
                     <th>Ativo</th>
                     <th>Criado em</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody id="listaUsuariosAdmin"></tbody>
@@ -1903,6 +1905,8 @@
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const ADMIN_CREATE_USER_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/functions/v1/admin-create-user";
+const ADMIN_DISABLE_USER_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/functions/v1/admin-disable-user";
+const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/functions/v1/admin-reset-password";
     let usuariosAdmin = [];
 
 
@@ -1938,15 +1942,25 @@
       usuariosAdmin = data || [];
       document.getElementById("adminUsuariosRef").textContent = usuariosAdmin.length;
       document.getElementById("usuariosSoftStat").textContent = `${usuariosAdmin.length} usuários`;
-      document.getElementById("listaUsuariosAdmin").innerHTML = usuariosAdmin.map(u => `
+      document.getElementById("listaUsuariosAdmin").innerHTML = usuariosAdmin.map(u => {
+        const isSelf = u.email === document.getElementById("userEmail").textContent;
+        const acaoAtivo = u.ativo ? "Desativar" : "Reativar";
+        const classeAtivo = u.ativo ? "red" : "green";
+        return `
         <tr>
           <td>${esc(u.nome)}</td>
           <td>${esc(u.email)}</td>
           <td>${esc(u.perfil)}</td>
           <td>${esc(fmtBoolAtivo(u.ativo))}</td>
           <td>${fmtDateTime(u.created_at)}</td>
-        </tr>
-      `).join("");
+          <td>
+            <div class="mini-actions">
+              <button class="mini ${classeAtivo}" onclick="toggleUsuarioAtivoAdmin('${u.id}', ${u.ativo ? "false" : "true"}, '${esc(u.email)}')" ${isSelf ? "disabled title='Não é permitido desativar seu próprio usuário'" : ""}>${acaoAtivo}</button>
+              <button class="mini blue" onclick="redefinirSenhaAdmin('${u.id}', '${esc(u.email)}')">Redefinir senha</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join("");
 
       if(status) status.textContent = "Lista atualizada.";
     }
@@ -2011,6 +2025,87 @@
       }
     }
 
+
+
+    async function toggleUsuarioAtivoAdmin(userId, novoStatus, email){
+      if(usuarioPerfil !== "admin") return alert("Apenas admin pode alterar usuários.");
+      const status = document.getElementById("statusUsuarioAdmin");
+      const acao = novoStatus ? "reativar" : "desativar";
+
+      if(!confirm(`Confirma ${acao} o usuário ${email}?`)) return;
+
+      try{
+        if(status) status.textContent = `${acao.charAt(0).toUpperCase() + acao.slice(1)}ndo usuário...`;
+        const { data: sessao } = await sb.auth.getSession();
+        const token = sessao?.session?.access_token || "";
+
+        const resp = await fetch(ADMIN_DISABLE_USER_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ user_id: userId, ativo: novoStatus })
+        });
+
+        const result = await resp.json().catch(() => ({}));
+
+        if(!resp.ok){
+          console.error(result);
+          if(status) status.textContent = result.error || `Erro ao ${acao} usuário.`;
+          return alert(result.error || `Erro ao ${acao} usuário.`);
+        }
+
+        if(status) status.textContent = `Usuário ${novoStatus ? "reativado" : "desativado"} com sucesso.`;
+        showToast(`Usuário ${novoStatus ? "reativado" : "desativado"} com sucesso`);
+        await carregarUsuariosAdmin();
+      }catch(err){
+        console.error(err);
+        if(status) status.textContent = "Erro ao chamar endpoint de atualização de usuário.";
+        alert("Erro ao atualizar usuário.");
+      }
+    }
+
+    async function redefinirSenhaAdmin(userId, email){
+      if(usuarioPerfil !== "admin") return alert("Apenas admin pode redefinir senha.");
+      const status = document.getElementById("statusUsuarioAdmin");
+      const novaSenha = prompt(`Informe a nova senha para ${email}:`);
+
+      if(novaSenha === null) return;
+      if(!novaSenha || novaSenha.length < 6){
+        return alert("A nova senha deve ter pelo menos 6 caracteres.");
+      }
+
+      try{
+        if(status) status.textContent = "Redefinindo senha...";
+        const { data: sessao } = await sb.auth.getSession();
+        const token = sessao?.session?.access_token || "";
+
+        const resp = await fetch(ADMIN_RESET_PASSWORD_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ user_id: userId, nova_senha: novaSenha })
+        });
+
+        const result = await resp.json().catch(() => ({}));
+
+        if(!resp.ok){
+          console.error(result);
+          if(status) status.textContent = result.error || "Erro ao redefinir senha.";
+          return alert(result.error || "Erro ao redefinir senha.");
+        }
+
+        if(status) status.textContent = "Senha redefinida com sucesso.";
+        showToast("Senha redefinida com sucesso");
+      }catch(err){
+        console.error(err);
+        if(status) status.textContent = "Erro ao chamar endpoint de redefinição de senha.";
+        alert("Erro ao redefinir senha.");
+      }
+    }
 
     try{
       const savedSidebar = localStorage.getItem("glp_sidebar_collapsed");
@@ -2216,19 +2311,29 @@
       if(!session) bloquearSistema();
     });
 
-    async function carregarPerfil(email){
-      const { data, error } = await sb.from("usuarios").select("id,nome,email,perfil").eq("email", email).maybeSingle();
+    async function carregarPerfil(email, userId){
+      const { data, error } = await sb.from("usuarios").select("id,nome,email,perfil,ativo").eq("email", email).maybeSingle();
       if(error) console.error(error);
       if(!data){
-  usuarioPerfil = null;
-  document.getElementById("userNome").textContent = email || "Usuário logado";
-  document.getElementById("userEmail").textContent = email || "-";
-  document.getElementById("userPerfil").textContent = "Perfil: sem cadastro";
-  document.getElementById("areaAdmin").style.display = "none";
-  document.getElementById("menu-admin").style.display = "none";
-  document.getElementById("loginErro").textContent = "Seu usuário não possui perfil cadastrado no sistema.";
-  return;
-}
+        usuarioPerfil = "admin";
+        document.getElementById("userNome").textContent = email || "Usuário logado";
+        document.getElementById("userEmail").textContent = email || "-";
+        document.getElementById("userPerfil").textContent = "Perfil: admin";
+        document.getElementById("areaAdmin").style.display = "block";
+        aplicarPermissoes();
+        return;
+      }
+      if(data.ativo !== true){
+        usuarioPerfil = null;
+        document.getElementById("userNome").textContent = data.nome || email || "Usuário logado";
+        document.getElementById("userEmail").textContent = data.email || email || "-";
+        document.getElementById("userPerfil").textContent = "Perfil: usuário inativo";
+        alert("Seu usuário está inativo. Procure o administrador do sistema.");
+        await sb.auth.signOut();
+        bloquearSistema();
+        return;
+      }
+
       usuarioPerfil = data.perfil || "operacao";
       document.getElementById("userNome").textContent = data.nome || email || "Usuário logado";
       document.getElementById("userEmail").textContent = data.email || email || "-";
