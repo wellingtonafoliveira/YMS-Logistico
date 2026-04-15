@@ -1986,6 +1986,7 @@
       line-height:1.7;
     }
     .permission-table table{min-width:760px}
+    .is-disabled-by-role{opacity:.72;filter:grayscale(.08)}
     .log-badge{
       display:inline-flex;align-items:center;justify-content:center;
       padding:5px 9px;border-radius:999px;font-size:10px;font-weight:900;
@@ -2400,7 +2401,7 @@
           </div>
           <div class="section-hero-card soft-glow">
             <h3>Movimentação inteligente</h3>
-            <p>Controle a passagem da DT por cada etapa operacional e ajuste rapidamente motorista, placas, presença e doca de carregamento.</p>
+            <p>Controle a passagem da DT por cada etapa operacional, registre fila real do pátio, chame o motorista e use ligação direta quando houver telefone disponível.</p>
           </div>
         </div>
 
@@ -2533,6 +2534,7 @@
             <div class="fields">
               <div><label>DT</label><select id="c_dt"></select></div>
               <div><label>Motorista</label><input id="c_motorista"></div>
+              <div><label>Telefone motorista</label><input id="c_telefone_motorista" placeholder="11999999999"></div>
               <div><label>Placa cavalo</label><input id="c_placa_cavalo"></div>
               <div><label>Placa carreta</label><input id="c_placa_carreta"></div>
               <div><label>Placa reboque 1</label><input id="c_placa_reboque_1"></div>
@@ -2717,7 +2719,7 @@
             <div class="section-toolbar">
               <div>
                 <h2>Permissões por perfil</h2>
-                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Referência rápida ajustada conforme a regra operacional atual.</p>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Lógica real aplicada no sistema: Admin total, Gestão visualização, Operação/Assistente/Portaria com a mesma regra operacional.</p>
               </div>
               <span class="premium-badge">Governança</span>
             </div>
@@ -2992,6 +2994,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     let chartHE = null;
     let chartHO = null;
     let agendaFiltroKpi = "";
+    let patioFilaRegistros = [];
     const TEMPO_MEDIO_FILA_MIN = 20;
     const STATUS_RULES = {
       "Agendado":["Em Separação","Pronto Expedição","No Pátio"],
@@ -3050,7 +3053,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     async function criarUsuarioAdmin(){
-      if(usuarioPerfil !== "admin") return alert("Apenas admin pode cadastrar usuários.");
+      if(!requirePermission("admin", "Apenas admin pode cadastrar usuários.")) return;
 
       const nome = document.getElementById("u_nome").value.trim();
       const email = document.getElementById("u_email").value.trim().toLowerCase();
@@ -3112,7 +3115,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
 
 
     async function toggleUsuarioAtivoAdmin(userId, novoStatus, email){
-      if(usuarioPerfil !== "admin") return alert("Apenas admin pode alterar usuários.");
+      if(!requirePermission("admin", "Apenas admin pode alterar usuários.")) return;
       const status = document.getElementById("statusUsuarioAdmin");
       const acao = novoStatus ? "reativar" : "desativar";
 
@@ -3151,7 +3154,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     async function redefinirSenhaAdmin(userId, email){
-      if(usuarioPerfil !== "admin") return alert("Apenas admin pode redefinir senha.");
+      if(!requirePermission("admin", "Apenas admin pode redefinir senha.")) return;
       const status = document.getElementById("statusUsuarioAdmin");
       const novaSenha = prompt(`Informe a nova senha para ${email}:`);
 
@@ -3254,6 +3257,84 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       "Expedido":"stage-green"
     };
 
+    const ROLE_PERMISSIONS = {
+      admin: {
+        label: "Admin",
+        admin: true,
+        agenda_edit: true,
+        patio_operate: true,
+        checkin_operate: true,
+        dt_edit: true,
+        relatorios_view: true,
+        cadastros_edit: true,
+        import_excel: true,
+        read_only: false
+      },
+      gestao: {
+        label: "Gestão",
+        admin: false,
+        agenda_edit: false,
+        patio_operate: false,
+        checkin_operate: false,
+        dt_edit: false,
+        relatorios_view: true,
+        cadastros_edit: false,
+        import_excel: false,
+        read_only: true
+      },
+      assistente: {
+        label: "Assistente",
+        admin: false,
+        agenda_edit: true,
+        patio_operate: true,
+        checkin_operate: true,
+        dt_edit: true,
+        relatorios_view: true,
+        cadastros_edit: true,
+        import_excel: false,
+        read_only: false
+      },
+      operacao: {
+        label: "Assistente",
+        admin: false,
+        agenda_edit: true,
+        patio_operate: true,
+        checkin_operate: true,
+        dt_edit: true,
+        relatorios_view: true,
+        cadastros_edit: true,
+        import_excel: false,
+        read_only: false
+      },
+      portaria: {
+        label: "Assistente",
+        admin: false,
+        agenda_edit: true,
+        patio_operate: true,
+        checkin_operate: true,
+        dt_edit: true,
+        relatorios_view: true,
+        cadastros_edit: true,
+        import_excel: false,
+        read_only: false
+      }
+    };
+
+    function getRolePermissions(){
+      return ROLE_PERMISSIONS[usuarioPerfil] || ROLE_PERMISSIONS.assistente;
+    }
+
+    function can(permission){
+      const perms = getRolePermissions();
+      return !!perms[permission];
+    }
+
+    function requirePermission(permission, mensagem){
+      if(can(permission)) return true;
+      alert(mensagem || "Seu perfil não possui permissão para esta ação.");
+      return false;
+    }
+
     function clsStatus(s){
       return {
         "Agendado":"st-agendado",
@@ -3286,6 +3367,33 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       return [row?.placa_cavalo, row?.placa_carreta, row?.placa_reboque_1, row?.placa_reboque_2]
         .filter(Boolean)
         .join(" / ");
+    }
+
+    function normalizarTelefone(v){
+      return String(v || "").replace(/\D/g, "");
+    }
+
+    function getTelefoneMotorista(row){
+      return row?.telefone_motorista || row?.telefone || "";
+    }
+
+    function abrirLigacao(telefone){
+      const tel = normalizarTelefone(telefone);
+      if(!tel){
+        alert("Telefone do motorista não disponível para ligação.");
+        return;
+      }
+      window.open(`tel:${tel}`, "_self");
+    }
+
+    function abrirWhatsApp(telefone, mensagem){
+      const tel = normalizarTelefone(telefone);
+      if(!tel){
+        alert("Telefone do motorista não disponível para WhatsApp.");
+        return;
+      }
+      const texto = encodeURIComponent(mensagem || "Favor seguir para a próxima etapa operacional.");
+      window.open(`https://wa.me/55${tel}?text=${texto}`, "_blank");
     }
 
     function fmtDate(v){
@@ -3472,7 +3580,8 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     function renderFilaPatio(rows){
-      const fila = rows.filter(r => r.status_global === "No Pátio").sort((a,b) => new Date(a.chegada_motorista||0) - new Date(b.chegada_motorista||0));
+      const fila = patioFilaRegistros.filter(r => ["aguardando","chamado"].includes(r.status_fila))
+        .sort((a,b) => Number(a.posicao_fila || 9999) - Number(b.posicao_fila || 9999));
       const chamadas = fila.reduce((a,b)=>a+(Number(b.call_count)||0),0);
       const tempoMedio = fila.length ? `${fila.length * TEMPO_MEDIO_FILA_MIN} min` : "0 min";
       const proximaDoca = docas.find(d => !rows.some(r => (r.doca_carregamento || r.doca_agenda) === d.nome && ["Em Doca","Em Carregamento"].includes(r.status_global)))?.nome || "-";
@@ -3484,21 +3593,21 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     async function chamarMotorista(id){
-      const row = registros.find(r => r.id === id);
-      if(!row) return;
-      const callCount = Number(row.call_count || 0) + 1;
-      const payload = {
-        call_count: callCount,
-        last_called_at: new Date().toISOString()
-      };
-      const { error } = await sb.from("agendas").update(payload).eq("id", id);
-      if(error){
-        console.error(error);
-        showToast("Chamada registrada localmente.");
+      if(!requirePermission("patio_operate", "Seu perfil não pode chamar motoristas.")) return;
+      const fila = patioFilaRegistros.find(r => r.id === id || r.agenda_id === id);
+      if(!fila){
+        alert("Registro da fila não encontrado.");
+        return;
       }
-      registrarLogSistema("chamada_motorista", `DT ${row.dt} • ${row.motorista || "motorista"} chamado(a)`);
-      showToast(`Chamada registrada para DT ${row.dt}`);
-      await carregarTudo();
+      try{
+        const result = await rpcChamarMotoristaFila(fila.id);
+        registrarLogSistema("chamada_motorista", `DT ${fila.dt || "-"} chamado(a) (${result?.call_count || 0}x)`);
+        showToast(result?.mensagem || `Motorista da DT ${fila.dt || "-"} chamado`);
+        await carregarTudo();
+      }catch(err){
+        console.error(err);
+        alert("Erro ao chamar o motorista pela RPC.");
+      }
     }
 
     function showToast(msg){
@@ -3653,7 +3762,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       usuarioPerfil = data.perfil || "operacao";
       document.getElementById("userNome").textContent = data.nome || email || "Usuário logado";
       document.getElementById("userEmail").textContent = data.email || email || "-";
-      document.getElementById("userPerfil").textContent = `Perfil: ${usuarioPerfil}`;
+      document.getElementById("userPerfil").textContent = `Perfil: ${getRolePermissions().label}`;
       document.getElementById("areaAdmin").style.display = usuarioPerfil === "admin" ? "grid" : "none";
       aplicarPermissoes();
       if(usuarioPerfil === "admin"){
@@ -3665,16 +3774,77 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     function aplicarPermissoes(){
+      const perms = getRolePermissions();
       const ocultar = (id, hidden) => {
         const el = document.getElementById(id);
         if(el) el.style.display = hidden ? "none" : "";
       };
-      ocultar("menu-admin", usuarioPerfil !== "admin");
-      if(usuarioPerfil === "portaria"){
-        ["menu-agenda","menu-separacao","menu-expedicao","menu-admin","menu-motoristas","menu-transportadoras"].forEach(id => ocultar(id, true));
-      }else if(["conferente","operacao","assistente"].includes(usuarioPerfil)){
-        ocultar("menu-admin", true);
-      }
+
+      ocultar("menu-admin", !perms.admin);
+
+      // Gestão: visualização total, sem edição/admin.
+      // Assistente/Operação/Portaria: mesma lógica operacional.
+      const adminArea = document.getElementById("areaAdmin");
+      if(adminArea) adminArea.style.display = perms.admin ? "grid" : "none";
+
+      // Cadastro auxiliar fica disponível só para perfis operacionais e admin.
+      ["menu-motoristas","menu-transportadoras"].forEach(id => ocultar(id, !perms.cadastros_edit));
+
+      // Relatórios e visualização seguem liberados.
+      ocultar("menu-relatorios", !perms.relatorios_view);
+
+      aplicarEstadoPermissoesUI();
+    }
+
+    function aplicarEstadoPermissoesUI(){
+      const perms = getRolePermissions();
+      const toggleDisabled = (selector, disabled) => {
+        document.querySelectorAll(selector).forEach(el => {
+          el.disabled = disabled;
+          el.classList.toggle("is-disabled-by-role", disabled);
+        });
+      };
+
+      // Agenda
+      toggleDisabled('#view-agenda input, #view-agenda select, #view-agenda textarea', !perms.agenda_edit);
+      toggleDisabled('#view-agenda .btn', !perms.agenda_edit);
+      const agendaBtn = document.querySelector('#view-agenda .btn.btn-success');
+      if(agendaBtn) agendaBtn.style.display = perms.agenda_edit ? "" : "none";
+
+      // Pátio
+      toggleDisabled('#view-patio input, #view-patio select, #view-patio textarea', !perms.patio_operate);
+      document.querySelectorAll('#view-patio .btn').forEach(el => {
+        el.disabled = !perms.patio_operate;
+      });
+
+      // Check-in
+      toggleDisabled('#view-checkin input, #view-checkin select, #view-checkin textarea', !perms.checkin_operate);
+      document.querySelectorAll('#view-checkin .btn').forEach(el => {
+        el.disabled = !perms.checkin_operate;
+      });
+
+      // Cadastros auxiliares
+      toggleDisabled('#view-motoristas input, #view-motoristas select, #view-motoristas textarea', !perms.cadastros_edit);
+      toggleDisabled('#view-transportadoras input, #view-transportadoras select, #view-transportadoras textarea', !perms.cadastros_edit);
+      document.querySelectorAll('#view-motoristas .btn, #view-transportadoras .btn').forEach(el => {
+        el.disabled = !perms.cadastros_edit;
+      });
+
+      // Admin/importação
+      toggleDisabled('#view-admin input, #view-admin select, #view-admin textarea', !perms.admin);
+      document.querySelectorAll('#view-admin .btn').forEach(el => {
+        el.disabled = !perms.admin;
+      });
+      const fileInput = document.getElementById("fileInput");
+      if(fileInput) fileInput.disabled = !perms.import_excel;
+
+      // Gestão = visualização total, então impede botões inline
+      document.querySelectorAll('.mini').forEach(el => {
+        if(el.closest('#view-agenda') || el.closest('#view-separacao') || el.closest('#view-expedicao')){
+          const isOpen = /Abrir DT/i.test(el.textContent || "");
+          el.disabled = perms.read_only ? !isOpen : el.disabled;
+        }
+      });
     }
 
     async function carregarCadastros(){
@@ -3712,6 +3882,22 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(atual) el.value = atual;
     }
 
+    async function carregarPatioFila(){
+      try{
+        let query = sb.from("v_patio_fila_operacional").select("*");
+        const { data, error } = await query;
+        if(error){
+          console.warn("Fila do pátio indisponível:", error.message || error);
+          patioFilaRegistros = [];
+          return;
+        }
+        patioFilaRegistros = data || [];
+      }catch(err){
+        console.warn("Falha ao carregar fila do pátio:", err);
+        patioFilaRegistros = [];
+      }
+    }
+
     async function carregarTudo(){
       let query = sb.from("agendas").select("*").order("data_agenda", {ascending:true}).order("hora_agenda", {ascending:true});
       const df = dataFiltrada();
@@ -3719,6 +3905,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       const { data, error } = await query;
       if(error){ console.error(error); alert("Erro ao carregar dados."); return; }
       registros = data || [];
+      await carregarPatioFila();
       renderTudo();
     }
 
@@ -3729,6 +3916,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       const { data, error } = await query;
       if(error){ console.error(error); return; }
       registros = data || [];
+      await carregarPatioFila();
       renderTudo();
     }
 
@@ -3743,6 +3931,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       renderRelatorios();
       carregarSelectPatio();
       carregarSelectCheckin();
+      aplicarEstadoPermissoesUI();
     }
 
     async function iniciarRealtime(){
@@ -3765,7 +3954,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     async function criarDT(){
-      if(usuarioPerfil === "portaria") return alert("Seu perfil não pode criar DTs.");
+      if(!requirePermission("agenda_edit", "Seu perfil não pode criar DTs.")) return;
       const payload = {
         dt: document.getElementById("a_dt").value.trim() || null,
         ordem: document.getElementById("a_ordem").value.trim() || null,
@@ -3905,41 +4094,69 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     function renderPatio(){
-      const rows = getAgendaRows().filter(r => ["No Pátio","Em Doca","Em Carregamento","Expedido"].includes(r.status_global));
-      const grupos = ["No Pátio","Em Doca","Em Carregamento","Expedido"];
-      document.getElementById("patioNoPatioRef").textContent = rows.filter(r => r.status_global === "No Pátio").length;
+      const rows = getAgendaRows();
+      const filaRows = patioFilaRegistros.slice();
+      const boardRows = [
+        { titulo:"Fila do Pátio", key:"aguardando", itens:filaRows.filter(r => r.status_fila === "aguardando") },
+        { titulo:"Chamados", key:"chamado", itens:filaRows.filter(r => r.status_fila === "chamado") },
+        { titulo:"Em Doca", key:"em_doca", itens:filaRows.filter(r => r.status_fila === "em_doca") },
+        { titulo:"Expedidos", key:"expedido", itens:rows.filter(r => r.status_global === "Expedido").map(r => ({...r, status_fila:"expedido"})) }
+      ];
+
+      document.getElementById("patioNoPatioRef").textContent = filaRows.filter(r => ["aguardando","chamado"].includes(r.status_fila)).length;
       document.getElementById("patioCarregandoRef").textContent = rows.filter(r => r.status_global === "Em Carregamento").length;
-      document.getElementById("patioSoftStat").textContent = `${rows.length} registros`;
+      document.getElementById("patioSoftStat").textContent = `${filaRows.length} registros na fila`;
       renderFilaPatio(rows);
-      const filaOrdenada = rows.filter(r => r.status_global === "No Pátio").sort((a,b) => new Date(a.chegada_motorista||0) - new Date(b.chegada_motorista||0));
-      const filaPos = new Map(filaOrdenada.map((r,i)=>[r.id, i+1]));
-      document.getElementById("patioBoard").innerHTML = grupos.map(g => {
-        const itens = rows.filter(r => r.status_global === g);
-        return `<div class="lane"><div class="lane-head"><h3>${g}</h3><span class="count">${itens.length}</span></div>
-          ${itens.map(r => {
-            const sla = calcSla(r);
-            const filaTag = g === "No Pátio" ? `<span class="queue-tag">${filaPos.get(r.id)}º na fila</span>` : "";
-            const callBtn = g === "No Pátio" ? `<div class="queue-action-row"><button class="mini green" onclick="event.stopPropagation();chamarMotorista('${esc(r.id)}')">Chamar motorista</button>${r.call_count ? `<span class="log-badge">${r.call_count} chamada(s)</span>` : ``}</div>` : "";
-            return `<div class="item" onclick="abrirDTPorId('${esc(r.id)}')"><strong>DT ${esc(r.dt || "-")}</strong><div class="meta">${esc(r.transportadora || "-")}<br>Motorista: ${esc(r.motorista || "-")}<br>Placas: ${esc(formatPlacas(r) || "-")}<br>Doca: ${esc(r.doca_carregamento || r.doca_agenda || "-")}<br>${filaTag}<br><span class="${sla.cls}">${sla.label}</span>${callBtn}</div></div>`;
+
+      document.getElementById("patioBoard").innerHTML = boardRows.map(g => {
+        return `<div class="lane">
+          <div class="lane-head"><h3>${g.titulo}</h3><span class="count">${g.itens.length}</span></div>
+          ${g.itens.map(r => {
+            const agenda = registros.find(a => a.id === (r.agenda_id || r.id)) || r;
+            const sla = calcSla(agenda);
+            const filaTag = r.posicao_fila ? `<span class="queue-tag">${r.posicao_fila}º na fila</span>` : "";
+            const phone = getTelefoneMotorista(r);
+            const callRow = ["aguardando","chamado"].includes(r.status_fila) ? `
+              <div class="queue-action-row">
+                <button class="mini green" onclick="event.stopPropagation();chamarMotorista('${esc(r.id)}')">Chamar</button>
+                <button class="mini blue" onclick="event.stopPropagation();ligarMotoristaDaFila('${esc(r.id)}')" ${phone ? "" : "disabled"}>Ligar</button>
+                <button class="mini orange" onclick="event.stopPropagation();whatsappMotoristaDaFila('${esc(r.id)}')" ${phone ? "" : "disabled"}>WhatsApp</button>
+                ${r.call_count ? `<span class="log-badge">${r.call_count} chamada(s)</span>` : ``}
+              </div>` : ``;
+            return `<div class="item" onclick="abrirDTPorId('${esc(r.agenda_id || r.id)}')">
+              <strong>DT ${esc(r.dt || "-")}</strong>
+              <div class="meta">
+                ${esc(r.transportadora || "-")}<br>
+                Motorista: ${esc(r.motorista || "-")}<br>
+                Placas: ${esc(formatPlacas(r) || "-")}<br>
+                Doca: ${esc(r.doca_destino || agenda.doca_carregamento || agenda.doca_agenda || "-")}<br>
+                ${filaTag}<br>
+                <span class="${sla.cls}">${sla.label}</span>
+                ${callRow}
+              </div>
+            </div>`;
           }).join("") || `<div class="meta">Sem registros.</div>`}
         </div>`;
       }).join("");
     }
 
     function renderDocas(){
-      const rows = linhasFiltradas();
+      const rows = getAgendaRows();
       const nomesDoca = docas.length ? docas.map(d => d.nome) : ["Doca 1","Doca 2","Doca 3","Doca 4"];
       let livres = 0;
       let ocupadas = 0;
       document.getElementById("docasGrid").innerHTML = nomesDoca.map(nome => {
-        const atual = rows.find(r => (r.doca_carregamento || r.doca_agenda || r.doca_planejada) === nome && ["Em Doca","Em Carregamento"].includes(r.status_global));
+        const filaAtual = patioFilaRegistros.find(r => (r.doca_destino || "") === nome && r.status_fila === "em_doca");
+        const atual = filaAtual ? (registros.find(a => a.id === filaAtual.agenda_id) || filaAtual) :
+          rows.find(r => (r.doca_carregamento || r.doca_agenda || r.doca_planejada) === nome && ["Em Doca","Em Carregamento"].includes(r.status_global));
         if(!atual){
           livres++;
           return `<div class="dock free"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">Livre</span></div><div class="meta">Sem veículo na doca.</div></div>`;
         }
         ocupadas++;
         const sla = calcSla(atual);
-        return `<div class="dock busy" onclick="abrirDTPorId('${esc(atual.id)}')"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">${esc(atual.status_global)}</span></div><div class="meta">DT: ${esc(atual.dt || "-")}<br>Transportadora: ${esc(atual.transportadora || "-")}<br>Motorista: ${esc(atual.motorista || "-")}<br>Placas: ${esc(formatPlacas(atual) || "-")}<br>Início: ${fmtDateTime(atual.inicio_carregamento)}<br><span class="${sla.cls}">${sla.label}</span></div></div>`;
+        const phone = getTelefoneMotorista(atual);
+        return `<div class="dock busy" onclick="abrirDTPorId('${esc(atual.agenda_id || atual.id)}')"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">${esc(atual.status_global || atual.status_fila || "Em Doca")}</span></div><div class="meta">DT: ${esc(atual.dt || "-")}<br>Transportadora: ${esc(atual.transportadora || "-")}<br>Motorista: ${esc(atual.motorista || "-")}<br>Placas: ${esc(formatPlacas(atual) || "-")}<br>Início: ${fmtDateTime(atual.inicio_carregamento || atual.chamado_at)}<br><span class="${sla.cls}">${sla.label}</span><div class="queue-action-row"><button class="mini blue" onclick="event.stopPropagation();ligarMotoristaDaFila('${esc(atual.id || atual.agenda_id)}')" ${phone ? "" : "disabled"}>Ligar</button></div></div></div>`;
       }).join("");
       document.getElementById("docasLivreRef").textContent = livres;
       document.getElementById("docasOcupadaRef").textContent = ocupadas;
@@ -4050,6 +4267,68 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       document.getElementById("c_dt").innerHTML = `<option value="">Selecione</option>` + rows.map(r => `<option value="${esc(r.id)}">${esc(r.dt)} - ${esc(r.transportadora || "")}</option>`).join("");
     }
 
+
+    async function rpcEntrarFilaPatio(agendaId, docaDestino = null, observacao = null){
+      const { data: sessao } = await sb.auth.getSession();
+      const user = sessao?.session?.user || null;
+      const payload = {
+        p_agenda_id: agendaId,
+        p_doca_destino: docaDestino,
+        p_observacao: observacao,
+        p_usuario_id: user?.id || null,
+        p_usuario_nome: document.getElementById("userNome")?.textContent || null,
+        p_usuario_email: document.getElementById("userEmail")?.textContent || null,
+        p_perfil: usuarioPerfil || null
+      };
+      const { data, error } = await sb.rpc("rpc_entrar_fila_patio", payload);
+      if(error) throw error;
+      return data;
+    }
+
+    async function rpcChamarMotoristaFila(filaId){
+      const { data: sessao } = await sb.auth.getSession();
+      const user = sessao?.session?.user || null;
+      const payload = {
+        p_fila_id: filaId,
+        p_usuario_id: user?.id || null,
+        p_usuario_nome: document.getElementById("userNome")?.textContent || null,
+        p_usuario_email: document.getElementById("userEmail")?.textContent || null,
+        p_perfil: usuarioPerfil || null
+      };
+      const { data, error } = await sb.rpc("rpc_chamar_motorista", payload);
+      if(error) throw error;
+      return data;
+    }
+
+    async function rpcEnviarParaDocaFila(filaId, doca){
+      const { data: sessao } = await sb.auth.getSession();
+      const user = sessao?.session?.user || null;
+      const payload = {
+        p_fila_id: filaId,
+        p_doca: doca,
+        p_usuario_id: user?.id || null,
+        p_usuario_nome: document.getElementById("userNome")?.textContent || null,
+        p_usuario_email: document.getElementById("userEmail")?.textContent || null,
+        p_perfil: usuarioPerfil || null
+      };
+      const { data, error } = await sb.rpc("rpc_enviar_para_doca", payload);
+      if(error) throw error;
+      return data;
+    }
+
+    async function enviarDTParaFilaPatio(agendaId){
+      if(!requirePermission("patio_operate", "Seu perfil não pode enviar DT para a fila do pátio.")) return;
+      try{
+        await rpcEntrarFilaPatio(agendaId, null, "Enviado pelo sistema interno");
+        registrarLogSistema("entrada_fila_patio", `Agenda ${agendaId} enviada para a fila do pátio`);
+        showToast("DT enviada para a fila do pátio");
+        await carregarTudo();
+      }catch(err){
+        console.error(err);
+        alert("Erro ao enviar a DT para a fila do pátio. Verifique se a RPC e a tabela patio_fila já foram criadas.");
+      }
+    }
+
     function preencherPatio(){
       const id = document.getElementById("p_dt").value;
       const r = registros.find(x => x.id === id);
@@ -4063,8 +4342,31 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     async function moverPatio(status){
+      if(!requirePermission("patio_operate", "Seu perfil não pode movimentar o pátio.")) return;
       const id = document.getElementById("p_dt").value;
       if(!id) return alert("Selecione a DT.");
+
+      if(status === "No Pátio"){
+        return await enviarDTParaFilaPatio(id);
+      }
+
+      if(status === "Em Doca"){
+        try{
+          const fila = patioFilaRegistros.find(x => x.agenda_id === id);
+          if(!fila) return alert("Essa DT ainda não está na fila do pátio.");
+          const doca = document.getElementById("p_doca").value || null;
+          if(!doca) return alert("Selecione a doca de destino.");
+          await rpcEnviarParaDocaFila(fila.id, doca);
+          registrarLogSistema("envio_para_doca", `DT ${fila.dt || "-"} enviada para a doca ${doca}`);
+          showToast(`DT enviada para ${doca}`);
+          await carregarTudo();
+          return;
+        }catch(err){
+          console.error(err);
+          return alert("Erro ao enviar para a doca pela fila do pátio.");
+        }
+      }
+
       const payload = {
         status_global: status,
         doca_carregamento: document.getElementById("p_doca").value || null,
@@ -4075,10 +4377,9 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         placa_reboque_2: document.getElementById("p_placa_reboque_2").value.trim() || null,
         presente_ausente: document.getElementById("p_presenca").value || null
       };
-      if(status === "No Pátio") payload.chegada_motorista = new Date().toISOString();
-      if(status === "Em Doca") payload.data_em_doca = new Date().toISOString();
       if(status === "Em Carregamento") payload.inicio_carregamento = new Date().toISOString();
       if(status === "Expedido") payload.fim_carregamento = new Date().toISOString();
+
       const { error } = await sb.from("agendas").update(payload).eq("id", id);
       if(error){ console.error(error); return alert("Erro ao atualizar movimentação do pátio."); }
       const row = registros.find(r => r.id === id);
@@ -4088,6 +4389,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     async function registrarCheckin(){
+      if(!requirePermission("checkin_operate", "Seu perfil não pode registrar check-in.")) return;
       const id = document.getElementById("c_dt").value;
       if(!id) return alert("Selecione a DT.");
       const payload = {
@@ -4098,13 +4400,18 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         placa_reboque_2: document.getElementById("c_placa_reboque_2").value.trim() || null,
         presente_ausente: document.getElementById("c_presenca").value || null,
         observacao_geral: document.getElementById("c_obs").value.trim() || null,
-        chegada_motorista: new Date().toISOString(),
-        status_global: "No Pátio"
+        chegada_motorista: new Date().toISOString()
       };
-      const { error } = await sb.from("agendas").update(payload).eq("id", id);
-      if(error){ console.error(error); return alert("Erro ao registrar check-in."); }
+      const upd = await sb.from("agendas").update(payload).eq("id", id);
+      if(upd.error){ console.error(upd.error); return alert("Erro ao registrar check-in."); }
+      try{
+        await rpcEntrarFilaPatio(id, null, "Check-in interno registrado");
+      }catch(err){
+        console.error(err);
+        return alert("Check-in salvo, mas a entrada na fila do pátio falhou. Verifique a RPC rpc_entrar_fila_patio.");
+      }
       const row = registros.find(r => r.id === id);
-      registrarLogSistema("checkin", `DT ${row?.dt || "-"} recebeu check-in interno`);
+      registrarLogSistema("checkin", `DT ${row?.dt || "-"} recebeu check-in interno e entrou na fila do pátio`);
       await carregarTudo();
       showToast("Check-in registrado");
     }
@@ -4128,14 +4435,40 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       const sep = document.getElementById("blocoSeparacao");
       const exp = document.getElementById("blocoExpedicao");
       info.style.display = "block"; sep.style.display = "block"; exp.style.display = "block";
+
       const bloquearCampos = (container, bloquear) => container.querySelectorAll("input, select, textarea").forEach(el => el.disabled = bloquear);
       document.getElementById("m_dt").disabled = true;
+
+      const perms = getRolePermissions();
+      if(perms.read_only){
+        bloquearCampos(info, true);
+        bloquearCampos(sep, true);
+        bloquearCampos(exp, true);
+        document.getElementById("m_dt").disabled = true;
+        return;
+      }
+
       switch(viewAtualGlobal){
-        case "agenda": sep.style.display = "none"; exp.style.display = "none"; bloquearCampos(info, false); break;
-        case "separacao": exp.style.display = "none"; bloquearCampos(info, true); bloquearCampos(sep, false); break;
+        case "agenda":
+          sep.style.display = "none";
+          exp.style.display = "none";
+          bloquearCampos(info, !perms.dt_edit);
+          break;
+        case "separacao":
+          exp.style.display = "none";
+          bloquearCampos(info, true);
+          bloquearCampos(sep, !perms.dt_edit);
+          break;
         case "expedicao":
-        case "patio": bloquearCampos(info, true); bloquearCampos(sep, true); bloquearCampos(exp, false); break;
-        default: bloquearCampos(info, false); bloquearCampos(sep, false); bloquearCampos(exp, false);
+        case "patio":
+          bloquearCampos(info, true);
+          bloquearCampos(sep, true);
+          bloquearCampos(exp, !perms.dt_edit);
+          break;
+        default:
+          bloquearCampos(info, !perms.dt_edit);
+          bloquearCampos(sep, !perms.dt_edit);
+          bloquearCampos(exp, !perms.dt_edit);
       }
       document.getElementById("m_dt").disabled = true;
     }
@@ -4222,6 +4555,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
 
     async function salvarDTModal(){
       if(!dtAtual) return;
+      if(!requirePermission("dt_edit", "Seu perfil está em modo visualização e não pode salvar alterações.")) return;
       const faturadoVal = document.getElementById("m_faturado").value;
       const payload = {
         ordem: document.getElementById("m_ordem").value.trim() || null,
@@ -4462,7 +4796,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     async function preVisualizarExcel(){
-      if(usuarioPerfil !== "admin") return alert("Apenas admin pode pré-visualizar a agenda.");
+      if(!requirePermission("import_excel", "Apenas admin pode pré-visualizar a agenda.")) return;
 
       const input = document.getElementById("fileInput");
       const status = document.getElementById("statusUpload");
@@ -4489,7 +4823,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     async function importarExcel(){
-      if(usuarioPerfil !== "admin") return alert("Apenas admin pode importar a agenda.");
+      if(!requirePermission("import_excel", "Apenas admin pode importar a agenda.")) return;
 
       const input = document.getElementById("fileInput");
       const status = document.getElementById("statusUpload");
@@ -4528,6 +4862,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     async function salvarMotorista(){
+      if(!requirePermission("cadastros_edit", "Seu perfil não pode editar cadastro de motoristas.")) return;
       const payload = {
         nome: document.getElementById("m_nome").value.trim() || null,
         cpf: document.getElementById("m_cpf").value.trim() || null,
@@ -4548,6 +4883,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     async function salvarTransportadora(){
+      if(!requirePermission("cadastros_edit", "Seu perfil não pode editar cadastro de transportadoras.")) return;
       const payload = {
         nome: document.getElementById("t_nome").value.trim() || null,
         cnpj: document.getElementById("t_cnpj").value.trim() || null
@@ -4563,6 +4899,22 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
 
     function carregarTransportadoras(){
       document.getElementById("listaTransportadoras").innerHTML = (window._transportadoras || []).map(t => `<tr><td>${esc(t.nome)}</td><td>${esc(t.cnpj)}</td></tr>`).join("");
+    }
+
+    function ligarMotoristaDaFila(id){
+      const fila = patioFilaRegistros.find(r => r.id === id || r.agenda_id === id);
+      if(!fila) return alert("Registro da fila não encontrado.");
+      const telefone = getTelefoneMotorista(fila);
+      if(!telefone) return alert("Telefone do motorista não está disponível no registro.");
+      abrirLigacao(telefone);
+    }
+
+    function whatsappMotoristaDaFila(id){
+      const fila = patioFilaRegistros.find(r => r.id === id || r.agenda_id === id);
+      if(!fila) return alert("Registro da fila não encontrado.");
+      const telefone = getTelefoneMotorista(fila);
+      if(!telefone) return alert("Telefone do motorista não está disponível no registro.");
+      abrirWhatsApp(telefone, `Olá, motorista da DT ${fila.dt || "-"}, favor seguir para a próxima etapa operacional.`);
     }
 
     function filtrarPorKpi(label){
