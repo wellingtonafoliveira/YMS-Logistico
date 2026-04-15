@@ -1526,24 +1526,442 @@
       .topbar{
         align-items:center;
       }
-    }  </style>
+    }  
+    /* ===== LOGIN V4 OVERRIDES ===== */
+    .login-screen{
+      min-height:100vh !important;
+      display:flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      padding:32px !important;
+      background:#06101d !important;
+      position:relative !important;
+      overflow:hidden !important;
+    }
+
+    .login-screen::before{
+      content:"" !important;
+      position:absolute !important;
+      inset:0 !important;
+      background:
+        linear-gradient(90deg, rgba(4,10,20,.92) 0%, rgba(4,10,20,.78) 35%, rgba(4,10,20,.50) 62%, rgba(4,10,20,.82) 100%),
+        linear-gradient(180deg, rgba(4,10,20,.18), rgba(4,10,20,.58)),
+        url('gestao-de-patio.jpg') center center / cover no-repeat !important;
+      z-index:0 !important;
+    }
+
+    .login-screen::after{
+      content:"" !important;
+      position:absolute !important;
+      inset:0 !important;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(59,130,246,.18), transparent 22%),
+        radial-gradient(circle at 82% 18%, rgba(34,197,94,.10), transparent 18%),
+        radial-gradient(circle at 72% 84%, rgba(6,182,212,.10), transparent 16%) !important;
+      z-index:0 !important;
+      pointer-events:none !important;
+    }
+
+    .login-layout{
+      width:min(1380px, 100%) !important;
+      display:grid !important;
+      grid-template-columns:minmax(0,1.2fr) minmax(420px,.8fr) !important;
+      gap:32px !important;
+      align-items:stretch !important;
+      position:relative !important;
+      z-index:1 !important;
+    }
+
+    .login-showcase{
+      display:flex !important;
+      flex-direction:column !important;
+      justify-content:space-between !important;
+      min-height:680px !important;
+      border:1px solid rgba(255,255,255,.08) !important;
+      border-radius:36px !important;
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,.10), transparent 26%),
+        linear-gradient(180deg, rgba(8,17,31,.26), rgba(8,17,31,.12)) !important;
+      backdrop-filter:blur(8px) !important;
+      box-shadow:0 26px 80px rgba(0,0,0,.28) !important;
+      padding:38px 36px !important;
+    }
+
+    .login-badge{
+      display:inline-flex !important;
+      align-items:center !important;
+      width:max-content !important;
+      padding:10px 15px !important;
+      border-radius:999px !important;
+      background:rgba(59,130,246,.12) !important;
+      border:1px solid rgba(59,130,246,.20) !important;
+      color:#dbeafe !important;
+      font-size:12px !important;
+      font-weight:900 !important;
+      letter-spacing:.02em !important;
+      margin-bottom:18px !important;
+      box-shadow:0 10px 28px rgba(37,99,235,.10) !important;
+    }
+
+    .login-hero h1{
+      margin:0 !important;
+      font-size:60px !important;
+      line-height:1.0 !important;
+      letter-spacing:-.05em !important;
+      max-width:760px !important;
+      text-shadow:0 10px 30px rgba(0,0,0,.14) !important;
+    }
+
+    .login-hero p{
+      margin:18px 0 0 !important;
+      max-width:760px !important;
+      color:#c4d2ea !important;
+      font-size:17px !important;
+      line-height:1.9 !important;
+    }
+
+    .login-features{
+      display:grid !important;
+      grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+      gap:14px !important;
+      margin-top:26px !important;
+    }
+
+    .login-feature{
+      border:1px solid rgba(255,255,255,.08) !important;
+      border-radius:24px !important;
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.08), transparent 24%),
+        linear-gradient(180deg, rgba(17,28,47,.76), rgba(13,23,39,.46)) !important;
+      padding:17px 17px 16px !important;
+      box-shadow:0 14px 34px rgba(0,0,0,.12) !important;
+    }
+
+    .login-feature strong{
+      display:block !important;
+      font-size:15px !important;
+      margin-bottom:8px !important;
+    }
+
+    .login-feature span{
+      color:#b7c8e4 !important;
+      font-size:13px !important;
+      line-height:1.75 !important;
+      display:block !important;
+    }
+
+    .login-kpis{
+      display:grid !important;
+      grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+      gap:12px !important;
+      margin-top:18px !important;
+      margin-bottom:18px !important;
+    }
+
+    .login-kpi{
+      border:1px solid rgba(255,255,255,.08) !important;
+      border-radius:20px !important;
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.10), transparent 26%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)) !important;
+      padding:15px 14px !important;
+      box-shadow:0 12px 28px rgba(0,0,0,.10) !important;
+    }
+
+    .login-kpi strong{
+      display:block !important;
+      font-size:28px !important;
+      line-height:1 !important;
+      margin-bottom:8px !important;
+      color:#eef4ff !important;
+    }
+
+    .login-kpi span{
+      display:block !important;
+      color:#b7c8e4 !important;
+      font-size:11px !important;
+      line-height:1.5 !important;
+      text-transform:uppercase !important;
+      letter-spacing:.04em !important;
+      font-weight:800 !important;
+    }
+
+    .login-visual-card{
+      margin-top:18px !important;
+      border:1px solid rgba(255,255,255,.08) !important;
+      border-radius:28px !important;
+      overflow:hidden !important;
+      position:relative !important;
+      min-height:320px !important;
+      background:#091425 !important;
+      box-shadow:0 22px 54px rgba(0,0,0,.18) !important;
+    }
+
+    .login-visual-card::before{
+      content:"" !important;
+      position:absolute !important;
+      inset:0 !important;
+      background:
+        linear-gradient(180deg, rgba(7,16,29,.08), rgba(7,16,29,.50)),
+        url('gestao-de-etapas.png') center center / cover no-repeat !important;
+      opacity:.96 !important;
+    }
+
+    .login-visual-card::after{
+      content:"" !important;
+      position:absolute !important;
+      inset:0 !important;
+      background:linear-gradient(180deg, rgba(7,16,29,0) 0%, rgba(7,16,29,.78) 100%) !important;
+    }
+
+    .login-visual-content{
+      position:relative !important;
+      z-index:1 !important;
+      min-height:320px !important;
+      display:flex !important;
+      flex-direction:column !important;
+      justify-content:flex-end !important;
+      padding:22px 22px 20px !important;
+    }
+
+    .login-visual-content strong{
+      display:block !important;
+      font-size:20px !important;
+      margin-bottom:8px !important;
+    }
+
+    .login-visual-content p{
+      margin:0 !important;
+      color:#d8e6fb !important;
+      font-size:13px !important;
+      line-height:1.8 !important;
+      max-width:760px !important;
+    }
+
+    .login-flow{
+      margin-top:18px !important;
+      border:1px solid rgba(59,130,246,.16) !important;
+      border-radius:24px !important;
+      background:linear-gradient(180deg, rgba(17,28,47,.62), rgba(13,23,39,.38)) !important;
+      padding:18px 18px 16px !important;
+    }
+
+    .login-flow strong{
+      display:block !important;
+      margin-bottom:10px !important;
+      font-size:15px !important;
+    }
+
+    .login-flow p{
+      margin:0 !important;
+      color:#d5e7ff !important;
+      font-size:15px !important;
+      line-height:1.9 !important;
+    }
+
+    .login-box{
+      width:100% !important;
+      max-width:none !important;
+      margin-left:auto !important;
+      align-self:center !important;
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.16), transparent 24%),
+        linear-gradient(180deg,rgba(17,28,47,.97),rgba(13,23,39,.95)) !important;
+      border:1px solid rgba(255,255,255,.10) !important;
+      border-radius:34px !important;
+      box-shadow:0 30px 90px rgba(0,0,0,.36) !important;
+      padding:40px 34px 32px !important;
+      text-align:center !important;
+      backdrop-filter:blur(18px) !important;
+      position:relative !important;
+      z-index:1 !important;
+    }
+
+    .login-box img{
+      width:92px !important;
+      height:92px !important;
+      object-fit:contain !important;
+      margin-bottom:18px !important;
+      background:#fff !important;
+      border-radius:24px !important;
+      padding:10px !important;
+      box-shadow:0 16px 40px rgba(0,0,0,.24) !important;
+    }
+
+    .login-box h2{
+      margin:0 0 10px !important;
+      font-size:46px !important;
+      line-height:1.03 !important;
+      letter-spacing:-.045em !important;
+    }
+
+    .login-box p{
+      margin:0 0 22px !important;
+      color:#b7c8e4 !important;
+      font-size:14px !important;
+      line-height:1.85 !important;
+    }
+
+    .login-box input{
+      margin-bottom:12px !important;
+      padding:15px 16px !important;
+      border-radius:18px !important;
+      background:rgba(13,23,40,.88) !important;
+    }
+
+    .login-box button{
+      width:100% !important;
+      padding:15px !important;
+      margin-top:4px !important;
+      background:linear-gradient(135deg,var(--blue),#2563eb) !important;
+      color:#fff !important;
+      border:none !important;
+      border-radius:18px !important;
+      font-weight:900 !important;
+      box-shadow:0 18px 34px rgba(37,99,235,.24) !important;
+      font-size:15px !important;
+    }
+
+    .login-note{
+      margin-top:16px !important;
+      color:#8fa5c8 !important;
+      font-size:12px !important;
+      line-height:1.7 !important;
+    }
+
+    .login-right-footer{
+      margin-top:18px !important;
+      color:#88a0c5 !important;
+      font-size:11px !important;
+      line-height:1.8 !important;
+      text-align:center !important;
+      letter-spacing:.02em !important;
+    }
+
+    @media (max-width:1100px){
+      .login-layout{
+        grid-template-columns:1fr !important;
+      }
+      .login-showcase{
+        min-height:auto !important;
+      }
+      .login-box{
+        max-width:560px !important;
+        margin:0 auto !important;
+      }
+    }
+
+    @media (max-width:900px){
+      .login-screen{
+        padding:18px !important;
+      }
+      .login-showcase{
+        padding:24px 22px !important;
+        border-radius:26px !important;
+      }
+      .login-hero h1{
+        font-size:40px !important;
+      }
+      .login-hero p{
+        font-size:15px !important;
+      }
+      .login-features,
+      .login-kpis{
+        grid-template-columns:1fr !important;
+      }
+      .login-visual-card,
+      .login-visual-content{
+        min-height:220px !important;
+      }
+      .login-box{
+        padding:30px 22px 24px !important;
+        border-radius:28px !important;
+      }
+      .login-box h2{
+        font-size:34px !important;
+      }
+    }
+
+</style>
 </head>
 <body>
   <button class="mobile-menu-toggle hidden" id="mobileMenuToggle" type="button" aria-label="Abrir menu">☰</button>
   <div class="sidebar-backdrop hidden" id="sidebarBackdrop"></div>
+  
   <div class="login-screen" id="loginScreen">
-    <div class="login-box">
-      <img src="logo.png" alt="YMS">
-      <h2>Entrar no sistema</h2>
-      <p>Acesse a operação interna com o mesmo padrão visual premium da plataforma.</p>
-      <input type="email" id="loginEmail" placeholder="Email">
-      <input type="password" id="loginSenha" placeholder="Senha">
-      <button onclick="login()">Entrar</button>
-      <div class="login-error" id="loginErro"></div>
+    <div class="login-layout">
+      <div class="login-showcase">
+        <div>
+          <div class="login-badge">Gestão Logística Plus • YMS em tempo real</div>
+          <div class="login-hero">
+            <h1>Mais controle operacional,<br>menos esforço visual.</h1>
+            <p>Um sistema pensado para integrar agenda, separação, expedição, pátio e docas em uma única visão, com leitura clara da operação, atualização em tempo real e uma experiência visual mais elegante para o time logístico.</p>
+          </div>
+
+          <div class="login-features">
+            <div class="login-feature">
+              <strong>Agenda integrada</strong>
+              <span>Centralize a programação do dia, janelas, clientes, transportadoras e docas em uma única operação.</span>
+            </div>
+            <div class="login-feature">
+              <strong>Pátio e docas</strong>
+              <span>Acompanhe fila, chegada, ocupação de doca e carregamento com mais previsibilidade e menos ruído visual.</span>
+            </div>
+            <div class="login-feature">
+              <strong>Decisão mais rápida</strong>
+              <span>KPIs, torres e etapas ajudam a identificar atrasos, gargalos e prioridades com clareza.</span>
+            </div>
+            <div class="login-feature">
+              <strong>Operação mais humana</strong>
+              <span>Visual mais acolhedor, leitura mais leve e fluxo mais simples para quem usa o sistema todos os dias.</span>
+            </div>
+          </div>
+
+          <div class="login-kpis">
+            <div class="login-kpi">
+              <strong>01</strong>
+              <span>Agenda centralizada</span>
+            </div>
+            <div class="login-kpi">
+              <strong>04</strong>
+              <span>Pátio em tempo real</span>
+            </div>
+            <div class="login-kpi">
+              <strong>08</strong>
+              <span>Etapas integradas</span>
+            </div>
+          </div>
+
+          <div class="login-visual-card">
+            <div class="login-visual-content">
+              <strong>Fluxo visual do sistema logístico</strong>
+              <p>Do agendamento até a saída, o sistema integra agenda, pátio, docas, conferência, documentos fiscais e expedição em uma visão única, mais organizada e mais intuitiva da operação.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="login-flow">
+          <strong>Fluxo operacional no sistema</strong>
+          <p>Agendado → Em Separação → Separado → Pronto Expedição → No Pátio → Em Doca → Em Carregamento → Expedido</p>
+        </div>
+      </div>
+
+      <div class="login-box">
+        <img src="logo.png" alt="YMS">
+        <h2>Entrar no sistema</h2>
+        <p>Entre para acompanhar a operação logística com mais clareza, controle e visão em tempo real.</p>
+        <input type="email" id="loginEmail" placeholder="Email">
+        <input type="password" id="loginSenha" placeholder="Senha">
+        <button onclick="login()">Entrar</button>
+        <div class="login-note">Acesso destinado aos usuários internos da operação logística.</div>
+        <div class="login-right-footer">© Gestão Logística Plus — Todos os direitos reservados</div>
+        <div class="login-error" id="loginErro"></div>
+      </div>
     </div>
   </div>
 
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
   <div class="app hidden" id="app">
     <aside class="sidebar">
       <div class="sidebar-top">
