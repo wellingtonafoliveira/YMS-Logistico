@@ -2088,6 +2088,46 @@
     @media (max-width:640px){
       .uf-map-grid{grid-template-columns:repeat(2, minmax(0, 1fr))}
     }
+
+    .single-map{
+      min-height:640px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .single-map .brazil-map-stage{
+      width:min(100%, 980px);
+      min-height:600px;
+      margin:0 auto;
+    }
+
+    .single-map .brazil-map-svg{
+      height:600px;
+    }
+
+    #view-mapa{
+      overflow:hidden;
+    }
+
+    #view-mapa .card{
+      overflow:hidden;
+    }
+
+    @media (max-width:900px){
+      .single-map{
+        min-height:480px;
+        padding:12px;
+      }
+      .single-map .brazil-map-stage{
+        min-height:440px;
+      }
+      .single-map .brazil-map-svg{
+        height:420px;
+      }
+    }
+
 </style>
 </head>
 <body>
@@ -2657,11 +2697,11 @@
         </div>
       </section>
 
-      <section id="view-mapa" class="hidden">
+            <section id="view-mapa" class="hidden">
         <div class="section-hero">
           <div class="section-hero-card soft-glow">
             <h3>Mapa de entregas por UF</h3>
-            <p>Use a coluna UF para visualizar a distribuição das entregas no sistema, identificar concentração de carga por estado e acompanhar os pontos de entrega em um painel territorial mais visual.</p>
+            <p>Visualize a distribuição das entregas por estado e acompanhe a concentração de DTs de forma territorial, clara e centralizada.</p>
             <div class="section-mini-grid">
               <div class="section-mini">
                 <span>UFs com entregas</span>
@@ -2674,70 +2714,57 @@
             </div>
           </div>
           <div class="section-hero-card soft-glow">
-            <h3>Mapa operacional</h3>
-            <p>Os pontos abaixo representam as entregas por estado no filtro aplicado. Quanto maior o ponto, maior a concentração de DTs naquele destino.</p>
+            <h3>Leitura territorial</h3>
+            <p>Os pontos no mapa representam os estados com entregas ativas. Quanto maior o ponto, maior a concentração de DTs naquele destino.</p>
           </div>
         </div>
 
-        <div class="grid grid-2">
-          <div class="card soft-glow">
-            <div class="card-title-row">
-              <div>
-                <h2 style="margin:0">Mapa territorial</h2>
-                <p>Pontos de entrega por UF em um mapa visual do Brasil.</p>
-              </div>
-              <span class="premium-badge">Entregas por estado</span>
+        <div class="card soft-glow">
+          <div class="card-title-row">
+            <div>
+              <h2 style="margin:0">Mapa territorial do Brasil</h2>
+              <p>Pontos de entrega por UF em uma leitura central e limpa.</p>
             </div>
-            <div class="brazil-map-wrap">
-              <div class="brazil-map-stage" id="brazilMapStage">
-                <svg class="brazil-map-svg" viewBox="0 0 800 620" aria-hidden="true">
-                  <defs>
-                    <linearGradient id="mapGlow" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stop-color="#143055"/>
-                      <stop offset="100%" stop-color="#0b1f38"/>
-                    </linearGradient>
-                  </defs>
-                  <path d="M177 123 L265 84 L358 108 L428 81 L512 108 L609 94 L691 147 L676 235 L711 304 L652 383 L588 420 L548 507 L432 523 L345 480 L248 504 L185 435 L120 410 L102 335 L132 278 L118 218 Z"
-                        fill="url(#mapGlow)" stroke="rgba(255,255,255,.18)" stroke-width="2" />
-                </svg>
-                <div id="ufPointsLayer"></div>
-              </div>
+            <span class="premium-badge">Entregas por estado</span>
+          </div>
+          <div class="brazil-map-wrap single-map">
+            <div class="brazil-map-stage" id="brazilMapStage">
+              <svg class="brazil-map-svg" viewBox="0 0 800 620" aria-hidden="true">
+                <defs>
+                  <linearGradient id="mapGlow" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#143055"/>
+                    <stop offset="100%" stop-color="#0b1f38"/>
+                  </linearGradient>
+                </defs>
+                <path d="M177 123 L265 84 L358 108 L428 81 L512 108 L609 94 L691 147 L676 235 L711 304 L652 383 L588 420 L548 507 L432 523 L345 480 L248 504 L185 435 L120 410 L102 335 L132 278 L118 218 Z"
+                      fill="url(#mapGlow)" stroke="rgba(255,255,255,.18)" stroke-width="2" />
+              </svg>
+              <div id="ufPointsLayer"></div>
             </div>
           </div>
+        </div>
 
-          <div class="card soft-glow">
-            <div class="card-title-row">
-              <div>
-                <h2 style="margin:0">Top destinos</h2>
-                <p>Estados com maior volume de DTs no filtro atual.</p>
-              </div>
-              <span class="premium-badge">Concentração</span>
+        <div class="card soft-glow" style="margin-top:16px">
+          <div class="card-title-row">
+            <div>
+              <h2 style="margin:0">Top destinos</h2>
+              <p>Estados com maior volume de DTs no filtro atual.</p>
             </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>UF</th>
-                    <th>DTs</th>
-                    <th>Caixas</th>
-                    <th>HE</th>
-                    <th>HO</th>
-                  </tr>
-                </thead>
-                <tbody id="mapaTabelaUF"></tbody>
-              </table>
-            </div>
-
-            <div class="card" style="margin-top:16px">
-              <div class="card-title-row">
-                <div>
-                  <h2 style="margin:0">Resumo por UF</h2>
-                  <p>Leitura rápida dos estados com entregas ativas.</p>
-                </div>
-                <span class="premium-badge">Resumo</span>
-              </div>
-              <div class="uf-map-grid" id="ufMapGrid"></div>
-            </div>
+            <span class="premium-badge">Concentração</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>UF</th>
+                  <th>DTs</th>
+                  <th>Caixas</th>
+                  <th>HE</th>
+                  <th>HO</th>
+                </tr>
+              </thead>
+              <tbody id="mapaTabelaUF"></tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -3853,22 +3880,6 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       const mapaUfTop = document.getElementById("mapaUfTop");
       if(mapaUfAtivas) mapaUfAtivas.textContent = ativas.length;
       if(mapaUfTop) mapaUfTop.textContent = top ? `${top.uf} • ${top.total}` : "-";
-
-      const grid = document.getElementById("ufMapGrid");
-      if(grid){
-        grid.innerHTML = ufData.map(item => `
-          <div class="uf-card ${item.total > 0 ? "active" : ""}">
-            <div class="uf-card-top">
-              <strong>${item.uf}</strong>
-              <span class="uf-badge">${item.total}</span>
-            </div>
-            <div class="uf-card-meta">
-              DTs: ${item.total}<br>
-              Caixas: ${item.caixas || 0}
-            </div>
-          </div>
-        `).join("");
-      }
 
       const layer = document.getElementById("ufPointsLayer");
       if(layer){
