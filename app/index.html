@@ -2173,6 +2173,18 @@
           </div>
         </div>
         <div class="grid grid-4" id="dashboardKpis"></div>
+
+        <div class="card soft-glow" style="margin-top:16px">
+          <div class="card-title-row">
+            <div>
+              <h2 style="margin:0">Painel de exceções</h2>
+              <p>Leitura orientada por exceção para priorizar atrasos, pendências de doca, ausência de motorista e divergências operacionais.</p>
+            </div>
+            <span class="premium-badge">Ação imediata</span>
+          </div>
+          <div class="grid grid-4" id="dashboardExceptions"></div>
+        </div>
+
         <div class="card soft-glow" style="margin-top:16px">
           <div class="card-title-row"><div><h2 style="margin:0">Torre de etapas</h2><p>Visão consolidada das etapas da operação com rolagem dedicada por coluna.</p></div><span class="premium-badge">Tempo real</span></div>
           <div class="board" id="dashboardBoard"></div>
@@ -3038,7 +3050,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(status) status.textContent = "Lista atualizada.";
     }
 
-    async async function criarUsuarioAdmin(){
+    async function criarUsuarioAdmin(){
       if(!requirePermission("admin", "Apenas admin pode cadastrar usuários.")) return;
 
       const nome = document.getElementById("u_nome").value.trim();
@@ -3053,9 +3065,12 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         return alert("Preencha nome, email e senha inicial.");
       }
 
+      await carregarUsuariosAdmin();
       const usuarioExistenteTela = (usuariosAdmin || []).find(u => String(u.email || "").toLowerCase() === email);
       if(usuarioExistenteTela){
-        const msg = "Este e-mail já está cadastrado na lista de usuários do sistema. Use redefinição de senha ou reative o usuário existente.";
+        const msg = usuarioExistenteTela.ativo
+          ? "Este e-mail já está cadastrado no sistema. Use redefinição de senha."
+          : "Este e-mail já existe e está inativo. Reative o usuário existente.";
         if(status) status.textContent = msg;
         return alert(msg);
       }
@@ -3070,7 +3085,6 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
 
         const { data: sessao } = await sb.auth.getSession();
         const token = sessao?.session?.access_token || "";
-
         if(!token){
           if(status) status.textContent = "Sessão inválida. Faça login novamente.";
           return alert("Sessão inválida. Faça login novamente.");
@@ -3090,9 +3104,14 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         if(!resp.ok){
           console.error(result);
           const erro = String(result?.error || result?.message || "");
-          if(erro.toLowerCase().includes("already been registered") || erro.toLowerCase().includes("already registered") || erro.toLowerCase().includes("already exists")){
+          if(
+            erro.toLowerCase().includes("already been registered") ||
+            erro.toLowerCase().includes("already registered") ||
+            erro.toLowerCase().includes("already exists")
+          ){
             const msg = "Este e-mail já existe no Auth. Reative o usuário existente ou use redefinição de senha.";
             if(status) status.textContent = msg;
+            await carregarUsuariosAdmin();
             return alert(msg);
           }
           if(status) status.textContent = erro || "Erro ao cadastrar usuário.";
@@ -3105,6 +3124,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         document.getElementById("u_perfil").value = "operacao";
         document.getElementById("u_ativo").value = "true";
 
+        registrarLogSistema("usuario_criado", `Usuário ${email} criado com perfil ${perfil}`);
         if(status) status.textContent = "Usuário cadastrado com sucesso.";
         showToast("Usuário cadastrado com sucesso");
         await carregarUsuariosAdmin();
@@ -3449,22 +3469,6 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         });
         localStorage.setItem("glp_logs", JSON.stringify(logs.slice(0, 300)));
       }catch(_){}
-      renderAdminLogs();
-    }
-
-    function renderAdminLogs(){
-      const tbody = document.getElementById("adminLogsTabela");
-      if(!tbody) return;
-      let logs = [];
-      try{ logs = JSON.parse(localStorage.getItem("glp_logs") || "[]"); }catch(_){}
-      tbody.innerHTML = logs.length ? logs.slice(0,50).map(l => `
-        <tr>
-          <td>${fmtDateTime(l.data)}</td>
-          <td><span class="log-badge">${esc(l.acao)}</span></td>
-          <td>${esc(l.usuario)}</td>
-          <td>${esc(l.detalhes)}</td>
-        </tr>
-      `).join("") : `<tr><td colspan="4" style="color:var(--muted)">Nenhum log registrado ainda.</td></tr>`;
     }
 
     function getAgendaRows(){
@@ -3563,6 +3567,61 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(status === "Em Carregamento" && !row.inicio_carregamento) payload.inicio_carregamento = new Date().toISOString();
       if(status === "Expedido" && !row.fim_carregamento) payload.fim_carregamento = new Date().toISOString();
       return payload;
+    }
+
+    function detectarConflitosAgenda(rows){
+      const mapa = new Map();
+      const conflitos = [];
+      (rows || []).forEach(r => {
+        const docaRef = r.doca_agenda || r.doca_planejada || r.doca_carregamento;
+        if(!r.data_agenda || !r.hora_agenda || !docaRef) return;
+        const chave = `${r.data_agenda}|${r.hora_agenda}|${docaRef}`;
+        if(!mapa.has(chave)) mapa.set(chave, []);
+        mapa.get(chave).push(r);
+      });
+      mapa.forEach(lista => {
+        if(lista.length > 1) conflitos.push(...lista);
+      });
+      return conflitos;
+    }
+
+    function getDashboardExceptionsData(rows){
+      const conflitos = detectarConflitosAgenda(rows);
+      const conflitoIds = new Set(conflitos.map(r => r.id));
+      return [
+        {
+          label:"Atrasadas",
+          value: rows.filter(r => calcSla(r).label === "Atrasado").length,
+          detail:"fora do SLA",
+          cls:"status-red",
+          icon:"⏱️",
+          filter:() => { agendaFiltroKpi = "Atrasado"; setView('agenda', document.getElementById('menu-agenda')); renderAgenda(); renderDashboard(); }
+        },
+        {
+          label:"Sem doca",
+          value: rows.filter(r => !(r.doca_agenda || r.doca_planejada || r.doca_carregamento)).length,
+          detail:"pendência operacional",
+          cls:"status-orange",
+          icon:"🚪",
+          filter:() => { const el = document.getElementById('agendaFiltroRisco'); if(el) el.value = 'sem_doca'; setView('agenda', document.getElementById('menu-agenda')); renderAgenda(); renderDashboard(); }
+        },
+        {
+          label:"Sem motorista",
+          value: rows.filter(r => ['No Pátio','Em Doca','Em Carregamento'].includes(r.status_global) && !String(r.motorista || '').trim()).length,
+          detail:"cadastro incompleto",
+          cls:"status-purple",
+          icon:"👤",
+          filter:() => { setView('patio', document.getElementById('menu-patio')); }
+        },
+        {
+          label:"Conflito doca",
+          value: conflitoIds.size,
+          detail:"janela duplicada",
+          cls:"status-cyan",
+          icon:"⚠️",
+          filter:() => { const el = document.getElementById('agendaFiltroRisco'); if(el) el.value = 'conflito'; setView('agenda', document.getElementById('menu-agenda')); renderAgenda(); renderDashboard(); }
+        }
+      ];
     }
 
     function atualizarSaudacaoSistema(){
@@ -3829,7 +3888,6 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(usuarioPerfil === "admin"){
         carregarUsuariosAdmin();
       }
-      renderAdminLogs();
       atualizarSaudacaoSistema();
       carregarTemperaturaSistema();
     }
@@ -4085,12 +4143,27 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
           <div class="value">${k.value}</div>
           <div class="sub">${k.sub}</div>
         </div>`).join("");
+
+      const exceptionTarget = document.getElementById("dashboardExceptions");
+      if(exceptionTarget){
+        const exceptions = getDashboardExceptionsData(rows);
+        exceptionTarget.innerHTML = exceptions.map((x, i) => `
+          <div class="kpi ${x.cls} clickable" onclick="window.__dashboardExceptionFilters[${i}]()">
+            <div class="kpi-icon">${x.icon}</div>
+            <div class="label">${x.label}</div>
+            <div class="value">${x.value}</div>
+            <div class="sub">${x.detail}</div>
+          </div>
+        `).join("");
+        window.__dashboardExceptionFilters = exceptions.map(x => x.filter);
+      }
+
       document.getElementById("dashboardBoard").innerHTML = STAGES.map(st => {
         const itens = rows.filter(r => r.status_global === st);
         const laneClass = STAGE_COLOR_CLASS[st] || "";
         return `<div class="lane ${laneClass}" data-status="${esc(st)}">
           <div class="lane-head"><h3 onclick="filtrarPorKpi('${esc(st)}')" style="cursor:pointer">${esc(st)}</h3><span class="count">${itens.length}</span></div>
-          ${itens.map(r => `<div class="item" draggable="true" data-id="${esc(r.id)}" onclick="abrirDTPorId('${esc(r.id)}')"><strong>DT ${esc(r.dt || "-")}</strong><div class="meta">${esc(r.transportadora || "-")}<br>${esc(r.cliente || "-")}<br><span class="${calcSla(r).cls}">${calcSla(r).label}</span></div></div>`).join("") || `<div class="meta">Sem registros.</div>`}
+          ${itens.map(r => `<div class="item" draggable="true" data-id="${esc(r.id)}" onclick="abrirDTPorId('${esc(r.id)}')"><strong>DT ${esc(r.dt || "-")}</strong><div class="meta">${esc(r.transportadora || "-")}<br>${esc(r.cliente || "-")}</div></div>`).join("") || `<div class="meta">Sem registros.</div>`}
         </div>`;
       }).join("");
       initDragDrop();
@@ -5087,7 +5160,6 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     atualizarIconesSidebar();
     atualizarSaudacaoSistema();
     carregarTemperaturaSistema();
-    renderAdminLogs();
     boot();
   </script>
 </body>
