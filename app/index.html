@@ -3163,6 +3163,46 @@
       }
     }
 
+
+    /* ===== Next version: calendar icon fix ===== */
+    input[type="date"]{
+      color-scheme: dark;
+      position:relative;
+      padding-right:42px;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator{
+      opacity:1;
+      cursor:pointer;
+      filter: invert(88%) sepia(17%) saturate(432%) hue-rotate(180deg) brightness(108%) contrast(96%);
+    }
+
+    input[type="date"]::-webkit-inner-spin-button,
+    input[type="date"]::-webkit-clear-button{
+      display:none;
+    }
+
+    .actions input[type="date"]{
+      background:
+        linear-gradient(180deg, rgba(8,10,14,.96), rgba(5,7,10,.94));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:
+        0 12px 24px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .actions input[type="date"]:hover{
+      border-color:rgba(96,165,250,.22);
+    }
+
+    .topbar .actions{
+      align-items:flex-end;
+    }
+
+    .topbar .actions .btn{
+      min-height:44px;
+    }
+
 </style>
 </head>
 <body class="enterprise-shell">
