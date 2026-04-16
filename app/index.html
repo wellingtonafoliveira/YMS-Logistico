@@ -3014,6 +3014,152 @@
       }
     }
 
+
+    /* ===== vNext premium refinement ===== */
+    .premium-menu button{
+      position:relative;
+      isolation:isolate;
+    }
+
+    .premium-menu button::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:inherit;
+      background:linear-gradient(135deg, rgba(255,255,255,.03), transparent 42%);
+      opacity:.9;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .premium-menu button > *{
+      position:relative;
+      z-index:1;
+    }
+
+    .app.sidebar-collapsed .premium-menu button[data-label]:hover::after,
+    .app.sidebar-collapsed .premium-menu button[data-label]:focus-visible::after{
+      content:attr(data-label);
+      position:absolute;
+      left:calc(100% + 12px);
+      top:50%;
+      transform:translateY(-50%);
+      white-space:nowrap;
+      padding:10px 14px;
+      border-radius:14px;
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.12), transparent 34%),
+        linear-gradient(180deg, rgba(11,14,19,.98), rgba(6,8,11,.96));
+      border:1px solid rgba(255,255,255,.08);
+      color:#eef4ff;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.01em;
+      box-shadow:
+        0 18px 36px rgba(0,0,0,.30),
+        inset 0 1px 0 rgba(255,255,255,.04);
+      pointer-events:none;
+      z-index:30;
+    }
+
+    .app.sidebar-collapsed .premium-menu button[data-label]:hover::before{
+      opacity:1;
+    }
+
+    .premium-menu button .menu-text{
+      transition:opacity .18s ease, transform .18s ease;
+    }
+
+    .premium-menu button:hover .menu-text{
+      transform:translateX(1px);
+    }
+
+    .topbar{
+      border-radius:34px;
+      overflow:hidden;
+    }
+
+    .topbar .title,
+    .topbar .actions{
+      position:relative;
+      z-index:1;
+    }
+
+    .topbar .actions{
+      border-radius:22px;
+      min-width:min(430px,100%);
+      box-shadow:
+        0 16px 34px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .card-title-row h2,
+    .section-hero-card h3,
+    .report-hero-card h3,
+    .premium-table-head h2{
+      letter-spacing:-.02em;
+    }
+
+    .card,
+    .section-hero-card,
+    .report-hero-card,
+    .premium-table-card,
+    .welcome-strip,
+    .modal-card,
+    .dock,
+    .lane,
+    .item,
+    .user-box,
+    .brand-wrap{
+      backdrop-filter:blur(14px);
+    }
+
+    .premium-table-card{
+      overflow:hidden;
+    }
+
+    .premium-table-head{
+      position:relative;
+    }
+
+    .premium-table-head::after{
+      content:"";
+      position:absolute;
+      inset:auto 0 0 0;
+      height:1px;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+    }
+
+    .kpi{
+      transform-origin:center;
+    }
+
+    .kpi:hover{
+      transform:translateY(-3px) scale(1.01);
+    }
+
+    .item:hover,
+    .dock:hover,
+    .card:hover,
+    .section-hero-card:hover,
+    .report-hero-card:hover{
+      transform:translateY(-3px);
+    }
+
+    .page-accent-line{
+      width:160px;
+      height:5px;
+      margin-top:14px;
+      box-shadow:0 0 24px rgba(37,99,235,.22);
+    }
+
+    @media (max-width:900px){
+      .app.sidebar-collapsed .premium-menu button[data-label]:hover::after,
+      .app.sidebar-collapsed .premium-menu button[data-label]:focus-visible::after{
+        display:none;
+      }
+    }
+
 </style>
 </head>
 <body class="enterprise-shell">
@@ -3117,22 +3263,22 @@
       <div class="sidebar-divider-premium"></div>
 
       <div class="menu premium-menu">
-        <button id="menu-dashboard" data-short="Dash" class="active" onclick="setView('dashboard', this)"><span class="menu-icon icon-dashboard"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="7" height="16" rx="2"></rect><rect x="14" y="4" width="7" height="9" rx="2"></rect><rect x="14" y="15" width="7" height="5" rx="2"></rect></svg></span><span class="menu-text">Dashboard</span></button>
-        <button id="menu-agenda" data-short="Ag" onclick="setView('agenda', this)"><span class="menu-icon icon-agenda"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18"></path><path d="M8 3v4"></path><path d="M16 3v4"></path></svg></span><span class="menu-text">Agenda</span></button>
-        <button id="menu-separacao" data-short="Sep" onclick="setView('separacao', this)"><span class="menu-icon icon-separacao"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M4 12h10"></path><path d="M4 17h7"></path><circle cx="18" cy="12" r="3"></circle></svg></span><span class="menu-text">Separação</span></button>
-        <button id="menu-expedicao" data-short="Exp" onclick="setView('expedicao', this)"><span class="menu-icon icon-expedicao"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h10v8H3z"></path><path d="M13 10h4l3 3v3h-7z"></path><circle cx="8" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg></span><span class="menu-text">Expedição</span></button>
-        <button id="menu-patio" data-short="Pat" onclick="setView('patio', this)"><span class="menu-icon icon-patio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V8l8-4 8 4v10"></path><path d="M8 18v-4h8v4"></path></svg></span><span class="menu-text">Pátio</span></button>
-        <button id="menu-motoristas" data-short="Mot" onclick="setView('motoristas', this)"><span class="menu-icon icon-motoristas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M5 20c1.5-3 4-5 7-5s5.5 2 7 5"></path></svg></span><span class="menu-text">Motoristas</span></button>
-        <button id="menu-transportadoras" data-short="Trn" onclick="setView('transportadoras', this)"><span class="menu-icon icon-transportadoras"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h11v7H3z"></path><path d="M14 10h3l4 4v1h-7z"></path><circle cx="8" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg></span><span class="menu-text">Transportadoras</span></button>
-        <button id="menu-docas" data-short="Doc" onclick="setView('docas', this)"><span class="menu-icon icon-docas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V6l7-3 7 3v14"></path><path d="M9 20v-6h6v6"></path></svg></span><span class="menu-text">Docas</span></button>
-        <button id="menu-checkin" data-short="Chk" onclick="setView('checkin', this)"><span class="menu-icon icon-checkin"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"></rect><path d="M8 12l2.5 2.5L16 9"></path></svg></span><span class="menu-text">Check-in</span></button>
-        <button id="menu-relatorios" data-short="Rel" onclick="setView('relatorios', this)"><span class="menu-icon icon-relatorios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M7 15l3-3 3 2 4-5"></path></svg></span><span class="menu-text">Relatórios</span></button>
-        <button id="menu-admin" data-short="Adm" onclick="setView('admin', this)"><span class="menu-icon icon-admin"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.3.8a7 7 0 0 0-1.7-1L14.5 3h-5L9 5.8a7 7 0 0 0-1.7 1L5 6 3 9.5 5 11a7 7 0 0 0 0 2l-2 1.5L5 18l2.3-.8a7 7 0 0 0 1.7 1l.5 2.8h5l.4-2.8a7 7 0 0 0 1.7-1L19 18l2-3.5-2-1.5c.1-.3.1-.7.1-1z"></path></svg></span><span class="menu-text">Admin</span></button>
+        <button id="menu-dashboard" data-short="Dash" class="active" onclick="setView('dashboard', this)" data-label="Dashboard"><span class="menu-icon icon-dashboard"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="7" height="16" rx="2"></rect><rect x="14" y="4" width="7" height="9" rx="2"></rect><rect x="14" y="15" width="7" height="5" rx="2"></rect></svg></span><span class="menu-text">Dashboard</span></button>
+        <button id="menu-agenda" data-short="Ag" onclick="setView('agenda', this)" data-label="Agenda"><span class="menu-icon icon-agenda"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18"></path><path d="M8 3v4"></path><path d="M16 3v4"></path></svg></span><span class="menu-text">Agenda</span></button>
+        <button id="menu-separacao" data-short="Sep" onclick="setView('separacao', this)" data-label="Separação"><span class="menu-icon icon-separacao"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M4 12h10"></path><path d="M4 17h7"></path><circle cx="18" cy="12" r="3"></circle></svg></span><span class="menu-text">Separação</span></button>
+        <button id="menu-expedicao" data-short="Exp" onclick="setView('expedicao', this)" data-label="Expedição"><span class="menu-icon icon-expedicao"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h10v8H3z"></path><path d="M13 10h4l3 3v3h-7z"></path><circle cx="8" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg></span><span class="menu-text">Expedição</span></button>
+        <button id="menu-patio" data-short="Pat" onclick="setView('patio', this)" data-label="Pátio"><span class="menu-icon icon-patio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V8l8-4 8 4v10"></path><path d="M8 18v-4h8v4"></path></svg></span><span class="menu-text">Pátio</span></button>
+        <button id="menu-motoristas" data-short="Mot" onclick="setView('motoristas', this)" data-label="Motoristas"><span class="menu-icon icon-motoristas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M5 20c1.5-3 4-5 7-5s5.5 2 7 5"></path></svg></span><span class="menu-text">Motoristas</span></button>
+        <button id="menu-transportadoras" data-short="Trn" onclick="setView('transportadoras', this)" data-label="Transportadoras"><span class="menu-icon icon-transportadoras"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h11v7H3z"></path><path d="M14 10h3l4 4v1h-7z"></path><circle cx="8" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg></span><span class="menu-text">Transportadoras</span></button>
+        <button id="menu-docas" data-short="Doc" onclick="setView('docas', this)" data-label="Docas"><span class="menu-icon icon-docas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V6l7-3 7 3v14"></path><path d="M9 20v-6h6v6"></path></svg></span><span class="menu-text">Docas</span></button>
+        <button id="menu-checkin" data-short="Chk" onclick="setView('checkin', this)" data-label="Check-in"><span class="menu-icon icon-checkin"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"></rect><path d="M8 12l2.5 2.5L16 9"></path></svg></span><span class="menu-text">Check-in</span></button>
+        <button id="menu-relatorios" data-short="Rel" onclick="setView('relatorios', this)" data-label="Relatórios"><span class="menu-icon icon-relatorios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M7 15l3-3 3 2 4-5"></path></svg></span><span class="menu-text">Relatórios</span></button>
+        <button id="menu-admin" data-short="Adm" onclick="setView('admin', this)" data-label="Admin"><span class="menu-icon icon-admin"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.3.8a7 7 0 0 0-1.7-1L14.5 3h-5L9 5.8a7 7 0 0 0-1.7 1L5 6 3 9.5 5 11a7 7 0 0 0 0 2l-2 1.5L5 18l2.3-.8a7 7 0 0 0 1.7 1l.5 2.8h5l.4-2.8a7 7 0 0 0 1.7-1L19 18l2-3.5-2-1.5c.1-.3.1-.7.1-1z"></path></svg></span><span class="menu-text">Admin</span></button>
       </div>
 
       <div class="sidebar-note">
         <strong>Fluxo operacional</strong><br>
-        Acompanhe cada etapa da carga com mais clareza, previsibilidade e navegação lateral mais elegante.
+        Acompanhe cada etapa da carga com mais clareza, previsibilidade, animações mais elegantes e navegação lateral refinada.
       </div>
 
       <button class="logout-btn" onclick="logout()">Sair</button>
@@ -3172,7 +3318,7 @@
             <input type="date" id="filtroData" onchange="carregarTudo()">
           </div>
           <button class="btn btn-light" onclick="carregarTudo()">Atualizar</button>
-          <div class="topbar-actions-note">Versão enterprise com visual premium, foco em leitura rápida da operação e execução mais confortável para o time logístico.</div>
+          <div class="topbar-actions-note">Versão enterprise com visual premium, animações mais suaves e uma leitura operacional ainda mais confortável para o time logístico.</div>
         </div>
       </div>
 
