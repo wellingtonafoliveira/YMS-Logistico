@@ -10,25 +10,25 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root{
-      --bg:#08111f;
-      --sidebar:#0b1627;
+      --bg:#030406;
+      --sidebar:#05070a;
       --sidebar-collapsed:96px;
       --app-max:1800px;
-      --card:#111c2f;
-      --card-2:#16253c;
-      --glass:rgba(8,17,31,.72);
-      --line:rgba(255,255,255,.08);
-      --text:#eef4ff;
-      --muted:#98abc8;
-      --blue:#3b82f6;
+      --card:#0a0d12;
+      --card-2:#10141b;
+      --glass:rgba(5,7,10,.84);
+      --line:rgba(255,255,255,.07);
+      --text:#f2f5fb;
+      --muted:#8d99ad;
+      --blue:#2563eb;
       --green:#22c55e;
       --orange:#f59e0b;
       --red:#ef4444;
-      --purple:#8b5cf6;
-      --cyan:#06b6d4;
-      --gray:#64748b;
+      --purple:#7c3aed;
+      --cyan:#0891b2;
+      --gray:#6b7280;
       --radius:20px;
-      --shadow:0 18px 50px rgba(0,0,0,.35);
+      --shadow:0 22px 60px rgba(0,0,0,.48);
     }
 
     *{box-sizing:border-box}
@@ -37,9 +37,9 @@
     body{
       font-family:Inter,Segoe UI,Arial,sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(59,130,246,.18), transparent 28%),
-        radial-gradient(circle at top right, rgba(6,182,212,.10), transparent 22%),
-        linear-gradient(180deg,#07101d,#08111f 55%,#07101d);
+        radial-gradient(circle at top left, rgba(37,99,235,.10), transparent 22%),
+        radial-gradient(circle at top right, rgba(8,145,178,.08), transparent 18%),
+        linear-gradient(180deg,#020304,#05070a 55%,#020304);
       color:var(--text);
       min-height:100vh;
       position:relative;
@@ -51,7 +51,7 @@
       position:fixed;
       inset:0;
       background:
-        linear-gradient(rgba(7,16,29,.62), rgba(7,16,29,.76)),
+        linear-gradient(rgba(2,4,6,.82), rgba(2,4,6,.88)),
         url('Foto armazém.jpg') center center / cover no-repeat;
       z-index:-2;
     }
@@ -86,7 +86,7 @@
       height:46px;
       border-radius:14px;
       border:1px solid rgba(255,255,255,.10);
-      background:linear-gradient(180deg,rgba(19,35,58,.92),rgba(15,28,46,.84));
+      background:linear-gradient(180deg,rgba(12,15,20,.98),rgba(9,11,15,.94));
       color:#fff;
       cursor:pointer;
       align-items:center;
@@ -538,7 +538,7 @@
     .login-box input,
     input,select,textarea{
       width:100%;
-      background:#0d1728;
+      background:#0a0d12;
       color:#fff;
       border:1px solid rgba(255,255,255,.10);
       border-radius:14px;
@@ -717,7 +717,7 @@
     }
 
     .sidebar{
-      background:linear-gradient(180deg,rgba(8,17,31,.88),rgba(8,17,31,.74));
+      background:linear-gradient(180deg,rgba(4,5,7,.96),rgba(6,8,11,.92));
       border-right:1px solid var(--line);
       padding:18px 16px 22px;
       position:sticky;
@@ -754,7 +754,7 @@
       height:42px;
       border-radius:14px;
       border:1px solid var(--line);
-      background:#12223a;
+      background:#0d1117;
       color:#fff;
       cursor:pointer;
       font-size:18px;
@@ -798,16 +798,12 @@
     }
 
     .app.sidebar-collapsed .menu button::before{
-      content:attr(data-short);
-      font-size:11px;
-      font-weight:900;
-      letter-spacing:.04em;
-      text-transform:uppercase;
+      display:none;
     }
 
     .user-box{
       margin-bottom:16px;padding:14px;border:1px solid var(--line);
-      background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+      background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));
       border-radius:16px;font-size:12px;color:var(--muted);line-height:1.6;
     }
     .user-box strong{display:block;color:#fff;font-size:14px;margin-bottom:4px}
@@ -815,7 +811,7 @@
     .menu{display:flex;flex-direction:column;gap:10px}
     .menu button{
       border:none;
-      background:linear-gradient(180deg,rgba(19,35,58,.92),rgba(15,28,46,.84));
+      background:linear-gradient(180deg,rgba(12,15,20,.98),rgba(9,11,15,.94));
       color:var(--text);
       padding:13px 14px;
       border-radius:16px;
@@ -883,9 +879,9 @@
       border:1px solid rgba(255,255,255,.10);
       border-radius:28px;
       background:
-        radial-gradient(circle at top left, rgba(59,130,246,.14), transparent 28%),
-        radial-gradient(circle at bottom right, rgba(6,182,212,.08), transparent 26%),
-        linear-gradient(180deg, rgba(17,28,47,.88), rgba(13,23,39,.76));
+        radial-gradient(circle at top left, rgba(37,99,235,.10), transparent 22%),
+        radial-gradient(circle at bottom right, rgba(8,145,178,.06), transparent 20%),
+        linear-gradient(180deg, rgba(10,12,16,.96), rgba(6,8,11,.94));
       backdrop-filter:blur(20px);
       box-shadow:0 24px 60px rgba(0,0,0,.28);
       position:relative;
@@ -927,7 +923,7 @@
     }
 
     .card{
-      background:linear-gradient(180deg,rgba(17,28,47,.90),rgba(13,23,39,.84));
+      background:linear-gradient(180deg,rgba(9,12,16,.96),rgba(6,8,11,.94));
       border:1px solid var(--line);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
@@ -999,9 +995,9 @@
     .btn-light{background:#152640;color:#fff;border:1px solid var(--line)}
 
     .table-wrap{overflow:auto;border-radius:16px;border:1px solid var(--line)}
-    table{width:100%;border-collapse:collapse;min-width:1500px;background:#0c1728}
+    table{width:100%;border-collapse:collapse;min-width:1500px;background:#090c10}
     th,td{padding:11px 10px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;vertical-align:middle}
-    th{background:#12223a;color:#d5e5ff;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0;font-size:11px}
+    th{background:#0d1117;color:#d5e5ff;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0;font-size:11px}
 
     .chip{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:900;color:#fff;white-space:nowrap}
     .st-agendado{background:#475569}
@@ -1021,6 +1017,54 @@
     .mini.orange{background:#d97706}
     .mini.red{background:#b91c1c}
 
+    .mini.gray{background:#475569}
+    .mini.outline{
+      background:transparent;
+      border:1px solid rgba(255,255,255,.14);
+      color:#dbeafe;
+    }
+    .action-hint{
+      display:inline-flex;
+      align-items:center;
+      padding:4px 8px;
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--muted);
+      font-size:10px;
+      font-weight:800;
+      margin-top:6px;
+    }
+    .queue-priority{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:rgba(245,158,11,.12);
+      border:1px solid rgba(245,158,11,.24);
+      color:#fbbf24;
+      font-size:10px;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+    .dock-state{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:900;
+      border:1px solid rgba(255,255,255,.08);
+      margin-top:8px;
+      width:max-content;
+    }
+    .dock-state.free{background:rgba(34,197,94,.12); color:#4ade80; border-color:rgba(34,197,94,.2)}
+    .dock-state.reserved{background:rgba(245,158,11,.12); color:#fbbf24; border-color:rgba(245,158,11,.2)}
+    .dock-state.busy{background:rgba(139,92,246,.14); color:#c4b5fd; border-color:rgba(139,92,246,.2)}
+    .dock-state.finishing{background:rgba(6,182,212,.12); color:#67e8f9; border-color:rgba(6,182,212,.2)}
+
     .board{
       display:grid;
       grid-template-columns:repeat(4,minmax(260px,1fr));
@@ -1029,7 +1073,7 @@
       padding-bottom:6px;
     }
     .lane{
-      background:#0d1728;
+      background:#0a0d12;
       border:1px solid var(--line);
       border-radius:16px;
       padding:12px;
@@ -1045,7 +1089,7 @@
       margin-bottom:10px;
       position:sticky;
       top:0;
-      background:#0d1728;
+      background:#0a0d12;
       padding-bottom:8px;
       z-index:2;
     }
@@ -1121,13 +1165,13 @@
     .lane.stage-purple .item:hover{border-color:rgba(139,92,246,.30)}
     .lane.stage-cyan .item:hover{border-color:rgba(6,182,212,.30)}
 
-    .item{background:linear-gradient(180deg,#14233a,#102034);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px;margin-bottom:10px;cursor:pointer;transition:.2s}
+    .item{background:linear-gradient(180deg,#0f1319,#0a0d12);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px;margin-bottom:10px;cursor:pointer;transition:.2s}
     .item:hover{transform:translateY(-1px)}
     .item strong{display:block;margin-bottom:6px}
     .item .meta{font-size:12px;color:var(--muted);line-height:1.5}
 
     .dock-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-    .dock{border-radius:16px;padding:14px;border:1px solid var(--line);background:#101a2a;min-height:170px;cursor:pointer;transition:.2s}
+    .dock{border-radius:16px;padding:14px;border:1px solid var(--line);background:#0b0f14;min-height:170px;cursor:pointer;transition:.2s}
     .dock.free{background:linear-gradient(180deg,rgba(34,197,94,.12),rgba(13,26,20,.80));border-color:rgba(34,197,94,.22)}
     .dock.busy{background:linear-gradient(180deg,rgba(139,92,246,.18),rgba(22,18,47,.92));border-color:rgba(139,92,246,.25)}
     .dock-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
@@ -1610,8 +1654,8 @@
       position:absolute !important;
       inset:0 !important;
       background:
-        linear-gradient(90deg, rgba(4,10,20,.92) 0%, rgba(4,10,20,.78) 35%, rgba(4,10,20,.50) 62%, rgba(4,10,20,.82) 100%),
-        linear-gradient(180deg, rgba(4,10,20,.18), rgba(4,10,20,.58)),
+        linear-gradient(90deg, rgba(2,3,4,.95) 0%, rgba(2,3,4,.86) 35%, rgba(2,3,4,.66) 62%, rgba(2,3,4,.90) 100%),
+        linear-gradient(180deg, rgba(2,3,4,.28), rgba(2,3,4,.72)),
         url('gestao-de-patio.jpg') center center / cover no-repeat !important;
       z-index:0 !important;
     }
@@ -1646,8 +1690,8 @@
       border:1px solid rgba(255,255,255,.08) !important;
       border-radius:36px !important;
       background:
-        radial-gradient(circle at top left, rgba(59,130,246,.10), transparent 26%),
-        linear-gradient(180deg, rgba(8,17,31,.26), rgba(8,17,31,.12)) !important;
+        radial-gradient(circle at top left, rgba(37,99,235,.08), transparent 20%),
+        linear-gradient(180deg, rgba(5,7,10,.42), rgba(5,7,10,.22)) !important;
       backdrop-filter:blur(8px) !important;
       box-shadow:0 26px 80px rgba(0,0,0,.28) !important;
       padding:38px 36px !important;
@@ -1831,8 +1875,8 @@
       margin-left:auto !important;
       align-self:center !important;
       background:
-        radial-gradient(circle at top right, rgba(59,130,246,.16), transparent 24%),
-        linear-gradient(180deg,rgba(17,28,47,.97),rgba(13,23,39,.95)) !important;
+        radial-gradient(circle at top right, rgba(37,99,235,.12), transparent 18%),
+        linear-gradient(180deg,rgba(10,12,16,.98),rgba(6,8,11,.96)) !important;
       border:1px solid rgba(255,255,255,.10) !important;
       border-radius:34px !important;
       box-shadow:0 30px 90px rgba(0,0,0,.36) !important;
@@ -2011,9 +2055,501 @@
       .filters-grid,.queue-summary,.executive-grid{grid-template-columns:1fr}
     }
 
+
+    .kpi,
+    .card,
+    .lane,
+    .dock,
+    .item,
+    .modal-card,
+    .section-hero-card,
+    .report-hero-card,
+    .login-box,
+    .login-showcase{
+      box-shadow:
+        0 14px 34px rgba(0,0,0,.34),
+        inset 0 1px 0 rgba(255,255,255,.02);
+    }
+
+    .menu button.active,
+    .menu button:hover{
+      background:linear-gradient(135deg,#1a1f29,#2563eb);
+    }
+
+    .premium-badge,
+    .topbar-badge,
+    .soft-stat,
+    .modal-pill{
+      background:rgba(255,255,255,.04);
+      border-color:rgba(255,255,255,.10);
+    }
+
+    .title h1,
+    .login-box h2,
+    .login-hero h1,
+    .brand-title{
+      text-shadow:0 8px 24px rgba(0,0,0,.28);
+    }
+
+    .table-wrap tbody tr:hover{
+      background:rgba(255,255,255,.03);
+    }
+
+    .welcome-strip{
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.07), transparent 20%),
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    }
+
+
+    .premium-sidebar-top{
+      position:relative;
+      padding-bottom:6px;
+      margin-bottom:8px;
+    }
+
+    .premium-collapse-btn,
+    .premium-topbar-toggle{
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.14), transparent 30%),
+        linear-gradient(180deg, rgba(18,22,29,.96), rgba(10,12,16,.94));
+      box-shadow:
+        0 14px 30px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.05);
+      transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease;
+    }
+
+    .premium-collapse-btn:hover,
+    .premium-topbar-toggle:hover{
+      transform:translateY(-1px) scale(1.02);
+      border-color:rgba(96,165,250,.30);
+      box-shadow:
+        0 18px 36px rgba(0,0,0,.34),
+        0 0 0 4px rgba(37,99,235,.08);
+    }
+
+    .premium-collapse-btn:active,
+    .premium-topbar-toggle:active{
+      transform:scale(.98);
+    }
+
+    .collapse-btn-glow{
+      position:absolute;
+      inset:auto -14px -14px auto;
+      width:34px;
+      height:34px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(59,130,246,.28), transparent 72%);
+      pointer-events:none;
+    }
+
+    .collapse-btn-icon{
+      position:relative;
+      z-index:1;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      height:100%;
+      font-size:18px;
+      transition:transform .24s ease;
+    }
+
+    .premium-topbar-toggle{
+      gap:8px;
+      padding:0 12px;
+      width:auto;
+      min-width:52px;
+      font-size:18px;
+      font-weight:900;
+    }
+
+    .topbar-toggle-dot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:linear-gradient(135deg,#60a5fa,#2563eb);
+      box-shadow:0 0 0 4px rgba(37,99,235,.12);
+      flex-shrink:0;
+    }
+
+    .app.sidebar-collapsed .collapse-btn-icon{
+      transform:rotate(180deg);
+    }
+
+    .app.sidebar-collapsed .brand-logo{
+      width:52px;
+      height:52px;
+      border-radius:16px;
+    }
+
+    .app.sidebar-collapsed .sidebar{
+      border-right-color:rgba(255,255,255,.05);
+    }
+
+    .app.sidebar-collapsed .menu{
+      gap:12px;
+    }
+
+    .app.sidebar-collapsed .menu button{
+      border-radius:18px;
+      min-height:52px;
+      box-shadow:0 10px 24px rgba(0,0,0,.18);
+    }
+
+    .app.sidebar-collapsed .menu button.active,
+    .app.sidebar-collapsed .menu button:hover{
+      transform:translateY(-1px);
+    }
+
+    .app.sidebar-collapsed .sidebar-toggle{
+      margin-inline:auto;
+    }
+
+    .sidebar-toggle::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(135deg, rgba(255,255,255,.04), transparent 50%);
+      opacity:.9;
+      pointer-events:none;
+    }
+
+    .sidebar{
+      transition:padding .25s ease, width .25s ease, background .25s ease, border-color .25s ease;
+    }
+
+    .sidebar-note{
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.08), transparent 26%),
+        linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.012));
+    }
+
+    @media (max-width:900px){
+      .premium-topbar-toggle{
+        min-width:48px;
+        padding:0 10px;
+      }
+      .premium-collapse-btn{
+        width:44px;
+        height:44px;
+      }
+    }
+
+
+    .menu-icon{
+      width:22px;
+      height:22px;
+      min-width:22px;
+      border-radius:10px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .menu-icon svg{
+      width:14px;
+      height:14px;
+      stroke:currentColor;
+      fill:none;
+      stroke-width:1.9;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .icon-dashboard{ color:#60a5fa; }
+    .icon-agenda{ color:#93c5fd; }
+    .icon-separacao{ color:#fbbf24; }
+    .icon-expedicao{ color:#38bdf8; }
+    .icon-patio{ color:#818cf8; }
+    .icon-motoristas{ color:#34d399; }
+    .icon-transportadoras{ color:#22c55e; }
+    .icon-docas{ color:#c084fc; }
+    .icon-checkin{ color:#10b981; }
+    .icon-relatorios{ color:#fb7185; }
+    .icon-admin{ color:#f59e0b; }
+
+    .menu button:hover .menu-icon,
+    .menu button.active .menu-icon{
+      background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      border-color:rgba(255,255,255,.12);
+      color:#ffffff;
+      transform:translateY(-.5px);
+    }
+
+    .app.sidebar-collapsed .menu button{
+      padding-inline:10px;
+    }
+
+    .app.sidebar-collapsed .menu-icon{
+      width:26px;
+      height:26px;
+      min-width:26px;
+      border-radius:12px;
+      margin:0 auto;
+    }
+
+    .app.sidebar-collapsed .menu button::before{
+      display:none;
+    }
+
+    .app.sidebar-collapsed .menu button .menu-text{
+      display:none !important;
+    }
+
+    .app.sidebar-collapsed .menu button{
+      justify-content:center;
+      gap:0;
+    }
+
+
+    .enterprise-shell::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255,255,255,.012) 1px, transparent 1px);
+      background-size:32px 32px;
+      mask-image:linear-gradient(180deg, rgba(0,0,0,.22), transparent 55%);
+      opacity:.22;
+      z-index:-1;
+    }
+
+    .topbar{
+      border-radius:32px;
+      box-shadow:
+        0 24px 60px rgba(0,0,0,.42),
+        inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .topbar::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(135deg, rgba(255,255,255,.03), transparent 42%);
+      pointer-events:none;
+    }
+
+    .title h1{
+      font-size:38px;
+      letter-spacing:-.03em;
+    }
+
+    .topbar-badge,
+    .premium-badge{
+      backdrop-filter:blur(10px);
+      box-shadow:0 10px 24px rgba(0,0,0,.18);
+    }
+
+    .kpi{
+      position:relative;
+      overflow:hidden;
+      border-radius:24px;
+      box-shadow:
+        0 18px 36px rgba(0,0,0,.26),
+        inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .kpi::after{
+      content:"";
+      position:absolute;
+      inset:auto -40px -42px auto;
+      width:110px;
+      height:110px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(255,255,255,.08), transparent 68%);
+      pointer-events:none;
+      opacity:.42;
+    }
+
+    .kpi .value{
+      font-size:36px;
+      letter-spacing:-.03em;
+    }
+
+    .card,
+    .section-hero-card,
+    .report-hero-card,
+    .modal-card,
+    .dock,
+    .lane{
+      border-radius:24px;
+      box-shadow:
+        0 18px 42px rgba(0,0,0,.30),
+        inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .premium-table-card{
+      border-radius:26px;
+    }
+
+    .premium-table-head{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      padding-top:20px;
+      padding-bottom:14px;
+    }
+
+    .table-wrap thead th{
+      background:linear-gradient(180deg,#121822,#0d1117);
+      box-shadow:inset 0 -1px 0 rgba(255,255,255,.04);
+    }
+
+    .table-wrap td{
+      color:#d6deec;
+    }
+
+    .section-hero-card h3,
+    .report-hero-card h3{
+      font-size:19px;
+      letter-spacing:-.02em;
+    }
+
+    .section-mini,
+    .report-mini,
+    .modal-summary-card{
+      border-radius:20px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .menu button{
+      min-height:50px;
+      border-radius:18px;
+    }
+
+    .menu button .menu-text{
+      font-size:13px;
+      letter-spacing:.01em;
+    }
+
+    .sidebar{
+      box-shadow:18px 0 40px rgba(0,0,0,.20);
+    }
+
+    .brand-wrap{
+      padding:8px 10px 10px;
+      border-radius:22px;
+      background:linear-gradient(180deg, rgba(255,255,255,.022), rgba(255,255,255,.012));
+      border:1px solid rgba(255,255,255,.05);
+    }
+
+    .brand-logo{
+      width:58px;
+      height:58px;
+      border-radius:18px;
+    }
+
+    .brand-title{
+      font-size:28px;
+      letter-spacing:-.03em;
+    }
+
+    .sidebar-note{
+      border-radius:20px;
+      line-height:1.8;
+    }
+
+    .dock{
+      position:relative;
+      overflow:hidden;
+    }
+
+    .dock::after{
+      content:"";
+      position:absolute;
+      right:-28px;
+      bottom:-28px;
+      width:92px;
+      height:92px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(255,255,255,.06), transparent 68%);
+      pointer-events:none;
+    }
+
+    .lane-head h3{
+      letter-spacing:-.02em;
+    }
+
+    .item{
+      border-radius:16px;
+      box-shadow:0 10px 24px rgba(0,0,0,.18);
+    }
+
+    .btn,
+    .mini,
+    .login-box button{
+      box-shadow:
+        0 14px 28px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    .btn,
+    .mini{
+      border-radius:14px;
+    }
+
+    .modal-content{
+      border-radius:30px;
+      box-shadow:
+        0 28px 84px rgba(0,0,0,.50),
+        inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .modal-head{
+      border-radius:22px;
+    }
+
+    .login-box{
+      border-radius:38px !important;
+    }
+
+    .login-feature,
+    .login-kpi,
+    .login-visual-card,
+    .login-flow{
+      box-shadow:
+        0 16px 40px rgba(0,0,0,.20),
+        inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .clickable{
+      cursor:pointer;
+    }
+
+    .page-accent-line{
+      margin-top:12px;
+      width:120px;
+      height:4px;
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(37,99,235,.95), rgba(8,145,178,.95), rgba(124,58,237,.88));
+      box-shadow:0 0 20px rgba(37,99,235,.18);
+    }
+
+    .topbar-actions-note{
+      width:100%;
+      margin-top:8px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.7;
+    }
+
+    @media (max-width:900px){
+      .title h1{font-size:30px}
+      .kpi .value{font-size:30px}
+      .brand-wrap{padding:6px 8px}
+    }
+
 </style>
 </head>
-<body>
+<body class="enterprise-shell">
   <button class="mobile-menu-toggle hidden" id="mobileMenuToggle" type="button" aria-label="Abrir menu">☰</button>
   <div class="login-screen" id="loginScreen">
     <div class="login-layout">
@@ -2022,7 +2558,7 @@
           <div class="login-badge">Gestão Logística Plus • YMS em tempo real</div>
           <div class="login-hero">
             <h1>Mais controle operacional,<br>menos esforço visual.</h1>
-            <p>Um sistema pensado para integrar agenda, separação, expedição, pátio e docas em uma única visão, com leitura clara da operação, atualização em tempo real e uma experiência visual mais elegante para o time logístico.</p>
+            <p>Um sistema pensado para integrar agenda, separação, expedição, pátio e docas em uma única visão, com leitura clara da operação, atualização em tempo real e uma experiência visual mais elegante, escura e premium para o time logístico.</p>
           </div>
 
           <div class="login-features">
@@ -2040,7 +2576,7 @@
             </div>
             <div class="login-feature">
               <strong>Operação mais humana</strong>
-              <span>Visual mais acolhedor, leitura mais leve e fluxo mais simples para quem usa o sistema todos os dias.</span>
+              <span>Visual preto premium, leitura mais leve e fluxo mais simples para quem usa o sistema todos os dias.</span>
             </div>
           </div>
 
@@ -2091,15 +2627,18 @@
 
   <div class="app hidden" id="app">
     <aside class="sidebar">
-      <div class="sidebar-top">
+      <div class="sidebar-top premium-sidebar-top">
         <div class="brand-wrap">
           <img src="logo.png" alt="YMS" class="brand-logo">
           <div>
             <div class="brand-title">YMS</div>
-            <small class="brand-sub">Agenda, operação e pátio em tempo real</small>
+            <small class="brand-sub">Agenda, operação, docas e pátio em tempo real</small>
           </div>
         </div>
-        <button class="sidebar-toggle" id="sidebarToggle" type="button" title="Ocultar menu"><span id="sidebarToggleIcon">❮</span></button>
+        <button class="sidebar-toggle premium-collapse-btn" id="sidebarToggle" type="button" title="Ocultar menu" aria-label="Ocultar menu lateral">
+          <span class="collapse-btn-glow"></span>
+          <span class="collapse-btn-icon" id="sidebarToggleIcon">❮</span>
+        </button>
       </div>
 
       <div class="user-box">
@@ -2109,21 +2648,21 @@
       </div>
 
       <div class="menu">
-        <button id="menu-dashboard" data-short="Dash" class="active" onclick="setView('dashboard', this)"><span class="menu-icon">📊</span><span class="menu-text">Dashboard</span></button>
-        <button id="menu-agenda" data-short="Ag" onclick="setView('agenda', this)"><span class="menu-icon">🗓️</span><span class="menu-text">Agenda</span></button>
-        <button id="menu-separacao" data-short="Sep" onclick="setView('separacao', this)"><span class="menu-text">Separação</span></button>
-        <button id="menu-expedicao" data-short="Exp" onclick="setView('expedicao', this)"><span class="menu-text">Expedição</span></button>
-        <button id="menu-patio" data-short="Pat" onclick="setView('patio', this)"><span class="menu-text">Pátio</span></button>
-        <button id="menu-motoristas" data-short="Mot" onclick="setView('motoristas', this)"><span class="menu-text">Motoristas</span></button>
-        <button id="menu-transportadoras" data-short="Trn" onclick="setView('transportadoras', this)"><span class="menu-text">Transportadoras</span></button>
-        <button id="menu-docas" data-short="Doc" onclick="setView('docas', this)"><span class="menu-text">Docas</span></button>
-        <button id="menu-checkin" data-short="Chk" onclick="setView('checkin', this)"><span class="menu-text">Check-in</span></button>
-        <button id="menu-relatorios" data-short="Rel" onclick="setView('relatorios', this)"><span class="menu-icon">📈</span><span class="menu-text">Relatórios</span></button>
-        <button id="menu-admin" data-short="Adm" onclick="setView('admin', this)"><span class="menu-icon">⚙️</span><span class="menu-text">Admin</span></button>
+        <button id="menu-dashboard" data-short="Dash" class="active" onclick="setView('dashboard', this)"><span class="menu-icon icon-dashboard"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="7" height="16" rx="2"></rect><rect x="14" y="4" width="7" height="9" rx="2"></rect><rect x="14" y="15" width="7" height="5" rx="2"></rect></svg></span><span class="menu-text">Dashboard</span></button>
+        <button id="menu-agenda" data-short="Ag" onclick="setView('agenda', this)"><span class="menu-icon icon-agenda"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18"></path><path d="M8 3v4"></path><path d="M16 3v4"></path></svg></span><span class="menu-text">Agenda</span></button>
+        <button id="menu-separacao" data-short="Sep" onclick="setView('separacao', this)"><span class="menu-icon icon-separacao"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M4 12h10"></path><path d="M4 17h7"></path><circle cx="18" cy="12" r="3"></circle></svg></span><span class="menu-text">Separação</span></button>
+        <button id="menu-expedicao" data-short="Exp" onclick="setView('expedicao', this)"><span class="menu-icon icon-expedicao"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h10v8H3z"></path><path d="M13 10h4l3 3v3h-7z"></path><circle cx="8" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg></span><span class="menu-text">Expedição</span></button>
+        <button id="menu-patio" data-short="Pat" onclick="setView('patio', this)"><span class="menu-icon icon-patio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V8l8-4 8 4v10"></path><path d="M8 18v-4h8v4"></path></svg></span><span class="menu-text">Pátio</span></button>
+        <button id="menu-motoristas" data-short="Mot" onclick="setView('motoristas', this)"><span class="menu-icon icon-motoristas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M5 20c1.5-3 4-5 7-5s5.5 2 7 5"></path></svg></span><span class="menu-text">Motoristas</span></button>
+        <button id="menu-transportadoras" data-short="Trn" onclick="setView('transportadoras', this)"><span class="menu-icon icon-transportadoras"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h11v7H3z"></path><path d="M14 10h3l4 4v1h-7z"></path><circle cx="8" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg></span><span class="menu-text">Transportadoras</span></button>
+        <button id="menu-docas" data-short="Doc" onclick="setView('docas', this)"><span class="menu-icon icon-docas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V6l7-3 7 3v14"></path><path d="M9 20v-6h6v6"></path></svg></span><span class="menu-text">Docas</span></button>
+        <button id="menu-checkin" data-short="Chk" onclick="setView('checkin', this)"><span class="menu-icon icon-checkin"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"></rect><path d="M8 12l2.5 2.5L16 9"></path></svg></span><span class="menu-text">Check-in</span></button>
+        <button id="menu-relatorios" data-short="Rel" onclick="setView('relatorios', this)"><span class="menu-icon icon-relatorios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M7 15l3-3 3 2 4-5"></path></svg></span><span class="menu-text">Relatórios</span></button>
+        <button id="menu-admin" data-short="Adm" onclick="setView('admin', this)"><span class="menu-icon icon-admin"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.3.8a7 7 0 0 0-1.7-1L14.5 3h-5L9 5.8a7 7 0 0 0-1.7 1L5 6 3 9.5 5 11a7 7 0 0 0 0 2l-2 1.5L5 18l2.3-.8a7 7 0 0 0 1.7 1l.5 2.8h5l.4-2.8a7 7 0 0 0 1.7-1L19 18l2-3.5-2-1.5c.1-.3.1-.7.1-1z"></path></svg></span><span class="menu-text">Admin</span></button>
       </div>
 
       <div class="sidebar-note">
-        <strong>Fluxo operacional:</strong><br>
+        <strong>Fluxo operacional</strong><br>
         Acompanhe cada etapa da carga com mais clareza, previsibilidade e menos esforço visual.
       </div>
 
@@ -2132,11 +2671,15 @@
 
     <main class="main premium-shell">
       <div class="topbar">
-        <button class="topbar-menu-toggle" id="topbarMenuToggle" type="button" title="Ocultar menu"><span id="topbarMenuToggleIcon">❮</span></button>
+        <button class="topbar-menu-toggle premium-topbar-toggle" id="topbarMenuToggle" type="button" title="Ocultar menu" aria-label="Abrir ou recolher menu lateral">
+          <span class="topbar-toggle-dot"></span>
+          <span id="topbarMenuToggleIcon">❮</span>
+        </button>
         <div class="title">
           <div class="topbar-badge">Gestão Logística Plus • Operação em tempo real</div>
           <h1 id="pageTitle">Dashboard</h1>
-          <p>Gestão integrada da agenda, pátio, expedição e docas, com uma leitura mais clara, humana e confortável para quem opera o sistema todos os dias.</p>
+          <p>Gestão integrada da agenda, pátio, expedição e docas, agora com visual black premium e navegação lateral mais elegante para o uso diário.</p>
+          <div class="page-accent-line"></div>
           <div class="welcome-strip soft-glow">
             <div class="welcome-main">
               <strong id="welcomeGreeting">Bom dia</strong>
@@ -2155,6 +2698,7 @@
             <input type="date" id="filtroData" onchange="carregarTudo()">
           </div>
           <button class="btn btn-light" onclick="carregarTudo()">Atualizar</button>
+          <div class="topbar-actions-note">Versão enterprise com visual premium, foco em leitura rápida da operação e execução mais confortável para o time logístico.</div>
         </div>
       </div>
 
@@ -2167,7 +2711,7 @@
           <div class="card-title-row">
             <div>
               <h2 style="margin:0">Visão do dia</h2>
-              <p>Uma leitura mais leve da operação para ajudar a equipe a identificar prioridades sem excesso de informação.</p>
+              <p>Uma leitura mais premium da operação para ajudar a equipe a identificar prioridades com rapidez, clareza e menos ruído visual.</p>
             </div>
             <span class="premium-badge">Mais humano</span>
           </div>
@@ -2835,7 +3379,7 @@
         </div>
       </section>
 
-      <footer>© 2026 Gestão Logística Plus — Todos os direitos reservados</footer>
+      <footer>© 2026 Gestão Logística Plus — Todos os direitos reservados • Black Premium Enterprise</footer>
     </main>
   </div>
 
@@ -3242,14 +3786,21 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       const sidebarIcon = document.getElementById("sidebarToggleIcon");
       const topbarIcon = document.getElementById("topbarMenuToggleIcon");
       const backdrop = document.getElementById("sidebarBackdrop");
+      const mobile = window.matchMedia("(max-width: 900px)").matches;
 
-      if(sidebarBtn) sidebarBtn.title = recolhido ? "Expandir menu" : "Ocultar menu";
-      if(topbarBtn) topbarBtn.title = recolhido ? "Expandir menu" : "Ocultar menu";
+      if(sidebarBtn){
+        sidebarBtn.title = recolhido ? "Expandir menu lateral" : "Recolher menu lateral";
+        sidebarBtn.setAttribute("aria-label", sidebarBtn.title);
+      }
+      if(topbarBtn){
+        topbarBtn.title = recolhido ? "Abrir menu lateral" : "Fechar menu lateral";
+        topbarBtn.setAttribute("aria-label", topbarBtn.title);
+      }
       if(sidebarIcon) sidebarIcon.textContent = recolhido ? "❯" : "❮";
-      if(topbarIcon) topbarIcon.textContent = recolhido ? "☰" : "✕";
+      if(topbarIcon) topbarIcon.textContent = mobile ? (recolhido ? "☰" : "✕") : (recolhido ? "❯" : "❮");
       if(backdrop){
-        const mobile = window.matchMedia("(max-width: 900px)").matches;
         backdrop.classList.toggle("show", mobile && !recolhido);
+        backdrop.classList.toggle("hidden", !(mobile && !recolhido));
       }
     }
 
@@ -3356,6 +3907,43 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(can(permission)) return true;
       alert(mensagem || "Seu perfil não possui permissão para esta ação.");
       return false;
+    }
+
+    function actionDisabledAttr(row, status){
+      const perms = getRolePermissions();
+      const disabled = perms.read_only || !podeTransicionar(row?.status_global || "Agendado", status);
+      return disabled ? "disabled" : "";
+    }
+
+    function getActionHint(row, status){
+      if((getRolePermissions() || {}).read_only) return "Somente leitura";
+      const atual = row?.status_global || "Agendado";
+      if(!podeTransicionar(atual, status)) return `Fluxo: ${atual} não avança direto para ${status}`;
+      return "";
+    }
+
+    function renderTransitionButton(row, status, label, klass){
+      const hint = getActionHint(row, status);
+      const disabled = actionDisabledAttr(row, status);
+      return `<button class="mini ${klass}" onclick="mudarStatus('${esc(row.id)}','${esc(status)}')" ${disabled} title="${esc(hint || '')}">${label}</button>`;
+    }
+
+    function getFilaPriorityLabel(item){
+      const pr = Number(item?.prioridade || 0);
+      if(pr >= 8) return "Prioridade crítica";
+      if(pr >= 5) return "Prioridade alta";
+      if(pr >= 2) return "Prioridade média";
+      return "Fluxo normal";
+    }
+
+    function getDockPlannedState(nome, rows){
+      const ocupada = rows.find(r => (r.doca_carregamento || r.doca_agenda || r.doca_planejada) === nome && ["Em Doca","Em Carregamento"].includes(r.status_global));
+      if(ocupada) return { kind:"busy", label:"Ocupada", row:ocupada };
+      const finalizando = rows.find(r => (r.doca_carregamento || r.doca_agenda || r.doca_planejada) === nome && r.status_global === "Expedido");
+      if(finalizando) return { kind:"finishing", label:"Finalizando", row:finalizando };
+      const reservada = rows.find(r => (r.doca_agenda || r.doca_planejada) === nome && ["Agendado","Em Separação","Separado","Pronto Expedição","No Pátio"].includes(r.status_global));
+      if(reservada) return { kind:"reserved", label:"Reservada", row:reservada };
+      return { kind:"free", label:"Livre", row:null };
     }
 
     function clsStatus(s){
@@ -3681,6 +4269,25 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       }catch(err){
         console.error(err);
         alert("Erro ao chamar o motorista pela RPC.");
+      }
+    }
+
+    async function enviarFilaParaDocaPrompt(id){
+      if(!requirePermission("patio_operate", "Seu perfil não pode enviar para doca.")) return;
+      const fila = patioFilaRegistros.find(r => r.id === id || r.agenda_id === id);
+      if(!fila) return alert("Registro da fila não encontrado.");
+      const sugestao = fila.doca_destino || docas.find(d => d.ativo !== false)?.nome || "";
+      const doca = prompt(`Informe a doca para a DT ${fila.dt || "-"}`, sugestao);
+      if(doca === null) return;
+      if(!String(doca).trim()) return alert("Informe a doca.");
+      try{
+        await rpcEnviarParaDocaFila(fila.id, String(doca).trim());
+        registrarLogSistema("envio_doca", `DT ${fila.dt || "-"} enviada para ${String(doca).trim()}`);
+        showToast(`DT enviada para ${String(doca).trim()}`);
+        await carregarTudo();
+      }catch(err){
+        console.error(err);
+        alert("Erro ao enviar a fila para a doca.");
       }
     }
 
@@ -4220,33 +4827,56 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       document.getElementById("separacaoSoftStat").textContent = `${rows.length} registros`;
       document.getElementById("separacaoTabela").innerHTML = rows.map(r => {
         const sla = calcSla(r);
+        const hint1 = getActionHint(r, "Em Separação");
+        const hint2 = getActionHint(r, "Separado");
         return `<tr>
           <td>${esc(r.dt)}</td><td>${esc(r.cliente)}</td><td>${esc(r.transportadora)}</td><td>${esc(r.doca_planejada || r.doca_agenda)}</td><td>${esc(r.status_separacao)}</td><td>${esc(r.conferente_recebimento)}</td><td>${esc(r.turno_separacao)}</td>
           <td><span class="${sla.cls}">${sla.label}</span></td>
-          <td><div class="mini-actions"><button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button><button class="mini orange" onclick="mudarStatus('${esc(r.id)}','Em Separação')">Em separação</button><button class="mini green" onclick="mudarStatus('${esc(r.id)}','Separado')">Separado</button></div></td>
+          <td>
+            <div class="mini-actions">
+              <button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button>
+              ${renderTransitionButton(r, "Em Separação", "Em separação", "orange")}
+              ${renderTransitionButton(r, "Separado", "Separado", "green")}
+            </div>
+            ${hint1 && !podeTransicionar(r.status_global || "Agendado", "Em Separação") ? `<div class="action-hint">${esc(hint1)}</div>` : hint2 && !podeTransicionar(r.status_global || "Agendado", "Separado") ? `<div class="action-hint">${esc(hint2)}</div>` : ``}
+          </td>
         </tr>`;
       }).join("");
     }
 
-    function renderExpedicao(){
+    function renderExpedicaofunction renderExpedicao(){
       const rows = linhasFiltradas().filter(r => ["Separado","Pronto Expedição","No Pátio"].includes(r.status_global));
       document.getElementById("expProntoRef").textContent = rows.filter(r => r.status_global === "Pronto Expedição").length;
       document.getElementById("expPatioRef").textContent = rows.filter(r => r.status_global === "No Pátio").length;
       document.getElementById("expedicaoSoftStat").textContent = `${rows.length} registros`;
       document.getElementById("expedicaoTabela").innerHTML = rows.map(r => {
         const sla = calcSla(r);
+        const hint1 = getActionHint(r, "Pronto Expedição");
+        const hint2 = getActionHint(r, "No Pátio");
         return `<tr>
           <td>${esc(r.dt)}</td><td>${esc(r.cliente)}</td><td>${esc(r.transportadora)}</td><td>${esc(r.doca_agenda)}</td><td>${esc(r.conferente_expedicao)}</td><td>${r.faturado === true ? "Sim" : r.faturado === false ? "Não" : ""}</td>
           <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span></td>
           <td><span class="${sla.cls}">${sla.label}</span></td>
-          <td><div class="mini-actions"><button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button><button class="mini orange" onclick="mudarStatus('${esc(r.id)}','Pronto Expedição')">Pronto</button><button class="mini green" onclick="mudarStatus('${esc(r.id)}','No Pátio')">Enviar pátio</button></div></td>
+          <td>
+            <div class="mini-actions">
+              <button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button>
+              ${renderTransitionButton(r, "Pronto Expedição", "Pronto", "orange")}
+              ${renderTransitionButton(r, "No Pátio", "Enviar pátio", "green")}
+            </div>
+            ${hint1 && !podeTransicionar(r.status_global || "Agendado", "Pronto Expedição") ? `<div class="action-hint">${esc(hint1)}</div>` : hint2 && !podeTransicionar(r.status_global || "Agendado", "No Pátio") ? `<div class="action-hint">${esc(hint2)}</div>` : ``}
+          </td>
         </tr>`;
       }).join("");
     }
 
-    function renderPatio(){
+    function renderPatiofunction renderPatio(){
       const rows = getAgendaRows();
-      const filaRows = patioFilaRegistros.slice();
+      const filaRows = patioFilaRegistros.slice().sort((a,b) => {
+        const pa = Number(a.posicao_fila || 9999);
+        const pb = Number(b.posicao_fila || 9999);
+        if(pa !== pb) return pa - pb;
+        return Number(b.prioridade || 0) - Number(a.prioridade || 0);
+      });
       const boardRows = [
         { titulo:"Fila do Pátio", key:"aguardando", itens:filaRows.filter(r => r.status_fila === "aguardando") },
         { titulo:"Chamados", key:"chamado", itens:filaRows.filter(r => r.status_fila === "chamado") },
@@ -4266,54 +4896,59 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
             const agenda = registros.find(a => a.id === (r.agenda_id || r.id)) || r;
             const sla = calcSla(agenda);
             const filaTag = r.posicao_fila ? `<span class="queue-tag">${r.posicao_fila}º na fila</span>` : "";
-            const phone = getTelefoneMotorista(r);
-            const callRow = ["aguardando","chamado"].includes(r.status_fila) ? `
-              <div class="queue-action-row">
-                <button class="mini green" onclick="event.stopPropagation();chamarMotorista('${esc(r.id)}')">Chamar</button>
-                <button class="mini orange" onclick="event.stopPropagation();enviarMensagemMotoristaDaFila('${esc(r.id)}')" ${phone ? "" : "disabled"}>Enviar mensagem</button>
-                ${r.call_count ? `<span class="log-badge">${r.call_count} chamada(s)</span>` : ``}
+            const prioridade = g.key !== "expedido" ? `<div class="queue-priority">⚡ ${esc(getFilaPriorityLabel(r))}</div>` : "";
+            const phone = getTelefoneMotorista(agenda);
+            const actionButtons = g.key === "aguardando" ? `
+              <div class="mini-actions" style="margin-top:10px">
+                <button class="mini orange" onclick="event.stopPropagation(); chamarMotorista('${esc(r.id)}')">Chamar</button>
+                <button class="mini blue" onclick="event.stopPropagation(); enviarMensagemMotoristaDaFila('${esc(r.id)}')" ${phone ? "" : "disabled"}>Mensagem</button>
+              </div>` : g.key === "chamado" ? `
+              <div class="mini-actions" style="margin-top:10px">
+                <button class="mini green" onclick="event.stopPropagation(); enviarFilaParaDocaPrompt('${esc(r.id)}')">Enviar doca</button>
+                <button class="mini blue" onclick="event.stopPropagation(); enviarMensagemMotoristaDaFila('${esc(r.id)}')" ${phone ? "" : "disabled"}>Mensagem</button>
               </div>` : ``;
             return `<div class="item" onclick="abrirDTPorId('${esc(r.agenda_id || r.id)}')">
-              <strong>DT ${esc(r.dt || "-")}</strong>
-              <div class="meta">
-                ${esc(r.transportadora || "-")}<br>
-                Motorista: ${esc(r.motorista || "-")}<br>
-                Placas: ${esc(formatPlacas(r) || "-")}<br>
-                Doca: ${esc(r.doca_destino || agenda.doca_carregamento || agenda.doca_agenda || "-")}<br>
-                ${filaTag}<br>
-                <span class="${sla.cls}">${sla.label}</span>
-                ${callRow}
-              </div>
+              ${prioridade}
+              <strong>DT ${esc(agenda.dt || "-")}</strong>
+              <div class="meta">${esc(agenda.transportadora || "-")}<br>Motorista: ${esc(agenda.motorista || "-")}<br>Telefone: ${esc(formatarTelefoneVisual(phone) || "-")}<br>Doca destino: ${esc(r.doca_destino || agenda.doca_carregamento || agenda.doca_agenda || "-")}<br>${filaTag}<br><span class="${sla.cls}">${sla.label}</span></div>
+              ${actionButtons}
             </div>`;
           }).join("") || `<div class="meta">Sem registros.</div>`}
         </div>`;
       }).join("");
     }
 
-    function renderDocas(){
+    function renderDocasfunction renderDocas(){
       const rows = getAgendaRows();
       const nomesDoca = docas.length ? docas.map(d => d.nome) : ["Doca 1","Doca 2","Doca 3","Doca 4"];
       let livres = 0;
       let ocupadas = 0;
       document.getElementById("docasGrid").innerHTML = nomesDoca.map(nome => {
+        const estado = getDockPlannedState(nome, rows);
         const filaAtual = patioFilaRegistros.find(r => (r.doca_destino || "") === nome && r.status_fila === "em_doca");
-        const atual = filaAtual ? (registros.find(a => a.id === filaAtual.agenda_id) || filaAtual) :
-          rows.find(r => (r.doca_carregamento || r.doca_agenda || r.doca_planejada) === nome && ["Em Doca","Em Carregamento"].includes(r.status_global));
-        if(!atual){
+        const atual = filaAtual ? (registros.find(a => a.id === filaAtual.agenda_id) || filaAtual) : estado.row;
+
+        if(estado.kind === "free"){
           livres++;
-          return `<div class="dock free"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">Livre</span></div><div class="meta">Sem veículo na doca.</div></div>`;
+          return `<div class="dock free"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">Livre</span></div><div class="meta">Sem veículo na doca.</div><div class="dock-state free">Livre</div></div>`;
         }
+
         ocupadas++;
-        const sla = calcSla(atual);
-        const phone = getTelefoneMotorista(atual);
-        return `<div class="dock busy" onclick="abrirDTPorId('${esc(atual.agenda_id || atual.id)}')"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">${esc(atual.status_global || atual.status_fila || "Em Doca")}</span></div><div class="meta">DT: ${esc(atual.dt || "-")}<br>Transportadora: ${esc(atual.transportadora || "-")}<br>Motorista: ${esc(atual.motorista || "-")}<br>Placas: ${esc(formatPlacas(atual) || "-")}<br>Início: ${fmtDateTime(atual.inicio_carregamento || atual.chamado_at)}<br><span class="${sla.cls}">${sla.label}</span><div class="queue-action-row"><button class="mini orange" onclick="event.stopPropagation();enviarMensagemMotoristaDaFila('${esc(atual.id || atual.agenda_id)}')" ${phone ? "" : "disabled"}>Enviar mensagem</button></div></div></div>`;
+        const sla = calcSla(atual || {});
+        const phone = getTelefoneMotorista(atual || {});
+        const stateClass = estado.kind === "busy" ? "busy" : estado.kind === "reserved" ? "reserved" : "finishing";
+        return `<div class="dock ${estado.kind === "reserved" ? "free" : "busy"}" onclick="abrirDTPorId('${esc((atual && (atual.agenda_id || atual.id)) || '')}')">
+          <div class="dock-head"><strong>${esc(nome)}</strong><span class="count">${esc((atual && (atual.status_global || atual.status_fila)) || estado.label)}</span></div>
+          <div class="meta">DT: ${esc((atual && atual.dt) || "-")}<br>Transportadora: ${esc((atual && atual.transportadora) || "-")}<br>Motorista: ${esc((atual && atual.motorista) || "-")}<br>Telefone: ${esc(formatarTelefoneVisual(phone) || "-")}<br>Doca: ${esc(nome)}<br><span class="${sla.cls}">${sla.label}</span></div>
+          <div class="dock-state ${stateClass}">${esc(estado.label)}</div>
+        </div>`;
       }).join("");
       document.getElementById("docasLivreRef").textContent = livres;
       document.getElementById("docasOcupadaRef").textContent = ocupadas;
       document.getElementById("docasSoftStat").textContent = `${nomesDoca.length} docas`;
     }
 
-    function renderCheckin(){
+    function renderCheckinfunction renderCheckin(){
       const rows = linhasFiltradas().filter(r => r.motorista || r.chegada_motorista || ["No Pátio","Em Doca","Em Carregamento","Expedido"].includes(r.status_global));
       document.getElementById("checkinHojeRef").textContent = rows.length;
       document.getElementById("checkinPresenteRef").textContent = rows.filter(r => r.presente_ausente === "Presente").length;
