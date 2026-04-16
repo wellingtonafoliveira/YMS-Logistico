@@ -12,7 +12,7 @@
     :root{
       --bg:#030406;
       --sidebar:#05070a;
-      --sidebar-collapsed:96px;
+      --sidebar-collapsed:74px;
       --app-max:1800px;
       --card:#0a0d12;
       --card-2:#10141b;
@@ -797,9 +797,7 @@
       display:inline;
     }
 
-    .app.sidebar-collapsed .menu button::before{
-      display:none;
-    }
+    .app.sidebar-collapsed .menu button::before{display:none !important;}
 
     .user-box{
       margin-bottom:16px;padding:14px;border:1px solid var(--line);
@@ -1625,9 +1623,7 @@
         display:block !important;
       }
 
-      .app.sidebar-collapsed .menu button::before{
-        display:none;
-      }
+      .app.sidebar-collapsed .menu button::before{display:none !important;}
 
       .topbar-menu-toggle{
         display:inline-flex;
@@ -2295,9 +2291,7 @@
       margin:0 auto;
     }
 
-    .app.sidebar-collapsed .menu button::before{
-      display:none;
-    }
+    .app.sidebar-collapsed .menu button::before{display:none !important;}
 
     .app.sidebar-collapsed .menu button .menu-text{
       display:none !important;
@@ -2849,6 +2843,177 @@
       }
     }
 
+
+    /* ===== Sidebar compact vNext ===== */
+    .app{
+      transition:grid-template-columns .28s ease;
+    }
+
+    .sidebar-ultra-premium{
+      transition:padding .26s ease, width .26s ease, background .26s ease, border-color .26s ease, box-shadow .26s ease;
+    }
+
+    .app.sidebar-collapsed .sidebar{
+      padding-left:8px !important;
+      padding-right:8px !important;
+      width:var(--sidebar-collapsed);
+    }
+
+    .app.sidebar-collapsed .premium-sidebar-top{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .app.sidebar-collapsed .brand-wrap{
+      width:56px;
+      min-width:56px;
+      max-width:56px;
+      padding:8px;
+      margin:0 auto;
+      justify-content:center;
+      border-radius:20px;
+    }
+
+    .app.sidebar-collapsed .brand-logo{
+      width:40px;
+      height:40px;
+      min-width:40px;
+      min-height:40px;
+      padding:4px;
+      border-radius:14px;
+      margin:0 auto;
+    }
+
+    .app.sidebar-collapsed .sidebar-toggle{
+      width:40px;
+      height:40px;
+      min-width:40px;
+      border-radius:14px;
+      margin:0 auto;
+    }
+
+    .app.sidebar-collapsed .user-box,
+    .app.sidebar-collapsed .sidebar-note,
+    .app.sidebar-collapsed .logout-btn,
+    .app.sidebar-collapsed .sidebar-divider-premium{
+      display:none !important;
+    }
+
+    .app.sidebar-collapsed .premium-menu{
+      gap:10px;
+      align-items:center;
+    }
+
+    .app.sidebar-collapsed .premium-menu button{
+      width:56px;
+      min-width:56px;
+      height:56px;
+      min-height:56px;
+      padding:0 !important;
+      border-radius:18px;
+      justify-content:center !important;
+      align-items:center;
+      margin:0 auto;
+      transform:none !important;
+    }
+
+    .app.sidebar-collapsed .premium-menu button .menu-text{
+      display:none !important;
+    }
+
+    .app.sidebar-collapsed .premium-menu .menu-icon{
+      width:28px;
+      height:28px;
+      min-width:28px;
+      border-radius:12px;
+      margin:0 auto;
+    }
+
+    .app.sidebar-collapsed .premium-menu button:hover,
+    .app.sidebar-collapsed .premium-menu button.active{
+      box-shadow:
+        0 16px 30px rgba(0,0,0,.24),
+        0 0 0 4px rgba(37,99,235,.07);
+    }
+
+    .app.sidebar-collapsed .premium-menu button::after{
+      opacity:.55;
+    }
+
+    /* smoother global motion */
+    .menu button,
+    .card,
+    .kpi,
+    .dock,
+    .lane,
+    .item,
+    .topbar,
+    .sidebar-toggle,
+    .topbar-menu-toggle{
+      transition:
+        transform .22s ease,
+        box-shadow .22s ease,
+        border-color .22s ease,
+        background .22s ease,
+        opacity .22s ease;
+    }
+
+    /* topbar and cards closer to sidebar premium level */
+    .topbar{
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.12), transparent 22%),
+        radial-gradient(circle at bottom right, rgba(8,145,178,.08), transparent 20%),
+        linear-gradient(180deg, rgba(8,10,14,.98), rgba(5,7,10,.96));
+      border:1px solid rgba(255,255,255,.07);
+      box-shadow:
+        0 26px 64px rgba(0,0,0,.40),
+        inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .card,
+    .section-hero-card,
+    .report-hero-card,
+    .modal-card,
+    .premium-table-card{
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.08), transparent 24%),
+        linear-gradient(180deg, rgba(9,12,16,.98), rgba(6,8,11,.96));
+      border:1px solid rgba(255,255,255,.07);
+      box-shadow:
+        0 20px 44px rgba(0,0,0,.32),
+        inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .kpi{
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.10), transparent 26%),
+        linear-gradient(180deg, rgba(12,15,20,.98), rgba(8,10,14,.96));
+      border:1px solid rgba(255,255,255,.07);
+    }
+
+    .welcome-strip{
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.08), transparent 18%),
+        linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.012));
+      border:1px solid rgba(255,255,255,.07);
+      box-shadow:
+        0 18px 40px rgba(0,0,0,.24),
+        inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    @media (max-width:900px){
+      .app.sidebar-collapsed .sidebar{
+        transform:translateX(-108%);
+      }
+
+      .app:not(.sidebar-collapsed) .sidebar{
+        transform:translateX(0);
+      }
+    }
+
 </style>
 </head>
 <body class="enterprise-shell">
@@ -2982,7 +3147,7 @@
         <div class="title">
           <div class="topbar-badge">Gestão Logística Plus • Operação em tempo real</div>
           <h1 id="pageTitle">Dashboard</h1>
-          <p>Gestão integrada da agenda, pátio, expedição e docas, agora com visual black premium e um menu lateral mais elegante, compacto e profissional.</p>
+          <p>Gestão integrada da agenda, pátio, expedição e docas, agora com visual black premium, animações mais elegantes e um menu lateral compacto e profissional.</p>
           <div class="page-accent-line"></div>
           <div class="topbar-meta-row">
             <div class="topbar-meta-pill"><span>Modo</span><strong>Enterprise Black</strong></div>
@@ -4072,11 +4237,15 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
 
     try{
       const savedSidebar = localStorage.getItem("glp_sidebar_collapsed");
-      if(savedSidebar === "1"){
-        document.getElementById("app")?.classList.add("sidebar-collapsed");
-      }
-      if(window.innerWidth <= 900 && !savedSidebar){
-        document.getElementById("app")?.classList.add("sidebar-collapsed");
+      const appEl = document.getElementById("app");
+      if(appEl){
+        if(window.innerWidth <= 900){
+          appEl.classList.add("sidebar-collapsed");
+        }else if(savedSidebar === "1"){
+          appEl.classList.add("sidebar-collapsed");
+        }else{
+          appEl.classList.remove("sidebar-collapsed");
+        }
       }
     }catch(_){}
 
@@ -4105,8 +4274,10 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         topbarBtn.title = recolhido ? "Abrir menu lateral" : "Fechar menu lateral";
         topbarBtn.setAttribute("aria-label", topbarBtn.title);
       }
+
       if(sidebarIcon) sidebarIcon.textContent = recolhido ? "❯" : "❮";
       if(topbarIcon) topbarIcon.textContent = mobile ? (recolhido ? "☰" : "✕") : (recolhido ? "❯" : "❮");
+
       if(backdrop){
         backdrop.classList.toggle("show", mobile && !recolhido);
         backdrop.classList.toggle("hidden", !(mobile && !recolhido));
@@ -4116,15 +4287,27 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     function alternarSidebar(forceState){
       const app = document.getElementById("app");
       if(!app) return;
+
+      const mobile = window.matchMedia("(max-width: 900px)").matches;
       if(typeof forceState === "boolean"){
         app.classList.toggle("sidebar-collapsed", forceState);
       }else{
         app.classList.toggle("sidebar-collapsed");
       }
+
       const recolhido = app.classList.contains("sidebar-collapsed");
       try{
         localStorage.setItem("glp_sidebar_collapsed", recolhido ? "1" : "0");
       }catch(_){}
+
+      if(mobile){
+        const backdrop = document.getElementById("sidebarBackdrop");
+        if(backdrop){
+          backdrop.classList.toggle("hidden", recolhido);
+          backdrop.classList.toggle("show", !recolhido);
+        }
+      }
+
       atualizarIconesSidebar();
     }
 
