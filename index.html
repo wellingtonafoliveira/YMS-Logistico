@@ -342,7 +342,226 @@
       .section-head h2,.cta-box h3{font-size:30px}
       .powerbi-frame{height:520px}
     }
-  </style>
+  
+    .powerbi-wrap.dashboard-preview{
+      padding:0;
+      overflow:hidden;
+    }
+    .powerbi-preview{
+      padding:22px;
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.10), transparent 22%),
+        linear-gradient(180deg, rgba(7,10,14,.96), rgba(10,14,20,.94));
+    }
+    .powerbi-preview-grid{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:18px;
+    }
+    .powerbi-preview-left,
+    .powerbi-preview-right{
+      display:grid;
+      gap:18px;
+    }
+    .preview-panel{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px;
+      padding:20px;
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.08), transparent 24%),
+        linear-gradient(180deg, rgba(15,20,28,.92), rgba(11,15,21,.88));
+      box-shadow:0 16px 36px rgba(0,0,0,.18);
+    }
+    .preview-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:14px;
+      margin-bottom:16px;
+      flex-wrap:wrap;
+    }
+    .preview-head h4{
+      font-size:20px;
+      letter-spacing:-.02em;
+      margin-bottom:6px;
+    }
+    .preview-head p{
+      color:var(--muted-2);
+      font-size:13px;
+      line-height:1.7;
+      max-width:540px;
+    }
+    .preview-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(37,99,235,.12);
+      border:1px solid rgba(37,99,235,.22);
+      color:#dbeafe;
+      font-size:11px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .preview-kpis{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:12px;
+    }
+    .preview-kpi{
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:18px;
+      padding:16px;
+      background:rgba(255,255,255,.03);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    .preview-kpi span{
+      display:block;
+      color:var(--muted-2);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+    .preview-kpi strong{
+      display:block;
+      font-size:28px;
+      line-height:1;
+      margin-bottom:8px;
+    }
+    .preview-kpi small{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+    .preview-columns{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+    }
+    .preview-column{
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:18px;
+      padding:14px;
+      background:rgba(255,255,255,.02);
+      min-height:230px;
+    }
+    .preview-column h5{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      font-size:14px;
+      margin-bottom:12px;
+    }
+    .preview-column h5 span{
+      color:#fff;
+    }
+    .preview-count{
+      font-size:11px;
+      padding:5px 8px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      color:var(--muted);
+      font-weight:800;
+    }
+    .preview-item{
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:14px;
+      padding:11px;
+      background:rgba(255,255,255,.03);
+      margin-bottom:10px;
+    }
+    .preview-item strong{
+      display:block;
+      font-size:13px;
+      margin-bottom:6px;
+    }
+    .preview-item small{
+      display:block;
+      color:var(--muted);
+      line-height:1.6;
+      font-size:11px;
+    }
+    .preview-list{
+      display:grid;
+      gap:10px;
+    }
+    .preview-row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      padding:12px 14px;
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+    }
+    .preview-row strong{font-size:14px}
+    .preview-row span{font-size:12px;color:var(--muted)}
+    .preview-progress{
+      height:10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      overflow:hidden;
+      margin-top:10px;
+    }
+    .preview-progress > div{
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg, var(--blue), var(--cyan));
+    }
+    .preview-chart{
+      display:grid;
+      gap:12px;
+    }
+    .preview-bar{
+      display:grid;
+      grid-template-columns:110px 1fr 48px;
+      align-items:center;
+      gap:12px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .preview-bar-track{
+      height:12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      overflow:hidden;
+    }
+    .preview-bar-fill{
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg, var(--green), var(--cyan));
+    }
+    .powerbi-note{
+      margin-top:16px;
+      color:var(--muted-2);
+      font-size:12px;
+      line-height:1.8;
+      text-align:center;
+    }
+    @media (max-width:1024px){
+      .powerbi-preview-grid,
+      .preview-columns,
+      .preview-kpis{
+        grid-template-columns:1fr 1fr;
+      }
+    }
+    @media (max-width:720px){
+      .powerbi-preview-grid,
+      .preview-columns,
+      .preview-kpis{
+        grid-template-columns:1fr;
+      }
+      .preview-bar{
+        grid-template-columns:90px 1fr 38px;
+      }
+    }
+
+</style>
 </head>
 <body>
 
@@ -532,20 +751,161 @@
         </p>
       </div>
 
-      <div class="powerbi-wrap">
+      <div class="powerbi-wrap dashboard-preview">
         <div class="powerbi-head">
           <div>
-            <strong>Painel Gerencial</strong><br>
-            <span>Substitua o link abaixo pelo embed do seu Power BI</span>
+            <strong>Prévia do Dashboard Interno</strong><br>
+            <span>Mockup visual baseado no sistema operacional interno, pronto para servir de referência ao seu Power BI</span>
           </div>
+          <div class="preview-badge">Dashboard interno</div>
         </div>
 
-        <iframe
-          class="powerbi-frame"
-          title="Indicadores Power BI"
-          src="SEU_LINK_POWERBI_AQUI"
-          allowfullscreen="true">
-        </iframe>
+        <div class="powerbi-preview">
+          <div class="powerbi-preview-grid">
+            <div class="powerbi-preview-left">
+              <div class="preview-panel">
+                <div class="preview-head">
+                  <div>
+                    <h4>Visão executiva da operação</h4>
+                    <p>Resumo do dia com indicadores-chave para acompanhamento de agenda, pátio, docas, carregamento e expedição.</p>
+                  </div>
+                  <div class="preview-badge">Tempo real</div>
+                </div>
+                <div class="preview-kpis">
+                  <div class="preview-kpi">
+                    <span>Agendadas</span>
+                    <strong>31</strong>
+                    <small>Planejamento do dia</small>
+                  </div>
+                  <div class="preview-kpi">
+                    <span>No pátio</span>
+                    <strong>7</strong>
+                    <small>Veículos aguardando</small>
+                  </div>
+                  <div class="preview-kpi">
+                    <span>Em doca</span>
+                    <strong>4</strong>
+                    <small>Operação em curso</small>
+                  </div>
+                  <div class="preview-kpi">
+                    <span>Expedidas</span>
+                    <strong>18</strong>
+                    <small>Concluídas hoje</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="preview-panel">
+                <div class="preview-head">
+                  <div>
+                    <h4>Torre de etapas</h4>
+                    <p>Leitura rápida das cargas por estágio operacional, no mesmo conceito usado no sistema interno.</p>
+                  </div>
+                  <div class="preview-badge">Fluxo</div>
+                </div>
+                <div class="preview-columns">
+                  <div class="preview-column">
+                    <h5><span>Agendado</span><span class="preview-count">8</span></h5>
+                    <div class="preview-item"><strong>DT 48032</strong><small>Cliente A • 08:00</small></div>
+                    <div class="preview-item"><strong>DT 48041</strong><small>Cliente B • 08:30</small></div>
+                  </div>
+                  <div class="preview-column">
+                    <h5><span>Separação</span><span class="preview-count">5</span></h5>
+                    <div class="preview-item"><strong>DT 48052</strong><small>Equipe T1 • Em andamento</small></div>
+                    <div class="preview-item"><strong>DT 48057</strong><small>Equipe T2 • Aguardando</small></div>
+                  </div>
+                  <div class="preview-column">
+                    <h5><span>Em Doca</span><span class="preview-count">4</span></h5>
+                    <div class="preview-item"><strong>Doca 02</strong><small>DT 48060 • Carregando</small></div>
+                    <div class="preview-item"><strong>Doca 05</strong><small>DT 48066 • Conferência</small></div>
+                  </div>
+                  <div class="preview-column">
+                    <h5><span>Expedido</span><span class="preview-count">18</span></h5>
+                    <div class="preview-item"><strong>DT 47988</strong><small>Saída 14:20</small></div>
+                    <div class="preview-item"><strong>DT 47995</strong><small>Saída 14:45</small></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="powerbi-preview-right">
+              <div class="preview-panel">
+                <div class="preview-head">
+                  <div>
+                    <h4>Docas e ocupação</h4>
+                    <p>Painel gerencial de ocupação das docas com leitura simples para tomada de decisão.</p>
+                  </div>
+                  <div class="preview-badge">Docas</div>
+                </div>
+                <div class="preview-list">
+                  <div class="preview-row"><div><strong>Doca 01</strong><span>Finalizando</span></div><div>92%</div></div>
+                  <div class="preview-progress"><div style="width:92%"></div></div>
+                  <div class="preview-row"><div><strong>Doca 02</strong><span>Carregando</span></div><div>74%</div></div>
+                  <div class="preview-progress"><div style="width:74%"></div></div>
+                  <div class="preview-row"><div><strong>Doca 03</strong><span>Livre</span></div><div>0%</div></div>
+                  <div class="preview-progress"><div style="width:8%"></div></div>
+                </div>
+              </div>
+
+              <div class="preview-panel">
+                <div class="preview-head">
+                  <div>
+                    <h4>Produtividade por etapa</h4>
+                    <p>Exemplo visual de gráfico executivo para acompanhar performance diária.</p>
+                  </div>
+                  <div class="preview-badge">Performance</div>
+                </div>
+                <div class="preview-chart">
+                  <div class="preview-bar">
+                    <span>Agenda</span>
+                    <div class="preview-bar-track"><div class="preview-bar-fill" style="width:84%"></div></div>
+                    <strong>84%</strong>
+                  </div>
+                  <div class="preview-bar">
+                    <span>Separação</span>
+                    <div class="preview-bar-track"><div class="preview-bar-fill" style="width:68%"></div></div>
+                    <strong>68%</strong>
+                  </div>
+                  <div class="preview-bar">
+                    <span>Pátio</span>
+                    <div class="preview-bar-track"><div class="preview-bar-fill" style="width:73%"></div></div>
+                    <strong>73%</strong>
+                  </div>
+                  <div class="preview-bar">
+                    <span>Docas</span>
+                    <div class="preview-bar-track"><div class="preview-bar-fill" style="width:79%"></div></div>
+                    <strong>79%</strong>
+                  </div>
+                  <div class="preview-bar">
+                    <span>Expedição</span>
+                    <div class="preview-bar-track"><div class="preview-bar-fill" style="width:88%"></div></div>
+                    <strong>88%</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="preview-panel">
+                <div class="preview-head">
+                  <div>
+                    <h4>Exceções do dia</h4>
+                    <p>Espaço ideal para o Power BI destacar atrasos, conflitos de doca e pendências críticas.</p>
+                  </div>
+                  <div class="preview-badge">Atenção</div>
+                </div>
+                <div class="preview-list">
+                  <div class="preview-row"><div><strong>Atrasadas</strong><span>Acima do SLA</span></div><div>3</div></div>
+                  <div class="preview-row"><div><strong>Sem doca</strong><span>Planejamento</span></div><div>2</div></div>
+                  <div class="preview-row"><div><strong>Sem motorista</strong><span>Check-in</span></div><div>1</div></div>
+                  <div class="preview-row"><div><strong>Conflito de janela</strong><span>Agenda</span></div><div>2</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="powerbi-note">
+            É possível sim criar um dashboard do sistema interno nessa área. Nesta versão deixei uma prévia visual no lugar do iframe para servir como referência do layout que depois pode ser reproduzido no Power BI com dados reais do sistema.
+          </div>
+        </div>
       </div>
     </div>
   </section>
