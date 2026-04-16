@@ -2683,7 +2683,7 @@
               <button class="btn btn-success" onclick="criarUsuarioAdmin()">Cadastrar usuário</button>
               <button class="btn btn-light" onclick="carregarUsuariosAdmin()">Atualizar lista</button>
             </div>
-            <p id="statusUsuarioAdmin" style="color:var(--muted);margin-top:10px"></p>
+            <p id="statusUsuarioAdmin" style="color:var(--muted);margin-top:10px"></p><p style="color:var(--muted);font-size:12px;line-height:1.7;margin-top:8px">Se o e-mail já existir no Auth, use redefinição de senha ou reative o usuário na lista ao lado.</p>
           </div>
 
           <div class="card premium-table-card">
@@ -2716,45 +2716,28 @@
         </div>
 
 
-        <div class="grid grid-2" style="margin-top:16px">
-          <div class="card permission-table soft-glow">
-            <div class="section-toolbar">
-              <div>
-                <h2>Permissões por perfil</h2>
-                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Lógica real aplicada no sistema: Admin total, Gestão visualização, Operação/Assistente/Portaria com a mesma regra operacional.</p>
-              </div>
-              <span class="premium-badge">Governança</span>
+        
+<div class="card permission-table soft-glow" style="margin-top:16px">
+          <div class="section-toolbar">
+            <div>
+              <h2>Permissões por perfil</h2>
+              <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Lógica real aplicada no sistema: Admin total, Gestão visualização, Operação/Assistente/Portaria com a mesma regra operacional.</p>
             </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr><th>Perfil</th><th>Agenda</th><th>Pátio/Doca</th><th>Check-in</th><th>Admin</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>admin</td><td>Total</td><td>Total</td><td>Total</td><td>Total</td></tr>
-                  <tr><td>gestao</td><td>Visualização</td><td>Visualização</td><td>Visualização</td><td>Não</td></tr>
-                  <tr><td>operacao</td><td>Assistente</td><td>Assistente</td><td>Assistente</td><td>Não</td></tr>
-                  <tr><td>assistente</td><td>Assistente</td><td>Assistente</td><td>Assistente</td><td>Não</td></tr>
-                  <tr><td>portaria</td><td>Assistente</td><td>Assistente</td><td>Assistente</td><td>Não</td></tr>
-                </tbody>
-              </table>
-            </div>
+            <span class="premium-badge">Governança</span>
           </div>
-
-          <div class="card soft-glow">
-            <div class="section-toolbar">
-              <div>
-                <h2>Logs operacionais</h2>
-                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Últimas ações registradas pelo sistema e pelos usuários.</p>
-              </div>
-              <span class="premium-badge">Rastreabilidade</span>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Data</th><th>Ação</th><th>Usuário</th><th>Detalhes</th></tr></thead>
-                <tbody id="adminLogsTabela"></tbody>
-              </table>
-            </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Perfil</th><th>Agenda</th><th>Pátio/Doca</th><th>Check-in</th><th>Admin</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>admin</td><td>Total</td><td>Total</td><td>Total</td><td>Total</td></tr>
+                <tr><td>gestao</td><td>Visualização</td><td>Visualização</td><td>Visualização</td><td>Não</td></tr>
+                <tr><td>operacao</td><td>Assistente</td><td>Assistente</td><td>Assistente</td><td>Não</td></tr>
+                <tr><td>assistente</td><td>Assistente</td><td>Assistente</td><td>Assistente</td><td>Não</td></tr>
+                <tr><td>portaria</td><td>Assistente</td><td>Assistente</td><td>Assistente</td><td>Não</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -3055,7 +3038,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(status) status.textContent = "Lista atualizada.";
     }
 
-    async function criarUsuarioAdmin(){
+    async async function criarUsuarioAdmin(){
       if(!requirePermission("admin", "Apenas admin pode cadastrar usuários.")) return;
 
       const nome = document.getElementById("u_nome").value.trim();
@@ -3066,13 +3049,19 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       const status = document.getElementById("statusUsuarioAdmin");
 
       if(!nome || !email || !senha){
+        if(status) status.textContent = "Preencha nome, email e senha inicial.";
         return alert("Preencha nome, email e senha inicial.");
       }
 
+      const usuarioExistenteTela = (usuariosAdmin || []).find(u => String(u.email || "").toLowerCase() === email);
+      if(usuarioExistenteTela){
+        const msg = "Este e-mail já está cadastrado na lista de usuários do sistema. Use redefinição de senha ou reative o usuário existente.";
+        if(status) status.textContent = msg;
+        return alert(msg);
+      }
+
       if(!ADMIN_CREATE_USER_ENDPOINT){
-        if(status){
-          status.textContent = "Defina o endpoint seguro de criação de usuário no arquivo.";
-        }
+        if(status) status.textContent = "Defina o endpoint seguro de criação de usuário no arquivo.";
         return alert("Configure o endpoint seguro de criação de usuário antes de usar esta função.");
       }
 
@@ -3081,6 +3070,11 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
 
         const { data: sessao } = await sb.auth.getSession();
         const token = sessao?.session?.access_token || "";
+
+        if(!token){
+          if(status) status.textContent = "Sessão inválida. Faça login novamente.";
+          return alert("Sessão inválida. Faça login novamente.");
+        }
 
         const resp = await fetch(ADMIN_CREATE_USER_ENDPOINT, {
           method: "POST",
@@ -3095,8 +3089,14 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
 
         if(!resp.ok){
           console.error(result);
-          if(status) status.textContent = result.error || "Erro ao cadastrar usuário.";
-          return alert(result.error || "Erro ao cadastrar usuário.");
+          const erro = String(result?.error || result?.message || "");
+          if(erro.toLowerCase().includes("already been registered") || erro.toLowerCase().includes("already registered") || erro.toLowerCase().includes("already exists")){
+            const msg = "Este e-mail já existe no Auth. Reative o usuário existente ou use redefinição de senha.";
+            if(status) status.textContent = msg;
+            return alert(msg);
+          }
+          if(status) status.textContent = erro || "Erro ao cadastrar usuário.";
+          return alert(erro || "Erro ao cadastrar usuário.");
         }
 
         document.getElementById("u_nome").value = "";
