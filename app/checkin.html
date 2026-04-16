@@ -796,6 +796,382 @@ button:disabled{
       .hero-pill{font-size:11px;padding:8px 10px}
     }
 
+
+    /* ===== Próxima versão v3 ===== */
+    .hero{
+      box-shadow:
+        0 34px 84px rgba(0,0,0,.48),
+        inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .hero::before{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), transparent 34%),
+        radial-gradient(circle at top left, rgba(37,99,235,.08), transparent 24%);
+    }
+
+    .brand{
+      padding:14px 16px;
+      border-radius:24px;
+    }
+
+    .brand-logo-wrap{
+      width:70px;
+      height:70px;
+      border-radius:20px;
+    }
+
+    .hero h1{
+      font-size:46px;
+      max-width:620px;
+    }
+
+    .hero p{
+      max-width:600px;
+    }
+
+    .hero-grid{
+      gap:14px;
+    }
+
+    .mini-card{
+      border-radius:22px;
+      padding:20px;
+    }
+
+    .mini-card strong{
+      font-size:15px;
+    }
+
+    .container{
+      border-radius:30px;
+      box-shadow:
+        0 34px 84px rgba(0,0,0,.50),
+        inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .header{
+      align-items:center;
+      padding-bottom:14px;
+      margin-bottom:20px;
+    }
+
+    .header-copy{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .header-helper{
+      color:var(--muted-2);
+      font-size:12px;
+      line-height:1.7;
+      max-width:460px;
+    }
+
+    .card{
+      border-radius:28px;
+      padding:22px;
+    }
+
+    .card-title-row{
+      margin-bottom:16px;
+    }
+
+    .card-badge{
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.10), transparent 28%),
+        rgba(255,255,255,.05);
+      color:#dce9ff;
+    }
+
+    .fields{
+      gap:14px;
+    }
+
+    .fields input,
+    .fields select{
+      min-height:50px;
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(9,12,16,.98), rgba(6,8,11,.96));
+    }
+
+    .inline-actions{
+      margin-top:14px;
+    }
+
+    .btn-secondary{
+      min-height:48px;
+      border-radius:18px;
+      min-width:210px;
+    }
+
+    .vehicle-grid{
+      gap:12px;
+    }
+
+    .vehicle-option{
+      min-height:124px;
+      border-radius:22px;
+      padding:16px;
+    }
+
+    .vehicle-option strong{
+      font-size:15px;
+    }
+
+    .vehicle-option span{
+      line-height:1.6;
+    }
+
+    .summary-card,
+    .queue-card{
+      padding:18px;
+      border-radius:24px;
+    }
+
+    .summary-grid,
+    .queue-grid{
+      gap:12px 16px;
+    }
+
+    .summary-item,
+    .queue-kpi{
+      border-radius:18px;
+      padding:12px 14px;
+    }
+
+    .summary-item strong{
+      font-size:14px;
+    }
+
+    #btnCheckin{
+      margin-top:18px;
+      min-height:56px;
+      border-radius:20px;
+      box-shadow:
+        0 20px 40px rgba(34,197,94,.24),
+        inset 0 1px 0 rgba(255,255,255,.05);
+    }
+
+    .section-divider{
+      height:1px;
+      margin:18px 0 2px;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+    }
+
+    .premium-status-strip{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:10px;
+    }
+
+    .premium-status-box{
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:18px;
+      padding:14px;
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.08), transparent 22%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      box-shadow:0 12px 26px rgba(0,0,0,.12);
+    }
+
+    .premium-status-box span{
+      display:block;
+      color:var(--muted-2);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+
+    .premium-status-box strong{
+      display:block;
+      font-size:18px;
+      line-height:1.2;
+    }
+
+    .premium-note{
+      margin-top:16px;
+    }
+
+    @media (max-width:760px){
+      .premium-status-strip{
+        grid-template-columns:1fr;
+      }
+      .hero h1{
+        font-size:36px;
+      }
+    }
+
+
+    /* ===== Próxima versão v4 ===== */
+    .hero-topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+
+    .hero-status-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(37,99,235,.12);
+      border:1px solid rgba(37,99,235,.22);
+      color:#dbeafe;
+      font-size:11px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      box-shadow:0 10px 24px rgba(0,0,0,.12);
+    }
+
+    .hero,
+    .container{
+      backdrop-filter:blur(20px);
+    }
+
+    .hero{
+      padding:40px;
+    }
+
+    .container{
+      padding:32px;
+    }
+
+    .section-label{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.07);
+      color:var(--muted-2);
+      font-size:11px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      margin-bottom:14px;
+    }
+
+    .hero-highlight{
+      margin-top:18px;
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:22px;
+      padding:16px 18px;
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.08), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      box-shadow:0 14px 30px rgba(0,0,0,.14);
+    }
+
+    .hero-highlight strong{
+      display:block;
+      margin-bottom:8px;
+      font-size:14px;
+    }
+
+    .hero-highlight span{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+
+    .header{
+      gap:18px;
+    }
+
+    .header h2{
+      margin-bottom:6px;
+    }
+
+    .header-copy p{
+      max-width:520px;
+    }
+
+    .card{
+      box-shadow:
+        0 20px 44px rgba(0,0,0,.24),
+        inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .card-title-row{
+      align-items:center;
+    }
+
+    .card-title{
+      font-size:16px;
+    }
+
+    .card-badge{
+      min-height:28px;
+    }
+
+    .field-group-note{
+      margin-top:2px;
+      color:var(--muted-2);
+      font-size:11px;
+      line-height:1.6;
+    }
+
+    .queue-kpi strong,
+    .summary-item strong{
+      letter-spacing:-.02em;
+    }
+
+    .vehicle-option{
+      overflow:hidden;
+    }
+
+    .vehicle-option::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(135deg, rgba(255,255,255,.03), transparent 44%);
+      pointer-events:none;
+    }
+
+    .vehicle-option > *{
+      position:relative;
+      z-index:1;
+    }
+
+    .message{
+      box-shadow:0 12px 28px rgba(0,0,0,.12);
+    }
+
+    .bottom-actions-note{
+      margin-top:12px;
+      color:var(--muted-2);
+      text-align:center;
+      font-size:12px;
+      line-height:1.7;
+    }
+
+    .premium-note{
+      max-width:520px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+
+    @media (max-width:640px){
+      .hero-topbar{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .hero,.container{
+        padding:22px;
+      }
+    }
+
 </style>
 </head>
 
@@ -803,7 +1179,7 @@ button:disabled{
 <div class="page">
   <div class="shell">
     <section class="hero">
-      <div class="brand">
+      <div class="hero-topbar"><div class="section-label">Check-in externo</div><div class="hero-status-badge">Operação conectada</div></div><div class="brand">
         <div class="brand-logo-wrap">
           <img src="logo.png" alt="Gestão Logística Plus" class="brand-logo">
         </div>
@@ -817,6 +1193,7 @@ button:disabled{
       <p>Registre sua chegada no pátio com mais clareza e segurança. O sistema integra portaria, fila, pátio e docas para apoiar um atendimento mais rápido, premium e organizado.</p>
 
       <div class="hero-accent-line"></div>
+      <div class="hero-highlight"><strong>Entrada integrada ao sistema</strong><span>Esta tela foi refinada para manter o mesmo padrão visual premium do ambiente interno, com foco em clareza operacional, fila real e direcionamento da operação.</span></div>
       <div class="hero-topline">
         <div class="hero-pill">Black Premium</div>
         <div class="hero-pill">Fila operacional real</div>
@@ -851,13 +1228,29 @@ button:disabled{
         <strong>Check-in conectado à operação</strong>
         <span>Após o envio, sua chegada entra no fluxo do sistema para organizar fila, direcionamento e acompanhamento do veículo até a próxima etapa operacional.</span>
       </div>
+
+      <div class="premium-status-strip">
+        <div class="premium-status-box">
+          <span>Visual</span>
+          <strong>Black Premium</strong>
+        </div>
+        <div class="premium-status-box">
+          <span>Integração</span>
+          <strong>Agenda + Fila + Pátio</strong>
+        </div>
+        <div class="premium-status-box">
+          <span>Experiência</span>
+          <strong>Clara e operacional</strong>
+        </div>
+      </div>
     </section>
 
     <section class="container">
       <div class="header">
-        <div>
+        <div class="header-copy">
           <h2>Check-in Motorista</h2>
           <p>Preencha os dados abaixo para registrar a chegada do veículo no sistema.</p>
+          <div class="header-helper">Fluxo conectado à agenda, à fila operacional real e ao direcionamento da equipe interna.</div>
         </div>
         <div class="step">Fila operacional real</div>
       </div>
@@ -892,7 +1285,7 @@ button:disabled{
           <button type="button" class="btn-secondary" id="btnBuscarDT">Consultar DT</button>
         </div>
 
-        <div class="info-banner">
+        <div class="field-group-note">A consulta valida a DT antes da entrada na fila.</div><div class="info-banner">
           Consulte a DT antes de concluir o check-in. O sistema localizará a carga e validará se ela já não está em processo.
         </div>
 
@@ -969,10 +1362,12 @@ button:disabled{
         <div class="helper">Selecione o tipo de veículo e preencha todas as placas solicitadas na tela. Confira os dados antes de concluir o check-in para evitar divergências no atendimento.</div>
       </div>
 
+      <div class="section-divider"></div>
       <button id="btnCheckin" disabled>Realizar Check-in</button>
       <div id="msg"></div>
 
       <div class="footer-note">Gestão Logística Plus • Check-in de Motoristas</div>
+      <div class="bottom-actions-note">Após a confirmação, aguarde as orientações da equipe ou da portaria para seguir o fluxo operacional.</div>
       <div class="copyright">© 2026 Gestão Logística Plus. Todos os direitos reservados.</div>
       <div class="premium-note">Versão premium do check-in, alinhada visualmente ao sistema interno da operação.</div>
     </section>
