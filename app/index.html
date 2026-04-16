@@ -2547,6 +2547,68 @@
       .brand-wrap{padding:6px 8px}
     }
 
+
+    .topbar-meta-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .topbar-meta-pill{
+      min-width:170px;
+      padding:10px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.07);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .topbar-meta-pill span{
+      display:block;
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      color:var(--muted);
+      margin-bottom:6px;
+      font-weight:800;
+    }
+
+    .topbar-meta-pill strong{
+      display:block;
+      font-size:13px;
+      line-height:1.3;
+      color:var(--text);
+    }
+
+    .login-showcase::after{
+      content:"";
+      position:absolute;
+      right:-30px;
+      bottom:-30px;
+      width:140px;
+      height:140px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(37,99,235,.12), transparent 70%);
+      pointer-events:none;
+      filter:blur(8px);
+    }
+
+    .login-showcase{
+      position:relative;
+      overflow:hidden;
+    }
+
+    @media (max-width:900px){
+      .topbar-meta-row{
+        gap:8px;
+      }
+      .topbar-meta-pill{
+        min-width:unset;
+        flex:1 1 100%;
+      }
+    }
+
 </style>
 </head>
 <body class="enterprise-shell">
@@ -2680,6 +2742,11 @@
           <h1 id="pageTitle">Dashboard</h1>
           <p>Gestão integrada da agenda, pátio, expedição e docas, agora com visual black premium e navegação lateral mais elegante para o uso diário.</p>
           <div class="page-accent-line"></div>
+          <div class="topbar-meta-row">
+            <div class="topbar-meta-pill"><span>Modo</span><strong>Enterprise Black</strong></div>
+            <div class="topbar-meta-pill"><span>Leitura</span><strong>Operação em tempo real</strong></div>
+            <div class="topbar-meta-pill"><span>Foco</span><strong>Decisão rápida</strong></div>
+          </div>
           <div class="welcome-strip soft-glow">
             <div class="welcome-main">
               <strong id="welcomeGreeting">Bom dia</strong>
@@ -4844,7 +4911,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       }).join("");
     }
 
-    function renderExpedicaofunction renderExpedicao(){
+    function renderExpedicao(){
       const rows = linhasFiltradas().filter(r => ["Separado","Pronto Expedição","No Pátio"].includes(r.status_global));
       document.getElementById("expProntoRef").textContent = rows.filter(r => r.status_global === "Pronto Expedição").length;
       document.getElementById("expPatioRef").textContent = rows.filter(r => r.status_global === "No Pátio").length;
@@ -4869,7 +4936,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       }).join("");
     }
 
-    function renderPatiofunction renderPatio(){
+    function renderPatio(){
       const rows = getAgendaRows();
       const filaRows = patioFilaRegistros.slice().sort((a,b) => {
         const pa = Number(a.posicao_fila || 9999);
@@ -4918,7 +4985,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       }).join("");
     }
 
-    function renderDocasfunction renderDocas(){
+    function renderDocas(){
       const rows = getAgendaRows();
       const nomesDoca = docas.length ? docas.map(d => d.nome) : ["Doca 1","Doca 2","Doca 3","Doca 4"];
       let livres = 0;
@@ -4948,7 +5015,7 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       document.getElementById("docasSoftStat").textContent = `${nomesDoca.length} docas`;
     }
 
-    function renderCheckinfunction renderCheckin(){
+    function renderCheckin(){
       const rows = linhasFiltradas().filter(r => r.motorista || r.chegada_motorista || ["No Pátio","Em Doca","Em Carregamento","Expedido"].includes(r.status_global));
       document.getElementById("checkinHojeRef").textContent = rows.length;
       document.getElementById("checkinPresenteRef").textContent = rows.filter(r => r.presente_ausente === "Presente").length;
