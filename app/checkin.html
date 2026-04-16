@@ -623,6 +623,179 @@ button:disabled{
     width:100%;
   }
 }
+
+    /* ===== Próxima versão ===== */
+    .hero-topline{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin:18px 0 0;
+    }
+
+    .hero-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:9px 13px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.04);
+      color:#dbe7ff;
+      font-size:12px;
+      font-weight:800;
+      box-shadow:0 10px 24px rgba(0,0,0,.12);
+    }
+
+    .hero-accent-line{
+      width:150px;
+      height:5px;
+      border-radius:999px;
+      margin:18px 0 2px;
+      background:linear-gradient(90deg, var(--blue), var(--cyan), var(--purple));
+      box-shadow:0 0 22px rgba(37,99,235,.20);
+    }
+
+    .container{
+      box-shadow:
+        0 30px 78px rgba(0,0,0,.46),
+        inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .header{
+      padding:0 0 6px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      margin-bottom:18px;
+    }
+
+    .header h2{
+      font-size:32px;
+    }
+
+    .step{
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.12), transparent 28%),
+        linear-gradient(180deg, rgba(37,99,235,.12), rgba(37,99,235,.06));
+      border-color:rgba(59,130,246,.24);
+    }
+
+    .card{
+      border-radius:26px;
+      padding:20px;
+    }
+
+    .card-title{
+      font-size:16px;
+      letter-spacing:-.01em;
+    }
+
+    .card-title-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
+
+    .card-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:7px 11px;
+      border-radius:999px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.07);
+      color:var(--muted);
+      font-size:11px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+    }
+
+    .fields input,
+    .fields select{
+      min-height:48px;
+    }
+
+    .info-banner{
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.06), transparent 24%),
+        rgba(255,255,255,.035);
+      border-radius:18px;
+    }
+
+    .summary-card,
+    .queue-card{
+      border-radius:22px;
+    }
+
+    .queue-kpi,
+    .summary-item{
+      background:rgba(255,255,255,.03);
+      border-radius:16px;
+      padding:10px 12px;
+      border:1px solid rgba(255,255,255,.05);
+    }
+
+    .summary-item strong{
+      display:block;
+      margin-top:2px;
+    }
+
+    #btnCheckin{
+      min-height:54px;
+      border-radius:18px;
+      font-size:16px;
+      letter-spacing:.01em;
+    }
+
+    .footer-note,
+    .copyright{
+      color:var(--muted-2);
+    }
+
+    .vehicle-option{
+      min-height:118px;
+    }
+
+    .vehicle-option.active .vehicle-icon{
+      transform:translateY(-1px) scale(1.04);
+    }
+
+    .vehicle-icon{
+      transition:transform .2s ease;
+    }
+
+    .hero,
+    .container,
+    .card,
+    .mini-card,
+    .vehicle-option,
+    .summary-card,
+    .queue-card{
+      transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease;
+    }
+
+    .mini-card:hover,
+    .card:hover,
+    .vehicle-option:hover{
+      transform:translateY(-2px);
+    }
+
+    .premium-note{
+      margin-top:14px;
+      color:var(--muted-2);
+      font-size:12px;
+      line-height:1.7;
+      text-align:center;
+    }
+
+    @media (max-width:640px){
+      .header h2{font-size:28px}
+      .hero-topline{gap:8px}
+      .hero-pill{font-size:11px;padding:8px 10px}
+    }
+
 </style>
 </head>
 
@@ -641,7 +814,14 @@ button:disabled{
       </div>
 
       <h1>Check-in do motorista no padrão premium</h1>
-      <p>Registre sua chegada no pátio com mais clareza e segurança. O sistema integra portaria, fila, pátio e docas para apoiar um atendimento mais rápido e organizado.</p>
+      <p>Registre sua chegada no pátio com mais clareza e segurança. O sistema integra portaria, fila, pátio e docas para apoiar um atendimento mais rápido, premium e organizado.</p>
+
+      <div class="hero-accent-line"></div>
+      <div class="hero-topline">
+        <div class="hero-pill">Black Premium</div>
+        <div class="hero-pill">Fila operacional real</div>
+        <div class="hero-pill">Check-in conectado</div>
+      </div>
 
       <div class="hero-grid">
         <div class="mini-card">
@@ -683,7 +863,7 @@ button:disabled{
       </div>
 
       <div class="card">
-        <h3 class="card-title">Dados principais</h3>
+        <div class="card-title-row"><h3 class="card-title">Dados principais</h3><span class="card-badge">Etapa 1</span></div>
         <div class="fields">
           <div class="field">
             <label for="dt">Número do Transporte (DT)</label>
@@ -750,7 +930,7 @@ button:disabled{
       </div>
 
       <div class="card">
-        <h3 class="card-title">Tipo de veículo</h3>
+        <div class="card-title-row"><h3 class="card-title">Tipo de veículo</h3><span class="card-badge">Etapa 2</span></div>
         <div class="vehicle-grid" id="vehicleGrid">
           <label class="vehicle-option" data-value="simples">
             <input type="radio" name="tipoVeiculoRadio" value="simples">
@@ -784,7 +964,7 @@ button:disabled{
       </div>
 
       <div class="card">
-        <h3 class="card-title">Orientação sobre as placas</h3>
+        <div class="card-title-row"><h3 class="card-title">Orientação sobre as placas</h3><span class="card-badge">Etapa 3</span></div>
         <div id="placas" class="plate-grid"></div>
         <div class="helper">Selecione o tipo de veículo e preencha todas as placas solicitadas na tela. Confira os dados antes de concluir o check-in para evitar divergências no atendimento.</div>
       </div>
@@ -794,6 +974,7 @@ button:disabled{
 
       <div class="footer-note">Gestão Logística Plus • Check-in de Motoristas</div>
       <div class="copyright">© 2026 Gestão Logística Plus. Todos os direitos reservados.</div>
+      <div class="premium-note">Versão premium do check-in, alinhada visualmente ao sistema interno da operação.</div>
     </section>
   </div>
 </div>
