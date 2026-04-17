@@ -1360,12 +1360,221 @@ button:disabled{
       .card-icon{width:36px;height:36px;min-width:36px}
     }
 
+
+    /* ===== Próxima versão v6 ===== */
+    .top-utility-bar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+      padding:12px 14px;
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:22px;
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.10), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      box-shadow:0 14px 30px rgba(0,0,0,.14);
+    }
+
+    .utility-brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+
+    .utility-brand-badge{
+      width:40px;
+      height:40px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.14), transparent 30%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 10px 22px rgba(0,0,0,.12);
+      font-size:18px;
+    }
+
+    .utility-brand-copy strong{
+      display:block;
+      font-size:13px;
+      letter-spacing:.01em;
+      line-height:1.2;
+    }
+
+    .utility-brand-copy span{
+      display:block;
+      color:var(--muted-2);
+      font-size:11px;
+      line-height:1.5;
+      margin-top:3px;
+    }
+
+    .utility-tags{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .utility-tag{
+      padding:8px 11px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.07);
+      background:rgba(255,255,255,.04);
+      color:#dce9ff;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      box-shadow:0 8px 18px rgba(0,0,0,.10);
+    }
+
+    .hero{
+      padding-top:34px;
+    }
+
+    .hero h1{
+      font-size:50px;
+      letter-spacing:-.045em;
+    }
+
+    .hero-feature-grid{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .hero-feature{
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:18px;
+      padding:14px;
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.08), transparent 22%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      box-shadow:0 10px 22px rgba(0,0,0,.12);
+    }
+
+    .hero-feature span{
+      display:block;
+      color:var(--muted-2);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+
+    .hero-feature strong{
+      display:block;
+      font-size:16px;
+      line-height:1.35;
+    }
+
+    .card{
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card::after{
+      content:"";
+      position:absolute;
+      right:-42px;
+      bottom:-42px;
+      width:110px;
+      height:110px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(255,255,255,.05), transparent 68%);
+      pointer-events:none;
+      opacity:.45;
+    }
+
+    .card-title-row{
+      position:relative;
+      z-index:1;
+    }
+
+    .summary-card,
+    .queue-card{
+      position:relative;
+      overflow:hidden;
+    }
+
+    .summary-card::after,
+    .queue-card::after{
+      content:"";
+      position:absolute;
+      inset:auto -36px -36px auto;
+      width:96px;
+      height:96px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(255,255,255,.06), transparent 68%);
+      pointer-events:none;
+      opacity:.4;
+    }
+
+    .summary-grid,
+    .queue-grid{
+      position:relative;
+      z-index:1;
+    }
+
+    .button-row{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-top:18px;
+    }
+
+    #btnCheckin{
+      margin-top:0;
+    }
+
+    .button-helper{
+      text-align:center;
+      color:var(--muted-2);
+      font-size:12px;
+      line-height:1.7;
+    }
+
+    .footer-stack{
+      display:grid;
+      gap:8px;
+      margin-top:14px;
+    }
+
+    @media (max-width:860px){
+      .hero-feature-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
 </style>
 </head>
 
 <body>
 <div class="page">
   <div class="shell">
+    <div class="top-utility-bar" style="grid-column:1 / -1;">
+      <div class="utility-brand">
+        <div class="utility-brand-badge">🧭</div>
+        <div class="utility-brand-copy">
+          <strong>Check-in alinhado ao sistema interno</strong>
+          <span>Mesmo padrão visual premium da operação logística</span>
+        </div>
+      </div>
+      <div class="utility-tags">
+        <div class="utility-tag">Black Premium</div>
+        <div class="utility-tag">Fila real</div>
+        <div class="utility-tag">Experiência guiada</div>
+      </div>
+    </div>
     <section class="hero">
       <div class="hero-topbar"><div class="section-label">Check-in externo</div><div class="hero-status-badge">Operação conectada</div></div><div class="brand">
         <div class="brand-logo-wrap">
@@ -1382,6 +1591,12 @@ button:disabled{
 
       <div class="hero-accent-line"></div>
       <div class="hero-highlight"><strong>Entrada integrada ao sistema</strong><span>Esta tela foi refinada para manter o mesmo padrão visual premium do ambiente interno, com foco em clareza operacional, fila real e direcionamento da operação.</span></div>
+      <div class="hero-feature-grid">
+        <div class="hero-feature"><span>Entrada</span><strong>Consulta da DT antes da fila</strong></div>
+        <div class="hero-feature"><span>Fluxo</span><strong>Check-in ligado ao pátio operacional</strong></div>
+        <div class="hero-feature"><span>Leitura</span><strong>Visual premium, claro e confiável</strong></div>
+      </div>
+
       <div class="hero-topline">
         <div class="hero-pill">Black Premium</div>
         <div class="hero-pill">Fila operacional real</div>
@@ -1551,13 +1766,18 @@ button:disabled{
       </div>
 
       <div class="section-divider"></div>
-      <button id="btnCheckin" disabled>Realizar Check-in</button>
+      <div class="button-row">
+        <button id="btnCheckin" disabled>Realizar Check-in</button>
+        <div class="button-helper">Finalize apenas após conferir a DT, o motorista, o telefone e todas as placas do conjunto.</div>
+      </div>
       <div id="msg"></div>
 
-      <div class="footer-note">Gestão Logística Plus • Check-in de Motoristas</div>
-      <div class="bottom-actions-note">Após a confirmação, aguarde as orientações da equipe ou da portaria para seguir o fluxo operacional.</div>
-      <div class="copyright">© 2026 Gestão Logística Plus. Todos os direitos reservados.</div>
-      <div class="premium-note">Versão premium do check-in, alinhada visualmente ao sistema interno da operação.</div>
+      <div class="footer-stack">
+        <div class="footer-note">Gestão Logística Plus • Check-in de Motoristas</div>
+        <div class="bottom-actions-note">Após a confirmação, aguarde as orientações da equipe ou da portaria para seguir o fluxo operacional.</div>
+        <div class="copyright">© 2026 Gestão Logística Plus. Todos os direitos reservados.</div>
+        <div class="premium-note">Versão premium do check-in, alinhada visualmente ao sistema interno da operação.</div>
+      </div>
     </section>
   </div>
 </div>
