@@ -795,7 +795,19 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       window.__toastTimer = setTimeout(() => el.style.display = "none", 2500);
     }
 
-    function setView(view, btn){
+    function ymsCanOpenView(view){
+  const reqs = window.YMS_VIEW_PERMISSIONS || {};
+  const required = reqs[view];
+  if(!required) return true;
+  return can(required);
+}
+
+function setView(view, btn){
+  if(!ymsCanOpenView(view)){
+    alert("Seu perfil não possui permissão para abrir esta área.");
+    view = "dashboard";
+    btn = document.getElementById("menu-dashboard");
+  }
       viewAtualGlobal = view;
       const targetBtn = btn || document.getElementById(`menu-${view}`);
       const titulo = (targetBtn?.querySelector(".menu-text")?.textContent || targetBtn?.textContent || view).trim();
@@ -974,7 +986,8 @@ sb.auth.onAuthStateChange(async (_, session) => {
         return;
       }
 
-      usuarioPerfil = data.perfil || "operacao";
+      usuarioPerfil = String(data.perfil || "operacao").toLowerCase();
+      try{ sessionStorage.setItem("glp_auth_profile_v2", JSON.stringify({ id:data.id, nome:data.nome, email:data.email, perfil:usuarioPerfil, ativo:data.ativo })); }catch(_){}
       document.getElementById("userNome").textContent = data.nome || email || "Usuário logado";
       document.getElementById("userEmail").textContent = data.email || email || "-";
       document.getElementById("userPerfil").textContent = `Perfil: ${usuarioPerfil}`;
