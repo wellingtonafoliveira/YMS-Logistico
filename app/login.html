@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestão Logística</title>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/auth.js"></script>
+</head>
+<body class="enterprise-shell">
+<div class="login-screen" id="loginScreen">
+    <div class="login-layout">
+      <div class="login-showcase">
+        <div>
+          <div class="login-badge">Gestão Logística Plus • YMS em tempo real</div>
+          <div class="login-hero">
+            <h1>Mais controle operacional,<br>menos esforço visual.</h1>
+            <p>Um sistema pensado para integrar agenda, separação, expedição, pátio e docas em uma única visão, com leitura clara da operação, atualização em tempo real e uma experiência visual mais elegante, escura e premium para o time logístico.</p>
+          </div>
+
+          <div class="login-features">
+            <div class="login-feature">
+              <strong>Agenda integrada</strong>
+              <span>Centralize a programação do dia, janelas, clientes, transportadoras e docas em uma única operação.</span>
+            </div>
+            <div class="login-feature">
+              <strong>Pátio e docas</strong>
+              <span>Acompanhe fila, chegada, ocupação de doca e carregamento com mais previsibilidade e menos ruído visual.</span>
+            </div>
+            <div class="login-feature">
+              <strong>Decisão mais rápida</strong>
+              <span>KPIs, torres e etapas ajudam a identificar atrasos, gargalos e prioridades com clareza.</span>
+            </div>
+            <div class="login-feature">
+              <strong>Operação mais humana</strong>
+              <span>Visual preto premium, leitura mais leve e fluxo mais simples para quem usa o sistema todos os dias.</span>
+            </div>
+          </div>
+
+          <div class="login-kpis">
+            <div class="login-kpi">
+              <strong>01</strong>
+              <span>Agenda centralizada</span>
+            </div>
+            <div class="login-kpi">
+              <strong>04</strong>
+              <span>Pátio em tempo real</span>
+            </div>
+            <div class="login-kpi">
+              <strong>08</strong>
+              <span>Etapas integradas</span>
+            </div>
+          </div>
+
+          <div class="login-visual-card">
+            <div class="login-visual-content">
+              <strong>Fluxo visual do sistema logístico</strong>
+              <p>Do agendamento até a saída, o sistema integra agenda, pátio, docas, conferência, documentos fiscais e expedição em uma visão única, mais organizada e mais intuitiva da operação.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="login-flow">
+          <strong>Fluxo operacional no sistema</strong>
+          <p>Agendado → Em Separação → Separado → Pronto Expedição → No Pátio → Em Doca → Em Carregamento → Expedido</p>
+        </div>
+      </div>
+
+      <div class="login-box">
+        <img src="logo.png" alt="YMS">
+        <h2>Entrar no sistema</h2>
+        <p>Entre para acompanhar a operação logística com mais clareza, controle e visão em tempo real.</p>
+        <input type="email" id="loginEmail" placeholder="Email">
+        <input type="password" id="loginSenha" placeholder="Senha">
+        <button onclick="login()">Entrar</button>
+        <div class="login-note">Acesso destinado aos usuários internos da operação logística.</div>
+        <div class="login-right-footer">© Gestão Logística Plus — Todos os direitos reservados</div>
+        <div class="login-error" id="loginErro"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

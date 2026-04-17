@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestão Logística</title>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/auth.js"></script>
+</head>
+<body class="enterprise-shell">
+<div class="sidebar-backdrop hidden" id="sidebarBackdrop"></div>
+
+  <div class="app hidden" id="app">
+    <aside class="sidebar sidebar-ultra-premium">
+      <div class="sidebar-top premium-sidebar-top">
+        <div class="brand-wrap">
+          <img src="logo.png" alt="YMS" class="brand-logo">
+          <div>
+            <div class="brand-title">YMS</div>
+            <small class="brand-sub">Agenda, operação, docas e pátio em tempo real</small>
+          </div>
+        </div>
+        <button class="sidebar-toggle premium-collapse-btn" id="sidebarToggle" type="button" title="Ocultar menu" aria-label="Ocultar menu lateral">
+          <span class="collapse-btn-glow"></span>
+          <span class="collapse-btn-icon" id="sidebarToggleIcon">❮</span>
+        </button>
+      </div>
+
+      <div class="user-box">
+        <strong id="userNome">Usuário logado</strong>
+        <span id="userEmail">-</span><br>
+        <span id="userPerfil">Perfil: -</span>
+      </div>
+
+      <div class="sidebar-divider-premium"></div>
+
+      <div class="menu premium-menu">
+        <button id="menu-dashboard" data-short="Dash" class="active" onclick="setView('dashboard', this)"><span class="menu-icon icon-dashboard"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="7" height="16" rx="2"></rect><rect x="14" y="4" width="7" height="9" rx="2"></rect><rect x="14" y="15" width="7" height="5" rx="2"></rect></svg></span><span class="menu-text">Dashboard</span></button>
+        <button id="menu-agenda" data-short="Ag" onclick="setView('agenda', this)"><span class="menu-icon icon-agenda"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18"></path><path d="M8 3v4"></path><path d="M16 3v4"></path></svg></span><span class="menu-text">Agenda</span></button>
+        <button id="menu-separacao" data-short="Sep" onclick="setView('separacao', this)"><span class="menu-icon icon-separacao"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M4 12h10"></path><path d="M4 17h7"></path><circle cx="18" cy="12" r="3"></circle></svg></span><span class="menu-text">Separação</span></button>
+        <button id="menu-expedicao" data-short="Exp" onclick="setView('expedicao', this)"><span class="menu-icon icon-expedicao"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h10v8H3z"></path><path d="M13 10h4l3 3v3h-7z"></path><circle cx="8" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg></span><span class="menu-text">Expedição</span></button>
+        <button id="menu-patio" data-short="Pat" onclick="setView('patio', this)"><span class="menu-icon icon-patio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V8l8-4 8 4v10"></path><path d="M8 18v-4h8v4"></path></svg></span><span class="menu-text">Pátio</span></button>
+        <button id="menu-motoristas" data-short="Mot" onclick="setView('motoristas', this)"><span class="menu-icon icon-motoristas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M5 20c1.5-3 4-5 7-5s5.5 2 7 5"></path></svg></span><span class="menu-text">Motoristas</span></button>
+        <button id="menu-transportadoras" data-short="Trn" onclick="setView('transportadoras', this)"><span class="menu-icon icon-transportadoras"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h11v7H3z"></path><path d="M14 10h3l4 4v1h-7z"></path><circle cx="8" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg></span><span class="menu-text">Transportadoras</span></button>
+        <button id="menu-docas" data-short="Doc" onclick="setView('docas', this)"><span class="menu-icon icon-docas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V6l7-3 7 3v14"></path><path d="M9 20v-6h6v6"></path></svg></span><span class="menu-text">Docas</span></button>
+        <button id="menu-checkin" data-short="Chk" onclick="setView('checkin', this)"><span class="menu-icon icon-checkin"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"></rect><path d="M8 12l2.5 2.5L16 9"></path></svg></span><span class="menu-text">Check-in</span></button>
+        <button id="menu-relatorios" data-short="Rel" onclick="setView('relatorios', this)"><span class="menu-icon icon-relatorios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M7 15l3-3 3 2 4-5"></path></svg></span><span class="menu-text">Relatórios</span></button>
+        <button id="menu-admin" data-short="Adm" onclick="setView('admin', this)"><span class="menu-icon icon-admin"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.3.8a7 7 0 0 0-1.7-1L14.5 3h-5L9 5.8a7 7 0 0 0-1.7 1L5 6 3 9.5 5 11a7 7 0 0 0 0 2l-2 1.5L5 18l2.3-.8a7 7 0 0 0 1.7 1l.5 2.8h5l.4-2.8a7 7 0 0 0 1.7-1L19 18l2-3.5-2-1.5c.1-.3.1-.7.1-1z"></path></svg></span><span class="menu-text">Admin</span></button>
+      </div>
+
+      <div class="sidebar-note">
+        <strong>Fluxo operacional</strong><br>
+        Acompanhe cada etapa da carga com mais clareza, previsibilidade e navegação lateral mais elegante.
+      </div>
+
+      <button class="logout-btn" onclick="logout()">Sair</button>
+    </aside>
+
+    <main class="main premium-shell">
+      <div class="topbar">
+        <button class="topbar-menu-toggle premium-topbar-toggle" id="topbarMenuToggle" type="button" title="Ocultar menu" aria-label="Abrir ou recolher menu lateral">
+          <span class="topbar-toggle-dot"></span>
+          <span id="topbarMenuToggleIcon">❮</span>
+        </button>
+        <div class="title">
+          <div class="topbar-badge">Gestão Logística Plus • Operação em tempo real</div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p>Gestão integrada da agenda, pátio, expedição e docas, agora com visual black premium, animações mais elegantes e um menu lateral compacto e profissional.</p>
+          <div class="page-accent-line"></div>
+          <div class="topbar-meta-row">
+            <div class="topbar-meta-pill"><span>Modo</span><strong>Enterprise Black</strong></div>
+            <div class="topbar-meta-pill"><span>Leitura</span><strong>Operação em tempo real</strong></div>
+            <div class="topbar-meta-pill"><span>Foco</span><strong>Decisão rápida</strong></div>
+          </div>
+          <div class="welcome-strip soft-glow">
+            <div class="welcome-main">
+              <strong id="welcomeGreeting">Bom dia</strong>
+              <span id="welcomeMessage">Aqui está um resumo da operação para apoiar as decisões do turno.</span>
+            </div>
+            <div class="welcome-meta">
+              <div class="welcome-pill"><span>Hora</span><strong id="welcomeTime">--:--</strong></div>
+              <div class="welcome-pill"><span>Data</span><strong id="welcomeDate">--/--/----</strong></div>
+              <div class="welcome-pill"><span>Temperatura</span><strong id="welcomeTemp">22°C</strong></div>
+            </div>
+          </div>
+        </div>
+        <div class="actions soft-glow">
+          <div>
+            <label>Filtrar por data</label>
+            <input type="date" id="filtroData" onchange="carregarTudo()">
+          </div>
+          <button class="btn btn-light" onclick="carregarTudo()">Atualizar</button>
+          <div class="topbar-actions-note">Versão enterprise com visual premium, foco em leitura rápida da operação e execução mais confortável para o time logístico.</div>
+        </div>
+      </div>
+
+      <div class="card hidden soft-glow" style="margin-bottom:16px" id="statusConexaoCard">
+        <div id="statusConexao" style="color:var(--muted)">Conectando ao Supabase...</div>
+      </div>
+
+      <section id="view-dashboard">
+        <div class="card soft-glow" style="margin-bottom:16px">
+          <div class="card-title-row">
+            <div>
+              <h2 style="margin:0">Visão do dia</h2>
+              <p>Uma leitura mais premium da operação para ajudar a equipe a identificar prioridades com rapidez, clareza e menos ruído visual.</p>
+            </div>
+            <span class="premium-badge">Mais humano</span>
+          </div>
+          <div class="premium-hero-strip">
+            <div class="premium-hero-item"><span>Modo</span><strong>Black</strong></div>
+            <div class="premium-hero-item"><span>Leitura</span><strong>Enterprise</strong></div>
+            <div class="premium-hero-item"><span>Foco</span><strong>Exceções</strong></div>
+            <div class="premium-hero-item"><span>Ritmo</span><strong>Tempo real</strong></div>
+          </div>
+        </div>
+        <div class="grid grid-4" id="dashboardKpis"></div>
+
+        <div class="card soft-glow" style="margin-top:16px">
+          <div class="card-title-row">
+            <div>
+              <h2 style="margin:0">Painel de exceções</h2>
+              <p>Leitura orientada por exceção para priorizar atrasos, pendências de doca, ausência de motorista e divergências operacionais.</p>
+            </div>
+            <span class="premium-badge">Ação imediata</span>
+          </div>
+          <div class="grid grid-4" id="dashboardExceptions"></div>
+        </div>
+
+        <div class="card soft-glow" style="margin-top:16px">
+          <div class="card-title-row"><div><h2 style="margin:0">Torre de etapas</h2><p>Visão consolidada das etapas da operação com rolagem dedicada por coluna.</p></div><span class="premium-badge">Tempo real</span></div>
+          <div class="board" id="dashboardBoard"></div>
+        </div>
+      </section>
+
+      <section id="view-agenda" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Central da agenda operacional</h3>
+            <p>Visual mais premium para organizar as DTs do dia, acompanhar janelas e distribuir melhor a operação com leitura rápida de cliente, transportadora, doca e SLA.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Agenda filtrada</span>
+                <strong id="agendaDataRef">Todos</strong>
+              </div>
+              <div class="section-mini">
+                <span>Total do dia</span>
+                <strong id="agendaTotalRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Resumo rápido da agenda</h3>
+            <p>Cadastre novas DTs, acompanhe o planejamento do dia e visualize rapidamente o volume previsto da operação antes da execução no pátio e na expedição.</p>
+          </div>
+        </div>
+
+
+        <div class="filters-card soft-glow">
+          <div class="card-title-row">
+            <div>
+              <h2 style="margin:0">Filtros e validações da agenda</h2>
+              <p>Encontre conflitos, refine a leitura operacional e foque apenas no que precisa de ação.</p>
+            </div>
+            <span class="premium-badge">Filtros fortes</span>
+          </div>
+          <div class="filters-grid">
+            <div><label>Busca rápida</label><input id="agendaFiltroBusca" placeholder="DT, cliente ou transportadora" oninput="renderAgenda();renderDashboard();renderPatio();renderDocas();renderRelatorios()"></div>
+            <div><label>Status</label><select id="agendaFiltroStatus" onchange="renderAgenda();renderDashboard();renderPatio();renderDocas();renderRelatorios()"><option value="">Todos</option><option>Agendado</option><option>Em Separação</option><option>Separado</option><option>Pronto Expedição</option><option>No Pátio</option><option>Em Doca</option><option>Em Carregamento</option><option>Expedido</option></select></div>
+            <div><label>Transportadora</label><input id="agendaFiltroTransportadora" placeholder="Filtrar transportadora" oninput="renderAgenda()"></div>
+            <div><label>Doca</label><input id="agendaFiltroDoca" placeholder="Filtrar doca" oninput="renderAgenda()"></div>
+            <div><label>Exceção</label><select id="agendaFiltroRisco" onchange="renderAgenda();renderDashboard()"><option value="">Todas</option><option value="atraso">Somente atraso</option><option value="sem_doca">Sem doca</option><option value="conflito">Conflitos</option></select></div>
+          </div>
+          <div class="risk-banner" id="agendaRiskBanner">Nenhuma validação executada ainda.</div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="section-toolbar">
+              <div>
+                <h2>Nova DT</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Cadastro rápido da programação operacional</p>
+              </div>
+              <span class="premium-badge">Planejamento</span>
+            </div>
+            <div class="fields">
+              <div><label>DT</label><input id="a_dt"></div>
+              <div><label>Ordem</label><input id="a_ordem"></div>
+              <div><label>Remessa</label><input id="a_remessa"></div>
+              <div><label>Data agenda</label><input id="a_data_agenda" type="date"></div>
+              <div><label>Hora agenda</label><input id="a_hora_agenda" type="time"></div>
+              <div><label>Transportadora</label><input id="a_transportadora"></div>
+              <div><label>Cliente</label><input id="a_cliente"></div>
+              <div><label>Tipo de carga</label><input id="a_tipo_carga"></div>
+              <div><label>Tipo de veículo</label><input id="a_tipo_veiculo"></div>
+              <div><label>Tipo de frete</label><input id="a_tipo_frete"></div>
+              <div><label>Perfil carga</label><input id="a_perfil_carga"></div>
+              <div><label>Doca agenda</label><select id="a_doca_agenda"></select></div>
+              <div><label>Peso</label><input id="a_peso" type="number" step="0.001"></div>
+              <div><label>M³ / Cubagem</label><input id="a_cubagem" type="number" step="0.001"></div>
+              <div><label>Tonelagem</label><input id="a_tonelagem" type="number" step="0.001"></div>
+              <div><label>HE</label><input id="a_he" type="number"></div>
+              <div><label>HO</label><input id="a_ho" type="number"></div>
+              <div><label>Total caixas</label><input id="a_total_caixas" type="number"></div>
+              <div class="full"><label>Observação geral</label><textarea id="a_observacao"></textarea></div>
+            </div>
+            <div style="margin-top:12px">
+              <button class="btn btn-success" onclick="criarDT()">Salvar DT</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-toolbar">
+              <div>
+                <h2>Resumo do dia</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Leitura executiva da agenda filtrada</p>
+              </div>
+              <span class="premium-badge">Indicadores</span>
+            </div>
+            <div class="grid grid-4" id="agendaKpis"></div>
+          </div>
+        </div>
+
+        <div class="card premium-table-card" style="margin-top:16px">
+          <div class="premium-table-head">
+            <div>
+              <h2>Agenda do dia</h2>
+              <p>Lista moderna da programação com foco em janela, doca, status e SLA.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="agendaSoftStat">0 registros</span>
+              <span class="premium-badge">Operação planejada</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DT</th><th>Data</th><th>Hora</th><th>Cliente</th><th>Transportadora</th><th>Doca</th><th>Status</th><th>SLA</th><th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="agendaTabela"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-separacao" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Operação de separação</h3>
+            <p>Acompanhe com mais clareza o avanço da separação, os conferentes envolvidos, turnos e gargalos da operação antes da carga seguir para expedição.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Em separação</span>
+                <strong id="sepEmAndamentoRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Separadas</span>
+                <strong id="sepConcluidoRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Leitura operacional</h3>
+            <p>Visual premium com foco em status, conferente, turno e SLA para acelerar a identificação do que está pendente e do que já está pronto.</p>
+          </div>
+        </div>
+
+        <div class="card premium-table-card">
+          <div class="premium-table-head">
+            <div>
+              <h2>Separação</h2>
+              <p>Controle das etapas internas de separação e recebimento.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="separacaoSoftStat">0 registros</span>
+              <span class="premium-badge">Execução interna</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DT</th><th>Cliente</th><th>Transportadora</th><th>Doca planejada</th><th>Status separação</th><th>Conferente recebimento</th><th>Turno</th><th>SLA</th><th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="separacaoTabela"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-expedicao" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Expedição em destaque</h3>
+            <p>Monitore o que já foi preparado para saída, o que está pronto para expedição e o que já entrou no fluxo do pátio, com visão mais moderna e leitura executiva.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Pronto expedição</span>
+                <strong id="expProntoRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>No pátio</span>
+                <strong id="expPatioRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Leitura de saída</h3>
+            <p>Consolide conferente, faturamento, status e SLA em uma única visão para facilitar a tomada de decisão na expedição.</p>
+          </div>
+        </div>
+
+        <div class="card premium-table-card">
+          <div class="premium-table-head">
+            <div>
+              <h2>Expedição</h2>
+              <p>Painel premium para acompanhamento da saída e da integração com o pátio.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="expedicaoSoftStat">0 registros</span>
+              <span class="premium-badge">Saída operacional</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DT</th><th>Cliente</th><th>Transportadora</th><th>Doca agenda</th><th>Conferente expedição</th><th>Faturado</th><th>Status</th><th>SLA</th><th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="expedicaoTabela"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-patio" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Pátio em tempo real</h3>
+            <p>Visual premium para acompanhar veículos aguardando, em doca, em carregamento e já expedidos, com leitura rápida para tomada de decisão operacional.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>No pátio</span>
+                <strong id="patioNoPatioRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Em carregamento</span>
+                <strong id="patioCarregandoRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Movimentação inteligente</h3>
+            <p>Controle a passagem da DT por cada etapa operacional, registre a fila real do pátio, chame o motorista no sistema e envie mensagem direta quando houver telefone disponível.</p>
+          </div>
+        </div>
+
+
+        <div class="queue-summary">
+          <div class="section-mini"><span>Fila no pátio</span><strong id="filaPatioTotal">0</strong></div>
+          <div class="section-mini"><span>Tempo médio estimado</span><strong id="filaPatioTempo">0 min</strong></div>
+          <div class="section-mini"><span>Próxima doca livre</span><strong id="filaPatioDoca">-</strong></div>
+          <div class="section-mini"><span>Chamadas realizadas</span><strong id="filaPatioChamadas">0</strong></div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card premium-table-card">
+            <div class="premium-table-head">
+              <div>
+                <h2>Painel do pátio</h2>
+                <p>Leitura visual das etapas do pátio em tempo real.</p>
+              </div>
+              <div class="group">
+                <span class="soft-stat" id="patioSoftStat">0 registros</span>
+                <span class="premium-badge">Fluxo operacional</span>
+              </div>
+            </div>
+            <div class="board board-premium" id="patioBoard"></div>
+          </div>
+
+          <div class="card form-card-premium">
+            <div class="section-toolbar">
+              <div>
+                <h2>Movimentação rápida</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Atualize a etapa da DT com mais clareza</p>
+              </div>
+              <span class="premium-badge">Ação rápida</span>
+            </div>
+            <div class="fields" style="grid-template-columns:repeat(2,1fr)">
+              <div><label>DT</label><select id="p_dt" onchange="preencherPatio()"></select></div>
+              <div><label>Doca carregamento</label><select id="p_doca"></select></div>
+              <div><label>Motorista</label><input id="p_motorista"></div>
+              <div><label>Telefone motorista</label><input id="p_telefone_motorista" placeholder="11999998888"></div>
+              <div><label>Placa cavalo</label><input id="p_placa_cavalo"></div>
+              <div><label>Placa carreta</label><input id="p_placa_carreta"></div>
+              <div><label>Placa reboque 1</label><input id="p_placa_reboque_1"></div>
+              <div><label>Placa reboque 2</label><input id="p_placa_reboque_2"></div>
+              <div><label>Presença</label>
+                <select id="p_presenca">
+                  <option value="">Selecione</option>
+                  <option>Presente</option>
+                  <option>Ausente</option>
+                  <option>Atrasado</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+              <button class="btn btn-warning" onclick="moverPatio('No Pátio')">No Pátio</button>
+              <button class="btn btn-primary" onclick="moverPatio('Em Doca')">Em Doca</button>
+              <button class="btn btn-success" onclick="moverPatio('Em Carregamento')">Em Carregamento</button>
+              <button class="btn btn-danger" onclick="moverPatio('Expedido')">Expedido</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-docas" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Torre de docas premium</h3>
+            <p>Visão moderna das docas com leitura de ocupação, DT em atendimento, motorista, placas e início de operação.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Docas livres</span>
+                <strong id="docasLivreRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Docas ocupadas</span>
+                <strong id="docasOcupadaRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Ocupação inteligente</h3>
+            <p>Identifique rapidamente gargalos, utilização das docas e veículos em processo, tudo no mesmo padrão visual premium.</p>
+          </div>
+        </div>
+
+        <div class="card premium-table-card">
+          <div class="premium-table-head">
+            <div>
+              <h2>Torre de docas</h2>
+              <p>Painel premium da ocupação das docas.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="docasSoftStat">0 docas</span>
+              <span class="premium-badge">Ocupação</span>
+            </div>
+          </div>
+          <div class="dock-grid dock-grid-premium" id="docasGrid" style="padding:18px"></div>
+        </div>
+      </section>
+
+      <section id="view-checkin" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Check-in interno</h3>
+            <p>Registre a chegada do motorista com visual premium, leitura operacional mais clara e consolidação das placas e presença diretamente no fluxo interno.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Check-ins hoje</span>
+                <strong id="checkinHojeRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Presentes</span>
+                <strong id="checkinPresenteRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Consolidação de chegada</h3>
+            <p>Visualize motorista, placas, presença, chegada e status em um só lugar, mantendo coerência com o restante do sistema premium.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card form-card-premium">
+            <div class="section-toolbar">
+              <div>
+                <h2>Registrar check-in</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Movimente rapidamente a DT para o pátio</p>
+              </div>
+              <span class="premium-badge">Portaria interna</span>
+            </div>
+            <div class="fields">
+              <div><label>DT</label><select id="c_dt"></select></div>
+              <div><label>Motorista</label><input id="c_motorista"></div>
+              <div><label>Telefone motorista</label><input id="c_telefone_motorista" placeholder="11999998888"></div>
+              <div><label>Telefone motorista</label><input id="c_telefone_motorista" placeholder="11999999999"></div>
+              <div><label>Placa cavalo</label><input id="c_placa_cavalo"></div>
+              <div><label>Placa carreta</label><input id="c_placa_carreta"></div>
+              <div><label>Placa reboque 1</label><input id="c_placa_reboque_1"></div>
+              <div><label>Placa reboque 2</label><input id="c_placa_reboque_2"></div>
+              <div><label>Presença</label>
+                <select id="c_presenca">
+                  <option value="">Selecione</option>
+                  <option>Presente</option>
+                  <option>Ausente</option>
+                  <option>Atrasado</option>
+                </select>
+              </div>
+              <div class="full"><label>Observação</label><textarea id="c_obs"></textarea></div>
+            </div>
+            <div style="margin-top:12px">
+              <button class="btn btn-success" onclick="registrarCheckin()">Registrar check-in</button>
+            </div>
+          </div>
+
+          <div class="card premium-table-card">
+            <div class="premium-table-head">
+              <div>
+                <h2>Histórico de check-in</h2>
+                <p>Lista premium das chegadas registradas.</p>
+              </div>
+              <div class="group">
+                <span class="soft-stat" id="checkinSoftStat">0 registros</span>
+                <span class="premium-badge">Chegadas</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>DT</th><th>Transportadora</th><th>Motorista</th><th>Telefone</th><th>Placas</th><th>Presença</th><th>Chegada</th><th>Status</th><th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="checkinTabela"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-relatorios" class="hidden">
+        <div class="report-hero">
+          <div class="report-hero-card soft-glow">
+            <h3>Central de resultados operacionais</h3>
+            <p>Visual moderno para acompanhar volume, produtividade e comportamento da operação ao longo do dia, com leitura mais executiva e foco em decisão.</p>
+            <div class="report-mini-grid">
+              <div class="report-mini">
+                <span>Filtro aplicado</span>
+                <strong id="relatorioDataRef">Todos</strong>
+              </div>
+              <div class="report-mini">
+                <span>Expedidas no filtro</span>
+                <strong id="relatorioExpedidoRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="report-hero-card soft-glow">
+            <h3>Leitura rápida</h3>
+            <p>Os indicadores abaixo destacam caixas, picking, pallets e peso total, enquanto os gráficos mostram a distribuição por turno em um formato mais premium.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Resultados executivos</h2>
+          <div class="executive-grid" id="relatorioExecutivo"></div>
+        </div>
+
+        <div class="card">
+          <h2>Resultados gerais</h2>
+          <div class="grid grid-4" id="relatorioResumo"></div>
+        </div>
+        <div class="grid grid-2" style="margin-top:16px">
+          <div class="card">
+            <h2>Separação HE</h2>
+            <canvas id="graficoHE" height="120"></canvas>
+          </div>
+          <div class="card">
+            <h2>Separação HO</h2>
+            <canvas id="graficoHO" height="120"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-admin" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Administração do sistema</h3>
+            <p>Área exclusiva para importação da agenda, gestão de usuários internos e acompanhamento técnico da integração com o Supabase, mantendo o controle mais simples e confiável.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Usuários carregados</span>
+                <strong id="adminUsuariosRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Status técnico</span>
+                <strong id="adminStatusRef">Pronto</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Controle administrativo</h3>
+            <p>Cadastre novos usuários do sistema com perfil e status de acesso, mantendo a operação organizada e centralizada no próprio painel interno.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-2" id="areaAdmin" style="display:none;">
+          <div class="card form-card-premium">
+            <div class="section-toolbar">
+              <div>
+                <h2>Novo usuário</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Cadastro administrativo integrado ao sistema</p>
+              </div>
+              <span class="premium-badge">Admin</span>
+            </div>
+            <div class="fields">
+              <div><label>Nome</label><input id="u_nome"></div>
+              <div><label>Email</label><input id="u_email" type="email"></div>
+              <div><label>Senha inicial</label><input id="u_senha" type="password"></div>
+              <div>
+                <label>Perfil</label>
+                <select id="u_perfil">
+                  <option value="operacao">operacao</option>
+                  <option value="assistente">assistente</option>
+                  <option value="portaria">portaria</option>
+                  <option value="conferente">conferente</option>
+                  <option value="gestao">gestao</option>
+                  <option value="analista">analista</option>
+                  <option value="admin">admin</option>
+                </select>
+              </div>
+              <div>
+                <label>Status</label>
+                <select id="u_ativo">
+                  <option value="true">Ativo</option>
+                  <option value="false">Inativo</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn btn-success" onclick="criarUsuarioAdmin()">Cadastrar usuário</button>
+              <button class="btn btn-light" onclick="carregarUsuariosAdmin()">Atualizar lista</button>
+            </div>
+            <p id="statusUsuarioAdmin" style="color:var(--muted);margin-top:10px"></p><p style="color:var(--muted);font-size:12px;line-height:1.7;margin-top:8px">Se o e-mail já existir no Auth, use redefinição de senha ou reative o usuário na lista ao lado.</p>
+          </div>
+
+          <div class="card premium-table-card">
+            <div class="premium-table-head">
+              <div>
+                <h2>Usuários do sistema</h2>
+                <p>Lista administrativa dos usuários cadastrados em <code>public.usuarios</code>.</p>
+              </div>
+              <div class="group">
+                <span class="soft-stat" id="usuariosSoftStat">0 usuários</span>
+                <span class="premium-badge">Controle de acesso</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Perfil</th>
+                    <th>Ativo</th>
+                    <th>Criado em</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="listaUsuariosAdmin"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+
+        
+<div class="card permission-table soft-glow" style="margin-top:16px">
+          <div class="section-toolbar">
+            <div>
+              <h2>Permissões por perfil</h2>
+              <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Lógica real aplicada no sistema: Admin total, Gestão visualização, Operação/Assistente/Portaria com a mesma regra operacional.</p>
+            </div>
+            <span class="premium-badge">Governança</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Perfil</th><th>Agenda</th><th>Pátio/Doca</th><th>Check-in</th><th>Admin</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>admin</td><td>Total</td><td>Total</td><td>Total</td><td>Total</td></tr>
+                <tr><td>gestao</td><td>Visualização</td><td>Visualização</td><td>Visualização</td><td>Não</td></tr>
+                <tr><td>operacao</td><td>Assistente</td><td>Assistente</td><td>Assistente</td><td>Não</td></tr>
+                <tr><td>assistente</td><td>Assistente</td><td>Assistente</td><td>Assistente</td><td>Não</td></tr>
+                <tr><td>portaria</td><td>Assistente</td><td>Assistente</td><td>Assistente</td><td>Não</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card soft-glow" style="margin-top:16px">
+          <div class="section-toolbar">
+            <div>
+              <h2>Importar Agenda (Excel)</h2>
+              <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Importação da agenda operacional com pré-visualização</p>
+            </div>
+            <span class="premium-badge">Importação</span>
+          </div>
+          <input type="file" id="fileInput" accept=".xlsx,.xls">
+          <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-light" onclick="preVisualizarExcel()">Pré-visualizar</button>
+            <button class="btn btn-primary" onclick="importarExcel()">Importar</button>
+          </div>
+          <p id="statusUpload" style="color:var(--muted)"></p>
+
+          <div class="card" style="margin-top:16px;display:none" id="previewBox">
+            <h3>Pré-visualização da importação</h3>
+            <div class="grid grid-4" id="previewResumo"></div>
+            <div class="table-wrap" style="margin-top:16px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>DT</th>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Cliente</th>
+                    <th>Transportadora</th>
+                    <th>Tipo Veículo</th>
+                    <th>Total Caixas</th>
+                    <th>Peso</th>
+                  </tr>
+                </thead>
+                <tbody id="previewTabela"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-motoristas" class="hidden">
+        <div class="card">
+          <h2>Cadastro de Motoristas</h2>
+          <div class="fields">
+            <div><label>Nome</label><input id="m_nome"></div>
+            <div><label>CPF</label><input id="m_cpf"></div>
+            <div><label>Telefone</label><input id="m_telefone"></div>
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn btn-primary" onclick="salvarMotorista()">Salvar</button>
+          </div>
+          <div class="table-wrap" style="margin-top:16px">
+            <table>
+              <thead>
+                <tr><th>Nome</th><th>CPF</th><th>Telefone</th></tr>
+              </thead>
+              <tbody id="listaMotoristas"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-transportadoras" class="hidden">
+        <div class="card">
+          <h2>Cadastro de Transportadoras</h2>
+          <div class="fields">
+            <div><label>Nome</label><input id="t_nome"></div>
+            <div><label>CNPJ</label><input id="t_cnpj"></div>
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn btn-primary" onclick="salvarTransportadora()">Salvar</button>
+          </div>
+          <div class="table-wrap" style="margin-top:16px">
+            <table>
+              <thead>
+                <tr><th>Nome</th><th>CNPJ</th></tr>
+              </thead>
+              <tbody id="listaTransportadoras"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <footer>© 2026 Gestão Logística Plus — Todos os direitos reservados • Black Premium Enterprise</footer>
+    </main>
+  </div>
+
+  <div class="modal" id="dtModal">
+    <div class="modal-content">
+      <div class="modal-head">
+        <div>
+          <h2 style="margin:0">Tela completa da DT</h2>
+          <div id="dtModalSub" style="color:var(--muted);margin-top:6px;font-size:13px;line-height:1.6"></div>
+        </div>
+        <div id="dtModalStatusWrap"></div>
+        <button class="btn btn-light" onclick="fecharDTModal()">Fechar</button>
+      </div>
+
+      <div class="modal-summary" id="dtResumoExecutivo">
+        <div class="modal-summary-card">
+          <span>DT</span>
+          <strong id="resumo_dt">-</strong>
+        </div>
+        <div class="modal-summary-card">
+          <span>Status</span>
+          <strong id="resumo_status">-</strong>
+        </div>
+        <div class="modal-summary-card">
+          <span>Transportadora</span>
+          <strong id="resumo_transportadora">-</strong>
+        </div>
+        <div class="modal-summary-card">
+          <span>Doca / Janela</span>
+          <strong id="resumo_doca">-</strong>
+        </div>
+      </div>
+
+      <div class="modal-grid">
+        <div class="modal-card soft-glow" id="blocoInfo">
+          <div class="modal-section-title">
+            <h3>Informações gerais</h3>
+            <span class="modal-pill">Base da operação</span>
+          </div>
+          <div class="fields" style="grid-template-columns:repeat(2,1fr)">
+            <div><label>DT</label><input id="m_dt" disabled></div>
+            <div><label>Ordem</label><input id="m_ordem"></div>
+            <div><label>Remessa</label><input id="m_remessa"></div>
+            <div><label>Cliente</label><input id="m_cliente"></div>
+            <div><label>Transportadora</label><input id="m_transportadora"></div>
+            <div><label>Data agenda</label><input id="m_data_agenda" type="date"></div>
+            <div><label>Hora agenda</label><input id="m_hora_agenda" type="time"></div>
+            <div><label>Tipo carga (CB/CP)</label><input id="m_tipo_carga"></div>
+            <div><label>Tipo veículo</label><input id="m_tipo_veiculo"></div>
+            <div><label>Tipo frete</label><input id="m_tipo_frete"></div>
+            <div><label>Perfil carga</label><input id="m_perfil_carga"></div>
+            <div><label>Doca agenda</label><select id="m_doca_agenda"></select></div>
+            <div><label>Status global</label>
+              <select id="m_status_global">
+                <option>Agendado</option><option>Em Separação</option><option>Separado</option><option>Pronto Expedição</option><option>No Pátio</option><option>Em Doca</option><option>Em Carregamento</option><option>Expedido</option>
+              </select>
+            </div>
+            <div><label>Peso</label><input id="m_peso" type="number" step="0.001"></div>
+            <div><label>M³ / Cubagem</label><input id="m_cubagem" type="number" step="0.001"></div>
+            <div><label>Tonelagem</label><input id="m_tonelagem" type="number" step="0.001"></div>
+            <div><label>HE</label><input id="m_he" type="number"></div>
+            <div><label>HO</label><input id="m_ho" type="number"></div>
+            <div><label>Total caixas</label><input id="m_total_caixas" type="number"></div>
+            <div class="full"><label>Observação geral</label><textarea id="m_observacao_geral"></textarea></div>
+          </div>
+        </div>
+
+        <div class="modal-card soft-glow" id="blocoSeparacao">
+          <div class="modal-section-title">
+            <h3>Separação / Recebimento</h3>
+            <span class="modal-pill">Operação interna</span>
+          </div>
+          <div class="fields" style="grid-template-columns:repeat(2,1fr)">
+            <div><label>Doca planejada</label><select id="m_doca_planejada"></select></div>
+            <div><label>Tipo separação</label>
+              <select id="m_tipo_separacao"><option value="">Selecione</option><option>COLETOR</option><option>MANUAL</option></select>
+            </div>
+            <div><label>Início separação</label><input id="m_inicio_separacao" type="datetime-local"></div>
+            <div><label>Fim separação</label><input id="m_fim_separacao" type="datetime-local"></div>
+            <div><label>Status separação</label><input id="m_status_separacao"></div>
+            <div><label>Turno separação</label>
+              <select id="m_turno_separacao"><option value="">Selecione</option><option>T1</option><option>T2</option><option>T3</option></select>
+            </div>
+            <div><label>Início recebimento</label><input id="m_inicio_recebimento" type="datetime-local"></div>
+            <div><label>Fim recebimento</label><input id="m_fim_recebimento" type="datetime-local"></div>
+            <div><label>Conferente recebimento</label><select id="m_conf_recebimento"></select></div>
+            <div><label>Status recebimento</label><input id="m_status_recebimento"></div>
+            <div class="full"><label>Obs. separação</label><textarea id="m_obs_separacao"></textarea></div>
+          </div>
+        </div>
+
+        <div class="modal-card soft-glow" id="blocoExpedicao">
+          <div class="modal-section-title">
+            <h3>Expedição / Pátio</h3>
+            <span class="modal-pill">Movimentação e saída</span>
+          </div>
+          <div class="fields" style="grid-template-columns:repeat(2,1fr)">
+            <div><label>Conferente expedição</label><select id="m_conf_expedicao"></select></div>
+            <div><label>Faturado</label>
+              <select id="m_faturado"><option value="">Selecione</option><option value="true">Sim</option><option value="false">Não</option></select>
+            </div>
+            <div><label>Data faturamento</label><input id="m_data_faturamento" type="datetime-local"></div>
+            <div><label>Romaneio</label><input id="m_romaneio"></div>
+            <div><label>Retirada NF</label><input id="m_retirada_nf" type="datetime-local"></div>
+            <div><label>Caixas embarcadas</label><input id="m_caixas_embarcadas" type="number"></div>
+            <div><label>Operador</label><input id="m_operador"></div>
+            <div><label>Mão de obra</label><input id="m_mao_obra"></div>
+            <div><label>Motorista</label><input id="m_motorista"></div>
+            <div><label>Telefone motorista</label><input id="m_telefone_motorista" placeholder="11999998888"></div>
+            <div><label>Placa cavalo</label><input id="m_placa_cavalo"></div>
+            <div><label>Placa carreta</label><input id="m_placa_carreta"></div>
+            <div><label>Placa reboque 1</label><input id="m_placa_reboque_1"></div>
+            <div><label>Placa reboque 2</label><input id="m_placa_reboque_2"></div>
+            <div><label>Presença</label>
+              <select id="m_presente_ausente"><option value="">Selecione</option><option>Presente</option><option>Ausente</option><option>Atrasado</option></select>
+            </div>
+            <div><label>Chegada motorista</label><input id="m_chegada_motorista" type="datetime-local"></div>
+            <div><label>Doca carregamento</label><select id="m_doca_carregamento"></select></div>
+            <div><label>Data em doca</label><input id="m_data_em_doca" type="datetime-local"></div>
+            <div><label>Início carregamento</label><input id="m_inicio_carregamento" type="datetime-local"></div>
+            <div><label>Fim carregamento</label><input id="m_fim_carregamento" type="datetime-local"></div>
+            <div class="full"><label>Obs. carregamento</label><textarea id="m_obs_carregamento"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-success" onclick="salvarDTModal()">Salvar DT</button>
+        <button class="btn btn-light" onclick="fecharDTModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
