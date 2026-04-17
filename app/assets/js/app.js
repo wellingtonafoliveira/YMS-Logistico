@@ -11,6 +11,8 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     let docas = [];
     let dtAtual = null;
     let viewAtualGlobal = "dashboard";
+    let chartHE = null;
+    let chartHO = null;
     let chartCarrosTurno = null;
     let chartTonelagemTurno = null;
     let agendaFiltroKpi = "";
@@ -1501,6 +1503,7 @@ sb.auth.onAuthStateChange(async (_, session) => {
       const rows = getAgendaRows();
       const dataRef = dataFiltrada() ? fmtDate(dataFiltrada()) : "Todos";
       const expedidas = rows.filter(r => r.status_global === "Expedido");
+
       document.getElementById("relatorioDataRef").textContent = dataRef;
       document.getElementById("relatorioExpedidoRef").textContent = expedidas.length;
 
@@ -1551,18 +1554,61 @@ sb.auth.onAuthStateChange(async (_, session) => {
       }
 
       const turnos = ["T1","T2","T3"];
-      const carrosData = turnos.map(t => expedidas.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t).length);
-      const tonData = turnos.map(t => expedidas
-        .filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t)
-        .reduce((a,b)=>a+(b.tonelagem||0),0)
+
+      const heData = turnos.map(t =>
+        rows.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t)
+            .reduce((a,b)=>a+(b.he||0),0)
       );
 
+      const hoData = turnos.map(t =>
+        rows.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t)
+            .reduce((a,b)=>a+(b.ho||0),0)
+      );
+
+      const carrosData = turnos.map(t =>
+        expedidas.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t).length
+      );
+
+      const tonData = turnos.map(t =>
+        expedidas
+          .filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t)
+          .reduce((a,b)=>a+(b.tonelagem||0),0)
+      );
+
+      if(chartHE) chartHE.destroy();
+      if(chartHO) chartHO.destroy();
       if(chartCarrosTurno) chartCarrosTurno.destroy();
       if(chartTonelagemTurno) chartTonelagemTurno.destroy();
 
+      chartHE = new Chart(document.getElementById("graficoHE"), {
+        type:"bar",
+        data:{ labels:turnos, datasets:[{ label:"HE", data:heData, borderRadius:8, backgroundColor:["#3b82f6","#f59e0b","#8b5cf6"] }] },
+        options:{
+          responsive:true,
+          plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
+          scales:{
+            x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } },
+            y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }
+          }
+        }
+      });
+
+      chartHO = new Chart(document.getElementById("graficoHO"), {
+        type:"bar",
+        data:{ labels:turnos, datasets:[{ label:"HO/PL", data:hoData, borderRadius:8, backgroundColor:["#06b6d4","#22c55e","#ef4444"] }] },
+        options:{
+          responsive:true,
+          plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
+          scales:{
+            x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } },
+            y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }
+          }
+        }
+      });
+
       chartCarrosTurno = new Chart(document.getElementById("graficoCarrosTurno"), {
         type:"bar",
-        data:{ labels:turnos, datasets:[{ label:"Carros expedidos", data:carrosData, borderRadius:8, backgroundColor:["#3b82f6","#f59e0b","#8b5cf6"] }] },
+        data:{ labels:turnos, datasets:[{ label:"Carros expedidos", data:carrosData, borderRadius:8, backgroundColor:["#2563eb","#0ea5e9","#7c3aed"] }] },
         options:{
           responsive:true,
           plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
@@ -1575,7 +1621,7 @@ sb.auth.onAuthStateChange(async (_, session) => {
 
       chartTonelagemTurno = new Chart(document.getElementById("graficoTonelagemTurno"), {
         type:"bar",
-        data:{ labels:turnos, datasets:[{ label:"Tonelagem expedida", data:tonData, borderRadius:8, backgroundColor:["#06b6d4","#22c55e","#ef4444"] }] },
+        data:{ labels:turnos, datasets:[{ label:"Tonelagem expedida", data:tonData, borderRadius:8, backgroundColor:["#14b8a6","#22c55e","#f59e0b"] }] },
         options:{
           responsive:true,
           plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
