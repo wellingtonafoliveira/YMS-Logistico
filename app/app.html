@@ -545,8 +545,8 @@
         <div class="report-hero">
           <div class="report-hero-card soft-glow">
             <h3>Central de resultados operacionais</h3>
-            <p>Visual moderno para acompanhar volume, produtividade e comportamento da operação ao longo do dia, com leitura mais executiva e foco em decisão.</p>
-            <div class="report-mini-grid">
+            <p>Visual moderno para acompanhar produtividade e comportamento da operação ao longo do dia, com leitura mais executiva e foco em decisão.</p>
+            <div class="report-mini-grid report-mini-grid-3">
               <div class="report-mini">
                 <span>Filtro aplicado</span>
                 <strong id="relatorioDataRef">Todos</strong>
@@ -555,11 +555,15 @@
                 <span>Expedidas no filtro</span>
                 <strong id="relatorioExpedidoRef">0</strong>
               </div>
+              <div class="report-mini">
+                <span>Peso expedido</span>
+                <strong id="relatorioPesoRef">0 t</strong>
+              </div>
             </div>
           </div>
           <div class="report-hero-card soft-glow">
-            <h3>Leitura rápida</h3>
-            <p>Os indicadores abaixo destacam caixas, picking, pallets e peso total, enquanto os gráficos mostram a distribuição por turno em um formato mais premium.</p>
+            <h3>Leitura de performance</h3>
+            <p>Os blocos abaixo destacam desempenho do dia, eficiência de fila e carregamento e comportamento por turno e transportadora.</p>
           </div>
         </div>
 
@@ -572,14 +576,17 @@
           <h2>Resultados gerais</h2>
           <div class="grid grid-4" id="relatorioResumo"></div>
         </div>
+
         <div class="grid grid-2" style="margin-top:16px">
           <div class="card">
-            <h2>Separação HE</h2>
-            <canvas id="graficoHE" height="120"></canvas>
+            <h2>Carros expedidos por turno</h2>
+            <p class="chart-helper">Quantidade de DTs expedidas por turno no filtro selecionado.</p>
+            <canvas id="graficoCarrosTurno" height="120"></canvas>
           </div>
           <div class="card">
-            <h2>Separação HO</h2>
-            <canvas id="graficoHO" height="120"></canvas>
+            <h2>Tonelagem expedida por turno</h2>
+            <p class="chart-helper">Peso expedido por turno para leitura executiva da produtividade.</p>
+            <canvas id="graficoTonelagemTurno" height="120"></canvas>
           </div>
         </div>
       </section>

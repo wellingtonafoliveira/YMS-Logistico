@@ -3191,3 +3191,20 @@
     .topbar .actions .btn{
       min-height:44px;
     }
+
+.report-mini-grid-3{
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+}
+
+.chart-helper{
+  margin:6px 0 12px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.7;
+}
+
+@media (max-width:900px){
+  .report-mini-grid-3{
+    grid-template-columns:1fr;
+  }
+}

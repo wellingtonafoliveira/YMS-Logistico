@@ -11,8 +11,8 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     let docas = [];
     let dtAtual = null;
     let viewAtualGlobal = "dashboard";
-    let chartHE = null;
-    let chartHO = null;
+    let chartCarrosTurno = null;
+    let chartTonelagemTurno = null;
     let agendaFiltroKpi = "";
     let patioFilaRegistros = [];
     const TEMPO_MEDIO_FILA_MIN = 20;
@@ -1500,25 +1500,20 @@ sb.auth.onAuthStateChange(async (_, session) => {
     function renderRelatorios(){
       const rows = getAgendaRows();
       const dataRef = dataFiltrada() ? fmtDate(dataFiltrada()) : "Todos";
+      const expedidas = rows.filter(r => r.status_global === "Expedido");
       document.getElementById("relatorioDataRef").textContent = dataRef;
-      document.getElementById("relatorioExpedidoRef").textContent = rows.filter(x => x.status_global === "Expedido").length;
+      document.getElementById("relatorioExpedidoRef").textContent = expedidas.length;
 
-      const caixasRealizado = rows.filter(r => r.status_global === "Expedido").reduce((a,b)=>a+(b.total_caixas||0),0);
-      const caixasPendente = rows.filter(r => r.status_global !== "Expedido").reduce((a,b)=>a+(b.total_caixas||0),0);
-      const heRealizado = rows.filter(r => r.status_global === "Expedido").reduce((a,b)=>a+(b.he||0),0);
-      const hePendente = rows.filter(r => r.status_global !== "Expedido").reduce((a,b)=>a+(b.he||0),0);
-      const hoRealizado = rows.filter(r => r.status_global === "Expedido").reduce((a,b)=>a+(b.ho||0),0);
-      const hoPendente = rows.filter(r => r.status_global !== "Expedido").reduce((a,b)=>a+(b.ho||0),0);
+      const pesoExpedido = expedidas.reduce((a,b)=>a+(b.tonelagem||0),0);
+      document.getElementById("relatorioPesoRef").textContent = `${pesoExpedido.toFixed(1)} t`;
 
-      const slaTotal = rows.filter(r => r.status_global === "Expedido").length || 0;
-      const slaOk = rows.filter(r => r.status_global === "Expedido" && calcSla(r).label !== "Atrasado").length;
-      const percSla = slaTotal ? Math.round((slaOk / slaTotal) * 100) : 0;
-      const mediaFila = rows.filter(r => r.chegada_motorista && r.data_em_doca).reduce((acc, r, _, arr) => {
+      const mediaFila = rows.filter(r => r.chegada_motorista && r.data_em_doca).reduce((acc, r) => {
         const diff = (new Date(r.data_em_doca) - new Date(r.chegada_motorista)) / 60000;
         return acc + (Number.isFinite(diff) ? diff : 0);
       }, 0);
       const countFila = rows.filter(r => r.chegada_motorista && r.data_em_doca).length || 0;
       const mediaFilaFinal = countFila ? Math.round(mediaFila / countFila) : 0;
+
       const mediaCarga = rows.filter(r => r.inicio_carregamento && r.fim_carregamento).reduce((acc, r) => {
         const diff = (new Date(r.fim_carregamento) - new Date(r.inicio_carregamento)) / 60000;
         return acc + (Number.isFinite(diff) ? diff : 0);
@@ -1526,13 +1521,15 @@ sb.auth.onAuthStateChange(async (_, session) => {
       const countCarga = rows.filter(r => r.inicio_carregamento && r.fim_carregamento).length || 0;
       const mediaCargaFinal = countCarga ? Math.round(mediaCarga / countCarga) : 0;
 
+      const filaAtiva = rows.filter(r => r.status_global === "No Pátio").length;
+      const atrasadas = rows.filter(r => calcSla(r).label === "Atrasado").length;
+      const taxaExpedicao = rows.length ? Math.round((expedidas.length / rows.length) * 100) : 0;
+
       const cards = [
-        { label:"Caixas pendente", value: caixasPendente, cls:"status-orange", icon:"📦" },
-        { label:"Caixas realizado", value: caixasRealizado, cls:"status-green", icon:"✅" },
-        { label:"HE pendente", value: hePendente, cls:"status-orange", icon:"🧮" },
-        { label:"HE realizado", value: heRealizado, cls:"status-green", icon:"🎯" },
-        { label:"HO pendente", value: hoPendente, cls:"status-purple", icon:"🪵" },
-        { label:"HO realizado", value: hoRealizado, cls:"status-cyan", icon:"🚛" }
+        { label:"Peso expedido", value: `${pesoExpedido.toFixed(1)} t`, cls:"status-green", icon:"⚖️" },
+        { label:"Taxa de expedição", value: `${taxaExpedicao}%`, cls:"status-blue", icon:"📈" },
+        { label:"Fila ativa", value: filaAtiva, cls:"status-orange", icon:"🚚" },
+        { label:"DTs em atraso", value: atrasadas, cls:"status-red", icon:"⏱️" }
       ];
 
       document.getElementById("relatorioResumo").innerHTML = cards.map(k => `
@@ -1546,30 +1543,47 @@ sb.auth.onAuthStateChange(async (_, session) => {
       const exec = document.getElementById("relatorioExecutivo");
       if(exec){
         exec.innerHTML = `
-          <div class="section-mini"><span>SLA cumprido</span><strong>${percSla}%</strong></div>
           <div class="section-mini"><span>Média fila</span><strong>${mediaFilaFinal} min</strong></div>
           <div class="section-mini"><span>Média carregamento</span><strong>${mediaCargaFinal} min</strong></div>
-          <div class="section-mini"><span>Expedidas</span><strong>${rows.filter(x=>x.status_global==="Expedido").length}</strong></div>
+          <div class="section-mini"><span>Expedidas</span><strong>${expedidas.length}</strong></div>
+          <div class="section-mini"><span>Peso expedido</span><strong>${pesoExpedido.toFixed(1)} t</strong></div>
         `;
       }
 
       const turnos = ["T1","T2","T3"];
-      const heData = turnos.map(t => rows.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t).reduce((a,b)=>a+(b.he||0),0));
-      const hoData = turnos.map(t => rows.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t).reduce((a,b)=>a+(b.ho||0),0));
+      const carrosData = turnos.map(t => expedidas.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t).length);
+      const tonData = turnos.map(t => expedidas
+        .filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t)
+        .reduce((a,b)=>a+(b.tonelagem||0),0)
+      );
 
-      if(chartHE) chartHE.destroy();
-      if(chartHO) chartHO.destroy();
+      if(chartCarrosTurno) chartCarrosTurno.destroy();
+      if(chartTonelagemTurno) chartTonelagemTurno.destroy();
 
-      chartHE = new Chart(document.getElementById("graficoHE"), {
+      chartCarrosTurno = new Chart(document.getElementById("graficoCarrosTurno"), {
         type:"bar",
-        data:{ labels:turnos, datasets:[{ label:"HE", data:heData, borderRadius:8, backgroundColor:["#3b82f6","#f59e0b","#8b5cf6"] }] },
-        options:{ responsive:true, plugins:{ legend:{ labels:{ color:'#eef4ff' } } }, scales:{ x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }, y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } } } }
+        data:{ labels:turnos, datasets:[{ label:"Carros expedidos", data:carrosData, borderRadius:8, backgroundColor:["#3b82f6","#f59e0b","#8b5cf6"] }] },
+        options:{
+          responsive:true,
+          plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
+          scales:{
+            x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } },
+            y:{ ticks:{ color:'#98abc8', precision:0 }, grid:{ color:'rgba(255,255,255,.05)' } }
+          }
+        }
       });
 
-      chartHO = new Chart(document.getElementById("graficoHO"), {
+      chartTonelagemTurno = new Chart(document.getElementById("graficoTonelagemTurno"), {
         type:"bar",
-        data:{ labels:turnos, datasets:[{ label:"HO", data:hoData, borderRadius:8, backgroundColor:["#06b6d4","#22c55e","#ef4444"] }] },
-        options:{ responsive:true, plugins:{ legend:{ labels:{ color:'#eef4ff' } } }, scales:{ x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }, y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } } } }
+        data:{ labels:turnos, datasets:[{ label:"Tonelagem expedida", data:tonData, borderRadius:8, backgroundColor:["#06b6d4","#22c55e","#ef4444"] }] },
+        options:{
+          responsive:true,
+          plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
+          scales:{
+            x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } },
+            y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }
+          }
+        }
       });
     }
 
