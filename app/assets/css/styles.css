@@ -41,7 +41,7 @@
       inset:0;
       background:
         linear-gradient(rgba(2,4,6,.82), rgba(2,4,6,.88)),
-        url('../../Foto armazém.jpg') center center / cover no-repeat;
+        url('Foto armazém.jpg') center center / cover no-repeat;
       z-index:-2;
     }
 
@@ -353,7 +353,7 @@
       background:
         linear-gradient(90deg, rgba(5,12,24,.90) 0%, rgba(5,12,24,.80) 34%, rgba(5,12,24,.58) 58%, rgba(5,12,24,.82) 100%),
         linear-gradient(180deg, rgba(7,16,29,.18), rgba(7,16,29,.58)),
-        url('../../gestao-de-patio.jpg') center center / cover no-repeat;
+        url('gestao-de-patio.jpg') center center / cover no-repeat;
       z-index:0;
       transform:scale(1.02);
     }
@@ -638,7 +638,7 @@
       inset:0;
       background:
         linear-gradient(180deg, rgba(6,12,24,.16), rgba(6,12,24,.48)),
-        url('../../gestao-de-etapas.png') center center / cover no-repeat;
+        url('gestao-de-etapas.png') center center / cover no-repeat;
       opacity:.95;
     }
 
@@ -1641,7 +1641,7 @@
       background:
         linear-gradient(90deg, rgba(2,3,4,.95) 0%, rgba(2,3,4,.86) 35%, rgba(2,3,4,.66) 62%, rgba(2,3,4,.90) 100%),
         linear-gradient(180deg, rgba(2,3,4,.28), rgba(2,3,4,.72)),
-        url('../../gestao-de-patio.jpg') center center / cover no-repeat !important;
+        url('gestao-de-patio.jpg') center center / cover no-repeat !important;
       z-index:0 !important;
     }
 
@@ -1798,7 +1798,7 @@
       inset:0 !important;
       background:
         linear-gradient(180deg, rgba(7,16,29,.08), rgba(7,16,29,.50)),
-        url('../../gestao-de-etapas.png') center center / cover no-repeat !important;
+        url('gestao-de-etapas.png') center center / cover no-repeat !important;
       opacity:.96 !important;
     }
 
