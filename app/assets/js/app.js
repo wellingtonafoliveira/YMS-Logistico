@@ -29,6 +29,65 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       "Expedido":[]
     };
 
+    
+    function getPremiumChartOptions(){
+      return {
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{
+          legend:{
+            labels:{
+              color:'#eef4ff',
+              usePointStyle:true,
+              pointStyle:'circle',
+              boxWidth:10,
+              boxHeight:10,
+              padding:16,
+              font:{ weight:'700', size:12 }
+            }
+          },
+          tooltip:{
+            backgroundColor:'rgba(7,12,22,.96)',
+            borderColor:'rgba(148,163,184,.20)',
+            borderWidth:1,
+            titleColor:'#ffffff',
+            bodyColor:'#dbe7ff',
+            displayColors:true,
+            padding:12,
+            cornerRadius:14
+          }
+        },
+        scales:{
+          x:{
+            ticks:{ color:'#9fb0ca', font:{ weight:'700', size:11 } },
+            grid:{ color:'rgba(255,255,255,.04)', drawBorder:false },
+            border:{ display:false }
+          },
+          y:{
+            ticks:{ color:'#9fb0ca', font:{ weight:'700', size:11 } },
+            grid:{ color:'rgba(255,255,255,.05)', drawBorder:false },
+            border:{ display:false }
+          }
+        }
+      };
+    }
+
+    function mergeChartOptions(base, extra){
+      const cloned = JSON.parse(JSON.stringify(base));
+      if(extra && extra.scales){
+        cloned.scales = { ...(cloned.scales||{}), ...(extra.scales||{}) };
+        if(extra.scales.x) cloned.scales.x = { ...(cloned.scales.x||{}), ...(extra.scales.x||{}) };
+        if(extra.scales.y) cloned.scales.y = { ...(cloned.scales.y||{}), ...(extra.scales.y||{}) };
+      }
+      if(extra && extra.plugins){
+        cloned.plugins = { ...(cloned.plugins||{}), ...(extra.plugins||{}) };
+      }
+      for(const k in (extra||{})){
+        if(!['scales','plugins'].includes(k)) cloned[k] = extra[k];
+      }
+      return cloned;
+    }
+
     function fmtBoolAtivo(v){
       return v ? "Sim" : "Não";
     }
@@ -1582,54 +1641,28 @@ sb.auth.onAuthStateChange(async (_, session) => {
 
       chartHE = new Chart(document.getElementById("graficoHE"), {
         type:"bar",
-        data:{ labels:turnos, datasets:[{ label:"HE", data:heData, borderRadius:8, backgroundColor:["#3b82f6","#f59e0b","#8b5cf6"] }] },
-        options:{
-          responsive:true,
-          plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
-          scales:{
-            x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } },
-            y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }
-          }
-        }
+        data:{ labels:turnos, datasets:[{ label:"HE", data:heData, borderRadius:12, borderSkipped:false, maxBarThickness:42, backgroundColor:["rgba(59,130,246,.92)","rgba(245,158,11,.92)","rgba(139,92,246,.92)"], hoverBackgroundColor:["rgba(96,165,250,1)","rgba(251,191,36,1)","rgba(167,139,250,1)"] }] },
+        options: mergeChartOptions(getPremiumChartOptions(), {})
       });
 
       chartHO = new Chart(document.getElementById("graficoHO"), {
         type:"bar",
-        data:{ labels:turnos, datasets:[{ label:"HO/PL", data:hoData, borderRadius:8, backgroundColor:["#06b6d4","#22c55e","#ef4444"] }] },
-        options:{
-          responsive:true,
-          plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
-          scales:{
-            x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } },
-            y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }
-          }
-        }
+        data:{ labels:turnos, datasets:[{ label:"HO/PL", data:hoData, borderRadius:12, borderSkipped:false, maxBarThickness:42, backgroundColor:["rgba(6,182,212,.92)","rgba(34,197,94,.92)","rgba(239,68,68,.92)"], hoverBackgroundColor:["rgba(34,211,238,1)","rgba(74,222,128,1)","rgba(248,113,113,1)"] }] },
+        options: mergeChartOptions(getPremiumChartOptions(), {})
       });
 
       chartCarrosTurno = new Chart(document.getElementById("graficoCarrosTurno"), {
         type:"bar",
-        data:{ labels:turnos, datasets:[{ label:"Carros expedidos", data:carrosData, borderRadius:8, backgroundColor:["#2563eb","#0ea5e9","#7c3aed"] }] },
-        options:{
-          responsive:true,
-          plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
-          scales:{
-            x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } },
-            y:{ ticks:{ color:'#98abc8', precision:0 }, grid:{ color:'rgba(255,255,255,.05)' } }
-          }
-        }
+        data:{ labels:turnos, datasets:[{ label:"Carros expedidos", data:carrosData, borderRadius:12, borderSkipped:false, maxBarThickness:42, backgroundColor:["rgba(37,99,235,.92)","rgba(14,165,233,.92)","rgba(124,58,237,.92)"], hoverBackgroundColor:["rgba(96,165,250,1)","rgba(56,189,248,1)","rgba(167,139,250,1)"] }] },
+        options: mergeChartOptions(getPremiumChartOptions(), {
+          scales:{ y:{ ticks:{ color:'#9fb0ca', precision:0, font:{ weight:'700', size:11 } } } }
+        })
       });
 
       chartTonelagemTurno = new Chart(document.getElementById("graficoTonelagemTurno"), {
         type:"bar",
-        data:{ labels:turnos, datasets:[{ label:"Tonelagem expedida", data:tonData, borderRadius:8, backgroundColor:["#14b8a6","#22c55e","#f59e0b"] }] },
-        options:{
-          responsive:true,
-          plugins:{ legend:{ labels:{ color:'#eef4ff' } } },
-          scales:{
-            x:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } },
-            y:{ ticks:{ color:'#98abc8' }, grid:{ color:'rgba(255,255,255,.05)' } }
-          }
-        }
+        data:{ labels:turnos, datasets:[{ label:"Tonelagem expedida", data:tonData, borderRadius:12, borderSkipped:false, maxBarThickness:42, backgroundColor:["rgba(20,184,166,.92)","rgba(34,197,94,.92)","rgba(245,158,11,.92)"], hoverBackgroundColor:["rgba(45,212,191,1)","rgba(74,222,128,1)","rgba(251,191,36,1)"] }] },
+        options: mergeChartOptions(getPremiumChartOptions(), {})
       });
     }
 
