@@ -889,21 +889,25 @@ async function logout(){
 }
 
 async function verificarSessao(){
-  const session = window.requireAuthYMS ? await window.requireAuthYMS() : (await sb.auth.getSession()).data.session;
-  if(session){
-    await entrarSistema(session.user);
+  const authResult = window.requireAuthYMS
+    ? await window.requireAuthYMS()
+    : { session: (await sb.auth.getSession()).data.session, profile: null };
+  const session = authResult?.session || authResult || null;
+  const profile = authResult?.profile || window.YMS_AUTH_PROFILE || null;
+  if(session?.user){
+    await entrarSistema(session.user, profile);
     return true;
   }
   bloquearSistema();
   return false;
 }
 
-async function entrarSistema(user){
+async function entrarSistema(user, profile){
   const app = document.getElementById("app");
   if(app) app.classList.remove("hidden");
   const backdrop = document.getElementById("sidebarBackdrop");
   if(backdrop) backdrop.classList.add("hidden");
-  await carregarPerfil(user.email, user.id);
+  await carregarPerfil(user.email, user.id, profile || null);
   await carregarCadastros();
   await carregarTudo();
   setView(viewAtualGlobal);
@@ -918,9 +922,38 @@ sb.auth.onAuthStateChange(async (_, session) => {
   if(!session) bloquearSistema();
 });
 
-    async function carregarPerfil(email, userId){
+    async function carregarPerfil(email, userId, profileFromAuth = null){
       let data = null;
       let error = null;
+
+      const preencherPerfilUI = (perfilData) => {
+        usuarioPerfil = String(perfilData?.perfil || "operacao").toLowerCase();
+        try{
+          sessionStorage.setItem("glp_auth_profile_v2", JSON.stringify({
+            id: perfilData?.id || userId || null,
+            nome: perfilData?.nome || email || "Usuário logado",
+            email: perfilData?.email || email || "-",
+            perfil: usuarioPerfil,
+            ativo: perfilData?.ativo !== false
+          }));
+        }catch(_){ }
+        document.getElementById("userNome").textContent = perfilData?.nome || email || "Usuário logado";
+        document.getElementById("userEmail").textContent = perfilData?.email || email || "-";
+        document.getElementById("userPerfil").textContent = `Perfil: ${usuarioPerfil}`;
+        document.getElementById("areaAdmin").style.display = usuarioPerfil === "admin" ? "grid" : "none";
+        aplicarPermissoes();
+        if(usuarioPerfil === "admin") carregarUsuariosAdmin();
+        atualizarSaudacaoSistema();
+        carregarTemperaturaSistema();
+      };
+
+      try{
+        const cachePerfil = profileFromAuth || window.YMS_AUTH_PROFILE || JSON.parse(sessionStorage.getItem("glp_auth_profile_v2") || "null");
+        if(cachePerfil && (cachePerfil.email || cachePerfil.perfil)){
+          preencherPerfilUI(cachePerfil);
+          return;
+        }
+      }catch(_){ }
 
       try{
         const porId = await sb
@@ -928,7 +961,6 @@ sb.auth.onAuthStateChange(async (_, session) => {
           .select("id,nome,email,perfil,ativo")
           .eq("id", userId)
           .maybeSingle();
-
         if(porId.error) error = porId.error;
         if(porId.data) data = porId.data;
 
@@ -938,7 +970,6 @@ sb.auth.onAuthStateChange(async (_, session) => {
             .select("id,nome,email,perfil,ativo")
             .eq("email", email)
             .maybeSingle();
-
           if(porEmail.error) error = porEmail.error;
           if(porEmail.data) data = porEmail.data;
         }
@@ -971,7 +1002,11 @@ sb.auth.onAuthStateChange(async (_, session) => {
         document.getElementById("areaAdmin").style.display = "none";
         const menuAdmin = document.getElementById("menu-admin");
         if(menuAdmin) menuAdmin.style.display = "none";
-        document.getElementById("loginErro").textContent = "Seu usuário não possui perfil cadastrado no sistema.";
+        const status = document.getElementById("statusConexao");
+        if(status){
+          status.textContent = "Seu usuário não possui perfil cadastrado no sistema.";
+          status.style.color = "#ef4444";
+        }
         return;
       }
 
@@ -986,18 +1021,7 @@ sb.auth.onAuthStateChange(async (_, session) => {
         return;
       }
 
-      usuarioPerfil = String(data.perfil || "operacao").toLowerCase();
-      try{ sessionStorage.setItem("glp_auth_profile_v2", JSON.stringify({ id:data.id, nome:data.nome, email:data.email, perfil:usuarioPerfil, ativo:data.ativo })); }catch(_){}
-      document.getElementById("userNome").textContent = data.nome || email || "Usuário logado";
-      document.getElementById("userEmail").textContent = data.email || email || "-";
-      document.getElementById("userPerfil").textContent = `Perfil: ${usuarioPerfil}`;
-      document.getElementById("areaAdmin").style.display = usuarioPerfil === "admin" ? "grid" : "none";
-      aplicarPermissoes();
-      if(usuarioPerfil === "admin"){
-        carregarUsuariosAdmin();
-      }
-      atualizarSaudacaoSistema();
-      carregarTemperaturaSistema();
+      preencherPerfilUI(data);
     }
 
     function aplicarPermissoes(){
