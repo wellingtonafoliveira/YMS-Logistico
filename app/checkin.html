@@ -1172,6 +1172,194 @@ button:disabled{
       }
     }
 
+
+    /* ===== Próxima versão v5 ===== */
+    .hero,
+    .container{
+      border-radius:32px;
+    }
+
+    .hero-topbar{
+      margin-bottom:20px;
+    }
+
+    .section-label,
+    .hero-status-badge,
+    .card-badge,
+    .step{
+      backdrop-filter:blur(10px);
+    }
+
+    .brand{
+      gap:16px;
+      margin-bottom:30px;
+    }
+
+    .brand-logo-wrap{
+      width:72px;
+      height:72px;
+      border-radius:22px;
+    }
+
+    .hero h1{
+      font-size:48px;
+      max-width:640px;
+    }
+
+    .hero p{
+      font-size:15px;
+      max-width:610px;
+    }
+
+    .hero-topline{
+      margin-top:16px;
+      gap:10px;
+    }
+
+    .hero-pill{
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.10), transparent 28%),
+        rgba(255,255,255,.04);
+      border-color:rgba(255,255,255,.07);
+    }
+
+    .hero-grid{
+      margin-top:30px;
+      gap:14px;
+    }
+
+    .mini-card{
+      min-height:132px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+    }
+
+    .mini-card strong{
+      font-size:15px;
+    }
+
+    .header{
+      padding-bottom:16px;
+    }
+
+    .header h2{
+      font-size:34px;
+    }
+
+    .header-helper{
+      color:var(--muted);
+    }
+
+    .card{
+      padding:22px;
+      border-radius:30px;
+    }
+
+    .card-title-row{
+      margin-bottom:18px;
+    }
+
+    .card-icon-title{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .card-icon{
+      width:40px;
+      height:40px;
+      min-width:40px;
+      border-radius:14px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.12), transparent 30%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.07);
+      box-shadow:0 10px 24px rgba(0,0,0,.12);
+      font-size:18px;
+    }
+
+    .field label{
+      letter-spacing:.01em;
+    }
+
+    .fields input,
+    .fields select{
+      padding:14px 15px;
+    }
+
+    .info-banner,
+    .field-group-note{
+      margin-top:10px;
+    }
+
+    .vehicle-grid{
+      gap:14px;
+    }
+
+    .vehicle-option{
+      min-height:128px;
+    }
+
+    .vehicle-option strong{
+      font-size:15px;
+      letter-spacing:-.01em;
+    }
+
+    .vehicle-option.active{
+      transform:translateY(-2px);
+    }
+
+    .summary-card,
+    .queue-card{
+      padding:20px;
+    }
+
+    .summary-title,
+    .queue-title{
+      font-size:15px;
+    }
+
+    .summary-grid,
+    .queue-grid{
+      gap:14px 16px;
+    }
+
+    .summary-item,
+    .queue-kpi{
+      min-height:74px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+
+    .queue-kpi strong{
+      font-size:26px;
+    }
+
+    #btnCheckin{
+      font-size:16px;
+    }
+
+    .bottom-actions-note{
+      max-width:520px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+
+    .premium-note{
+      color:var(--muted);
+    }
+
+    @media (max-width:760px){
+      .hero h1{font-size:38px}
+      .header h2{font-size:28px}
+      .card-icon{width:36px;height:36px;min-width:36px}
+    }
+
 </style>
 </head>
 
@@ -1256,7 +1444,7 @@ button:disabled{
       </div>
 
       <div class="card">
-        <div class="card-title-row"><h3 class="card-title">Dados principais</h3><span class="card-badge">Etapa 1</span></div>
+        <div class="card-title-row"><div class="card-icon-title"><span class="card-icon">🧾</span><h3 class="card-title">Dados principais</h3></div><span class="card-badge">Etapa 1</span></div>
         <div class="fields">
           <div class="field">
             <label for="dt">Número do Transporte (DT)</label>
@@ -1323,7 +1511,7 @@ button:disabled{
       </div>
 
       <div class="card">
-        <div class="card-title-row"><h3 class="card-title">Tipo de veículo</h3><span class="card-badge">Etapa 2</span></div>
+        <div class="card-title-row"><div class="card-icon-title"><span class="card-icon">🚚</span><h3 class="card-title">Tipo de veículo</h3></div><span class="card-badge">Etapa 2</span></div>
         <div class="vehicle-grid" id="vehicleGrid">
           <label class="vehicle-option" data-value="simples">
             <input type="radio" name="tipoVeiculoRadio" value="simples">
@@ -1357,7 +1545,7 @@ button:disabled{
       </div>
 
       <div class="card">
-        <div class="card-title-row"><h3 class="card-title">Orientação sobre as placas</h3><span class="card-badge">Etapa 3</span></div>
+        <div class="card-title-row"><div class="card-icon-title"><span class="card-icon">🔖</span><h3 class="card-title">Orientação sobre as placas</h3></div><span class="card-badge">Etapa 3</span></div>
         <div id="placas" class="plate-grid"></div>
         <div class="helper">Selecione o tipo de veículo e preencha todas as placas solicitadas na tela. Confira os dados antes de concluir o check-in para evitar divergências no atendimento.</div>
       </div>
