@@ -2106,6 +2106,33 @@ button:disabled{
     return data;
   }
 
+  async function rpcBuscarDtCheckin(dt) {
+    const { data, error } = await sb.rpc("rpc_checkin_buscar_dt", {
+      p_dt: dt
+    });
+
+    if (error) throw error;
+    return Array.isArray(data) ? data[0] || null : data || null;
+  }
+
+  async function rpcCheckinExterno(payload) {
+    const { data, error } = await sb.rpc("rpc_checkin_externo_motorista", {
+      p_dt: payload.dt,
+      p_motorista: payload.motorista,
+      p_telefone_motorista: payload.telefone_motorista,
+      p_transportadora: payload.transportadora,
+      p_tipo_veiculo: payload.tipo_veiculo,
+      p_placa_cavalo: payload.placa_cavalo,
+      p_placa_carreta: payload.placa_carreta,
+      p_placa_reboque_1: payload.placa_reboque_1,
+      p_placa_reboque_2: payload.placa_reboque_2,
+      p_observacao: "Check-in externo realizado pelo motorista"
+    });
+
+    if (error) throw error;
+    return Array.isArray(data) ? data[0] || null : data || null;
+  }
+
   function renderPlateInputs() {
     const tipo = el.tipoVeiculo.value;
     const quantidade = VEHICLE_PLATES[tipo] || 0;
@@ -2270,29 +2297,40 @@ button:disabled{
     el.btnBuscarDT.textContent = "Consultando...";
 
     try {
-      const { data: agenda, error } = await sb
-        .from("agendas")
-        .select("id, dt, cliente, transportadora, telefone_motorista, data_agenda, hora_agenda, tipo_carga, doca_agenda, status_global")
-        .eq("dt", dt)
-        .maybeSingle();
+      const agenda = await rpcBuscarDtCheckin(dt);
 
-      if (error || !agenda) {
+      if (!agenda || !agenda.id) {
         limparResumoDT();
         mostrarErro("DT não encontrada no sistema.");
         return;
       }
 
-      state.agendaSelecionada = agenda;
-      preencherResumoDT(agenda);
+      state.agendaSelecionada = {
+        id: agenda.id,
+        dt: agenda.dt,
+        cliente: agenda.cliente,
+        transportadora: agenda.transportadora,
+        telefone_motorista: agenda.telefone_motorista,
+        data_agenda: agenda.data_agenda,
+        hora_agenda: agenda.hora_agenda,
+        tipo_carga: agenda.tipo_carga,
+        doca_agenda: agenda.doca_agenda,
+        status_global: agenda.status_global
+      };
+
+      preencherResumoDT(state.agendaSelecionada);
       el.transportadora.value = agenda.transportadora || "";
       el.telefoneMotorista.value = agenda.telefone_motorista ? formatarTelefoneResumo(agenda.telefone_motorista) : "";
 
-      const fila = await calcularFilaEstimada(agenda, true);
-      mostrarFila(fila.posicao, fila.minutos, fila.info);
+      mostrarFila(
+        agenda.posicao_fila || 0,
+        agenda.tempo_espera_min || 0,
+        agenda.info_fila || "A estimativa considera a fila operacional real do pátio."
+      );
 
-      if (STATUS_BLOQUEADOS_CHECKIN.includes(agenda.status_global)) {
+      if (STATUS_BLOQUEADOS_CHECKIN.includes(agenda.status_global) || agenda.checkin_bloqueado === true) {
         el.btnCheckin.disabled = true;
-        mostrarErro(`Esta DT já está com status "${agenda.status_global}" e não permite novo check-in.`);
+        mostrarErro(agenda.mensagem_bloqueio || `Esta DT já está com status "${agenda.status_global}" e não permite novo check-in.`);
         return;
       }
 
@@ -2301,7 +2339,7 @@ button:disabled{
     } catch (err) {
       console.error(err);
       limparResumoDT();
-      mostrarErro("Ocorreu um erro ao consultar a DT.");
+      mostrarErro(err?.message || "Ocorreu um erro ao consultar a DT.");
     } finally {
       el.btnBuscarDT.disabled = false;
       el.btnBuscarDT.textContent = "Consultar DT";
@@ -2354,6 +2392,7 @@ button:disabled{
       }
 
       const payload = {
+        dt,
         motorista,
         telefone_motorista: telefoneMotorista,
         transportadora: transportadora || state.agendaSelecionada.transportadora || null,
@@ -2361,51 +2400,42 @@ button:disabled{
         placa_cavalo: placas[0] || null,
         placa_carreta: placas[1] || null,
         placa_reboque_1: placas[2] || null,
-        placa_reboque_2: placas[3] || null,
-        presente_ausente: "Presente",
-        chegada_motorista: new Date().toISOString(),
-        status_global: "No Pátio"
+        placa_reboque_2: placas[3] || null
       };
 
-      const { error } = await sb
-        .from("agendas")
-        .update(payload)
-        .eq("id", state.agendaSelecionada.id);
+      const resultado = await rpcCheckinExterno(payload);
 
-      if (error) {
-        console.error("ERRO:", error);
-        mostrarErro(error.message || "Erro ao realizar check-in.");
-        return;
-      }
-
-      try {
-        await rpcEntrarFilaPatio(state.agendaSelecionada.id, "Check-in externo realizado pelo motorista");
-      } catch (rpcErr) {
-        console.error("Erro na RPC de fila:", rpcErr);
-        mostrarErro("Check-in salvo, mas houve falha ao entrar na fila real do pátio. Verifique a RPC rpc_entrar_fila_patio.");
+      if (!resultado || resultado.success !== true) {
+        mostrarErro(resultado?.message || "Erro ao realizar check-in.");
         return;
       }
 
       state.agendaSelecionada = {
         ...state.agendaSelecionada,
-        ...payload
+        status_global: resultado.status_global || "No Pátio",
+        motorista,
+        telefone_motorista: telefoneMotorista,
+        transportadora: payload.transportadora,
+        tipo_veiculo: tipo,
+        placa_cavalo: payload.placa_cavalo,
+        placa_carreta: payload.placa_carreta,
+        placa_reboque_1: payload.placa_reboque_1,
+        placa_reboque_2: payload.placa_reboque_2,
+        chegada_motorista: new Date().toISOString()
       };
 
-      const filaAtualizada = await calcularFilaEstimada(state.agendaSelecionada, false);
-      const posicaoFinal = filaAtualizada.veiculosNaFrente + 1;
-      const tempoFinal = filaAtualizada.veiculosNaFrente * TEMPO_MEDIO_POR_VEICULO_MIN;
-
+      preencherResumoDT(state.agendaSelecionada);
       mostrarFila(
-        posicaoFinal,
-        tempoFinal,
+        resultado.posicao_fila || 1,
+        resultado.tempo_espera_min || 0,
         "Sua posição foi estimada com base na fila operacional real do pátio."
       );
 
-      mostrarSucesso(`Check-in realizado com sucesso 🚛 Número na fila: ${posicaoFinal}º. Tempo estimado: ${formatarTempoEspera(tempoFinal)}.`);
+      mostrarSucesso(resultado.message || `Check-in realizado com sucesso 🚛 Número na fila: ${resultado.posicao_fila || 1}º.`);
       el.btnCheckin.disabled = true;
     } catch (err) {
       console.error(err);
-      mostrarErro("Ocorreu um erro inesperado ao processar o check-in.");
+      mostrarErro(err?.message || "Ocorreu um erro inesperado ao processar o check-in.");
     } finally {
       el.btnCheckin.textContent = "Realizar Check-in";
       if (!state.agendaSelecionada || STATUS_BLOQUEADOS_CHECKIN.includes(state.agendaSelecionada.status_global)) {
@@ -2414,7 +2444,7 @@ button:disabled{
     }
   }
 
-  function bindEvents() {
+  function bindEvents()  function bindEvents() {
     document.querySelectorAll(".vehicle-option").forEach((option) => {
       option.addEventListener("click", () => selecionarVeiculo(option.dataset.value));
     });
