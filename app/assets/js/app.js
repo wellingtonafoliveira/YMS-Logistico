@@ -9,6 +9,64 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     let usuarioPerfil = null;
     let conferentes = [];
     let docas = [];
+    const DOCA_TOTAL_PADRAO = 39;
+
+    function extrairNumeroDoca(valor){
+      if(valor === null || valor === undefined) return null;
+      const match = String(valor).match(/\d+/);
+      if(!match) return null;
+      const numero = Number(match[0]);
+      return Number.isFinite(numero) ? numero : null;
+    }
+
+    function compararDocas(a, b){
+      const na = extrairNumeroDoca(a);
+      const nb = extrairNumeroDoca(b);
+
+      if(na !== null && nb !== null) return na - nb;
+      if(na !== null) return -1;
+      if(nb !== null) return 1;
+
+      return String(a || "").localeCompare(String(b || ""), "pt-BR", { numeric:true, sensitivity:"base" });
+    }
+
+    function getDocasOrdenadas(){
+      const mapa = new Map();
+
+      (docas || []).forEach(d => {
+        const nomeOriginal = String(d?.nome || "").trim();
+        const numero = extrairNumeroDoca(nomeOriginal);
+
+        if(numero !== null && numero >= 1 && numero <= DOCA_TOTAL_PADRAO && !mapa.has(numero)){
+          mapa.set(numero, {
+            ...d,
+            numero,
+            nome_original: nomeOriginal,
+            nome_exibicao: `Doca ${numero}`
+          });
+        }
+      });
+
+      const lista = [];
+      for(let i = 1; i <= DOCA_TOTAL_PADRAO; i++){
+        if(mapa.has(i)){
+          lista.push(mapa.get(i));
+        }else{
+          lista.push({
+            id: `virtual-${i}`,
+            nome: String(i),
+            numero: i,
+            nome_original: String(i),
+            nome_exibicao: `Doca ${i}`,
+            ativo: true,
+            virtual: true
+          });
+        }
+      }
+
+      return lista;
+    }
+
     let dtAtual = null;
     let viewAtualGlobal = "dashboard";
     let chartHE = null;
@@ -1168,7 +1226,7 @@ sb.auth.onAuthStateChange(async (_, session) => {
       ]);
 
       conferentes = confRes.data || [];
-      docas = docaRes.data || [];
+      docas = (docaRes.data || []).slice().sort((a, b) => compararDocas(a?.nome, b?.nome));
       window._motoristas = motRes.data || [];
       window._transportadoras = transRes.data || [];
 
@@ -1181,8 +1239,16 @@ sb.auth.onAuthStateChange(async (_, session) => {
     function preencherSelectDocas(id){
       const el = document.getElementById(id);
       if(!el) return;
+
       const atual = el.value;
-      el.innerHTML = `<option value="">Selecione</option>` + docas.map(d => `<option value="${esc(d.nome)}">${esc(d.nome)}</option>`).join("");
+      const listaDocas = getDocasOrdenadas();
+
+      el.innerHTML = `<option value="">Selecione</option>` + listaDocas.map(d => {
+        const valor = d.nome_original || d.nome || d.numero;
+        const label = d.nome_exibicao || d.nome || `Doca ${d.numero}`;
+        return `<option value="${esc(valor)}">${esc(label)}</option>`;
+      }).join("");
+
       if(atual) el.value = atual;
     }
 
@@ -1506,17 +1572,20 @@ sb.auth.onAuthStateChange(async (_, session) => {
 
     function renderDocas(){
       const rows = getAgendaRows();
-      const nomesDoca = docas.length ? docas.map(d => d.nome) : ["Doca 1","Doca 2","Doca 3","Doca 4"];
+      const listaDocas = getDocasOrdenadas();
       let livres = 0;
       let ocupadas = 0;
-      document.getElementById("docasGrid").innerHTML = nomesDoca.map(nome => {
+
+      document.getElementById("docasGrid").innerHTML = listaDocas.map(d => {
+        const nome = d.nome_original || d.nome || String(d.numero);
         const estado = getDockPlannedState(nome, rows);
-        const filaAtual = patioFilaRegistros.find(r => (r.doca_destino || "") === nome && r.status_fila === "em_doca");
+        const filaAtual = patioFilaRegistros.find(r => compararDocas(r.doca_destino || "", nome) === 0 && r.status_fila === "em_doca");
         const atual = filaAtual ? (registros.find(a => a.id === filaAtual.agenda_id) || filaAtual) : estado.row;
+        const nomeExibicao = d.nome_exibicao || nome;
 
         if(estado.kind === "free"){
           livres++;
-          return `<div class="dock free"><div class="dock-head"><strong>${esc(nome)}</strong><span class="count">Livre</span></div><div class="meta">Sem veículo na doca.</div><div class="dock-state free">Livre</div></div>`;
+          return `<div class="dock free"><div class="dock-head"><strong>${esc(nomeExibicao)}</strong><span class="count">Livre</span></div><div class="meta">Sem veículo na doca.</div><div class="dock-state free">Livre</div></div>`;
         }
 
         ocupadas++;
@@ -1524,14 +1593,15 @@ sb.auth.onAuthStateChange(async (_, session) => {
         const phone = getTelefoneMotorista(atual || {});
         const stateClass = estado.kind === "busy" ? "busy" : estado.kind === "reserved" ? "reserved" : "finishing";
         return `<div class="dock ${estado.kind === "reserved" ? "free" : "busy"}" onclick="abrirDTPorId('${esc((atual && (atual.agenda_id || atual.id)) || '')}')">
-          <div class="dock-head"><strong>${esc(nome)}</strong><span class="count">${esc((atual && (atual.status_global || atual.status_fila)) || estado.label)}</span></div>
-          <div class="meta">DT: ${esc((atual && atual.dt) || "-")}<br>Transportadora: ${esc((atual && atual.transportadora) || "-")}<br>Motorista: ${esc((atual && atual.motorista) || "-")}<br>Telefone: ${esc(formatarTelefoneVisual(phone) || "-")}<br>Doca: ${esc(nome)}<br><span class="${sla.cls}">${sla.label}</span></div>
+          <div class="dock-head"><strong>${esc(nomeExibicao)}</strong><span class="count">${esc((atual && (atual.status_global || atual.status_fila)) || estado.label)}</span></div>
+          <div class="meta">DT: ${esc((atual && atual.dt) || "-")}<br>Transportadora: ${esc((atual && atual.transportadora) || "-")}<br>Motorista: ${esc((atual && atual.motorista) || "-")}<br>Telefone: ${esc(formatarTelefoneVisual(phone) || "-")}<br>Doca: ${esc(nomeExibicao)}<br><span class="${sla.cls}">${sla.label}</span></div>
           <div class="dock-state ${stateClass}">${esc(estado.label)}</div>
         </div>`;
       }).join("");
+
       document.getElementById("docasLivreRef").textContent = livres;
       document.getElementById("docasOcupadaRef").textContent = ocupadas;
-      document.getElementById("docasSoftStat").textContent = `${nomesDoca.length} docas`;
+      document.getElementById("docasSoftStat").textContent = `${listaDocas.length} docas`;
     }
 
     function renderCheckin(){
