@@ -640,21 +640,15 @@
           <div class="report-hero-card soft-glow">
             <h3>Resultado operacional da separação</h3>
             <p>Painel para acompanhar programado, realizado, pendente, produtividade por turno e capacidade da mão de obra em HE e HO.</p>
-            <div class="report-mini-grid report-mini-grid-4">
-              <div class="report-mini"><span>Data</span><strong id="resultadoSepDataRef">Todos</strong></div>
-              <div class="report-mini"><span>Turno</span><strong id="resultadoSepTurnoRef">T1</strong></div>
+            <div class="report-mini-grid report-mini-grid-3">
+              <div class="report-mini"><span>Filtro aplicado</span><strong id="resultadoSepDataRef">Todos</strong></div>
               <div class="report-mini"><span>Eficiência HE</span><strong id="resultadoSepEfHeRef">0%</strong></div>
               <div class="report-mini"><span>Eficiência HO</span><strong id="resultadoSepEfHoRef">0%</strong></div>
             </div>
           </div>
           <div class="report-hero-card soft-glow">
-            <h3>Registrar resultado por turno</h3>
-            <p>Selecione a data e o turno para carregar o registro correto, preencher a mão de obra e salvar o resultado da separação.</p>
-            <div class="fields resultado-filter-fields" style="margin-top:14px">
-              <div><label>Data do resultado</label><input type="date" id="resultadoSepData" onchange="syncResultadoSeparacaoData()"></div>
-              <div><label>Turno</label><select id="resultadoSepTurno" onchange="carregarResultadoSeparacaoFormulario()"><option value="T1">T1</option><option value="T2">T2</option><option value="T3">T3</option></select></div>
-              <div class="full resultado-filter-actions"><button class="btn btn-light" onclick="carregarResultadoSeparacaoFormulario()">Carregar filtro</button><button class="btn btn-success" onclick="salvarResultadoSeparacaoFormulario()">Salvar resultado</button></div>
-            </div>
+            <h3>Capacidade versus realizado</h3>
+            <p>Os blocos abaixo permitem preencher a mão de obra planejada e real por turno, medir a capacidade e comparar com o realizado.</p>
           </div>
         </div>
 
@@ -666,36 +660,42 @@
 
         <div class="grid grid-2" style="margin-top:16px">
           <div class="card premium-chart-card resultado-chart-wrap">
-            <div class="premium-chart-head"><div><h2>Separação HE</h2><p class="chart-helper">Capacidade e realizado do turno filtrado.</p></div><span class="premium-chart-badge" id="resultadoSepBadgeHe">HE • T1</span></div>
+            <div class="premium-chart-head"><div><h2>Separação HE</h2><p class="chart-helper">Capacidade e realizado por turno.</p></div><span class="premium-chart-badge">HE</span></div>
             <div class="premium-canvas-wrap"><canvas id="graficoResultadoSepHE" height="150"></canvas></div>
-            <div class="table-wrap resultado-table-wrap"><table><thead><tr><th>Indicador</th><th id="resultadoSepHeadHe">T1</th></tr></thead><tbody id="resultadoSepTabelaHE"></tbody></table></div>
+            <div class="table-wrap resultado-table-wrap"><table><thead><tr><th>Indicador</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody id="resultadoSepTabelaHE"></tbody></table></div>
           </div>
           <div class="card premium-chart-card resultado-chart-wrap">
-            <div class="premium-chart-head"><div><h2>Separação HO</h2><p class="chart-helper">Capacidade e realizado do turno filtrado.</p></div><span class="premium-chart-badge" id="resultadoSepBadgeHo">HO • T1</span></div>
+            <div class="premium-chart-head"><div><h2>Separação HO</h2><p class="chart-helper">Capacidade e realizado por turno.</p></div><span class="premium-chart-badge">HO</span></div>
             <div class="premium-canvas-wrap"><canvas id="graficoResultadoSepHO" height="150"></canvas></div>
-            <div class="table-wrap resultado-table-wrap"><table><thead><tr><th>Indicador</th><th id="resultadoSepHeadHo">T1</th></tr></thead><tbody id="resultadoSepTabelaHO"></tbody></table></div>
+            <div class="table-wrap resultado-table-wrap"><table><thead><tr><th>Indicador</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody id="resultadoSepTabelaHO"></tbody></table></div>
           </div>
         </div>
 
         <div class="card soft-glow" style="margin-top:16px">
-          <div class="card-title-row"><div><h2 style="margin:0">Preenchimento da mão de obra do turno</h2><p>O formulário abaixo responde ao filtro de data e turno selecionado acima.</p></div><div class="group"><span class="premium-badge" id="resultadoSepFormTurnoBadge">Turno T1</span><button class="btn btn-light" onclick="carregarResultadoSeparacaoFormulario()">Recarregar</button><button class="btn btn-success" onclick="salvarResultadoSeparacaoFormulario()">Salvar configuração</button></div></div>
+          <div class="card-title-row"><div><h2 style="margin:0">Preenchimento da mão de obra</h2><p>Preencha a equipe real e planejada por turno para calcular capacidade versus realizado.</p></div><div class="group"><button class="btn btn-light" onclick="carregarResultadoSeparacaoFormulario()">Recarregar</button><button class="btn btn-success" onclick="salvarResultadoSeparacaoFormulario()">Salvar configuração</button></div></div>
           <div class="grid grid-2">
             <div class="resultado-form-card">
-              <h3>HE • <span id="resultadoSepTituloHe">T1</span></h3>
+              <h3>HE • Parâmetros</h3>
               <div class="fields resultado-fields">
                 <div><label>Produtividade por pessoa (HE)</label><input id="resSepHeProdPessoa" type="number" step="1"></div>
                 <div><label>Meta HE</label><input id="resSepHeMeta" type="number" step="1"></div>
-                <div><label>M/O real</label><input id="resSepHeTurnoReal" type="number" step="1"></div>
-                <div><label>M/O planejada</label><input id="resSepHeTurnoPlan" type="number" step="1"></div>
+              </div>
+              <div class="resultado-turno-grid">
+                <div class="resultado-turno-card"><h4>T1</h4><label>M/O real</label><input id="resSepHeT1Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT1Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T2</h4><label>M/O real</label><input id="resSepHeT2Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT2Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T3</h4><label>M/O real</label><input id="resSepHeT3Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT3Plan" type="number" step="1"></div>
               </div>
             </div>
             <div class="resultado-form-card">
-              <h3>HO • <span id="resultadoSepTituloHo">T1</span></h3>
+              <h3>HO • Parâmetros</h3>
               <div class="fields resultado-fields">
                 <div><label>Produtividade por pessoa (HO)</label><input id="resSepHoProdPessoa" type="number" step="1"></div>
                 <div><label>Meta HO</label><input id="resSepHoMeta" type="number" step="1"></div>
-                <div><label>M/O real</label><input id="resSepHoTurnoReal" type="number" step="1"></div>
-                <div><label>M/O planejada</label><input id="resSepHoTurnoPlan" type="number" step="1"></div>
+              </div>
+              <div class="resultado-turno-grid">
+                <div class="resultado-turno-card"><h4>T1</h4><label>M/O real</label><input id="resSepHoT1Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT1Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T2</h4><label>M/O real</label><input id="resSepHoT2Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT2Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T3</h4><label>M/O real</label><input id="resSepHoT3Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT3Plan" type="number" step="1"></div>
               </div>
             </div>
           </div>
