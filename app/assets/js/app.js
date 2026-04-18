@@ -73,6 +73,12 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     let chartHO = null;
     let chartCarrosTurno = null;
     let chartTonelagemTurno = null;
+    let chartResultadoSepHE = null;
+    let chartResultadoSepHO = null;
+    let chartPassagemQuadro = null;
+    let chartPassagemFerias = null;
+    let chartPassagemAusencias = null;
+    let chartPassagemBancoHoras = null;
     let agendaFiltroKpi = "";
     let patioFilaRegistros = [];
     const TEMPO_MEDIO_FILA_MIN = 20;
@@ -933,7 +939,7 @@ function setView(view, btn){
       document.getElementById("pageTitle").textContent = titulo;
       document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
       if(targetBtn) targetBtn.classList.add("active");
-      ["dashboard","agenda","separacao","expedicao","patio","motoristas","transportadoras","docas","checkin","relatorios","admin"].forEach(v => {
+      ["dashboard","agenda","separacao","expedicao","patio","motoristas","transportadoras","docas","checkin","relatorios","resultado-separacao","passagem-turno","admin"].forEach(v => {
         const el = document.getElementById(`view-${v}`);
         if(el) el.classList.add("hidden");
       });
@@ -1324,6 +1330,8 @@ sb.auth.onAuthStateChange(async (_, session) => {
       renderDocas();
       renderCheckin();
       renderRelatorios();
+      renderResultadoSeparacao();
+      renderPassagemTurno();
       carregarSelectPatio();
       carregarSelectCheckin();
       aplicarEstadoPermissoesUI();
@@ -1734,6 +1742,243 @@ sb.auth.onAuthStateChange(async (_, session) => {
         data:{ labels:turnos, datasets:[{ label:"Tonelagem expedida", data:tonData, borderRadius:12, borderSkipped:false, maxBarThickness:42, backgroundColor:["rgba(20,184,166,.92)","rgba(34,197,94,.92)","rgba(245,158,11,.92)"], hoverBackgroundColor:["rgba(45,212,191,1)","rgba(74,222,128,1)","rgba(251,191,36,1)"] }] },
         options: mergeChartOptions(getPremiumChartOptions(), {})
       });
+    }
+
+
+    function getResultadoSeparacaoStorageKey(){
+      return `glp_resultado_separacao_${dataFiltrada() || "todos"}`;
+    }
+
+    function getPassagemTurnoStorageKey(dataRef, turno){
+      return `glp_passagem_turno_${dataRef || (dataFiltrada() || "todos")}_${turno || "T1"}`;
+    }
+
+    function getResultadoSeparacaoDefaults(){
+      return {
+        heProdPessoa:1405,
+        hoProdPessoa:121,
+        heMeta:0,
+        hoMeta:0,
+        he:{T1:{real:0,plan:0},T2:{real:0,plan:0},T3:{real:0,plan:0}},
+        ho:{T1:{real:0,plan:0},T2:{real:0,plan:0},T3:{real:0,plan:0}}
+      };
+    }
+
+    function getResultadoSeparacaoState(){
+      try{
+        return { ...getResultadoSeparacaoDefaults(), ...(JSON.parse(localStorage.getItem(getResultadoSeparacaoStorageKey()) || 'null') || {}) };
+      }catch(_){
+        return getResultadoSeparacaoDefaults();
+      }
+    }
+
+    function setResultadoSeparacaoState(state){
+      localStorage.setItem(getResultadoSeparacaoStorageKey(), JSON.stringify(state));
+    }
+
+    function preencherResultadoSeparacaoFormulario(state){
+      const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? 0; };
+      setVal('resSepHeProdPessoa', state.heProdPessoa);
+      setVal('resSepHoProdPessoa', state.hoProdPessoa);
+      setVal('resSepHeMeta', state.heMeta);
+      setVal('resSepHoMeta', state.hoMeta);
+      ['T1','T2','T3'].forEach(t => {
+        setVal(`resSepHe${t}Real`, state.he?.[t]?.real ?? 0);
+        setVal(`resSepHe${t}Plan`, state.he?.[t]?.plan ?? 0);
+        setVal(`resSepHo${t}Real`, state.ho?.[t]?.real ?? 0);
+        setVal(`resSepHo${t}Plan`, state.ho?.[t]?.plan ?? 0);
+      });
+    }
+
+    function carregarResultadoSeparacaoFormulario(){
+      preencherResultadoSeparacaoFormulario(getResultadoSeparacaoState());
+      renderResultadoSeparacao();
+    }
+
+    function salvarResultadoSeparacaoFormulario(){
+      const getNum = id => num(document.getElementById(id)?.value) || 0;
+      const state = {
+        heProdPessoa:getNum('resSepHeProdPessoa'),
+        hoProdPessoa:getNum('resSepHoProdPessoa'),
+        heMeta:getNum('resSepHeMeta'),
+        hoMeta:getNum('resSepHoMeta'),
+        he:{}, ho:{}
+      };
+      ['T1','T2','T3'].forEach(t => {
+        state.he[t] = { real:getNum(`resSepHe${t}Real`), plan:getNum(`resSepHe${t}Plan`) };
+        state.ho[t] = { real:getNum(`resSepHo${t}Real`), plan:getNum(`resSepHo${t}Plan`) };
+      });
+      setResultadoSeparacaoState(state);
+      showToast('Configuração do resultado da separação salva');
+      renderResultadoSeparacao();
+    }
+
+    function renderResultadoSeparacao(){
+      const section = document.getElementById('view-resultado-separacao');
+      if(!section) return;
+      const rows = getAgendaRows();
+      const state = getResultadoSeparacaoState();
+      preencherResultadoSeparacaoFormulario(state);
+      const turnos = ['T1','T2','T3'];
+      const dataRef = dataFiltrada() ? fmtDate(dataFiltrada()) : 'Todos';
+      const rowsPorTurno = t => rows.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t);
+      const planejadoHe = rows.reduce((a,b)=>a+(b.he||0),0);
+      const planejadoHo = rows.reduce((a,b)=>a+(b.ho||0),0);
+      const realizadoHeT = Object.fromEntries(turnos.map(t => [t, rowsPorTurno(t).filter(r => ['Separado','Pronto Expedição','No Pátio','Em Doca','Em Carregamento','Expedido'].includes(r.status_global)).reduce((a,b)=>a+(b.he||0),0)]));
+      const realizadoHoT = Object.fromEntries(turnos.map(t => [t, rowsPorTurno(t).filter(r => ['Separado','Pronto Expedição','No Pátio','Em Doca','Em Carregamento','Expedido'].includes(r.status_global)).reduce((a,b)=>a+(b.ho||0),0)]));
+      const realizadoHe = turnos.reduce((a,t)=>a+realizadoHeT[t],0);
+      const realizadoHo = turnos.reduce((a,t)=>a+realizadoHoT[t],0);
+      const pendHe = Math.max(planejadoHe - realizadoHe, 0);
+      const pendHo = Math.max(planejadoHo - realizadoHo, 0);
+      const capHeT = Object.fromEntries(turnos.map(t => [t, (state.he?.[t]?.real || 0) * (state.heProdPessoa || 0)]));
+      const capHoT = Object.fromEntries(turnos.map(t => [t, (state.ho?.[t]?.real || 0) * (state.hoProdPessoa || 0)]));
+      const capHe = turnos.reduce((a,t)=>a+capHeT[t],0);
+      const capHo = turnos.reduce((a,t)=>a+capHoT[t],0);
+      const efHe = capHe ? Math.round((realizadoHe / capHe) * 100) : 0;
+      const efHo = capHo ? Math.round((realizadoHo / capHo) * 100) : 0;
+      const setText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
+      setText('resultadoSepDataRef', dataRef); setText('resultadoSepEfHeRef', `${efHe}%`); setText('resultadoSepEfHoRef', `${efHo}%`);
+      setText('resSepProgramadoHe', planejadoHe.toLocaleString('pt-BR')); setText('resSepProgramadoHo', planejadoHo.toLocaleString('pt-BR'));
+      setText('resSepRealizadoHe', realizadoHe.toLocaleString('pt-BR')); setText('resSepRealizadoHo', realizadoHo.toLocaleString('pt-BR'));
+      setText('resSepPendenteHe', pendHe.toLocaleString('pt-BR')); setText('resSepPendenteHo', pendHo.toLocaleString('pt-BR'));
+      const renderTable = (id, tipo, realizadoT, capT, efTotal) => {
+        const tbody = document.getElementById(id); if(!tbody) return;
+        const src = state[tipo];
+        const linhas = [
+          ['M/O Real', src.T1.real, src.T2.real, src.T3.real],
+          ['M/O Planejada', src.T1.plan, src.T2.plan, src.T3.plan],
+          ['Capacidade Real', capT.T1, capT.T2, capT.T3],
+          [`Realizado ${tipo.toUpperCase()}`, realizadoT.T1, realizadoT.T2, realizadoT.T3],
+          [`Eficiência ${tipo.toUpperCase()}`, capT.T1?`${Math.round((realizadoT.T1/capT.T1)*100)}%`:'0%', capT.T2?`${Math.round((realizadoT.T2/capT.T2)*100)}%`:'0%', capT.T3?`${Math.round((realizadoT.T3/capT.T3)*100)}%`:'0%']
+        ];
+        tbody.innerHTML = linhas.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td></tr>`).join('');
+      };
+      renderTable('resultadoSepTabelaHE','he',realizadoHeT,capHeT,efHe);
+      renderTable('resultadoSepTabelaHO','ho',realizadoHoT,capHoT,efHo);
+      if(chartResultadoSepHE) chartResultadoSepHE.destroy();
+      if(chartResultadoSepHO) chartResultadoSepHO.destroy();
+      const buildChart = (canvasId, realizadoT, capT, lineColor) => new Chart(document.getElementById(canvasId), {
+        type:'bar',
+        data:{ labels:turnos, datasets:[
+          { label:'Realizado', data:turnos.map(t=>realizadoT[t]), borderRadius:12, borderSkipped:false, maxBarThickness:48, backgroundColor:['rgba(34,211,238,.92)','rgba(34,211,238,.92)','rgba(34,211,238,.92)'] },
+          { type:'line', label:'Capacidade', data:turnos.map(t=>capT[t]), borderColor:lineColor, pointBackgroundColor:lineColor, pointRadius:4, tension:.25 }
+        ]},
+        options: mergeChartOptions(getPremiumChartOptions(), { plugins:{ legend:{ labels:{ color:'#f8fafc' } } } })
+      });
+      chartResultadoSepHE = buildChart('graficoResultadoSepHE', realizadoHeT, capHeT, 'rgba(251,146,60,1)');
+      chartResultadoSepHO = buildChart('graficoResultadoSepHO', realizadoHoT, capHoT, 'rgba(59,130,246,1)');
+    }
+
+    const PASSAGEM_AREAS = ['Linha 5','Linha 6','Avarias','Expedição | EMB','Gestão de Estoque','Almoxarifado','Abastecimento','PD'];
+
+    function getPassagemTurnoDefaults(){
+      return {
+        responsavel:'', operador:0, conferente:0, exclusiva:0,
+        ferias:{operador:0, conferente:0, exclusiva:0},
+        ausencias:{operador:0, conferente:0, exclusiva:0},
+        bancoHoras:{operador:0, conferente:0, exclusiva:0},
+        areas:Object.fromEntries(PASSAGEM_AREAS.map(a => [a,{mo:0, horas:0}])),
+        ocorrencias:'', recebidoPor:'', horario:''
+      };
+    }
+
+    function getPassagemTurnoState(){
+      const dataRef = document.getElementById('passagemData')?.value || dataFiltrada() || '';
+      const turno = document.getElementById('passagemTurno')?.value || 'T1';
+      try{ return { ...getPassagemTurnoDefaults(), ...(JSON.parse(localStorage.getItem(getPassagemTurnoStorageKey(dataRef, turno)) || 'null') || {}) }; }catch(_){ return getPassagemTurnoDefaults(); }
+    }
+
+    function savePassagemTurnoState(state){
+      const dataRef = document.getElementById('passagemData')?.value || dataFiltrada() || '';
+      const turno = document.getElementById('passagemTurno')?.value || 'T1';
+      localStorage.setItem(getPassagemTurnoStorageKey(dataRef, turno), JSON.stringify(state));
+    }
+
+    function renderPassagemAreas(state){
+      const wrap = document.getElementById('passagemAreasWrap'); if(!wrap) return;
+      wrap.innerHTML = PASSAGEM_AREAS.map(area => `
+        <div class="passagem-area-card">
+          <h4>${esc(area)}</h4>
+          <label>M/O</label><input type="number" id="passagemAreaMo_${area.replace(/[^a-zA-Z0-9]/g,'_')}" value="${esc(state.areas?.[area]?.mo ?? 0)}">
+          <label>Horas</label><input type="number" id="passagemAreaHoras_${area.replace(/[^a-zA-Z0-9]/g,'_')}" value="${esc(state.areas?.[area]?.horas ?? 0)}">
+        </div>`).join('');
+      }
+
+    function collectPassagemTurnoState(){
+      const g = id => document.getElementById(id);
+      const n = id => num(g(id)?.value) || 0;
+      const state = getPassagemTurnoDefaults();
+      state.responsavel = g('passagemResponsavel')?.value || '';
+      state.operador = n('passagemOperador');
+      state.conferente = n('passagemConferente');
+      state.exclusiva = n('passagemExclusiva');
+      state.recebidoPor = g('passagemRecebidoPor')?.value || '';
+      state.horario = g('passagemHorario')?.value || '';
+      state.ocorrencias = g('passagemOcorrencias')?.value || '';
+      ['operador','conferente','exclusiva'].forEach(ch => {
+        state.ferias[ch] = num(document.getElementById(`passagemFerias_${ch}`)?.value) || 0;
+        state.ausencias[ch] = num(document.getElementById(`passagemAusencias_${ch}`)?.value) || 0;
+        state.bancoHoras[ch] = num(document.getElementById(`passagemBancoHoras_${ch}`)?.value) || 0;
+      });
+      PASSAGEM_AREAS.forEach(area => {
+        const slug = area.replace(/[^a-zA-Z0-9]/g,'_');
+        state.areas[area] = { mo:n(`passagemAreaMo_${slug}`), horas:n(`passagemAreaHoras_${slug}`) };
+      });
+      return state;
+    }
+
+    function renderMiniPassagemInputs(prefix, state){
+      return ['operador','conferente','exclusiva'].map(ch => `<div class="passagem-mini-input"><label>${ch.charAt(0).toUpperCase()+ch.slice(1)}</label><input id="${prefix}_${ch}" type="number" value="${esc(state[ch] ?? 0)}"></div>`).join('');
+    }
+
+    function renderPassagemTurno(){
+      const section = document.getElementById('view-passagem-turno');
+      if(!section) return;
+      const dtInput = document.getElementById('passagemData'); if(dtInput && !dtInput.value && dataFiltrada()) dtInput.value = dataFiltrada();
+      const turnoEl = document.getElementById('passagemTurno');
+      const dataRefRaw = dtInput?.value || dataFiltrada() || '';
+      const turno = turnoEl?.value || 'T1';
+      const state = getPassagemTurnoState();
+      const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? ''; };
+      setVal('passagemResponsavel', state.responsavel); setVal('passagemOperador', state.operador); setVal('passagemConferente', state.conferente); setVal('passagemExclusiva', state.exclusiva); setVal('passagemRecebidoPor', state.recebidoPor); setVal('passagemHorario', state.horario); setVal('passagemOcorrencias', state.ocorrencias);
+      ['ferias','ausencias','bancoHoras'].forEach(prefix => {
+        const box = document.querySelector(`#graficoPassagem${prefix === 'bancoHoras' ? 'BancoHoras' : prefix.charAt(0).toUpperCase()+prefix.slice(1)}`)?.closest('.card');
+        if(box){
+          let holder = box.querySelector('.passagem-mini-inputs');
+          if(!holder){ holder = document.createElement('div'); holder.className = 'passagem-mini-inputs'; box.appendChild(holder); }
+          holder.innerHTML = renderMiniPassagemInputs(`passagem${prefix.charAt(0).toUpperCase()+prefix.slice(1)}`, state[prefix]);
+        }
+      });
+      renderPassagemAreas(state);
+      const rows = getAgendaRows();
+      const programado = rows.filter(r => definirTurno(r.hora_agenda) === turno);
+      const realizado = programado.filter(r => r.status_global === 'Expedido');
+      const vira = programado.filter(r => r.status_global !== 'Expedido' && ['Em Doca','Em Carregamento','No Pátio','Pronto Expedição','Separado'].includes(r.status_global));
+      const atrasado = programado.filter(r => calcSla(r).label === 'Atrasado');
+      const setKpiText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
+      const kpi = (arr, tonsId, carrosId) => { setKpiText(carrosId, arr.length); setKpiText(tonsId, arr.reduce((a,b)=>a+(b.tonelagem||0),0).toFixed(1)); };
+
+      kpi(programado,'passagemProgTons','passagemProgCarros'); kpi(realizado,'passagemRealTons','passagemRealCarros'); kpi(vira,'passagemViraTons','passagemViraCarros'); kpi(atrasado,'passagemAtrasadoTons','passagemAtrasadoCarros');
+      const totalQuadro = (Number(state.operador)||0)+(Number(state.conferente)||0)+(Number(state.exclusiva)||0);
+      const setText2 = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
+      setText2('passagemDataRef', dataRefRaw ? fmtDate(dataRefRaw) : 'Todos'); setText2('passagemTurnoRef', turno); setText2('passagemTotalQuadroRef', totalQuadro);
+      const donutData = [state.operador || 0, state.conferente || 0, state.exclusiva || 0];
+      if(chartPassagemQuadro) chartPassagemQuadro.destroy();
+      if(chartPassagemFerias) chartPassagemFerias.destroy();
+      if(chartPassagemAusencias) chartPassagemAusencias.destroy();
+      if(chartPassagemBancoHoras) chartPassagemBancoHoras.destroy();
+      chartPassagemQuadro = new Chart(document.getElementById('graficoPassagemQuadro'), { type:'doughnut', data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:donutData, backgroundColor:['rgba(34,211,238,.95)','rgba(59,130,246,.95)','rgba(251,146,60,.95)'], borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'72%', plugins:{ legend:{ labels:{ color:'#eef4ff' } } } } });
+      const miniChart = (canvasId, src) => new Chart(document.getElementById(canvasId), { type:'bar', data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:[src.operador||0, src.conferente||0, src.exclusiva||0], borderRadius:10, borderSkipped:false, backgroundColor:['rgba(34,211,238,.95)','rgba(59,130,246,.95)','rgba(251,146,60,.95)'] }] }, options: mergeChartOptions(getPremiumChartOptions(), { plugins:{ legend:{ display:false } }, scales:{ y:{ ticks:{ precision:0 } } } }) });
+      chartPassagemFerias = miniChart('graficoPassagemFerias', state.ferias || {});
+      chartPassagemAusencias = miniChart('graficoPassagemAusencias', state.ausencias || {});
+      chartPassagemBancoHoras = miniChart('graficoPassagemBancoHoras', state.bancoHoras || {});
+    }
+
+    function salvarPassagemTurno(){
+      const state = collectPassagemTurnoState();
+      savePassagemTurnoState(state);
+      showToast('Passagem de turno salva com sucesso');
+      renderPassagemTurno();
     }
 
     function carregarSelectPatio(){
