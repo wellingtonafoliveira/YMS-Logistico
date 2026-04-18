@@ -51,6 +51,8 @@
         <button id="menu-docas" data-short="Doc" onclick="setView('docas', this)"><span class="menu-icon icon-docas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V6l7-3 7 3v14"></path><path d="M9 20v-6h6v6"></path></svg></span><span class="menu-text">Docas</span></button>
         <button id="menu-checkin" data-short="Chk" onclick="setView('checkin', this)"><span class="menu-icon icon-checkin"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"></rect><path d="M8 12l2.5 2.5L16 9"></path></svg></span><span class="menu-text">Check-in</span></button>
         <button id="menu-relatorios" data-short="Rel" onclick="setView('relatorios', this)"><span class="menu-icon icon-relatorios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M7 15l3-3 3 2 4-5"></path></svg></span><span class="menu-text">Relatórios</span></button>
+        <button id="menu-resultado-separacao" data-short="Res" onclick="setView('resultado-separacao', this)"><span class="menu-icon icon-relatorios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16"></path><path d="M7 18V8"></path><path d="M12 18V5"></path><path d="M17 18v-9"></path></svg></span><span class="menu-text">Resultado Separação</span></button>
+        <button id="menu-passagem-turno" data-short="Psg" onclick="setView('passagem-turno', this)"><span class="menu-icon icon-admin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"></path><path d="M4 12h16"></path><path d="M4 18h10"></path><circle cx="18" cy="18" r="2"></circle></svg></span><span class="menu-text">Passagem de Turno</span></button>
         <button id="menu-admin" data-short="Adm" onclick="setView('admin', this)"><span class="menu-icon icon-admin"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.3.8a7 7 0 0 0-1.7-1L14.5 3h-5L9 5.8a7 7 0 0 0-1.7 1L5 6 3 9.5 5 11a7 7 0 0 0 0 2l-2 1.5L5 18l2.3-.8a7 7 0 0 0 1.7 1l.5 2.8h5l.4-2.8a7 7 0 0 0 1.7-1L19 18l2-3.5-2-1.5c.1-.3.1-.7.1-1z"></path></svg></span><span class="menu-text">Admin</span></button>
       </div>
 
@@ -632,7 +634,151 @@
         </div>
       </section>
 
-      <section id="view-admin" class="hidden">
+      
+      <section id="view-resultado-separacao" class="hidden">
+        <div class="report-hero">
+          <div class="report-hero-card soft-glow">
+            <h3>Resultado operacional da separação</h3>
+            <p>Painel para acompanhar programado, realizado, pendente, produtividade por turno e capacidade da mão de obra em HE e HO.</p>
+            <div class="report-mini-grid report-mini-grid-3">
+              <div class="report-mini"><span>Filtro aplicado</span><strong id="resultadoSepDataRef">Todos</strong></div>
+              <div class="report-mini"><span>Eficiência HE</span><strong id="resultadoSepEfHeRef">0%</strong></div>
+              <div class="report-mini"><span>Eficiência HO</span><strong id="resultadoSepEfHoRef">0%</strong></div>
+            </div>
+          </div>
+          <div class="report-hero-card soft-glow">
+            <h3>Capacidade versus realizado</h3>
+            <p>Os blocos abaixo permitem preencher a mão de obra planejada e real por turno, medir a capacidade e comparar com o realizado.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-3 resultado-top-grid">
+          <div class="card resultado-metric-card"><div class="resultado-tag green">Programado</div><div class="resultado-duo"><div><span>CX HE</span><strong id="resSepProgramadoHe">0</strong></div><div><span>PL HO</span><strong id="resSepProgramadoHo">0</strong></div></div></div>
+          <div class="card resultado-metric-card"><div class="resultado-tag blue">Realizado</div><div class="resultado-duo"><div><span>CX HE</span><strong id="resSepRealizadoHe">0</strong></div><div><span>PL HO</span><strong id="resSepRealizadoHo">0</strong></div></div></div>
+          <div class="card resultado-metric-card"><div class="resultado-tag gray">Pendente</div><div class="resultado-duo"><div><span>CX HE</span><strong id="resSepPendenteHe">0</strong></div><div><span>PL HO</span><strong id="resSepPendenteHo">0</strong></div></div></div>
+        </div>
+
+        <div class="grid grid-2" style="margin-top:16px">
+          <div class="card premium-chart-card resultado-chart-wrap">
+            <div class="premium-chart-head"><div><h2>Separação HE</h2><p class="chart-helper">Capacidade e realizado por turno.</p></div><span class="premium-chart-badge">HE</span></div>
+            <div class="premium-canvas-wrap"><canvas id="graficoResultadoSepHE" height="150"></canvas></div>
+            <div class="table-wrap resultado-table-wrap"><table><thead><tr><th>Indicador</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody id="resultadoSepTabelaHE"></tbody></table></div>
+          </div>
+          <div class="card premium-chart-card resultado-chart-wrap">
+            <div class="premium-chart-head"><div><h2>Separação HO</h2><p class="chart-helper">Capacidade e realizado por turno.</p></div><span class="premium-chart-badge">HO</span></div>
+            <div class="premium-canvas-wrap"><canvas id="graficoResultadoSepHO" height="150"></canvas></div>
+            <div class="table-wrap resultado-table-wrap"><table><thead><tr><th>Indicador</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody id="resultadoSepTabelaHO"></tbody></table></div>
+          </div>
+        </div>
+
+        <div class="card soft-glow" style="margin-top:16px">
+          <div class="card-title-row"><div><h2 style="margin:0">Preenchimento da mão de obra</h2><p>Preencha a equipe real e planejada por turno para calcular capacidade versus realizado.</p></div><div class="group"><button class="btn btn-light" onclick="carregarResultadoSeparacaoFormulario()">Recarregar</button><button class="btn btn-success" onclick="salvarResultadoSeparacaoFormulario()">Salvar configuração</button></div></div>
+          <div class="grid grid-2">
+            <div class="resultado-form-card">
+              <h3>HE • Parâmetros</h3>
+              <div class="fields resultado-fields">
+                <div><label>Produtividade por pessoa (HE)</label><input id="resSepHeProdPessoa" type="number" step="1"></div>
+                <div><label>Meta HE</label><input id="resSepHeMeta" type="number" step="1"></div>
+              </div>
+              <div class="resultado-turno-grid">
+                <div class="resultado-turno-card"><h4>T1</h4><label>M/O real</label><input id="resSepHeT1Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT1Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T2</h4><label>M/O real</label><input id="resSepHeT2Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT2Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T3</h4><label>M/O real</label><input id="resSepHeT3Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT3Plan" type="number" step="1"></div>
+              </div>
+            </div>
+            <div class="resultado-form-card">
+              <h3>HO • Parâmetros</h3>
+              <div class="fields resultado-fields">
+                <div><label>Produtividade por pessoa (HO)</label><input id="resSepHoProdPessoa" type="number" step="1"></div>
+                <div><label>Meta HO</label><input id="resSepHoMeta" type="number" step="1"></div>
+              </div>
+              <div class="resultado-turno-grid">
+                <div class="resultado-turno-card"><h4>T1</h4><label>M/O real</label><input id="resSepHoT1Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT1Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T2</h4><label>M/O real</label><input id="resSepHoT2Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT2Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T3</h4><label>M/O real</label><input id="resSepHoT3Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT3Plan" type="number" step="1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-passagem-turno" class="hidden">
+        <div class="report-hero">
+          <div class="report-hero-card soft-glow">
+            <h3>Passagem de turno • Expedição</h3>
+            <p>Painel para registrar mão de obra, distribuição do quadro, programado, realizado e pendências do turno.</p>
+            <div class="report-mini-grid report-mini-grid-3">
+              <div class="report-mini"><span>Filtro aplicado</span><strong id="passagemDataRef">Todos</strong></div>
+              <div class="report-mini"><span>Turno</span><strong id="passagemTurnoRef">T1</strong></div>
+              <div class="report-mini"><span>Total quadro</span><strong id="passagemTotalQuadroRef">0</strong></div>
+            </div>
+          </div>
+          <div class="report-hero-card soft-glow">
+            <h3>Registro e histórico</h3>
+            <p>Os campos abaixo podem ser preenchidos, salvos e reabertos por data e turno, mantendo a passagem de turno gravada.</p>
+          </div>
+        </div>
+
+        <div class="card soft-glow" style="margin-bottom:16px">
+          <div class="grid grid-4 passagem-header-grid">
+            <div><label>Data referência</label><input type="date" id="passagemData" onchange="renderPassagemTurno()"></div>
+            <div><label>Turno</label><select id="passagemTurno" onchange="renderPassagemTurno()"><option value="T1">T1</option><option value="T2">T2</option><option value="T3">T3</option></select></div>
+            <div><label>Responsável</label><input id="passagemResponsavel"></div>
+            <div class="passagem-actions"><button class="btn btn-light" onclick="renderPassagemTurno()">Atualizar</button><button class="btn btn-success" onclick="salvarPassagemTurno()">Salvar passagem</button></div>
+          </div>
+        </div>
+
+        <div class="grid grid-2 passagem-grid-main">
+          <div class="passagem-left-col">
+            <div class="card soft-glow passagem-card">
+              <div class="card-title-row"><div><h2 style="margin:0">Quadro | Turno</h2><p>Mão de obra preenchível e gravada por turno.</p></div><span class="premium-badge">M/O</span></div>
+              <div class="passagem-donut-row">
+                <div class="passagem-donut-wrap"><canvas id="graficoPassagemQuadro" height="180"></canvas></div>
+                <div class="passagem-legend-inputs">
+                  <div><label>Operador</label><input id="passagemOperador" type="number"></div>
+                  <div><label>Conferente</label><input id="passagemConferente" type="number"></div>
+                  <div><label>Exclusiva</label><input id="passagemExclusiva" type="number"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-3" style="margin-top:16px">
+              <div class="card soft-glow passagem-mini-chart"><h3>Férias</h3><canvas id="graficoPassagemFerias" height="140"></canvas></div>
+              <div class="card soft-glow passagem-mini-chart"><h3>Ausências</h3><canvas id="graficoPassagemAusencias" height="140"></canvas></div>
+              <div class="card soft-glow passagem-mini-chart"><h3>Banco de Horas</h3><canvas id="graficoPassagemBancoHoras" height="140"></canvas></div>
+            </div>
+          </div>
+
+          <div class="card soft-glow passagem-card">
+            <div class="card-title-row"><div><h2 style="margin:0">Distribuição do quadro</h2><p>Informe M/O e horas por área do turno.</p></div><span class="premium-badge">Áreas</span></div>
+            <div class="grid grid-4 passagem-area-grid" id="passagemAreasWrap"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-4" style="margin-top:16px">
+          <div class="card passagem-kpi-card"><div class="resultado-tag green">Programado</div><div class="resultado-duo"><div><span>Carros</span><strong id="passagemProgCarros">0</strong></div><div><span>Tons</span><strong id="passagemProgTons">0</strong></div></div></div>
+          <div class="card passagem-kpi-card"><div class="resultado-tag blue">Realizado</div><div class="resultado-duo"><div><span>Carros</span><strong id="passagemRealCarros">0</strong></div><div><span>Tons</span><strong id="passagemRealTons">0</strong></div></div></div>
+          <div class="card passagem-kpi-card"><div class="resultado-tag orange">Vira</div><div class="resultado-duo"><div><span>Carros</span><strong id="passagemViraCarros">0</strong></div><div><span>Tons</span><strong id="passagemViraTons">0</strong></div></div></div>
+          <div class="card passagem-kpi-card"><div class="resultado-tag red">Atrasado</div><div class="resultado-duo"><div><span>Carros</span><strong id="passagemAtrasadoCarros">0</strong></div><div><span>Tons</span><strong id="passagemAtrasadoTons">0</strong></div></div></div>
+        </div>
+
+        <div class="grid grid-2" style="margin-top:16px">
+          <div class="card soft-glow passagem-card">
+            <div class="card-title-row"><div><h2 style="margin:0">Ocorrências da passagem</h2><p>Registre pendências e orientações para o próximo turno.</p></div></div>
+            <textarea id="passagemOcorrencias" class="passagem-textarea" placeholder="Descreva aqui as ocorrências do turno..."></textarea>
+          </div>
+          <div class="card soft-glow passagem-card">
+            <div class="card-title-row"><div><h2 style="margin:0">Fechamento</h2><p>Identifique quem entregou e quem recebeu o turno.</p></div></div>
+            <div class="fields resultado-fields">
+              <div><label>Recebido por</label><input id="passagemRecebidoPor"></div>
+              <div><label>Horário da passagem</label><input id="passagemHorario" type="time"></div>
+            </div>
+            <div style="margin-top:14px"><button class="btn btn-success" onclick="salvarPassagemTurno()">Salvar fechamento</button></div>
+          </div>
+        </div>
+      </section>
+
+<section id="view-admin" class="hidden">
         <div class="section-hero">
           <div class="section-hero-card soft-glow">
             <h3>Administração do sistema</h3>
