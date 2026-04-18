@@ -950,9 +950,6 @@ function setView(view, btn){
       if(view === "admin" && usuarioPerfil === "admin"){
         carregarUsuariosAdmin();
       }
-      if(view === "passagem-turno"){
-        requestAnimationFrame(() => renderPassagemTurno());
-      }
       if(window.innerWidth <= 900){
         alternarSidebar(true);
       }
@@ -1756,180 +1753,351 @@ sb.auth.onAuthStateChange(async (_, session) => {
       return `glp_passagem_turno_${dataRef || (dataFiltrada() || "todos")}_${turno || "T1"}`;
     }
 
-    function getResultadoSeparacaoDefaults(){
-      return {
-        heProdPessoa:1405,
-        hoProdPessoa:121,
-        heMeta:0,
-        hoMeta:0,
-        he:{T1:{real:0,plan:0},T2:{real:0,plan:0},T3:{real:0,plan:0}},
-        ho:{T1:{real:0,plan:0},T2:{real:0,plan:0},T3:{real:0,plan:0}}
-      };
-    }
-
-    function getResultadoSeparacaoState(){
-      try{
-        return { ...getResultadoSeparacaoDefaults(), ...(JSON.parse(localStorage.getItem(getResultadoSeparacaoStorageKey()) || 'null') || {}) };
-      }catch(_){
-        return getResultadoSeparacaoDefaults();
-      }
-    }
-
-    function setResultadoSeparacaoState(state){
-      localStorage.setItem(getResultadoSeparacaoStorageKey(), JSON.stringify(state));
-    }
-
-    function preencherResultadoSeparacaoFormulario(state){
-      const turno = getResultadoSeparacaoSelectedTurno();
-      const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? 0; };
-      setVal('resSepHeProdPessoa', state.heProdPessoa);
-      setVal('resSepHoProdPessoa', state.hoProdPessoa);
-      setVal('resSepHeMeta', state.heMeta);
-      setVal('resSepHoMeta', state.hoMeta);
-      setVal('resSepHeTurnoReal', state.he?.[turno]?.real ?? 0);
-      setVal('resSepHeTurnoPlan', state.he?.[turno]?.plan ?? 0);
-      setVal('resSepHoTurnoReal', state.ho?.[turno]?.real ?? 0);
-      setVal('resSepHoTurnoPlan', state.ho?.[turno]?.plan ?? 0);
-      const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
-      setText('resultadoSepFormTurnoBadge', `Turno ${turno}`);
-      setText('resultadoSepTituloHe', turno);
-      setText('resultadoSepTituloHo', turno);
-    }
-
-    function carregarResultadoSeparacaoFormulario(){
-      preencherResultadoSeparacaoFormulario(getResultadoSeparacaoState());
-      renderResultadoSeparacao();
-    }
-
-    function salvarResultadoSeparacaoFormulario(){
-      const getNum = id => num(document.getElementById(id)?.value) || 0;
-      const turno = getResultadoSeparacaoSelectedTurno();
-      const state = getResultadoSeparacaoState();
-      state.heProdPessoa = getNum('resSepHeProdPessoa');
-      state.hoProdPessoa = getNum('resSepHoProdPessoa');
-      state.heMeta = getNum('resSepHeMeta');
-      state.hoMeta = getNum('resSepHoMeta');
-      state.he = state.he || {T1:{real:0,plan:0},T2:{real:0,plan:0},T3:{real:0,plan:0}};
-      state.ho = state.ho || {T1:{real:0,plan:0},T2:{real:0,plan:0},T3:{real:0,plan:0}};
-      state.he[turno] = { real:getNum('resSepHeTurnoReal'), plan:getNum('resSepHeTurnoPlan') };
-      state.ho[turno] = { real:getNum('resSepHoTurnoReal'), plan:getNum('resSepHoTurnoPlan') };
-      setResultadoSeparacaoState(state);
-      showToast(`Resultado da separação salvo para ${turno}`);
-      renderResultadoSeparacao();
-    }
-
-    function renderResultadoSeparacao(){
-      const section = document.getElementById('view-resultado-separacao');
-      if(!section) return;
-      const turnos = ['T1','T2','T3'];
-      const dataRaw = getResultadoSeparacaoSelectedDataRaw();
-      const turnoSelecionado = getResultadoSeparacaoSelectedTurno();
-      const filtroDataEl = document.getElementById('resultadoSepData');
-      if(filtroDataEl && filtroDataEl.value !== dataRaw) filtroDataEl.value = dataRaw;
-      const rowsBase = getAgendaRows();
-      const rows = dataRaw ? rowsBase.filter(r => r.data_agenda === dataRaw) : rowsBase;
-      const state = getResultadoSeparacaoState();
-      preencherResultadoSeparacaoFormulario(state);
-      const dataRef = dataRaw ? fmtDate(dataRaw) : 'Todos';
-      const rowsPorTurno = t => rows.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t);
-      const planejadoHe = rows.reduce((a,b)=>a+(b.he||0),0);
-      const planejadoHo = rows.reduce((a,b)=>a+(b.ho||0),0);
-      const realizadoHeT = Object.fromEntries(turnos.map(t => [t, rowsPorTurno(t).filter(r => ['Separado','Pronto Expedição','No Pátio','Em Doca','Em Carregamento','Expedido'].includes(r.status_global)).reduce((a,b)=>a+(b.he||0),0)]));
-      const realizadoHoT = Object.fromEntries(turnos.map(t => [t, rowsPorTurno(t).filter(r => ['Separado','Pronto Expedição','No Pátio','Em Doca','Em Carregamento','Expedido'].includes(r.status_global)).reduce((a,b)=>a+(b.ho||0),0)]));
-      const realizadoHe = turnos.reduce((a,t)=>a+realizadoHeT[t],0);
-      const realizadoHo = turnos.reduce((a,t)=>a+realizadoHoT[t],0);
-      const pendHe = Math.max(planejadoHe - realizadoHe, 0);
-      const pendHo = Math.max(planejadoHo - realizadoHo, 0);
-      const capHeT = Object.fromEntries(turnos.map(t => [t, (state.he?.[t]?.real || 0) * (state.heProdPessoa || 0)]));
-      const capHoT = Object.fromEntries(turnos.map(t => [t, (state.ho?.[t]?.real || 0) * (state.hoProdPessoa || 0)]));
-      const capHeSelecionado = capHeT[turnoSelecionado] || 0;
-      const capHoSelecionado = capHoT[turnoSelecionado] || 0;
-      const efHe = capHeSelecionado ? Math.round((realizadoHeT[turnoSelecionado] / capHeSelecionado) * 100) : 0;
-      const efHo = capHoSelecionado ? Math.round((realizadoHoT[turnoSelecionado] / capHoSelecionado) * 100) : 0;
-      const setText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
-      setText('resultadoSepDataRef', dataRef);
-      setText('resultadoSepTurnoRef', turnoSelecionado);
-      setText('resultadoSepEfHeRef', `${efHe}%`);
-      setText('resultadoSepEfHoRef', `${efHo}%`);
-      setText('resultadoSepHeadHe', turnoSelecionado);
-      setText('resultadoSepHeadHo', turnoSelecionado);
-      setText('resultadoSepBadgeHe', `HE • ${turnoSelecionado}`);
-      setText('resultadoSepBadgeHo', `HO • ${turnoSelecionado}`);
-      setText('resSepProgramadoHe', planejadoHe.toLocaleString('pt-BR'));
-      setText('resSepProgramadoHo', planejadoHo.toLocaleString('pt-BR'));
-      setText('resSepRealizadoHe', realizadoHeT[turnoSelecionado].toLocaleString('pt-BR'));
-      setText('resSepRealizadoHo', realizadoHoT[turnoSelecionado].toLocaleString('pt-BR'));
-      setText('resSepPendenteHe', Math.max(planejadoHe - realizadoHeT[turnoSelecionado], 0).toLocaleString('pt-BR'));
-      setText('resSepPendenteHo', Math.max(planejadoHo - realizadoHoT[turnoSelecionado], 0).toLocaleString('pt-BR'));
-      const renderTable = (id, tipo, realizadoT, capT) => {
-        const tbody = document.getElementById(id); if(!tbody) return;
-        const src = state[tipo] || {};
-        const turnoData = src[turnoSelecionado] || { real:0, plan:0 };
-        const eficiencia = capT[turnoSelecionado] ? `${Math.round((realizadoT[turnoSelecionado]/capT[turnoSelecionado])*100)}%` : '0%';
-        const linhas = [
-          ['M/O Real', turnoData.real],
-          ['M/O Planejada', turnoData.plan],
-          ['Capacidade Real', capT[turnoSelecionado] || 0],
-          [`Realizado ${tipo.toUpperCase()}`, realizadoT[turnoSelecionado] || 0],
-          [`Eficiência ${tipo.toUpperCase()}`, eficiencia]
-        ];
-        tbody.innerHTML = linhas.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('');
-      };
-      renderTable('resultadoSepTabelaHE','he',realizadoHeT,capHeT);
-      renderTable('resultadoSepTabelaHO','ho',realizadoHoT,capHoT);
-      if(chartResultadoSepHE) chartResultadoSepHE.destroy();
-      if(chartResultadoSepHO) chartResultadoSepHO.destroy();
-      const buildChart = (canvasId, realizadoValor, capValor, lineColor) => new Chart(document.getElementById(canvasId), {
-        type:'bar',
-        data:{ labels:[turnoSelecionado], datasets:[
-          { label:'Realizado', data:[realizadoValor], borderRadius:12, borderSkipped:false, maxBarThickness:70, backgroundColor:['rgba(34,211,238,.92)'] },
-          { type:'line', label:'Capacidade', data:[capValor], borderColor:lineColor, pointBackgroundColor:lineColor, pointRadius:4, tension:.25 }
-        ]},
-        options: mergeChartOptions(getPremiumChartOptions(), { plugins:{ legend:{ labels:{ color:'#f8fafc' } } } })
-      });
-      chartResultadoSepHE = buildChart('graficoResultadoSepHE', realizadoHeT[turnoSelecionado], capHeSelecionado, 'rgba(251,146,60,1)');
-      chartResultadoSepHO = buildChart('graficoResultadoSepHO', realizadoHoT[turnoSelecionado], capHoSelecionado, 'rgba(59,130,246,1)');
-    }
-
-    const PASSAGEM_AREAS = ['Linha 5','Linha 6','Avarias','Expedição | EMB','Gestão de Estoque','Almoxarifado','Abastecimento','PD'];
-
     
-    function getPassagemTurnoSelecionado(){
-      const el = document.getElementById('passagemTurno');
-      return (el?.value || 'T1').trim() || 'T1';
+function getResultadoSeparacaoDefaults(){
+  const makeHeTurno = () => ({
+    fixa:{ qtd:0, horas:6.7 },
+    avaria:{ qtd:0, horas:6.7 },
+    exclusiva:{ qtd:0, horas:6.7 },
+    linha:{ qtd:0, horas:6.7 }
+  });
+  const makeHoTurno = () => ({
+    fixa:{ qtd:0, horas:6.7 },
+    disponibilizada:{ qtd:0, horas:6.7 }
+  });
+  return {
+    heMetaPadrao:1000,
+    heMetaAvaria:800,
+    hoMetaPessoa:120,
+    he:{ T1:makeHeTurno(), T2:makeHeTurno(), T3:makeHeTurno() },
+    ho:{ T1:makeHoTurno(), T2:makeHoTurno(), T3:makeHoTurno() }
+  };
+}
+
+function getResultadoSeparacaoSelectedDataRaw(){
+  return document.getElementById('resultadoSepData')?.value || dataFiltrada() || '';
+}
+
+function getResultadoSeparacaoSupabaseKey(){
+  return `${getResultadoSeparacaoSelectedDataRaw() || 'todos'}`;
+}
+
+function getResultadoSeparacaoTurnos(){
+  return ['T1','T2','T3'];
+}
+
+function getResultadoSeparacaoFromInputs(){
+  const getNum = id => num(document.getElementById(id)?.value) || 0;
+  const state = getResultadoSeparacaoState();
+  const out = {
+    ...state,
+    heMetaPadrao: 1000,
+    heMetaAvaria: 800,
+    hoMetaPessoa: 120,
+    he: { T1:{}, T2:{}, T3:{} },
+    ho: { T1:{}, T2:{}, T3:{} }
+  };
+  getResultadoSeparacaoTurnos().forEach(turno => {
+    out.he[turno] = {
+      fixa:{ qtd:getNum(`resSepHe${turno}FixaQtd`), horas:getNum(`resSepHe${turno}FixaHoras`) || 6.7 },
+      avaria:{ qtd:getNum(`resSepHe${turno}AvariaQtd`), horas:getNum(`resSepHe${turno}AvariaHoras`) || 6.7 },
+      exclusiva:{ qtd:getNum(`resSepHe${turno}ExclusivaQtd`), horas:getNum(`resSepHe${turno}ExclusivaHoras`) || 6.7 },
+      linha:{ qtd:getNum(`resSepHe${turno}LinhaQtd`), horas:getNum(`resSepHe${turno}LinhaHoras`) || 6.7 }
+    };
+    out.ho[turno] = {
+      fixa:{ qtd:getNum(`resSepHo${turno}FixaQtd`), horas:getNum(`resSepHo${turno}FixaHoras`) || 6.7 },
+      disponibilizada:{ qtd:getNum(`resSepHo${turno}DisponivelQtd`), horas:getNum(`resSepHo${turno}DisponivelHoras`) || 6.7 }
+    };
+  });
+  return out;
+}
+
+function calcularResumoResultadoSeparacao(state){
+  const rowsBase = getAgendaRows();
+  const dataRaw = getResultadoSeparacaoSelectedDataRaw();
+  const rows = dataRaw ? rowsBase.filter(r => r.data_agenda === dataRaw) : rowsBase;
+  const turnos = getResultadoSeparacaoTurnos();
+  const rowsPorTurno = t => rows.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t);
+
+  const planejadoHe = rows.reduce((a,b)=>a+(Number(b.he)||0),0);
+  const planejadoHo = rows.reduce((a,b)=>a+(Number(b.ho)||0),0);
+
+  const statusSeparado = ['Separado','Pronto Expedição','No Pátio','Em Doca','Em Carregamento','Expedido'];
+  const realizadoHeT = Object.fromEntries(turnos.map(t => [t, rowsPorTurno(t).filter(r => statusSeparado.includes(r.status_global)).reduce((a,b)=>a+(Number(b.he)||0),0)]));
+  const realizadoHoT = Object.fromEntries(turnos.map(t => [t, rowsPorTurno(t).filter(r => statusSeparado.includes(r.status_global)).reduce((a,b)=>a+(Number(b.ho)||0),0)]));
+
+  const capHeT = {};
+  const capHoT = {};
+  const moHeT = {};
+  const moHoT = {};
+
+  turnos.forEach(t => {
+    const he = state.he?.[t] || {};
+    const ho = state.ho?.[t] || {};
+    const qtdHe = (he.fixa?.qtd||0) + (he.avaria?.qtd||0) + (he.exclusiva?.qtd||0) + (he.linha?.qtd||0);
+    const qtdHo = (ho.fixa?.qtd||0) + (ho.disponibilizada?.qtd||0);
+    moHeT[t] = qtdHe;
+    moHoT[t] = qtdHo;
+    capHeT[t] = ((he.fixa?.qtd||0) * state.heMetaPadrao) + ((he.avaria?.qtd||0) * state.heMetaAvaria) + ((he.exclusiva?.qtd||0) * state.heMetaPadrao) + ((he.linha?.qtd||0) * state.heMetaPadrao);
+    capHoT[t] = qtdHo * state.hoMetaPessoa;
+  });
+
+  return {
+    turnos,
+    planejadoHe,
+    planejadoHo,
+    realizadoHeT,
+    realizadoHoT,
+    realizadoHe: turnos.reduce((a,t)=>a+realizadoHeT[t],0),
+    realizadoHo: turnos.reduce((a,t)=>a+realizadoHoT[t],0),
+    capHeT,
+    capHoT,
+    moHeT,
+    moHoT
+  };
+}
+
+function preencherResultadoSeparacaoFormulario(state){
+  const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? 0; };
+  getResultadoSeparacaoTurnos().forEach(turno => {
+    const he = state.he?.[turno] || {};
+    const ho = state.ho?.[turno] || {};
+    setVal(`resSepHe${turno}FixaQtd`, he.fixa?.qtd ?? 0);
+    setVal(`resSepHe${turno}FixaHoras`, he.fixa?.horas ?? 6.7);
+    setVal(`resSepHe${turno}AvariaQtd`, he.avaria?.qtd ?? 0);
+    setVal(`resSepHe${turno}AvariaHoras`, he.avaria?.horas ?? 6.7);
+    setVal(`resSepHe${turno}ExclusivaQtd`, he.exclusiva?.qtd ?? 0);
+    setVal(`resSepHe${turno}ExclusivaHoras`, he.exclusiva?.horas ?? 6.7);
+    setVal(`resSepHe${turno}LinhaQtd`, he.linha?.qtd ?? 0);
+    setVal(`resSepHe${turno}LinhaHoras`, he.linha?.horas ?? 6.7);
+
+    setVal(`resSepHo${turno}FixaQtd`, ho.fixa?.qtd ?? 0);
+    setVal(`resSepHo${turno}FixaHoras`, ho.fixa?.horas ?? 6.7);
+    setVal(`resSepHo${turno}DisponivelQtd`, ho.disponibilizada?.qtd ?? 0);
+    setVal(`resSepHo${turno}DisponivelHoras`, ho.disponibilizada?.horas ?? 6.7);
+  });
+}
+
+function normalizeResultadoSeparacaoFromDb(masters, detalhes){
+  const base = getResultadoSeparacaoDefaults();
+  const out = { ...base };
+  const byMaster = new Map((masters || []).map(m => [m.id, m]));
+  (masters || []).forEach(master => {
+    const turno = master.turno || 'T1';
+    try{
+      const extra = master?.observacoes ? JSON.parse(master.observacoes) : null;
+      if(extra?.he?.[turno]) out.he[turno] = extra.he[turno];
+      if(extra?.ho?.[turno]) out.ho[turno] = extra.ho[turno];
+    }catch(_){}
+  });
+  (detalhes || []).forEach(d => {
+    const master = byMaster.get(d.resultado_id);
+    const turno = master?.turno || d.turno || 'T1';
+    const tipo = String(d.tipo || '').toUpperCase();
+    if(tipo === 'HE' && (!out.he[turno] || !out.he[turno].fixa)){
+      out.he[turno] = base.he[turno];
     }
-
-    function syncPassagemTurnoHeader(turno){
-      const valor = turno || getPassagemTurnoSelecionado();
-      const refs = [
-        document.getElementById('passagemTurnoRef'),
-        document.getElementById('passagemTurnoBadge'),
-        document.getElementById('passagemTurnoCard')
-      ];
-      refs.forEach(el => { if(el) el.textContent = valor; });
-
-      document.querySelectorAll('[data-passagem-turno-ref]').forEach(el => {
-        el.textContent = valor;
-      });
-
-      const select = document.getElementById('passagemTurno');
-      if(select && select.value !== valor){
-        select.value = valor;
-      }
+    if(tipo === 'HO' && (!out.ho[turno] || !out.ho[turno].fixa)){
+      out.ho[turno] = base.ho[turno];
     }
+  });
+  return out;
+}
 
-function getPassagemTurnoDefaults(){
-      return {
-        responsavel:'', operador:0, conferente:0, exclusiva:0,
-        ferias:{operador:0, conferente:0, exclusiva:0},
-        ausencias:{operador:0, conferente:0, exclusiva:0},
-        bancoHoras:{operador:0, conferente:0, exclusiva:0},
-        areas:Object.fromEntries(PASSAGEM_AREAS.map(a => [a,{mo:0, horas:0}])),
-        ocorrencias:'', recebidoPor:'', horario:''
+let __resultadoSeparacaoCache = {};
+let __resultadoSeparacaoLoadKey = null;
+let __resultadoSeparacaoLoading = false;
+
+async function loadResultadoSeparacaoFromSupabase(force = false){
+  const dataRef = getResultadoSeparacaoSelectedDataRaw();
+  const key = getResultadoSeparacaoSupabaseKey();
+  if(!force && __resultadoSeparacaoLoadKey === key && __resultadoSeparacaoCache[key]) return __resultadoSeparacaoCache[key];
+  if(__resultadoSeparacaoLoading) return __resultadoSeparacaoCache[key] || getResultadoSeparacaoDefaults();
+  if(!dataRef){
+    __resultadoSeparacaoLoadKey = key;
+    __resultadoSeparacaoCache[key] = getResultadoSeparacaoDefaults();
+    return __resultadoSeparacaoCache[key];
+  }
+  __resultadoSeparacaoLoading = true;
+  try{
+    const { data: masters, error: e1 } = await sb
+      .from('resultado_separacao')
+      .select('*')
+      .eq('data_referencia', dataRef)
+      .in('turno', getResultadoSeparacaoTurnos());
+    if(e1) throw e1;
+
+    let detalhes = [];
+    const ids = (masters || []).map(m => m.id);
+    if(ids.length){
+      const { data: det, error: e2 } = await sb
+        .from('resultado_separacao_detalhes')
+        .select('*')
+        .in('resultado_id', ids);
+      if(e2) throw e2;
+      detalhes = det || [];
+    }
+    __resultadoSeparacaoLoadKey = key;
+    __resultadoSeparacaoCache[key] = normalizeResultadoSeparacaoFromDb(masters || [], detalhes);
+    return __resultadoSeparacaoCache[key];
+  }catch(err){
+    console.error('Erro ao carregar resultado separação no Supabase', err);
+    showToast('Erro ao carregar Resultado Separação');
+    return __resultadoSeparacaoCache[key] || getResultadoSeparacaoDefaults();
+  }finally{
+    __resultadoSeparacaoLoading = false;
+  }
+}
+
+function getResultadoSeparacaoState(){
+  const key = getResultadoSeparacaoSupabaseKey();
+  if(__resultadoSeparacaoLoadKey !== key && !__resultadoSeparacaoLoading){
+    loadResultadoSeparacaoFromSupabase().then(() => renderResultadoSeparacao());
+  }
+  return __resultadoSeparacaoCache[key] || getResultadoSeparacaoDefaults();
+}
+
+function setResultadoSeparacaoState(state){
+  const key = getResultadoSeparacaoSupabaseKey();
+  __resultadoSeparacaoLoadKey = key;
+  __resultadoSeparacaoCache[key] = state;
+}
+
+async function salvarResultadoSeparacaoFormulario(){
+  const dataRef = getResultadoSeparacaoSelectedDataRaw();
+  if(!dataRef) return alert('Selecione a data para salvar o Resultado Separação.');
+  const state = getResultadoSeparacaoFromInputs();
+
+  try{
+    const { data: sess } = await sb.auth.getSession();
+    const userId = sess?.session?.user?.id || null;
+    for(const turno of getResultadoSeparacaoTurnos()){
+      const payload = {
+        data_referencia: dataRef,
+        turno,
+        he_prod_pessoa: state.heMetaPadrao,
+        ho_prod_pessoa: state.hoMetaPessoa,
+        he_meta: state.heMetaAvaria,
+        ho_meta: state.hoMetaPessoa,
+        observacoes: JSON.stringify({ he:{ [turno]: state.he[turno] }, ho:{ [turno]: state.ho[turno] } }),
+        criado_por: userId
       };
-    }
+      const { data: master, error: e1 } = await sb
+        .from('resultado_separacao')
+        .upsert(payload, { onConflict: 'data_referencia,turno' })
+        .select()
+        .single();
+      if(e1) throw e1;
 
-    function getPassagemTurnoState(){
+      const heQtd = (state.he[turno].fixa.qtd||0)+(state.he[turno].avaria.qtd||0)+(state.he[turno].exclusiva.qtd||0)+(state.he[turno].linha.qtd||0);
+      const hoQtd = (state.ho[turno].fixa.qtd||0)+(state.ho[turno].disponibilizada.qtd||0);
+      const detalhes = [
+        { resultado_id: master.id, turno, tipo:'HE', mo_real: heQtd, mo_planejada: heQtd },
+        { resultado_id: master.id, turno, tipo:'HO', mo_real: hoQtd, mo_planejada: hoQtd }
+      ];
+      const { error: e2 } = await sb.from('resultado_separacao_detalhes').upsert(detalhes, { onConflict: 'resultado_id,tipo' });
+      if(e2) throw e2;
+    }
+    setResultadoSeparacaoState(state);
+    await loadResultadoSeparacaoFromSupabase(true);
+    renderResultadoSeparacao();
+    showToast('Configuração da separação salva no Supabase');
+  }catch(err){
+    console.error('Erro ao salvar resultado separação no Supabase', err);
+    alert('Erro ao salvar Resultado Separação no Supabase.');
+  }
+}
+
+function carregarResultadoSeparacaoFormulario(){
+  loadResultadoSeparacaoFromSupabase(true).then(() => {
+    preencherResultadoSeparacaoFormulario(getResultadoSeparacaoState());
+    renderResultadoSeparacao();
+  });
+}
+
+function renderResultadoSeparacao(){
+  const section = document.getElementById('view-resultado-separacao');
+  if(!section) return;
+  const dataRaw = getResultadoSeparacaoSelectedDataRaw();
+  const state = getResultadoSeparacaoState();
+  preencherResultadoSeparacaoFormulario(state);
+
+  const resumo = calcularResumoResultadoSeparacao(state);
+  const setText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
+  setText('resultadoSepDataRef', dataRaw ? fmtDate(dataRaw) : 'Todos');
+
+  const efHeTotal = resumo.turnos.reduce((acc,t)=>acc+resumo.realizadoHeT[t],0);
+  const capHeTotal = resumo.turnos.reduce((acc,t)=>acc+resumo.capHeT[t],0);
+  const efHoTotal = resumo.turnos.reduce((acc,t)=>acc+resumo.realizadoHoT[t],0);
+  const capHoTotal = resumo.turnos.reduce((acc,t)=>acc+resumo.capHoT[t],0);
+  setText('resultadoSepEfHeRef', `${capHeTotal ? Math.round((efHeTotal/capHeTotal)*100) : 0}%`);
+  setText('resultadoSepEfHoRef', `${capHoTotal ? Math.round((efHoTotal/capHoTotal)*100) : 0}%`);
+  setText('resSepProgramadoHe', resumo.planejadoHe.toLocaleString('pt-BR'));
+  setText('resSepProgramadoHo', resumo.planejadoHo.toLocaleString('pt-BR'));
+  setText('resSepRealizadoHe', resumo.realizadoHe.toLocaleString('pt-BR'));
+  setText('resSepRealizadoHo', resumo.realizadoHo.toLocaleString('pt-BR'));
+  setText('resSepPendenteHe', Math.max(resumo.planejadoHe - resumo.realizadoHe, 0).toLocaleString('pt-BR'));
+  setText('resSepPendenteHo', Math.max(resumo.planejadoHo - resumo.realizadoHo, 0).toLocaleString('pt-BR'));
+
+  const tbodyHE = document.getElementById('resultadoSepTabelaHE');
+  const tbodyHO = document.getElementById('resultadoSepTabelaHO');
+  if(tbodyHE){
+    const rows = [
+      ['M/O Total', resumo.moHeT.T1, resumo.moHeT.T2, resumo.moHeT.T3],
+      ['Capacidade', resumo.capHeT.T1, resumo.capHeT.T2, resumo.capHeT.T3],
+      ['Realizado HE', resumo.realizadoHeT.T1, resumo.realizadoHeT.T2, resumo.realizadoHeT.T3],
+      ['Eficiência HE', `${resumo.capHeT.T1 ? Math.round((resumo.realizadoHeT.T1/resumo.capHeT.T1)*100):0}%`, `${resumo.capHeT.T2 ? Math.round((resumo.realizadoHeT.T2/resumo.capHeT.T2)*100):0}%`, `${resumo.capHeT.T3 ? Math.round((resumo.realizadoHeT.T3/resumo.capHeT.T3)*100):0}%`]
+    ];
+    tbodyHE.innerHTML = rows.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td></tr>`).join('');
+  }
+  if(tbodyHO){
+    const rows = [
+      ['M/O Total', resumo.moHoT.T1, resumo.moHoT.T2, resumo.moHoT.T3],
+      ['Capacidade', resumo.capHoT.T1, resumo.capHoT.T2, resumo.capHoT.T3],
+      ['Realizado HO', resumo.realizadoHoT.T1, resumo.realizadoHoT.T2, resumo.realizadoHoT.T3],
+      ['Eficiência HO', `${resumo.capHoT.T1 ? Math.round((resumo.realizadoHoT.T1/resumo.capHoT.T1)*100):0}%`, `${resumo.capHoT.T2 ? Math.round((resumo.realizadoHoT.T2/resumo.capHoT.T2)*100):0}%`, `${resumo.capHoT.T3 ? Math.round((resumo.realizadoHoT.T3/resumo.capHoT.T3)*100):0}%`]
+    ];
+    tbodyHO.innerHTML = rows.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td></tr>`).join('');
+  }
+
+  getResultadoSeparacaoTurnos().forEach(turno => {
+    const body = document.getElementById(`resultadoSepResumo${turno}`);
+    if(!body) return;
+    const he = [
+      (state.he?.[turno]?.fixa?.qtd||0)+(state.he?.[turno]?.avaria?.qtd||0)+(state.he?.[turno]?.exclusiva?.qtd||0)+(state.he?.[turno]?.linha?.qtd||0),
+      resumo.capHeT[turno] || 0,
+      resumo.realizadoHeT[turno] || 0,
+      `${resumo.capHeT[turno] ? Math.round((resumo.realizadoHeT[turno]/resumo.capHeT[turno])*100) : 0}%`
+    ];
+    const ho = [
+      (state.ho?.[turno]?.fixa?.qtd||0)+(state.ho?.[turno]?.disponibilizada?.qtd||0),
+      resumo.capHoT[turno] || 0,
+      resumo.realizadoHoT[turno] || 0,
+      `${resumo.capHoT[turno] ? Math.round((resumo.realizadoHoT[turno]/resumo.capHoT[turno])*100) : 0}%`
+    ];
+    body.innerHTML = [
+      ['M/O Total', he[0], ho[0]],
+      ['Capacidade', he[1], ho[1]],
+      ['Realizado', he[2], ho[2]],
+      ['Eficiência', he[3], ho[3]]
+    ].map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('');
+  });
+
+  if(chartResultadoSepHE) chartResultadoSepHE.destroy();
+  if(chartResultadoSepHO) chartResultadoSepHO.destroy();
+  const buildChart = (canvasId, realizados, capacidades, lineColor) => new Chart(document.getElementById(canvasId), {
+    type:'bar',
+    data:{ labels:getResultadoSeparacaoTurnos(), datasets:[
+      { label:'Realizado', data:realizados, borderRadius:12, borderSkipped:false, maxBarThickness:56, backgroundColor:['rgba(34,211,238,.92)','rgba(34,211,238,.92)','rgba(34,211,238,.92)'] },
+      { type:'line', label:'Capacidade', data:capacidades, borderColor:lineColor, pointBackgroundColor:lineColor, pointRadius:4, tension:.25 }
+    ]},
+    options: mergeChartOptions(getPremiumChartOptions(), { plugins:{ legend:{ labels:{ color:'#f8fafc' } } } })
+  });
+  chartResultadoSepHE = buildChart('graficoResultadoSepHE', [resumo.realizadoHeT.T1, resumo.realizadoHeT.T2, resumo.realizadoHeT.T3], [resumo.capHeT.T1, resumo.capHeT.T2, resumo.capHeT.T3], 'rgba(251,146,60,1)');
+  chartResultadoSepHO = buildChart('graficoResultadoSepHO', [resumo.realizadoHoT.T1, resumo.realizadoHoT.T2, resumo.realizadoHoT.T3], [resumo.capHoT.T1, resumo.capHoT.T2, resumo.capHoT.T3], 'rgba(59,130,246,1)');
+}
+
+function getPassagemTurnoState(){
       const dataRef = document.getElementById('passagemData')?.value || dataFiltrada() || '';
       const turno = document.getElementById('passagemTurno')?.value || 'T1';
       try{ return { ...getPassagemTurnoDefaults(), ...(JSON.parse(localStorage.getItem(getPassagemTurnoStorageKey(dataRef, turno)) || 'null') || {}) }; }catch(_){ return getPassagemTurnoDefaults(); }
@@ -1984,8 +2152,7 @@ function getPassagemTurnoDefaults(){
       const dtInput = document.getElementById('passagemData'); if(dtInput && !dtInput.value && dataFiltrada()) dtInput.value = dataFiltrada();
       const turnoEl = document.getElementById('passagemTurno');
       const dataRefRaw = dtInput?.value || dataFiltrada() || '';
-      const turno = getPassagemTurnoSelecionado();
-      syncPassagemTurnoHeader(turno);
+      const turno = turnoEl?.value || 'T1';
       const state = getPassagemTurnoState();
       const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? ''; };
       setVal('passagemResponsavel', state.responsavel); setVal('passagemOperador', state.operador); setVal('passagemConferente', state.conferente); setVal('passagemExclusiva', state.exclusiva); setVal('passagemRecebidoPor', state.recebidoPor); setVal('passagemHorario', state.horario); setVal('passagemOcorrencias', state.ocorrencias);
@@ -2009,7 +2176,7 @@ function getPassagemTurnoDefaults(){
       kpi(programado,'passagemProgTons','passagemProgCarros'); kpi(realizado,'passagemRealTons','passagemRealCarros'); kpi(vira,'passagemViraTons','passagemViraCarros'); kpi(atrasado,'passagemAtrasadoTons','passagemAtrasadoCarros');
       const totalQuadro = (Number(state.operador)||0)+(Number(state.conferente)||0)+(Number(state.exclusiva)||0);
       const setText2 = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
-      setText2('passagemDataRef', dataRefRaw ? fmtDate(dataRefRaw) : 'Todos'); syncPassagemTurnoHeader(turno); setText2('passagemTotalQuadroRef', totalQuadro);
+      setText2('passagemDataRef', dataRefRaw ? fmtDate(dataRefRaw) : 'Todos'); setText2('passagemTurnoRef', turno); setText2('passagemTotalQuadroRef', totalQuadro);
       const donutData = [state.operador || 0, state.conferente || 0, state.exclusiva || 0];
       if(chartPassagemQuadro) chartPassagemQuadro.destroy();
       if(chartPassagemFerias) chartPassagemFerias.destroy();
