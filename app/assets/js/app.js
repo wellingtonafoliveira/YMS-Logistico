@@ -1777,17 +1777,20 @@ sb.auth.onAuthStateChange(async (_, session) => {
     }
 
     function preencherResultadoSeparacaoFormulario(state){
+      const turno = getResultadoSeparacaoSelectedTurno();
       const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? 0; };
       setVal('resSepHeProdPessoa', state.heProdPessoa);
       setVal('resSepHoProdPessoa', state.hoProdPessoa);
       setVal('resSepHeMeta', state.heMeta);
       setVal('resSepHoMeta', state.hoMeta);
-      ['T1','T2','T3'].forEach(t => {
-        setVal(`resSepHe${t}Real`, state.he?.[t]?.real ?? 0);
-        setVal(`resSepHe${t}Plan`, state.he?.[t]?.plan ?? 0);
-        setVal(`resSepHo${t}Real`, state.ho?.[t]?.real ?? 0);
-        setVal(`resSepHo${t}Plan`, state.ho?.[t]?.plan ?? 0);
-      });
+      setVal('resSepHeTurnoReal', state.he?.[turno]?.real ?? 0);
+      setVal('resSepHeTurnoPlan', state.he?.[turno]?.plan ?? 0);
+      setVal('resSepHoTurnoReal', state.ho?.[turno]?.real ?? 0);
+      setVal('resSepHoTurnoPlan', state.ho?.[turno]?.plan ?? 0);
+      const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+      setText('resultadoSepFormTurnoBadge', `Turno ${turno}`);
+      setText('resultadoSepTituloHe', turno);
+      setText('resultadoSepTituloHo', turno);
     }
 
     function carregarResultadoSeparacaoFormulario(){
@@ -1797,30 +1800,34 @@ sb.auth.onAuthStateChange(async (_, session) => {
 
     function salvarResultadoSeparacaoFormulario(){
       const getNum = id => num(document.getElementById(id)?.value) || 0;
-      const state = {
-        heProdPessoa:getNum('resSepHeProdPessoa'),
-        hoProdPessoa:getNum('resSepHoProdPessoa'),
-        heMeta:getNum('resSepHeMeta'),
-        hoMeta:getNum('resSepHoMeta'),
-        he:{}, ho:{}
-      };
-      ['T1','T2','T3'].forEach(t => {
-        state.he[t] = { real:getNum(`resSepHe${t}Real`), plan:getNum(`resSepHe${t}Plan`) };
-        state.ho[t] = { real:getNum(`resSepHo${t}Real`), plan:getNum(`resSepHo${t}Plan`) };
-      });
+      const turno = getResultadoSeparacaoSelectedTurno();
+      const state = getResultadoSeparacaoState();
+      state.heProdPessoa = getNum('resSepHeProdPessoa');
+      state.hoProdPessoa = getNum('resSepHoProdPessoa');
+      state.heMeta = getNum('resSepHeMeta');
+      state.hoMeta = getNum('resSepHoMeta');
+      state.he = state.he || {T1:{real:0,plan:0},T2:{real:0,plan:0},T3:{real:0,plan:0}};
+      state.ho = state.ho || {T1:{real:0,plan:0},T2:{real:0,plan:0},T3:{real:0,plan:0}};
+      state.he[turno] = { real:getNum('resSepHeTurnoReal'), plan:getNum('resSepHeTurnoPlan') };
+      state.ho[turno] = { real:getNum('resSepHoTurnoReal'), plan:getNum('resSepHoTurnoPlan') };
       setResultadoSeparacaoState(state);
-      showToast('Configuração do resultado da separação salva');
+      showToast(`Resultado da separação salvo para ${turno}`);
       renderResultadoSeparacao();
     }
 
     function renderResultadoSeparacao(){
       const section = document.getElementById('view-resultado-separacao');
       if(!section) return;
-      const rows = getAgendaRows();
+      const turnos = ['T1','T2','T3'];
+      const dataRaw = getResultadoSeparacaoSelectedDataRaw();
+      const turnoSelecionado = getResultadoSeparacaoSelectedTurno();
+      const filtroDataEl = document.getElementById('resultadoSepData');
+      if(filtroDataEl && filtroDataEl.value !== dataRaw) filtroDataEl.value = dataRaw;
+      const rowsBase = getAgendaRows();
+      const rows = dataRaw ? rowsBase.filter(r => r.data_agenda === dataRaw) : rowsBase;
       const state = getResultadoSeparacaoState();
       preencherResultadoSeparacaoFormulario(state);
-      const turnos = ['T1','T2','T3'];
-      const dataRef = dataFiltrada() ? fmtDate(dataFiltrada()) : 'Todos';
+      const dataRef = dataRaw ? fmtDate(dataRaw) : 'Todos';
       const rowsPorTurno = t => rows.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t);
       const planejadoHe = rows.reduce((a,b)=>a+(b.he||0),0);
       const planejadoHo = rows.reduce((a,b)=>a+(b.ho||0),0);
@@ -1832,41 +1839,53 @@ sb.auth.onAuthStateChange(async (_, session) => {
       const pendHo = Math.max(planejadoHo - realizadoHo, 0);
       const capHeT = Object.fromEntries(turnos.map(t => [t, (state.he?.[t]?.real || 0) * (state.heProdPessoa || 0)]));
       const capHoT = Object.fromEntries(turnos.map(t => [t, (state.ho?.[t]?.real || 0) * (state.hoProdPessoa || 0)]));
-      const capHe = turnos.reduce((a,t)=>a+capHeT[t],0);
-      const capHo = turnos.reduce((a,t)=>a+capHoT[t],0);
-      const efHe = capHe ? Math.round((realizadoHe / capHe) * 100) : 0;
-      const efHo = capHo ? Math.round((realizadoHo / capHo) * 100) : 0;
+      const capHeSelecionado = capHeT[turnoSelecionado] || 0;
+      const capHoSelecionado = capHoT[turnoSelecionado] || 0;
+      const efHe = capHeSelecionado ? Math.round((realizadoHeT[turnoSelecionado] / capHeSelecionado) * 100) : 0;
+      const efHo = capHoSelecionado ? Math.round((realizadoHoT[turnoSelecionado] / capHoSelecionado) * 100) : 0;
       const setText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
-      setText('resultadoSepDataRef', dataRef); setText('resultadoSepEfHeRef', `${efHe}%`); setText('resultadoSepEfHoRef', `${efHo}%`);
-      setText('resSepProgramadoHe', planejadoHe.toLocaleString('pt-BR')); setText('resSepProgramadoHo', planejadoHo.toLocaleString('pt-BR'));
-      setText('resSepRealizadoHe', realizadoHe.toLocaleString('pt-BR')); setText('resSepRealizadoHo', realizadoHo.toLocaleString('pt-BR'));
-      setText('resSepPendenteHe', pendHe.toLocaleString('pt-BR')); setText('resSepPendenteHo', pendHo.toLocaleString('pt-BR'));
-      const renderTable = (id, tipo, realizadoT, capT, efTotal) => {
+      setText('resultadoSepDataRef', dataRef);
+      setText('resultadoSepTurnoRef', turnoSelecionado);
+      setText('resultadoSepEfHeRef', `${efHe}%`);
+      setText('resultadoSepEfHoRef', `${efHo}%`);
+      setText('resultadoSepHeadHe', turnoSelecionado);
+      setText('resultadoSepHeadHo', turnoSelecionado);
+      setText('resultadoSepBadgeHe', `HE • ${turnoSelecionado}`);
+      setText('resultadoSepBadgeHo', `HO • ${turnoSelecionado}`);
+      setText('resSepProgramadoHe', planejadoHe.toLocaleString('pt-BR'));
+      setText('resSepProgramadoHo', planejadoHo.toLocaleString('pt-BR'));
+      setText('resSepRealizadoHe', realizadoHeT[turnoSelecionado].toLocaleString('pt-BR'));
+      setText('resSepRealizadoHo', realizadoHoT[turnoSelecionado].toLocaleString('pt-BR'));
+      setText('resSepPendenteHe', Math.max(planejadoHe - realizadoHeT[turnoSelecionado], 0).toLocaleString('pt-BR'));
+      setText('resSepPendenteHo', Math.max(planejadoHo - realizadoHoT[turnoSelecionado], 0).toLocaleString('pt-BR'));
+      const renderTable = (id, tipo, realizadoT, capT) => {
         const tbody = document.getElementById(id); if(!tbody) return;
-        const src = state[tipo];
+        const src = state[tipo] || {};
+        const turnoData = src[turnoSelecionado] || { real:0, plan:0 };
+        const eficiencia = capT[turnoSelecionado] ? `${Math.round((realizadoT[turnoSelecionado]/capT[turnoSelecionado])*100)}%` : '0%';
         const linhas = [
-          ['M/O Real', src.T1.real, src.T2.real, src.T3.real],
-          ['M/O Planejada', src.T1.plan, src.T2.plan, src.T3.plan],
-          ['Capacidade Real', capT.T1, capT.T2, capT.T3],
-          [`Realizado ${tipo.toUpperCase()}`, realizadoT.T1, realizadoT.T2, realizadoT.T3],
-          [`Eficiência ${tipo.toUpperCase()}`, capT.T1?`${Math.round((realizadoT.T1/capT.T1)*100)}%`:'0%', capT.T2?`${Math.round((realizadoT.T2/capT.T2)*100)}%`:'0%', capT.T3?`${Math.round((realizadoT.T3/capT.T3)*100)}%`:'0%']
+          ['M/O Real', turnoData.real],
+          ['M/O Planejada', turnoData.plan],
+          ['Capacidade Real', capT[turnoSelecionado] || 0],
+          [`Realizado ${tipo.toUpperCase()}`, realizadoT[turnoSelecionado] || 0],
+          [`Eficiência ${tipo.toUpperCase()}`, eficiencia]
         ];
-        tbody.innerHTML = linhas.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])}</td></tr>`).join('');
+        tbody.innerHTML = linhas.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('');
       };
-      renderTable('resultadoSepTabelaHE','he',realizadoHeT,capHeT,efHe);
-      renderTable('resultadoSepTabelaHO','ho',realizadoHoT,capHoT,efHo);
+      renderTable('resultadoSepTabelaHE','he',realizadoHeT,capHeT);
+      renderTable('resultadoSepTabelaHO','ho',realizadoHoT,capHoT);
       if(chartResultadoSepHE) chartResultadoSepHE.destroy();
       if(chartResultadoSepHO) chartResultadoSepHO.destroy();
-      const buildChart = (canvasId, realizadoT, capT, lineColor) => new Chart(document.getElementById(canvasId), {
+      const buildChart = (canvasId, realizadoValor, capValor, lineColor) => new Chart(document.getElementById(canvasId), {
         type:'bar',
-        data:{ labels:turnos, datasets:[
-          { label:'Realizado', data:turnos.map(t=>realizadoT[t]), borderRadius:12, borderSkipped:false, maxBarThickness:48, backgroundColor:['rgba(34,211,238,.92)','rgba(34,211,238,.92)','rgba(34,211,238,.92)'] },
-          { type:'line', label:'Capacidade', data:turnos.map(t=>capT[t]), borderColor:lineColor, pointBackgroundColor:lineColor, pointRadius:4, tension:.25 }
+        data:{ labels:[turnoSelecionado], datasets:[
+          { label:'Realizado', data:[realizadoValor], borderRadius:12, borderSkipped:false, maxBarThickness:70, backgroundColor:['rgba(34,211,238,.92)'] },
+          { type:'line', label:'Capacidade', data:[capValor], borderColor:lineColor, pointBackgroundColor:lineColor, pointRadius:4, tension:.25 }
         ]},
         options: mergeChartOptions(getPremiumChartOptions(), { plugins:{ legend:{ labels:{ color:'#f8fafc' } } } })
       });
-      chartResultadoSepHE = buildChart('graficoResultadoSepHE', realizadoHeT, capHeT, 'rgba(251,146,60,1)');
-      chartResultadoSepHO = buildChart('graficoResultadoSepHO', realizadoHoT, capHoT, 'rgba(59,130,246,1)');
+      chartResultadoSepHE = buildChart('graficoResultadoSepHE', realizadoHeT[turnoSelecionado], capHeSelecionado, 'rgba(251,146,60,1)');
+      chartResultadoSepHO = buildChart('graficoResultadoSepHO', realizadoHoT[turnoSelecionado], capHoSelecionado, 'rgba(59,130,246,1)');
     }
 
     const PASSAGEM_AREAS = ['Linha 5','Linha 6','Avarias','Expedição | EMB','Gestão de Estoque','Almoxarifado','Abastecimento','PD'];
