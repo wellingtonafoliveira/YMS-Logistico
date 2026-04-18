@@ -124,161 +124,583 @@
         </div>
         <div class="grid grid-4" id="dashboardKpis"></div>
 
-        <div class="card soft-glow resultado-config-card" style="margin-top:16px">
-  <div class="card-title-row">
-    <div>
-      <h2 style="margin:0">Configuração da mão de obra da separação</h2>
-      <p>Preencha por turno com visual de sistema. Avaria usa meta de 800 caixas, demais equipes HE usam 1000 caixas e HO usa 120 PL por pessoa/turno.</p>
-    </div>
-    <div class="group">
-      <button class="btn btn-light" onclick="carregarResultadoSeparacaoFormulario()">Recarregar</button>
-      <button class="btn btn-success" onclick="salvarResultadoSeparacaoFormulario()">Salvar configuração</button>
-    </div>
-  </div>
+        <div class="card soft-glow" style="margin-top:16px">
+          <div class="card-title-row">
+            <div>
+              <h2 style="margin:0">Painel de exceções</h2>
+              <p>Leitura orientada por exceção para priorizar atrasos, pendências de doca, ausência de motorista e divergências operacionais.</p>
+            </div>
+            <span class="premium-badge">Ação imediata</span>
+          </div>
+          <div class="grid grid-4" id="dashboardExceptions"></div>
+        </div>
 
-  <div class="resultado-config-summary">
-    <div class="resultado-config-pill">HE padrão: <strong>1000 cx</strong></div>
-    <div class="resultado-config-pill warning">HE avaria: <strong>800 cx</strong></div>
-    <div class="resultado-config-pill info">HO por pessoa: <strong>120 PL</strong></div>
-  </div>
+        <div class="card soft-glow" style="margin-top:16px">
+          <div class="card-title-row"><div><h2 style="margin:0">Torre de etapas</h2><p>Visão consolidada das etapas da operação com rolagem dedicada por coluna.</p></div><span class="premium-badge">Tempo real</span></div>
+          <div class="board" id="dashboardBoard"></div>
+        </div>
+      </section>
 
-  <div class="resultado-mao-grid">
-    <article class="resultado-turno-card">
-      <div class="resultado-turno-head">
-        <span class="resultado-turno-badge">T1</span>
-        <h3>Mão de obra do turno</h3>
-      </div>
-
-      <div class="resultado-blocos-grid">
-        <div class="resultado-bloco-he">
-          <div class="resultado-bloco-titulo">HE</div>
-          <div class="resultado-linha-input"><label>M.O Fixa</label><input id="resSepHeT1FixaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>1000 cx por pessoa</strong></div>
-          <div class="resultado-linha-input"><label>M.O Avaria</label><input id="resSepHeT1AvariaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>800 cx por pessoa</strong></div>
-          <div class="resultado-linha-input"><label>M.O Exclusiva</label><input id="resSepHeT1ExclusivaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>1000 cx por pessoa</strong></div>
-          <div class="resultado-linha-input"><label>M.O Linha Montagem</label><input id="resSepHeT1LinhaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>1000 cx por pessoa</strong></div>
-          <div class="resultado-hidden-hours">
-            <input id="resSepHeT1FixaHoras" type="hidden" value="6.7">
-            <input id="resSepHeT1AvariaHoras" type="hidden" value="6.7">
-            <input id="resSepHeT1ExclusivaHoras" type="hidden" value="6.7">
-            <input id="resSepHeT1LinhaHoras" type="hidden" value="6.7">
+      <section id="view-agenda" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Central da agenda operacional</h3>
+            <p>Visual mais premium para organizar as DTs do dia, acompanhar janelas e distribuir melhor a operação com leitura rápida de cliente, transportadora, doca e SLA.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Agenda filtrada</span>
+                <strong id="agendaDataRef">Todos</strong>
+              </div>
+              <div class="section-mini">
+                <span>Total do dia</span>
+                <strong id="agendaTotalRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Resumo rápido da agenda</h3>
+            <p>Cadastre novas DTs, acompanhe o planejamento do dia e visualize rapidamente o volume previsto da operação antes da execução no pátio e na expedição.</p>
           </div>
         </div>
 
-        <div class="resultado-bloco-ho">
-          <div class="resultado-bloco-titulo">HO</div>
-          <div class="resultado-linha-input"><label>M.O Fixa</label><input id="resSepHoT1FixaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>120 PL por pessoa</strong></div>
-          <div class="resultado-linha-input"><label>M.O Disponibilizada</label><input id="resSepHoT1DisponivelQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>120 PL por pessoa</strong></div>
-          <div class="resultado-hidden-hours">
-            <input id="resSepHoT1FixaHoras" type="hidden" value="6.7">
-            <input id="resSepHoT1DisponivelHoras" type="hidden" value="6.7">
+
+        <div class="filters-card soft-glow">
+          <div class="card-title-row">
+            <div>
+              <h2 style="margin:0">Filtros e validações da agenda</h2>
+              <p>Encontre conflitos, refine a leitura operacional e foque apenas no que precisa de ação.</p>
+            </div>
+            <span class="premium-badge">Filtros fortes</span>
           </div>
-        </div>
-      </div>
-
-      <div class="resultado-eficiencia-card">
-        <div class="resultado-eficiencia-title">Eficiência operacional</div>
-        <div class="table-wrap resultado-eficiencia-wrap"><table class="resultado-eficiencia-clean"><thead><tr><th>Status</th><th>HE</th><th>HO</th></tr></thead><tbody id="resultadoSepResumoT1"></tbody></table></div>
-      </div>
-    </article>
-
-    <article class="resultado-turno-card">
-      <div class="resultado-turno-head">
-        <span class="resultado-turno-badge">T2</span>
-        <h3>Mão de obra do turno</h3>
-      </div>
-
-      <div class="resultado-blocos-grid">
-        <div class="resultado-bloco-he">
-          <div class="resultado-bloco-titulo">HE</div>
-          <div class="resultado-linha-input"><label>M.O Fixa</label><input id="resSepHeT2FixaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>1000 cx por pessoa</strong></div>
-          <div class="resultado-linha-input"><label>M.O Avaria</label><input id="resSepHeT2AvariaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>800 cx por pessoa</strong></div>
-          <div class="resultado-linha-input"><label>M.O Exclusiva</label><input id="resSepHeT2ExclusivaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>1000 cx por pessoa</strong></div>
-          <div class="resultado-linha-input"><label>M.O Linha Montagem</label><input id="resSepHeT2LinhaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>1000 cx por pessoa</strong></div>
-          <div class="resultado-hidden-hours">
-            <input id="resSepHeT2FixaHoras" type="hidden" value="6.7">
-            <input id="resSepHeT2AvariaHoras" type="hidden" value="6.7">
-            <input id="resSepHeT2ExclusivaHoras" type="hidden" value="6.7">
-            <input id="resSepHeT2LinhaHoras" type="hidden" value="6.7">
+          <div class="filters-grid">
+            <div><label>Busca rápida</label><input id="agendaFiltroBusca" placeholder="DT, cliente ou transportadora" oninput="renderAgenda();renderDashboard();renderPatio();renderDocas();renderRelatorios()"></div>
+            <div><label>Status</label><select id="agendaFiltroStatus" onchange="renderAgenda();renderDashboard();renderPatio();renderDocas();renderRelatorios()"><option value="">Todos</option><option>Agendado</option><option>Em Separação</option><option>Separado</option><option>Pronto Expedição</option><option>No Pátio</option><option>Em Doca</option><option>Em Carregamento</option><option>Expedido</option></select></div>
+            <div><label>Transportadora</label><input id="agendaFiltroTransportadora" placeholder="Filtrar transportadora" oninput="renderAgenda()"></div>
+            <div><label>Doca</label><input id="agendaFiltroDoca" placeholder="Filtrar doca" oninput="renderAgenda()"></div>
+            <div><label>Exceção</label><select id="agendaFiltroRisco" onchange="renderAgenda();renderDashboard()"><option value="">Todas</option><option value="atraso">Somente atraso</option><option value="sem_doca">Sem doca</option><option value="conflito">Conflitos</option></select></div>
           </div>
+          <div class="risk-banner" id="agendaRiskBanner">Nenhuma validação executada ainda.</div>
         </div>
 
-        <div class="resultado-bloco-ho">
-          <div class="resultado-bloco-titulo">HO</div>
-          <div class="resultado-linha-input"><label>M.O Fixa</label><input id="resSepHoT2FixaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>120 PL por pessoa</strong></div>
-          <div class="resultado-linha-input"><label>M.O Disponibilizada</label><input id="resSepHoT2DisponivelQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>120 PL por pessoa</strong></div>
-          <div class="resultado-hidden-hours">
-            <input id="resSepHoT2FixaHoras" type="hidden" value="6.7">
-            <input id="resSepHoT2DisponivelHoras" type="hidden" value="6.7">
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="section-toolbar">
+              <div>
+                <h2>Nova DT</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Cadastro rápido da programação operacional</p>
+              </div>
+              <span class="premium-badge">Planejamento</span>
+            </div>
+            <div class="fields">
+              <div><label>DT</label><input id="a_dt"></div>
+              <div><label>Ordem</label><input id="a_ordem"></div>
+              <div><label>Remessa</label><input id="a_remessa"></div>
+              <div><label>Data agenda</label><input id="a_data_agenda" type="date"></div>
+              <div><label>Hora agenda</label><input id="a_hora_agenda" type="time"></div>
+              <div><label>Transportadora</label><input id="a_transportadora"></div>
+              <div><label>Cliente</label><input id="a_cliente"></div>
+              <div><label>Tipo de carga</label><input id="a_tipo_carga"></div>
+              <div><label>Tipo de veículo</label><input id="a_tipo_veiculo"></div>
+              <div><label>Tipo de frete</label><input id="a_tipo_frete"></div>
+              <div><label>Perfil carga</label><input id="a_perfil_carga"></div>
+              <div><label>Doca agenda</label><select id="a_doca_agenda"></select></div>
+              <div><label>Peso</label><input id="a_peso" type="number" step="0.001"></div>
+              <div><label>M³ / Cubagem</label><input id="a_cubagem" type="number" step="0.001"></div>
+              <div><label>Tonelagem</label><input id="a_tonelagem" type="number" step="0.001"></div>
+              <div><label>HE</label><input id="a_he" type="number"></div>
+              <div><label>HO</label><input id="a_ho" type="number"></div>
+              <div><label>Total caixas</label><input id="a_total_caixas" type="number"></div>
+              <div class="full"><label>Observação geral</label><textarea id="a_observacao"></textarea></div>
+            </div>
+            <div style="margin-top:12px">
+              <button class="btn btn-success" onclick="criarDT()">Salvar DT</button>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="resultado-eficiencia-card">
-        <div class="resultado-eficiencia-title">Eficiência operacional</div>
-        <div class="table-wrap resultado-eficiencia-wrap"><table class="resultado-eficiencia-clean"><thead><tr><th>Status</th><th>HE</th><th>HO</th></tr></thead><tbody id="resultadoSepResumoT2"></tbody></table></div>
-      </div>
-    </article>
-
-    <article class="resultado-turno-card">
-      <div class="resultado-turno-head">
-        <span class="resultado-turno-badge">T3</span>
-        <h3>Mão de obra do turno</h3>
-      </div>
-
-      <div class="resultado-blocos-grid">
-        <div class="resultado-bloco-he">
-          <div class="resultado-bloco-titulo">HE</div>
-          <div class="resultado-linha-input"><label>M.O Fixa</label><input id="resSepHeT3FixaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>1000 cx por pessoa</strong></div>
-          <div class="resultado-linha-input"><label>M.O Avaria</label><input id="resSepHeT3AvariaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>800 cx por pessoa</strong></div>
-          <div class="resultado-linha-input"><label>M.O Exclusiva</label><input id="resSepHeT3ExclusivaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>1000 cx por pessoa</strong></div>
-          <div class="resultado-linha-input"><label>M.O Linha Montagem</label><input id="resSepHeT3LinhaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>1000 cx por pessoa</strong></div>
-          <div class="resultado-hidden-hours">
-            <input id="resSepHeT3FixaHoras" type="hidden" value="6.7">
-            <input id="resSepHeT3AvariaHoras" type="hidden" value="6.7">
-            <input id="resSepHeT3ExclusivaHoras" type="hidden" value="6.7">
-            <input id="resSepHeT3LinhaHoras" type="hidden" value="6.7">
+          <div class="card">
+            <div class="section-toolbar">
+              <div>
+                <h2>Resumo do dia</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Leitura executiva da agenda filtrada</p>
+              </div>
+              <span class="premium-badge">Indicadores</span>
+            </div>
+            <div class="grid grid-4" id="agendaKpis"></div>
           </div>
         </div>
 
-        <div class="resultado-bloco-ho">
-          <div class="resultado-bloco-titulo">HO</div>
-          <div class="resultado-linha-input"><label>M.O Fixa</label><input id="resSepHoT3FixaQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>120 PL por pessoa</strong></div>
-          <div class="resultado-linha-input"><label>M.O Disponibilizada</label><input id="resSepHoT3DisponivelQtd" type="number" step="1"></div>
-          <div class="resultado-linha-input meta"><span>Meta automática</span><strong>120 PL por pessoa</strong></div>
-          <div class="resultado-hidden-hours">
-            <input id="resSepHoT3FixaHoras" type="hidden" value="6.7">
-            <input id="resSepHoT3DisponivelHoras" type="hidden" value="6.7">
+        <div class="card premium-table-card" style="margin-top:16px">
+          <div class="premium-table-head">
+            <div>
+              <h2>Agenda do dia</h2>
+              <p>Lista moderna da programação com foco em janela, doca, status e SLA.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="agendaSoftStat">0 registros</span>
+              <span class="premium-badge">Operação planejada</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DT</th><th>Data</th><th>Hora</th><th>Cliente</th><th>Transportadora</th><th>Doca</th><th>Status</th><th>SLA</th><th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="agendaTabela"></tbody>
+            </table>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="resultado-eficiencia-card">
-        <div class="resultado-eficiencia-title">Eficiência operacional</div>
-        <div class="table-wrap resultado-eficiencia-wrap"><table class="resultado-eficiencia-clean"><thead><tr><th>Status</th><th>HE</th><th>HO</th></tr></thead><tbody id="resultadoSepResumoT3"></tbody></table></div>
-      </div>
-    </article>
-  </div>
-</div></div>
-</section>
+      <section id="view-separacao" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Operação de separação</h3>
+            <p>Acompanhe com mais clareza o avanço da separação, os conferentes envolvidos, turnos e gargalos da operação antes da carga seguir para expedição.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Em separação</span>
+                <strong id="sepEmAndamentoRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Separadas</span>
+                <strong id="sepConcluidoRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Leitura operacional</h3>
+            <p>Visual premium com foco em status, conferente, turno e SLA para acelerar a identificação do que está pendente e do que já está pronto.</p>
+          </div>
+        </div>
 
-<section id="view-passagem-turno"
+        <div class="card premium-table-card">
+          <div class="premium-table-head">
+            <div>
+              <h2>Separação</h2>
+              <p>Controle das etapas internas de separação e recebimento.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="separacaoSoftStat">0 registros</span>
+              <span class="premium-badge">Execução interna</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DT</th><th>Cliente</th><th>Transportadora</th><th>Doca planejada</th><th>Status separação</th><th>Conferente recebimento</th><th>Turno</th><th>SLA</th><th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="separacaoTabela"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-expedicao" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Expedição em destaque</h3>
+            <p>Monitore o que já foi preparado para saída, o que está pronto para expedição e o que já entrou no fluxo do pátio, com visão mais moderna e leitura executiva.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Pronto expedição</span>
+                <strong id="expProntoRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>No pátio</span>
+                <strong id="expPatioRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Leitura de saída</h3>
+            <p>Consolide conferente, faturamento, status e SLA em uma única visão para facilitar a tomada de decisão na expedição.</p>
+          </div>
+        </div>
+
+        <div class="card premium-table-card">
+          <div class="premium-table-head">
+            <div>
+              <h2>Expedição</h2>
+              <p>Painel premium para acompanhamento da saída e da integração com o pátio.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="expedicaoSoftStat">0 registros</span>
+              <span class="premium-badge">Saída operacional</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DT</th><th>Cliente</th><th>Transportadora</th><th>Doca agenda</th><th>Conferente expedição</th><th>Faturado</th><th>Status</th><th>SLA</th><th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="expedicaoTabela"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-patio" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Pátio em tempo real</h3>
+            <p>Visual premium para acompanhar veículos aguardando, em doca, em carregamento e já expedidos, com leitura rápida para tomada de decisão operacional.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>No pátio</span>
+                <strong id="patioNoPatioRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Em carregamento</span>
+                <strong id="patioCarregandoRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Movimentação inteligente</h3>
+            <p>Controle a passagem da DT por cada etapa operacional, registre a fila real do pátio, chame o motorista no sistema e envie mensagem direta quando houver telefone disponível.</p>
+          </div>
+        </div>
+
+
+        <div class="queue-summary">
+          <div class="section-mini"><span>Fila no pátio</span><strong id="filaPatioTotal">0</strong></div>
+          <div class="section-mini"><span>Tempo médio estimado</span><strong id="filaPatioTempo">0 min</strong></div>
+          <div class="section-mini"><span>Próxima doca livre</span><strong id="filaPatioDoca">-</strong></div>
+          <div class="section-mini"><span>Chamadas realizadas</span><strong id="filaPatioChamadas">0</strong></div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card premium-table-card">
+            <div class="premium-table-head">
+              <div>
+                <h2>Painel do pátio</h2>
+                <p>Leitura visual das etapas do pátio em tempo real.</p>
+              </div>
+              <div class="group">
+                <span class="soft-stat" id="patioSoftStat">0 registros</span>
+                <span class="premium-badge">Fluxo operacional</span>
+              </div>
+            </div>
+            <div class="board board-premium" id="patioBoard"></div>
+          </div>
+
+          <div class="card form-card-premium">
+            <div class="section-toolbar">
+              <div>
+                <h2>Movimentação rápida</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Atualize a etapa da DT com mais clareza</p>
+              </div>
+              <span class="premium-badge">Ação rápida</span>
+            </div>
+            <div class="fields" style="grid-template-columns:repeat(2,1fr)">
+              <div><label>DT</label><select id="p_dt" onchange="preencherPatio()"></select></div>
+              <div><label>Doca carregamento</label><select id="p_doca"></select></div>
+              <div><label>Motorista</label><input id="p_motorista"></div>
+              <div><label>Telefone motorista</label><input id="p_telefone_motorista" placeholder="11999998888"></div>
+              <div><label>Placa cavalo</label><input id="p_placa_cavalo"></div>
+              <div><label>Placa carreta</label><input id="p_placa_carreta"></div>
+              <div><label>Placa reboque 1</label><input id="p_placa_reboque_1"></div>
+              <div><label>Placa reboque 2</label><input id="p_placa_reboque_2"></div>
+              <div><label>Presença</label>
+                <select id="p_presenca">
+                  <option value="">Selecione</option>
+                  <option>Presente</option>
+                  <option>Ausente</option>
+                  <option>Atrasado</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+              <button class="btn btn-warning" onclick="moverPatio('No Pátio')">No Pátio</button>
+              <button class="btn btn-primary" onclick="moverPatio('Em Doca')">Em Doca</button>
+              <button class="btn btn-success" onclick="moverPatio('Em Carregamento')">Em Carregamento</button>
+              <button class="btn btn-danger" onclick="moverPatio('Expedido')">Expedido</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-docas" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Torre de docas premium</h3>
+            <p>Visão moderna das docas com leitura de ocupação, DT em atendimento, motorista, placas e início de operação.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Docas livres</span>
+                <strong id="docasLivreRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Docas ocupadas</span>
+                <strong id="docasOcupadaRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Ocupação inteligente</h3>
+            <p>Identifique rapidamente gargalos, utilização das docas e veículos em processo, tudo no mesmo padrão visual premium.</p>
+          </div>
+        </div>
+
+        <div class="card premium-table-card">
+          <div class="premium-table-head">
+            <div>
+              <h2>Torre de docas</h2>
+              <p>Painel premium da ocupação das docas.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="docasSoftStat">0 docas</span>
+              <span class="premium-badge">Ocupação</span>
+            </div>
+          </div>
+          <div class="dock-grid dock-grid-premium" id="docasGrid" style="padding:18px"></div>
+        </div>
+      </section>
+
+      <section id="view-checkin" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Check-in interno</h3>
+            <p>Registre a chegada do motorista com visual premium, leitura operacional mais clara e consolidação das placas e presença diretamente no fluxo interno.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Check-ins hoje</span>
+                <strong id="checkinHojeRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Presentes</span>
+                <strong id="checkinPresenteRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Consolidação de chegada</h3>
+            <p>Visualize motorista, placas, presença, chegada e status em um só lugar, mantendo coerência com o restante do sistema premium.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card form-card-premium">
+            <div class="section-toolbar">
+              <div>
+                <h2>Registrar check-in</h2>
+                <p style="margin:6px 0 0;color:var(--muted);font-size:12px">Movimente rapidamente a DT para o pátio</p>
+              </div>
+              <span class="premium-badge">Portaria interna</span>
+            </div>
+            <div class="fields">
+              <div><label>DT</label><select id="c_dt"></select></div>
+              <div><label>Motorista</label><input id="c_motorista"></div>
+              <div><label>Telefone motorista</label><input id="c_telefone_motorista" placeholder="11999998888"></div>
+              <div><label>Telefone motorista</label><input id="c_telefone_motorista" placeholder="11999999999"></div>
+              <div><label>Placa cavalo</label><input id="c_placa_cavalo"></div>
+              <div><label>Placa carreta</label><input id="c_placa_carreta"></div>
+              <div><label>Placa reboque 1</label><input id="c_placa_reboque_1"></div>
+              <div><label>Placa reboque 2</label><input id="c_placa_reboque_2"></div>
+              <div><label>Presença</label>
+                <select id="c_presenca">
+                  <option value="">Selecione</option>
+                  <option>Presente</option>
+                  <option>Ausente</option>
+                  <option>Atrasado</option>
+                </select>
+              </div>
+              <div class="full"><label>Observação</label><textarea id="c_obs"></textarea></div>
+            </div>
+            <div style="margin-top:12px">
+              <button class="btn btn-success" onclick="registrarCheckin()">Registrar check-in</button>
+            </div>
+          </div>
+
+          <div class="card premium-table-card">
+            <div class="premium-table-head">
+              <div>
+                <h2>Histórico de check-in</h2>
+                <p>Lista premium das chegadas registradas.</p>
+              </div>
+              <div class="group">
+                <span class="soft-stat" id="checkinSoftStat">0 registros</span>
+                <span class="premium-badge">Chegadas</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>DT</th><th>Transportadora</th><th>Motorista</th><th>Telefone</th><th>Placas</th><th>Presença</th><th>Chegada</th><th>Status</th><th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="checkinTabela"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-relatorios" class="hidden">
+        <div class="report-hero">
+          <div class="report-hero-card soft-glow">
+            <h3>Central de resultados operacionais</h3>
+            <p>Visual moderno para acompanhar produtividade e comportamento da operação ao longo do dia, com leitura mais executiva e foco em decisão.</p>
+            <div class="report-mini-grid report-mini-grid-3">
+              <div class="report-mini">
+                <span>Filtro aplicado</span>
+                <strong id="relatorioDataRef">Todos</strong>
+              </div>
+              <div class="report-mini">
+                <span>Expedidas no filtro</span>
+                <strong id="relatorioExpedidoRef">0</strong>
+              </div>
+              <div class="report-mini">
+                <span>Peso expedido</span>
+                <strong id="relatorioPesoRef">0 t</strong>
+              </div>
+            </div>
+          </div>
+          <div class="report-hero-card soft-glow">
+            <h3>Leitura de performance</h3>
+            <p>Os blocos abaixo destacam desempenho do dia, eficiência de fila e carregamento e comportamento por turno e transportadora.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Resultados executivos</h2>
+          <div class="executive-grid" id="relatorioExecutivo"></div>
+        </div>
+
+        <div class="card">
+          <h2>Resultados gerais</h2>
+          <div class="grid grid-4" id="relatorioResumo"></div>
+        </div>
+
+        <div class="grid grid-2" style="margin-top:16px">
+          <div class="card premium-chart-card">
+            <div class="premium-chart-head">
+              <div>
+                <h2>Caixas HE por turno</h2>
+                <p class="chart-helper">Distribuição de caixas HE por turno no filtro selecionado.</p>
+              </div>
+              <span class="premium-chart-badge">HE</span>
+            </div>
+            <div class="premium-canvas-wrap">
+              <canvas id="graficoHE" height="120"></canvas>
+            </div>
+          </div>
+          <div class="card premium-chart-card">
+            <div class="premium-chart-head">
+              <div>
+                <h2>Caixas HO/PL por turno</h2>
+                <p class="chart-helper">Distribuição de caixas HO/PL por turno no filtro selecionado.</p>
+              </div>
+              <span class="premium-chart-badge">HO/PL</span>
+            </div>
+            <div class="premium-canvas-wrap">
+              <canvas id="graficoHO" height="120"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="margin-top:16px">
+          <div class="card premium-chart-card">
+            <div class="premium-chart-head">
+              <div>
+                <h2>Carros expedidos por turno</h2>
+                <p class="chart-helper">Quantidade de DTs expedidas por turno no filtro selecionado.</p>
+              </div>
+              <span class="premium-chart-badge">Fluxo</span>
+            </div>
+            <div class="premium-canvas-wrap">
+              <canvas id="graficoCarrosTurno" height="120"></canvas>
+            </div>
+          </div>
+          <div class="card premium-chart-card">
+            <div class="premium-chart-head">
+              <div>
+                <h2>Tonelagem expedida por turno</h2>
+                <p class="chart-helper">Peso expedido por turno para leitura executiva da produtividade.</p>
+              </div>
+              <span class="premium-chart-badge">Peso</span>
+            </div>
+            <div class="premium-canvas-wrap">
+              <canvas id="graficoTonelagemTurno" height="120"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      
+      <section id="view-resultado-separacao" class="hidden">
+        <div class="report-hero">
+          <div class="report-hero-card soft-glow">
+            <h3>Resultado operacional da separação</h3>
+            <p>Painel para acompanhar programado, realizado, pendente, produtividade por turno e capacidade da mão de obra em HE e HO.</p>
+            <div class="report-mini-grid report-mini-grid-3">
+              <div class="report-mini"><span>Filtro aplicado</span><strong id="resultadoSepDataRef">Todos</strong></div>
+              <div class="report-mini"><span>Eficiência HE</span><strong id="resultadoSepEfHeRef">0%</strong></div>
+              <div class="report-mini"><span>Eficiência HO</span><strong id="resultadoSepEfHoRef">0%</strong></div>
+            </div>
+          </div>
+          <div class="report-hero-card soft-glow">
+            <h3>Capacidade versus realizado</h3>
+            <p>Os blocos abaixo permitem preencher a mão de obra planejada e real por turno, medir a capacidade e comparar com o realizado.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-3 resultado-top-grid">
+          <div class="card resultado-metric-card"><div class="resultado-tag green">Programado</div><div class="resultado-duo"><div><span>CX HE</span><strong id="resSepProgramadoHe">0</strong></div><div><span>PL HO</span><strong id="resSepProgramadoHo">0</strong></div></div></div>
+          <div class="card resultado-metric-card"><div class="resultado-tag blue">Realizado</div><div class="resultado-duo"><div><span>CX HE</span><strong id="resSepRealizadoHe">0</strong></div><div><span>PL HO</span><strong id="resSepRealizadoHo">0</strong></div></div></div>
+          <div class="card resultado-metric-card"><div class="resultado-tag gray">Pendente</div><div class="resultado-duo"><div><span>CX HE</span><strong id="resSepPendenteHe">0</strong></div><div><span>PL HO</span><strong id="resSepPendenteHo">0</strong></div></div></div>
+        </div>
+
+        <div class="grid grid-2" style="margin-top:16px">
+          <div class="card premium-chart-card resultado-chart-wrap">
+            <div class="premium-chart-head"><div><h2>Separação HE</h2><p class="chart-helper">Capacidade e realizado por turno.</p></div><span class="premium-chart-badge">HE</span></div>
+            <div class="premium-canvas-wrap"><canvas id="graficoResultadoSepHE" height="150"></canvas></div>
+            <div class="table-wrap resultado-table-wrap"><table><thead><tr><th>Indicador</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody id="resultadoSepTabelaHE"></tbody></table></div>
+          </div>
+          <div class="card premium-chart-card resultado-chart-wrap">
+            <div class="premium-chart-head"><div><h2>Separação HO</h2><p class="chart-helper">Capacidade e realizado por turno.</p></div><span class="premium-chart-badge">HO</span></div>
+            <div class="premium-canvas-wrap"><canvas id="graficoResultadoSepHO" height="150"></canvas></div>
+            <div class="table-wrap resultado-table-wrap"><table><thead><tr><th>Indicador</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody id="resultadoSepTabelaHO"></tbody></table></div>
+          </div>
+        </div>
+
+        <div class="card soft-glow" style="margin-top:16px">
+          <div class="card-title-row"><div><h2 style="margin:0">Preenchimento da mão de obra</h2><p>Preencha a equipe real e planejada por turno para calcular capacidade versus realizado.</p></div><div class="group"><button class="btn btn-light" onclick="carregarResultadoSeparacaoFormulario()">Recarregar</button><button class="btn btn-success" onclick="salvarResultadoSeparacaoFormulario()">Salvar configuração</button></div></div>
+          <div class="grid grid-2">
+            <div class="resultado-form-card">
+              <h3>HE • Parâmetros</h3>
+              <div class="fields resultado-fields">
+                <div><label>Produtividade por pessoa (HE)</label><input id="resSepHeProdPessoa" type="number" step="1"></div>
+                <div><label>Meta HE</label><input id="resSepHeMeta" type="number" step="1"></div>
+              </div>
+              <div class="resultado-turno-grid">
+                <div class="resultado-turno-card"><h4>T1</h4><label>M/O real</label><input id="resSepHeT1Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT1Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T2</h4><label>M/O real</label><input id="resSepHeT2Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT2Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T3</h4><label>M/O real</label><input id="resSepHeT3Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT3Plan" type="number" step="1"></div>
+              </div>
+            </div>
+            <div class="resultado-form-card">
+              <h3>HO • Parâmetros</h3>
+              <div class="fields resultado-fields">
+                <div><label>Produtividade por pessoa (HO)</label><input id="resSepHoProdPessoa" type="number" step="1"></div>
+                <div><label>Meta HO</label><input id="resSepHoMeta" type="number" step="1"></div>
+              </div>
+              <div class="resultado-turno-grid">
+                <div class="resultado-turno-card"><h4>T1</h4><label>M/O real</label><input id="resSepHoT1Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT1Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T2</h4><label>M/O real</label><input id="resSepHoT2Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT2Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T3</h4><label>M/O real</label><input id="resSepHoT3Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT3Plan" type="number" step="1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section id="view-passagem-turno" class="hidden">
         <div class="report-hero">
