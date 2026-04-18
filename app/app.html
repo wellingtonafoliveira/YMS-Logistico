@@ -671,36 +671,114 @@
           </div>
         </div>
 
-        <div class="card soft-glow" style="margin-top:16px">
-          <div class="card-title-row"><div><h2 style="margin:0">Preenchimento da mão de obra</h2><p>Preencha a equipe real e planejada por turno para calcular capacidade versus realizado.</p></div><div class="group"><button class="btn btn-light" onclick="carregarResultadoSeparacaoFormulario()">Recarregar</button><button class="btn btn-success" onclick="salvarResultadoSeparacaoFormulario()">Salvar configuração</button></div></div>
-          <div class="grid grid-2">
-            <div class="resultado-form-card">
-              <h3>HE • Parâmetros</h3>
-              <div class="fields resultado-fields">
-                <div><label>Produtividade por pessoa (HE)</label><input id="resSepHeProdPessoa" type="number" step="1"></div>
-                <div><label>Meta HE</label><input id="resSepHeMeta" type="number" step="1"></div>
-              </div>
-              <div class="resultado-turno-grid">
-                <div class="resultado-turno-card"><h4>T1</h4><label>M/O real</label><input id="resSepHeT1Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT1Plan" type="number" step="1"></div>
-                <div class="resultado-turno-card"><h4>T2</h4><label>M/O real</label><input id="resSepHeT2Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT2Plan" type="number" step="1"></div>
-                <div class="resultado-turno-card"><h4>T3</h4><label>M/O real</label><input id="resSepHeT3Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT3Plan" type="number" step="1"></div>
-              </div>
-            </div>
-            <div class="resultado-form-card">
-              <h3>HO • Parâmetros</h3>
-              <div class="fields resultado-fields">
-                <div><label>Produtividade por pessoa (HO)</label><input id="resSepHoProdPessoa" type="number" step="1"></div>
-                <div><label>Meta HO</label><input id="resSepHoMeta" type="number" step="1"></div>
-              </div>
-              <div class="resultado-turno-grid">
-                <div class="resultado-turno-card"><h4>T1</h4><label>M/O real</label><input id="resSepHoT1Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT1Plan" type="number" step="1"></div>
-                <div class="resultado-turno-card"><h4>T2</h4><label>M/O real</label><input id="resSepHoT2Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT2Plan" type="number" step="1"></div>
-                <div class="resultado-turno-card"><h4>T3</h4><label>M/O real</label><input id="resSepHoT3Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT3Plan" type="number" step="1"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+        
+<div class="card soft-glow" style="margin-top:16px">
+  <div class="card-title-row">
+    <div>
+      <h2 style="margin:0">Configuração da mão de obra da separação</h2>
+      <p>Preencha por turno conforme a planilha. Avaria usa meta de 800 caixas e os demais tipos de HE usam meta de 1000. Em HO, a meta é 120 PL por pessoa/turno.</p>
+    </div>
+    <div class="group">
+      <button class="btn btn-light" onclick="carregarResultadoSeparacaoFormulario()">Recarregar</button>
+      <button class="btn btn-success" onclick="salvarResultadoSeparacaoFormulario()">Salvar configuração</button>
+    </div>
+  </div>
+
+  <div class="resultado-config-summary">
+    <div class="resultado-config-pill">HE padrão: <strong>1000 cx</strong></div>
+    <div class="resultado-config-pill">HE avaria: <strong>800 cx</strong></div>
+    <div class="resultado-config-pill">HO por pessoa: <strong>120 PL</strong></div>
+  </div>
+
+  <div class="resultado-planilha-grid">
+    <div class="resultado-planilha-card">
+      <div class="resultado-planilha-title">T1 Mão de Obra HE</div>
+      <table class="resultado-planilha-table">
+        <thead><tr><th>Tipo de M.O</th><th>Qtd</th><th>Horas</th></tr></thead>
+        <tbody>
+          <tr><td>M.O Fixa</td><td><input id="resSepHeT1FixaQtd" type="number" step="1"></td><td><input id="resSepHeT1FixaHoras" type="number" step="0.1"></td></tr>
+          <tr><td>M.O Avaria</td><td><input id="resSepHeT1AvariaQtd" type="number" step="1"></td><td><input id="resSepHeT1AvariaHoras" type="number" step="0.1"></td></tr>
+          <tr><td>M.O Exclusiva</td><td><input id="resSepHeT1ExclusivaQtd" type="number" step="1"></td><td><input id="resSepHeT1ExclusivaHoras" type="number" step="0.1"></td></tr>
+          <tr><td>M.O Linha Montagem</td><td><input id="resSepHeT1LinhaQtd" type="number" step="1"></td><td><input id="resSepHeT1LinhaHoras" type="number" step="0.1"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="resultado-planilha-title small">Mão de Obra HO</div>
+      <table class="resultado-planilha-table">
+        <thead><tr><th>Tipo de M.O</th><th>Qtd</th><th>Horas</th></tr></thead>
+        <tbody>
+          <tr><td>M.O Fixa</td><td><input id="resSepHoT1FixaQtd" type="number" step="1"></td><td><input id="resSepHoT1FixaHoras" type="number" step="0.1"></td></tr>
+          <tr><td>M.O Disponibilizada</td><td><input id="resSepHoT1DisponivelQtd" type="number" step="1"></td><td><input id="resSepHoT1DisponivelHoras" type="number" step="0.1"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="resultado-planilha-title small">Eficiência Operacional</div>
+      <table class="resultado-planilha-table resultado-eficiencia-table">
+        <thead><tr><th>Status</th><th>HE</th><th>HO</th></tr></thead>
+        <tbody id="resultadoSepResumoT1"></tbody>
+      </table>
+    </div>
+
+    <div class="resultado-planilha-card">
+      <div class="resultado-planilha-title">T2 Mão de Obra HE</div>
+      <table class="resultado-planilha-table">
+        <thead><tr><th>Tipo de M.O</th><th>Qtd</th><th>Horas</th></tr></thead>
+        <tbody>
+          <tr><td>M.O Fixa</td><td><input id="resSepHeT2FixaQtd" type="number" step="1"></td><td><input id="resSepHeT2FixaHoras" type="number" step="0.1"></td></tr>
+          <tr><td>M.O Avaria</td><td><input id="resSepHeT2AvariaQtd" type="number" step="1"></td><td><input id="resSepHeT2AvariaHoras" type="number" step="0.1"></td></tr>
+          <tr><td>M.O Exclusiva</td><td><input id="resSepHeT2ExclusivaQtd" type="number" step="1"></td><td><input id="resSepHeT2ExclusivaHoras" type="number" step="0.1"></td></tr>
+          <tr><td>M.O Linha Montagem</td><td><input id="resSepHeT2LinhaQtd" type="number" step="1"></td><td><input id="resSepHeT2LinhaHoras" type="number" step="0.1"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="resultado-planilha-title small">Mão de Obra HO</div>
+      <table class="resultado-planilha-table">
+        <thead><tr><th>Tipo de M.O</th><th>Qtd</th><th>Horas</th></tr></thead>
+        <tbody>
+          <tr><td>M.O Fixa</td><td><input id="resSepHoT2FixaQtd" type="number" step="1"></td><td><input id="resSepHoT2FixaHoras" type="number" step="0.1"></td></tr>
+          <tr><td>M.O Disponibilizada</td><td><input id="resSepHoT2DisponivelQtd" type="number" step="1"></td><td><input id="resSepHoT2DisponivelHoras" type="number" step="0.1"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="resultado-planilha-title small">Eficiência Operacional</div>
+      <table class="resultado-planilha-table resultado-eficiencia-table">
+        <thead><tr><th>Status</th><th>HE</th><th>HO</th></tr></thead>
+        <tbody id="resultadoSepResumoT2"></tbody>
+      </table>
+    </div>
+
+    <div class="resultado-planilha-card">
+      <div class="resultado-planilha-title">T3 Mão de Obra HE</div>
+      <table class="resultado-planilha-table">
+        <thead><tr><th>Tipo de M.O</th><th>Qtd</th><th>Horas</th></tr></thead>
+        <tbody>
+          <tr><td>M.O Fixa</td><td><input id="resSepHeT3FixaQtd" type="number" step="1"></td><td><input id="resSepHeT3FixaHoras" type="number" step="0.1"></td></tr>
+          <tr><td>M.O Avaria</td><td><input id="resSepHeT3AvariaQtd" type="number" step="1"></td><td><input id="resSepHeT3AvariaHoras" type="number" step="0.1"></td></tr>
+          <tr><td>M.O Exclusiva</td><td><input id="resSepHeT3ExclusivaQtd" type="number" step="1"></td><td><input id="resSepHeT3ExclusivaHoras" type="number" step="0.1"></td></tr>
+          <tr><td>M.O Linha Montagem</td><td><input id="resSepHeT3LinhaQtd" type="number" step="1"></td><td><input id="resSepHeT3LinhaHoras" type="number" step="0.1"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="resultado-planilha-title small">Mão de Obra HO</div>
+      <table class="resultado-planilha-table">
+        <thead><tr><th>Tipo de M.O</th><th>Qtd</th><th>Horas</th></tr></thead>
+        <tbody>
+          <tr><td>M.O Fixa</td><td><input id="resSepHoT3FixaQtd" type="number" step="1"></td><td><input id="resSepHoT3FixaHoras" type="number" step="0.1"></td></tr>
+          <tr><td>M.O Disponibilizada</td><td><input id="resSepHoT3DisponivelQtd" type="number" step="1"></td><td><input id="resSepHoT3DisponivelHoras" type="number" step="0.1"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="resultado-planilha-title small">Eficiência Operacional</div>
+      <table class="resultado-planilha-table resultado-eficiencia-table">
+        <thead><tr><th>Status</th><th>HE</th><th>HO</th></tr></thead>
+        <tbody id="resultadoSepResumoT3"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="view-passagem-turno"
 
       <section id="view-passagem-turno" class="hidden">
         <div class="report-hero">
