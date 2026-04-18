@@ -2748,3 +2748,459 @@ sb.auth.onAuthStateChange(async (_, session) => {
     atualizarSaudacaoSistema();
     carregarTemperaturaSistema();
     boot();
+
+/* ===== SUPABASE • RESULTADO SEPARAÇÃO + PASSAGEM DE TURNO ===== */
+let __resultadoSeparacaoCache = {};
+let __resultadoSeparacaoLoadKey = "";
+let __resultadoSeparacaoLoading = false;
+
+let __passagemTurnoCache = {};
+let __passagemTurnoLoadKey = "";
+let __passagemTurnoLoading = false;
+
+function getResultadoSeparacaoSelectedDataRaw(){
+  return document.getElementById('resultadoSepData')?.value || dataFiltrada() || '';
+}
+
+function getResultadoSeparacaoSelectedTurno(){
+  return document.getElementById('resultadoSepTurno')?.value || 'T1';
+}
+
+function getResultadoSeparacaoSupabaseKey(){
+  return `${getResultadoSeparacaoSelectedDataRaw() || 'todos'}__${getResultadoSeparacaoSelectedTurno() || 'T1'}`;
+}
+
+function getPassagemTurnoSupabaseKey(){
+  const dataRef = document.getElementById('passagemData')?.value || dataFiltrada() || '';
+  const turno = document.getElementById('passagemTurno')?.value || 'T1';
+  return `${dataRef || 'todos'}__${turno}`;
+}
+
+function normalizeResultadoSeparacaoFromDb(master, detalhes){
+  const base = getResultadoSeparacaoDefaults();
+  const out = {
+    ...base,
+    heProdPessoa: Number(master?.he_prod_pessoa ?? base.heProdPessoa) || 0,
+    hoProdPessoa: Number(master?.ho_prod_pessoa ?? base.hoProdPessoa) || 0,
+    heMeta: Number(master?.he_meta ?? base.heMeta) || 0,
+    hoMeta: Number(master?.ho_meta ?? base.hoMeta) || 0,
+    he: { T1:{real:0,plan:0}, T2:{real:0,plan:0}, T3:{real:0,plan:0} },
+    ho: { T1:{real:0,plan:0}, T2:{real:0,plan:0}, T3:{real:0,plan:0} }
+  };
+  (detalhes || []).forEach(d => {
+    const turno = d.turno || 'T1';
+    const tipo = String(d.tipo || '').toUpperCase();
+    if(tipo === 'HE'){
+      out.he[turno] = {
+        real: Number(d.mo_real || 0),
+        plan: Number(d.mo_planejada || 0)
+      };
+    }
+    if(tipo === 'HO'){
+      out.ho[turno] = {
+        real: Number(d.mo_real || 0),
+        plan: Number(d.mo_planejada || 0)
+      };
+    }
+  });
+  return out;
+}
+
+async function loadResultadoSeparacaoFromSupabase(force = false){
+  const dataRef = getResultadoSeparacaoSelectedDataRaw();
+  const key = getResultadoSeparacaoSupabaseKey();
+  if(!force && __resultadoSeparacaoLoadKey === key && __resultadoSeparacaoCache[key]) return __resultadoSeparacaoCache[key];
+  if(__resultadoSeparacaoLoading) return __resultadoSeparacaoCache[key] || getResultadoSeparacaoDefaults();
+  if(!dataRef) {
+    __resultadoSeparacaoLoadKey = key;
+    __resultadoSeparacaoCache[key] = getResultadoSeparacaoDefaults();
+    return __resultadoSeparacaoCache[key];
+  }
+
+  __resultadoSeparacaoLoading = true;
+  try{
+    const turno = getResultadoSeparacaoSelectedTurno();
+    const { data: master, error: e1 } = await sb
+      .from('resultado_separacao')
+      .select('*')
+      .eq('data_referencia', dataRef)
+      .eq('turno', turno)
+      .maybeSingle();
+    if(e1) throw e1;
+
+    let detalhes = [];
+    if(master?.id){
+      const { data: det, error: e2 } = await sb
+        .from('resultado_separacao_detalhes')
+        .select('*')
+        .eq('resultado_id', master.id);
+      if(e2) throw e2;
+      detalhes = det || [];
+    }
+
+    __resultadoSeparacaoLoadKey = key;
+    __resultadoSeparacaoCache[key] = normalizeResultadoSeparacaoFromDb(master, detalhes);
+    return __resultadoSeparacaoCache[key];
+  }catch(err){
+    console.error('Erro ao carregar resultado separação no Supabase', err);
+    showToast('Erro ao carregar Resultado Separação');
+    return __resultadoSeparacaoCache[key] || getResultadoSeparacaoDefaults();
+  }finally{
+    __resultadoSeparacaoLoading = false;
+  }
+}
+
+function getResultadoSeparacaoState(){
+  const key = getResultadoSeparacaoSupabaseKey();
+  if(__resultadoSeparacaoLoadKey !== key && !__resultadoSeparacaoLoading){
+    loadResultadoSeparacaoFromSupabase().then(() => renderResultadoSeparacao());
+  }
+  return __resultadoSeparacaoCache[key] || getResultadoSeparacaoDefaults();
+}
+
+function setResultadoSeparacaoState(state){
+  __resultadoSeparacaoLoadKey = getResultadoSeparacaoSupabaseKey();
+  __resultadoSeparacaoCache[__resultadoSeparacaoLoadKey] = state;
+}
+
+async function salvarResultadoSeparacaoFormulario(){
+  const getNum = id => num(document.getElementById(id)?.value) || 0;
+  const turno = getResultadoSeparacaoSelectedTurno();
+  const dataRef = getResultadoSeparacaoSelectedDataRaw();
+  if(!dataRef) return alert('Selecione a data para salvar o Resultado Separação.');
+
+  const state = getResultadoSeparacaoState();
+  state.heProdPessoa = getNum('resSepHeProdPessoa');
+  state.hoProdPessoa = getNum('resSepHoProdPessoa');
+  state.heMeta = getNum('resSepHeMeta');
+  state.hoMeta = getNum('resSepHoMeta');
+  state.he = state.he || {T1:{real:0,plan:0},T2:{real:0,plan:0},T3:{real:0,plan:0}};
+  state.ho = state.ho || {T1:{real:0,plan:0},T2:{real:0,plan:0},T3:{real:0,plan:0}};
+  state.he[turno] = { real:getNum('resSepHeTurnoReal'), plan:getNum('resSepHeTurnoPlan') };
+  state.ho[turno] = { real:getNum('resSepHoTurnoReal'), plan:getNum('resSepHoTurnoPlan') };
+
+  try{
+    const { data: sess } = await sb.auth.getSession();
+    const userId = sess?.session?.user?.id || null;
+
+    const payload = {
+      data_referencia: dataRef,
+      turno,
+      he_prod_pessoa: state.heProdPessoa,
+      ho_prod_pessoa: state.hoProdPessoa,
+      he_meta: state.heMeta,
+      ho_meta: state.hoMeta,
+      criado_por: userId
+    };
+
+    const { data: master, error: e1 } = await sb
+      .from('resultado_separacao')
+      .upsert(payload, { onConflict: 'data_referencia,turno' })
+      .select()
+      .single();
+    if(e1) throw e1;
+
+    const detalhes = [
+      {
+        resultado_id: master.id,
+        turno,
+        tipo: 'HE',
+        mo_real: state.he[turno].real || 0,
+        mo_planejada: state.he[turno].plan || 0
+      },
+      {
+        resultado_id: master.id,
+        turno,
+        tipo: 'HO',
+        mo_real: state.ho[turno].real || 0,
+        mo_planejada: state.ho[turno].plan || 0
+      }
+    ];
+
+    const { error: e2 } = await sb
+      .from('resultado_separacao_detalhes')
+      .upsert(detalhes, { onConflict: 'resultado_id,tipo' });
+    if(e2) throw e2;
+
+    setResultadoSeparacaoState(state);
+    showToast(`Resultado da separação salvo no Supabase para ${turno}`);
+    await loadResultadoSeparacaoFromSupabase(true);
+    renderResultadoSeparacao();
+  }catch(err){
+    console.error('Erro ao salvar resultado separação no Supabase', err);
+    alert('Erro ao salvar Resultado Separação no Supabase.');
+  }
+}
+
+function carregarResultadoSeparacaoFormulario(){
+  loadResultadoSeparacaoFromSupabase(true).then(() => {
+    preencherResultadoSeparacaoFormulario(getResultadoSeparacaoState());
+    renderResultadoSeparacao();
+  });
+}
+
+function getPassagemTurnoState(){
+  const key = getPassagemTurnoSupabaseKey();
+  if(__passagemTurnoLoadKey !== key && !__passagemTurnoLoading){
+    loadPassagemTurnoFromSupabase().then(() => renderPassagemTurno());
+  }
+  return __passagemTurnoCache[key] || getPassagemTurnoDefaults();
+}
+
+function savePassagemTurnoState(state){
+  const key = getPassagemTurnoSupabaseKey();
+  __passagemTurnoLoadKey = key;
+  __passagemTurnoCache[key] = state;
+}
+
+function normalizePassagemTurnoFromDb(master, indicadores, areas){
+  const base = getPassagemTurnoDefaults();
+  const out = {
+    ...base,
+    responsavel: master?.responsavel_nome || '',
+    operador: Number(master?.operadores || 0),
+    conferente: Number(master?.conferentes || 0),
+    exclusiva: Number(master?.exclusiva || 0),
+    recebidoPor: master?.recebido_por || '',
+    horario: master?.horario_passagem || '',
+    ocorrencias: master?.ocorrencias || '',
+    ferias: { operador:0, conferente:0, exclusiva:0 },
+    ausencias: { operador:0, conferente:0, exclusiva:0 },
+    bancoHoras: { operador:0, conferente:0, exclusiva:0 },
+    areas: Object.fromEntries(PASSAGEM_AREAS.map(a => [a,{mo:0, horas:0}]))
+  };
+  (indicadores || []).forEach(item => {
+    const grupoMap = { FERIAS:'ferias', AUSENCIAS:'ausencias', BANCO_HORAS:'bancoHoras' };
+    const categoriaMap = { OPERADOR:'operador', CONFERENTE:'conferente', EXCLUSIVA:'exclusiva' };
+    const g = grupoMap[item.grupo];
+    const c = categoriaMap[item.categoria];
+    if(g && c) out[g][c] = Number(item.valor || 0);
+  });
+  (areas || []).forEach(item => {
+    if(out.areas[item.area_nome]){
+      out.areas[item.area_nome] = { mo:Number(item.mo || 0), horas:Number(item.horas || 0) };
+    }
+  });
+  return out;
+}
+
+async function loadPassagemTurnoFromSupabase(force = false){
+  const dataRef = document.getElementById('passagemData')?.value || dataFiltrada() || '';
+  const turno = document.getElementById('passagemTurno')?.value || 'T1';
+  const key = `${dataRef || 'todos'}__${turno}`;
+  if(!force && __passagemTurnoLoadKey === key && __passagemTurnoCache[key]) return __passagemTurnoCache[key];
+  if(__passagemTurnoLoading) return __passagemTurnoCache[key] || getPassagemTurnoDefaults();
+  if(!dataRef){
+    __passagemTurnoLoadKey = key;
+    __passagemTurnoCache[key] = getPassagemTurnoDefaults();
+    return __passagemTurnoCache[key];
+  }
+
+  __passagemTurnoLoading = true;
+  try{
+    const { data: master, error: e1 } = await sb
+      .from('passagem_turno')
+      .select('*')
+      .eq('data_referencia', dataRef)
+      .eq('turno', turno)
+      .eq('setor', 'Expedição')
+      .maybeSingle();
+    if(e1) throw e1;
+
+    let indicadores = [];
+    let areas = [];
+    if(master?.id){
+      const [{ data: inds, error: e2 }, { data: ars, error: e3 }] = await Promise.all([
+        sb.from('passagem_turno_indicadores').select('*').eq('passagem_id', master.id),
+        sb.from('passagem_turno_areas').select('*').eq('passagem_id', master.id)
+      ]);
+      if(e2) throw e2;
+      if(e3) throw e3;
+      indicadores = inds || [];
+      areas = ars || [];
+    }
+
+    __passagemTurnoLoadKey = key;
+    __passagemTurnoCache[key] = normalizePassagemTurnoFromDb(master, indicadores, areas);
+    return __passagemTurnoCache[key];
+  }catch(err){
+    console.error('Erro ao carregar passagem de turno no Supabase', err);
+    showToast('Erro ao carregar Passagem de Turno');
+    return __passagemTurnoCache[key] || getPassagemTurnoDefaults();
+  }finally{
+    __passagemTurnoLoading = false;
+  }
+}
+
+async function salvarPassagemTurno(){
+  const state = collectPassagemTurnoState();
+  const dataRef = document.getElementById('passagemData')?.value || dataFiltrada() || '';
+  const turno = document.getElementById('passagemTurno')?.value || 'T1';
+  if(!dataRef) return alert('Selecione a data para salvar a Passagem de Turno.');
+
+  try{
+    const rows = getAgendaRows().filter(r => !dataRef || r.data_agenda === dataRef);
+    const programado = rows.filter(r => definirTurno(r.hora_agenda) === turno);
+    const realizado = programado.filter(r => r.status_global === 'Expedido');
+    const vira = programado.filter(r => r.status_global !== 'Expedido' && ['Em Doca','Em Carregamento','No Pátio','Pronto Expedição','Separado'].includes(r.status_global));
+    const atrasado = programado.filter(r => calcSla(r).label === 'Atrasado');
+
+    const tons = arr => arr.reduce((a,b)=>a+(Number(b.tonelagem || b.peso || 0)),0);
+
+    const { data: sess } = await sb.auth.getSession();
+    const userId = sess?.session?.user?.id || null;
+
+    const payload = {
+      data_referencia: dataRef,
+      turno,
+      setor: 'Expedição',
+      responsavel_nome: state.responsavel || null,
+      recebido_por: state.recebidoPor || null,
+      horario_passagem: state.horario || null,
+      operadores: state.operador || 0,
+      conferentes: state.conferente || 0,
+      exclusiva: state.exclusiva || 0,
+      total_quadro: (state.operador || 0) + (state.conferente || 0) + (state.exclusiva || 0),
+      programado_carros: programado.length,
+      programado_tons: tons(programado),
+      realizado_carros: realizado.length,
+      realizado_tons: tons(realizado),
+      vira_carros: vira.length,
+      vira_tons: tons(vira),
+      atrasado_carros: atrasado.length,
+      atrasado_tons: tons(atrasado),
+      ocorrencias: state.ocorrencias || null,
+      criado_por: userId
+    };
+
+    const { data: master, error: e1 } = await sb
+      .from('passagem_turno')
+      .upsert(payload, { onConflict: 'data_referencia,turno,setor' })
+      .select()
+      .single();
+    if(e1) throw e1;
+
+    const indicadores = [
+      ['FERIAS','OPERADOR', state.ferias.operador],
+      ['FERIAS','CONFERENTE', state.ferias.conferente],
+      ['FERIAS','EXCLUSIVA', state.ferias.exclusiva],
+      ['AUSENCIAS','OPERADOR', state.ausencias.operador],
+      ['AUSENCIAS','CONFERENTE', state.ausencias.conferente],
+      ['AUSENCIAS','EXCLUSIVA', state.ausencias.exclusiva],
+      ['BANCO_HORAS','OPERADOR', state.bancoHoras.operador],
+      ['BANCO_HORAS','CONFERENTE', state.bancoHoras.conferente],
+      ['BANCO_HORAS','EXCLUSIVA', state.bancoHoras.exclusiva]
+    ].map(([grupo,categoria,valor]) => ({ passagem_id: master.id, grupo, categoria, valor }));
+
+    const areas = PASSAGEM_AREAS.map(area => ({
+      passagem_id: master.id,
+      area_nome: area,
+      mo: Number(state.areas?.[area]?.mo || 0),
+      horas: Number(state.areas?.[area]?.horas || 0)
+    }));
+
+    const { error: e2 } = await sb
+      .from('passagem_turno_indicadores')
+      .upsert(indicadores, { onConflict: 'passagem_id,grupo,categoria' });
+    if(e2) throw e2;
+
+    const { error: e3 } = await sb
+      .from('passagem_turno_areas')
+      .upsert(areas, { onConflict: 'passagem_id,area_nome' });
+    if(e3) throw e3;
+
+    savePassagemTurnoState(state);
+    showToast('Passagem de turno salva no Supabase com sucesso');
+    await loadPassagemTurnoFromSupabase(true);
+    renderPassagemTurno();
+  }catch(err){
+    console.error('Erro ao salvar passagem de turno no Supabase', err);
+    alert('Erro ao salvar Passagem de Turno no Supabase.');
+  }
+}
+
+function renderPassagemTurno(){
+  const section = document.getElementById('view-passagem-turno');
+  if(!section) return;
+  const dtInput = document.getElementById('passagemData');
+  if(dtInput && !dtInput.value && dataFiltrada()) dtInput.value = dataFiltrada();
+  const dataRefRaw = dtInput?.value || dataFiltrada() || '';
+  const turnoEl = document.getElementById('passagemTurno');
+  const turno = turnoEl?.value || 'T1';
+
+  const key = getPassagemTurnoSupabaseKey();
+  if(__passagemTurnoLoadKey !== key && !__passagemTurnoLoading){
+    loadPassagemTurnoFromSupabase().then(() => renderPassagemTurno());
+  }
+
+  const state = getPassagemTurnoState();
+  const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? ''; };
+  setVal('passagemResponsavel', state.responsavel);
+  setVal('passagemOperador', state.operador);
+  setVal('passagemConferente', state.conferente);
+  setVal('passagemExclusiva', state.exclusiva);
+  setVal('passagemRecebidoPor', state.recebidoPor);
+  setVal('passagemHorario', state.horario);
+  setVal('passagemOcorrencias', state.ocorrencias);
+
+  ['ferias','ausencias','bancoHoras'].forEach(prefix => {
+    const box = document.querySelector(`#graficoPassagem${prefix === 'bancoHoras' ? 'BancoHoras' : prefix.charAt(0).toUpperCase()+prefix.slice(1)}`)?.closest('.card');
+    if(box){
+      let holder = box.querySelector('.passagem-mini-inputs');
+      if(!holder){ holder = document.createElement('div'); holder.className = 'passagem-mini-inputs'; box.appendChild(holder); }
+      holder.innerHTML = renderMiniPassagemInputs(`passagem${prefix.charAt(0).toUpperCase()+prefix.slice(1)}`, state[prefix]);
+    }
+  });
+  renderPassagemAreas(state);
+
+  const rows = getAgendaRows().filter(r => !dataRefRaw || r.data_agenda === dataRefRaw);
+  const programado = rows.filter(r => definirTurno(r.hora_agenda) === turno);
+  const realizado = programado.filter(r => r.status_global === 'Expedido');
+  const vira = programado.filter(r => r.status_global !== 'Expedido' && ['Em Doca','Em Carregamento','No Pátio','Pronto Expedição','Separado'].includes(r.status_global));
+  const atrasado = programado.filter(r => calcSla(r).label === 'Atrasado');
+  const setKpiText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
+  const tons = arr => arr.reduce((a,b)=>a+(Number(b.tonelagem || b.peso || 0)),0);
+  const kpi = (arr, tonsId, carrosId) => { setKpiText(carrosId, arr.length); setKpiText(tonsId, tons(arr).toLocaleString('pt-BR')); };
+  kpi(programado, 'passagemProgramadoTons', 'passagemProgramadoCarros');
+  kpi(realizado, 'passagemRealizadoTons', 'passagemRealizadoCarros');
+  kpi(vira, 'passagemViraTons', 'passagemViraCarros');
+  kpi(atrasado, 'passagemAtrasadoTons', 'passagemAtrasadoCarros');
+
+  const totalQuadro = (Number(state.operador)||0) + (Number(state.conferente)||0) + (Number(state.exclusiva)||0);
+  const donutCtx = document.getElementById('graficoPassagemQuadro');
+  if(donutCtx){
+    try{ window.chartPassagemQuadro?.destroy(); }catch(_){}
+    window.chartPassagemQuadro = new Chart(donutCtx, {
+      type:'doughnut',
+      data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:[state.operador||0,state.conferente||0,state.exclusiva||0], backgroundColor:['rgba(34,211,238,.92)','rgba(59,130,246,.92)','rgba(245,158,11,.92)'], borderColor:'rgba(10,13,18,.94)', borderWidth:3, hoverOffset:4 }]},
+      options: mergeChartOptions(getPremiumChartOptions(), { cutout:'68%', plugins:{ legend:{ position:'top' } } })
+    });
+  }
+  const miniChart = (id, vals) => {
+    const el = document.getElementById(id); if(!el) return;
+    try{
+      const ref = window[`chart_${id}`];
+      if(ref) ref.destroy();
+    }catch(_){}
+    window[`chart_${id}`] = new Chart(el, {
+      type:'bar',
+      data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:vals, borderRadius:10, backgroundColor:['rgba(34,211,238,.92)','rgba(59,130,246,.92)','rgba(245,158,11,.92)'] }]},
+      options: mergeChartOptions(getPremiumChartOptions(), {
+        plugins:{ legend:{ display:false } },
+        maintainAspectRatio:false,
+        scales:{ y:{ beginAtZero:true, ticks:{ precision:0, stepSize:1 } } }
+      })
+    });
+  };
+  miniChart('graficoPassagemFerias', [state.ferias.operador||0,state.ferias.conferente||0,state.ferias.exclusiva||0]);
+  miniChart('graficoPassagemAusencias', [state.ausencias.operador||0,state.ausencias.conferente||0,state.ausencias.exclusiva||0]);
+  miniChart('graficoPassagemBancoHoras', [state.bancoHoras.operador||0,state.bancoHoras.conferente||0,state.bancoHoras.exclusiva||0]);
+  const totalRef = document.getElementById('passagemTotalQuadro');
+  if(totalRef) totalRef.textContent = totalQuadro;
+}
+
+// Recarregar dados do Supabase ao trocar filtros
+document.getElementById('resultadoSepData')?.addEventListener('change', () => loadResultadoSeparacaoFromSupabase(true).then(renderResultadoSeparacao));
+document.getElementById('resultadoSepTurno')?.addEventListener('change', () => loadResultadoSeparacaoFromSupabase(true).then(renderResultadoSeparacao));
+document.getElementById('passagemData')?.addEventListener('change', () => loadPassagemTurnoFromSupabase(true).then(renderPassagemTurno));
+document.getElementById('passagemTurno')?.addEventListener('change', () => loadPassagemTurnoFromSupabase(true).then(renderPassagemTurno));
