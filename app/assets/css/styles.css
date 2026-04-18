@@ -3335,3 +3335,56 @@
 .passagem-mini-chart{padding:18px}.passagem-mini-chart h3{margin:0 0 12px;color:#e8eefc}
 @media (max-width:1200px){.resultado-turno-grid{grid-template-columns:1fr}.passagem-area-grid{grid-template-columns:repeat(2,1fr)}.passagem-donut-row{grid-template-columns:1fr}.passagem-mini-inputs{grid-template-columns:1fr}}
 @media (max-width:900px){.resultado-duo{grid-template-columns:1fr}.passagem-actions{flex-direction:column}.passagem-area-grid{grid-template-columns:1fr}.resultado-fields{grid-template-columns:1fr}}
+
+
+/* ===== AJUSTE PASSAGEM DE TURNO • MINI GRÁFICOS ===== */
+.passagem-left-col .grid.grid-3{
+  align-items:start;
+}
+.passagem-mini-chart{
+  padding:16px;
+  min-height:230px;
+  max-height:230px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  overflow:hidden;
+}
+.passagem-mini-chart h3{
+  margin:0 0 10px;
+  flex:0 0 auto;
+}
+.passagem-mini-chart canvas{
+  width:100% !important;
+  height:150px !important;
+  max-height:150px !important;
+  flex:0 0 150px;
+}
+.passagem-card{
+  overflow:hidden;
+}
+@media (max-width: 1400px){
+  .passagem-left-col .grid.grid-3{
+    grid-template-columns:1fr;
+  }
+  .passagem-mini-chart{
+    min-height:210px;
+    max-height:210px;
+  }
+  .passagem-mini-chart canvas{
+    height:130px !important;
+    max-height:130px !important;
+    flex-basis:130px;
+  }
+}
+@media (max-width: 900px){
+  .passagem-mini-chart{
+    min-height:200px;
+    max-height:200px;
+  }
+  .passagem-mini-chart canvas{
+    height:120px !important;
+    max-height:120px !important;
+    flex-basis:120px;
+  }
+}
