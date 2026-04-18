@@ -950,6 +950,9 @@ function setView(view, btn){
       if(view === "admin" && usuarioPerfil === "admin"){
         carregarUsuariosAdmin();
       }
+      if(view === "passagem-turno"){
+        requestAnimationFrame(() => renderPassagemTurno());
+      }
       if(window.innerWidth <= 900){
         alternarSidebar(true);
       }
@@ -1890,7 +1893,32 @@ sb.auth.onAuthStateChange(async (_, session) => {
 
     const PASSAGEM_AREAS = ['Linha 5','Linha 6','Avarias','Expedição | EMB','Gestão de Estoque','Almoxarifado','Abastecimento','PD'];
 
-    function getPassagemTurnoDefaults(){
+    
+    function getPassagemTurnoSelecionado(){
+      const el = document.getElementById('passagemTurno');
+      return (el?.value || 'T1').trim() || 'T1';
+    }
+
+    function syncPassagemTurnoHeader(turno){
+      const valor = turno || getPassagemTurnoSelecionado();
+      const refs = [
+        document.getElementById('passagemTurnoRef'),
+        document.getElementById('passagemTurnoBadge'),
+        document.getElementById('passagemTurnoCard')
+      ];
+      refs.forEach(el => { if(el) el.textContent = valor; });
+
+      document.querySelectorAll('[data-passagem-turno-ref]').forEach(el => {
+        el.textContent = valor;
+      });
+
+      const select = document.getElementById('passagemTurno');
+      if(select && select.value !== valor){
+        select.value = valor;
+      }
+    }
+
+function getPassagemTurnoDefaults(){
       return {
         responsavel:'', operador:0, conferente:0, exclusiva:0,
         ferias:{operador:0, conferente:0, exclusiva:0},
@@ -1956,7 +1984,8 @@ sb.auth.onAuthStateChange(async (_, session) => {
       const dtInput = document.getElementById('passagemData'); if(dtInput && !dtInput.value && dataFiltrada()) dtInput.value = dataFiltrada();
       const turnoEl = document.getElementById('passagemTurno');
       const dataRefRaw = dtInput?.value || dataFiltrada() || '';
-      const turno = turnoEl?.value || 'T1';
+      const turno = getPassagemTurnoSelecionado();
+      syncPassagemTurnoHeader(turno);
       const state = getPassagemTurnoState();
       const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? ''; };
       setVal('passagemResponsavel', state.responsavel); setVal('passagemOperador', state.operador); setVal('passagemConferente', state.conferente); setVal('passagemExclusiva', state.exclusiva); setVal('passagemRecebidoPor', state.recebidoPor); setVal('passagemHorario', state.horario); setVal('passagemOcorrencias', state.ocorrencias);
@@ -1980,7 +2009,7 @@ sb.auth.onAuthStateChange(async (_, session) => {
       kpi(programado,'passagemProgTons','passagemProgCarros'); kpi(realizado,'passagemRealTons','passagemRealCarros'); kpi(vira,'passagemViraTons','passagemViraCarros'); kpi(atrasado,'passagemAtrasadoTons','passagemAtrasadoCarros');
       const totalQuadro = (Number(state.operador)||0)+(Number(state.conferente)||0)+(Number(state.exclusiva)||0);
       const setText2 = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
-      setText2('passagemDataRef', dataRefRaw ? fmtDate(dataRefRaw) : 'Todos'); setText2('passagemTurnoRef', turno); setText2('passagemTotalQuadroRef', totalQuadro);
+      setText2('passagemDataRef', dataRefRaw ? fmtDate(dataRefRaw) : 'Todos'); syncPassagemTurnoHeader(turno); setText2('passagemTotalQuadroRef', totalQuadro);
       const donutData = [state.operador || 0, state.conferente || 0, state.exclusiva || 0];
       if(chartPassagemQuadro) chartPassagemQuadro.destroy();
       if(chartPassagemFerias) chartPassagemFerias.destroy();
