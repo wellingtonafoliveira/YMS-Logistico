@@ -671,98 +671,32 @@
           </div>
         </div>
 
-        <div class="card resultado-config-shell soft-glow" style="margin-top:16px">
-          <div class="card-title-row">
-            <div>
-              <h2 style="margin:0">Configuração da mão de obra da separação</h2>
-              <p>Preencha por turno e por tipo de mão de obra. Avaria usa meta de 800 caixas e os demais tipos HE usam meta de 1000. Em HO, a meta é 120 PL por pessoa/turno.</p>
+        <div class="card soft-glow" style="margin-top:16px">
+          <div class="card-title-row"><div><h2 style="margin:0">Preenchimento da mão de obra</h2><p>Preencha a equipe real e planejada por turno para calcular capacidade versus realizado.</p></div><div class="group"><button class="btn btn-light" onclick="carregarResultadoSeparacaoFormulario()">Recarregar</button><button class="btn btn-success" onclick="salvarResultadoSeparacaoFormulario()">Salvar configuração</button></div></div>
+          <div class="grid grid-2">
+            <div class="resultado-form-card">
+              <h3>HE • Parâmetros</h3>
+              <div class="fields resultado-fields">
+                <div><label>Produtividade por pessoa (HE)</label><input id="resSepHeProdPessoa" type="number" step="1"></div>
+                <div><label>Meta HE</label><input id="resSepHeMeta" type="number" step="1"></div>
+              </div>
+              <div class="resultado-turno-grid">
+                <div class="resultado-turno-card"><h4>T1</h4><label>M/O real</label><input id="resSepHeT1Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT1Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T2</h4><label>M/O real</label><input id="resSepHeT2Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT2Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T3</h4><label>M/O real</label><input id="resSepHeT3Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT3Plan" type="number" step="1"></div>
+              </div>
             </div>
-            <div class="group">
-              <button class="btn btn-light" onclick="carregarResultadoSeparacaoFormulario()">Recarregar</button>
-              <button class="btn btn-success" onclick="salvarResultadoSeparacaoFormulario()">Salvar configuração</button>
-            </div>
-          </div>
-
-          <div class="resultado-meta-strip">
-            <span class="resultado-chip-info">HE avaria: 800 cx</span>
-            <span class="resultado-chip-info">HE demais: 1000 cx</span>
-            <span class="resultado-chip-info">HO por pessoa: 120 PL</span>
-          </div>
-
-          <div class="resultado-mao-grid">
-            <div class="resultado-mao-turno">
-              <div class="resultado-mao-head"><h3>T1</h3><span>Configuração por turno</span></div>
-              <div class="resultado-mao-section">
-                <div class="resultado-mao-section-head"><strong>Mão de obra HE</strong><small>Meta automática por tipo</small></div>
-                <div class="resultado-mao-input-grid">
-                  <div class="resultado-mao-input"><label>M.O Fixa</label><input id="resSepHeT1FixaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input readonly"><label>Meta</label><input value="1000 cx" readonly></div>
-                  <div class="resultado-mao-input"><label>M.O Avaria</label><input id="resSepHeT1AvariaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input readonly"><label>Meta</label><input value="800 cx" readonly></div>
-                  <div class="resultado-mao-input"><label>M.O Exclusiva</label><input id="resSepHeT1ExclusivaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input readonly"><label>Meta</label><input value="1000 cx" readonly></div>
-                  <div class="resultado-mao-input"><label>M.O Linha Montagem</label><input id="resSepHeT1LinhaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input readonly"><label>Meta</label><input value="1000 cx" readonly></div>
-                </div>
+            <div class="resultado-form-card">
+              <h3>HO • Parâmetros</h3>
+              <div class="fields resultado-fields">
+                <div><label>Produtividade por pessoa (HO)</label><input id="resSepHoProdPessoa" type="number" step="1"></div>
+                <div><label>Meta HO</label><input id="resSepHoMeta" type="number" step="1"></div>
               </div>
-              <div class="resultado-mao-section">
-                <div class="resultado-mao-section-head"><strong>Mão de obra HO</strong><small>Meta de 120 PL por pessoa</small></div>
-                <div class="resultado-mao-input-grid ho">
-                  <div class="resultado-mao-input"><label>M.O Fixa</label><input id="resSepHoT1FixaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input"><label>M.O Disponibilizada</label><input id="resSepHoT1DispQtd" type="number" step="1"></div>
-                </div>
+              <div class="resultado-turno-grid">
+                <div class="resultado-turno-card"><h4>T1</h4><label>M/O real</label><input id="resSepHoT1Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT1Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T2</h4><label>M/O real</label><input id="resSepHoT2Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT2Plan" type="number" step="1"></div>
+                <div class="resultado-turno-card"><h4>T3</h4><label>M/O real</label><input id="resSepHoT3Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT3Plan" type="number" step="1"></div>
               </div>
-              <div class="resultado-ef-card"><div class="resultado-ef-head">Eficiência operacional</div><div id="resultadoSepResumoT1" class="resultado-ef-body"></div></div>
-            </div>
-
-            <div class="resultado-mao-turno">
-              <div class="resultado-mao-head"><h3>T2</h3><span>Configuração por turno</span></div>
-              <div class="resultado-mao-section">
-                <div class="resultado-mao-section-head"><strong>Mão de obra HE</strong><small>Meta automática por tipo</small></div>
-                <div class="resultado-mao-input-grid">
-                  <div class="resultado-mao-input"><label>M.O Fixa</label><input id="resSepHeT2FixaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input readonly"><label>Meta</label><input value="1000 cx" readonly></div>
-                  <div class="resultado-mao-input"><label>M.O Avaria</label><input id="resSepHeT2AvariaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input readonly"><label>Meta</label><input value="800 cx" readonly></div>
-                  <div class="resultado-mao-input"><label>M.O Exclusiva</label><input id="resSepHeT2ExclusivaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input readonly"><label>Meta</label><input value="1000 cx" readonly></div>
-                  <div class="resultado-mao-input"><label>M.O Linha Montagem</label><input id="resSepHeT2LinhaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input readonly"><label>Meta</label><input value="1000 cx" readonly></div>
-                </div>
-              </div>
-              <div class="resultado-mao-section">
-                <div class="resultado-mao-section-head"><strong>Mão de obra HO</strong><small>Meta de 120 PL por pessoa</small></div>
-                <div class="resultado-mao-input-grid ho">
-                  <div class="resultado-mao-input"><label>M.O Fixa</label><input id="resSepHoT2FixaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input"><label>M.O Disponibilizada</label><input id="resSepHoT2DispQtd" type="number" step="1"></div>
-                </div>
-              </div>
-              <div class="resultado-ef-card"><div class="resultado-ef-head">Eficiência operacional</div><div id="resultadoSepResumoT2" class="resultado-ef-body"></div></div>
-            </div>
-
-            <div class="resultado-mao-turno">
-              <div class="resultado-mao-head"><h3>T3</h3><span>Configuração por turno</span></div>
-              <div class="resultado-mao-section">
-                <div class="resultado-mao-section-head"><strong>Mão de obra HE</strong><small>Meta automática por tipo</small></div>
-                <div class="resultado-mao-input-grid">
-                  <div class="resultado-mao-input"><label>M.O Fixa</label><input id="resSepHeT3FixaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input readonly"><label>Meta</label><input value="1000 cx" readonly></div>
-                  <div class="resultado-mao-input"><label>M.O Avaria</label><input id="resSepHeT3AvariaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input readonly"><label>Meta</label><input value="800 cx" readonly></div>
-                  <div class="resultado-mao-input"><label>M.O Exclusiva</label><input id="resSepHeT3ExclusivaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input readonly"><label>Meta</label><input value="1000 cx" readonly></div>
-                  <div class="resultado-mao-input"><label>M.O Linha Montagem</label><input id="resSepHeT3LinhaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input readonly"><label>Meta</label><input value="1000 cx" readonly></div>
-                </div>
-              </div>
-              <div class="resultado-mao-section">
-                <div class="resultado-mao-section-head"><strong>Mão de obra HO</strong><small>Meta de 120 PL por pessoa</small></div>
-                <div class="resultado-mao-input-grid ho">
-                  <div class="resultado-mao-input"><label>M.O Fixa</label><input id="resSepHoT3FixaQtd" type="number" step="1"></div>
-                  <div class="resultado-mao-input"><label>M.O Disponibilizada</label><input id="resSepHoT3DispQtd" type="number" step="1"></div>
-                </div>
-              </div>
-              <div class="resultado-ef-card"><div class="resultado-ef-head">Eficiência operacional</div><div id="resultadoSepResumoT3" class="resultado-ef-body"></div></div>
             </div>
           </div>
         </div>
