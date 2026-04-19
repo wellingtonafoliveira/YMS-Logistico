@@ -775,6 +775,12 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(status === "Em Doca" && !row.data_em_doca) payload.data_em_doca = new Date().toISOString();
       if(status === "Em Carregamento" && !row.inicio_carregamento) payload.inicio_carregamento = new Date().toISOString();
       if(status === "Expedido" && !row.fim_carregamento) payload.fim_carregamento = new Date().toISOString();
+      if(status === "Expedido" && !row.turno_expedido){
+        const baseHora = payload.fim_carregamento ? new Date(payload.fim_carregamento) : new Date();
+        const hh = String(baseHora.getHours()).padStart(2,'0');
+        const mm = String(baseHora.getMinutes()).padStart(2,'0');
+        payload.turno_expedido = definirTurno(`${hh}:${mm}`);
+      }
       return payload;
     }
 
@@ -2302,6 +2308,7 @@ sb.auth.onAuthStateChange(async (_, session) => {
       set("m_data_em_doca", toInputDateTime(row.data_em_doca));
       set("m_inicio_carregamento", toInputDateTime(row.inicio_carregamento));
       set("m_fim_carregamento", toInputDateTime(row.fim_carregamento));
+      set("m_turno_expedido", row.turno_expedido || (row.fim_carregamento ? definirTurno(String(new Date(row.fim_carregamento).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',hour12:false})).slice(0,5)) : ""));
       set("m_obs_carregamento", row.obs_carregamento);
       aplicarModoModal();
       document.getElementById("dtModal").classList.add("show");
@@ -2367,6 +2374,7 @@ sb.auth.onAuthStateChange(async (_, session) => {
         data_em_doca: document.getElementById("m_data_em_doca").value || null,
         inicio_carregamento: document.getElementById("m_inicio_carregamento").value || null,
         fim_carregamento: document.getElementById("m_fim_carregamento").value || null,
+        turno_expedido: document.getElementById("m_turno_expedido").value || null,
         obs_carregamento: document.getElementById("m_obs_carregamento").value.trim() || null
       };
       const { error } = await sb.from("agendas").update(payload).eq("id", dtAtual.id);
@@ -3155,14 +3163,18 @@ function renderPassagemTurno(){
 
   const rows = getAgendaRows().filter(r => !dataRefRaw || r.data_agenda === dataRefRaw);
   const programado = rows.filter(r => definirTurno(r.hora_agenda) === turno);
-  const realizado = programado.filter(r => r.status_global === 'Expedido');
+  const realizadosTurno = rows.filter(r => {
+    if(r.status_global !== 'Expedido') return false;
+    const turnoExpedido = r.turno_expedido || (r.fim_carregamento ? definirTurno(String(new Date(r.fim_carregamento).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',hour12:false})).slice(0,5)) : definirTurno(r.hora_agenda));
+    return turnoExpedido === turno;
+  });
   const vira = programado.filter(r => r.status_global !== 'Expedido' && ['Em Doca','Em Carregamento','No Pátio','Pronto Expedição','Separado'].includes(r.status_global));
   const atrasado = programado.filter(r => calcSla(r).label === 'Atrasado');
   const setKpiText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
   const tons = arr => arr.reduce((a,b)=>a+(Number(b.tonelagem || b.peso || 0)),0);
   const kpi = (arr, tonsId, carrosId) => { setKpiText(carrosId, arr.length); setKpiText(tonsId, tons(arr).toLocaleString('pt-BR')); };
   kpi(programado, 'passagemProgramadoTons', 'passagemProgramadoCarros');
-  kpi(realizado, 'passagemRealizadoTons', 'passagemRealizadoCarros');
+  kpi(realizadosTurno, 'passagemRealizadoTons', 'passagemRealizadoCarros');
   kpi(vira, 'passagemViraTons', 'passagemViraCarros');
   kpi(atrasado, 'passagemAtrasadoTons', 'passagemAtrasadoCarros');
 
