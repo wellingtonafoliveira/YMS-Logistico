@@ -3204,3 +3204,248 @@ document.getElementById('resultadoSepData')?.addEventListener('change', () => lo
 document.getElementById('resultadoSepTurno')?.addEventListener('change', () => loadResultadoSeparacaoFromSupabase(true).then(renderResultadoSeparacao));
 document.getElementById('passagemData')?.addEventListener('change', () => loadPassagemTurnoFromSupabase(true).then(renderPassagemTurno));
 document.getElementById('passagemTurno')?.addEventListener('change', () => loadPassagemTurnoFromSupabase(true).then(renderPassagemTurno));
+
+
+/* ===== RESULTADO SEPARAÇÃO • OVERRIDES PREMIUM ===== */
+function getResultadoSeparacaoDefaults(){
+  const turnos = ['T1','T2','T3'];
+  return {
+    heTurnos: Object.fromEntries(turnos.map(t => [t, { fixa:0, avaria:0, exclusiva:0, linha:0 }])),
+    hoTurnos: Object.fromEntries(turnos.map(t => [t, { fixa:0, disp:0 }])),
+    lastUpdatedAt: ''
+  };
+}
+
+function normalizeResultadoSeparacaoFromDb(master, detalhes){
+  const base = getResultadoSeparacaoDefaults();
+  let fromLocal = {};
+  try{
+    fromLocal = JSON.parse(localStorage.getItem(getResultadoSeparacaoSupabaseKey()) || 'null') || {};
+  }catch(_){}
+  return { ...base, ...fromLocal };
+}
+
+function preencherResultadoSeparacaoFormulario(state){
+  const turnos = ['T1','T2','T3'];
+  const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? 0; };
+  turnos.forEach(turno => {
+    const he = state.heTurnos?.[turno] || { fixa:0, avaria:0, exclusiva:0, linha:0 };
+    const ho = state.hoTurnos?.[turno] || { fixa:0, disp:0 };
+    setVal(`resSepHe${turno}FixaQtd`, he.fixa);
+    setVal(`resSepHe${turno}AvariaQtd`, he.avaria);
+    setVal(`resSepHe${turno}ExclusivaQtd`, he.exclusiva);
+    setVal(`resSepHe${turno}LinhaQtd`, he.linha);
+    setVal(`resSepHo${turno}FixaQtd`, ho.fixa);
+    setVal(`resSepHo${turno}DispQtd`, ho.disp);
+  });
+}
+
+async function salvarResultadoSeparacaoFormulario(){
+  const getNum = id => num(document.getElementById(id)?.value) || 0;
+  const turnos = ['T1','T2','T3'];
+  const dataRef = getResultadoSeparacaoSelectedDataRaw();
+  if(!dataRef) return alert('Selecione a data para salvar o Resultado Separação.');
+
+  const state = getResultadoSeparacaoState();
+  state.heTurnos = state.heTurnos || {};
+  state.hoTurnos = state.hoTurnos || {};
+
+  turnos.forEach(turno => {
+    state.heTurnos[turno] = {
+      fixa: getNum(`resSepHe${turno}FixaQtd`),
+      avaria: getNum(`resSepHe${turno}AvariaQtd`),
+      exclusiva: getNum(`resSepHe${turno}ExclusivaQtd`),
+      linha: getNum(`resSepHe${turno}LinhaQtd`)
+    };
+    state.hoTurnos[turno] = {
+      fixa: getNum(`resSepHo${turno}FixaQtd`),
+      disp: getNum(`resSepHo${turno}DispQtd`)
+    };
+  });
+  state.lastUpdatedAt = new Date().toISOString();
+  setResultadoSeparacaoState(state);
+  try{
+    localStorage.setItem(getResultadoSeparacaoSupabaseKey(), JSON.stringify(state));
+  }catch(_){}
+
+  try{
+    const { data: sess } = await sb.auth.getSession();
+    const userId = sess?.session?.user?.id || null;
+    const calcCapHe = cfg => (Number(cfg?.fixa||0)*1000) + (Number(cfg?.avaria||0)*800) + (Number(cfg?.exclusiva||0)*1000) + (Number(cfg?.linha||0)*1000);
+    const calcCapHo = cfg => (Number(cfg?.fixa||0) + Number(cfg?.disp||0)) * 120;
+
+    for (const turno of turnos){
+      const payload = {
+        data_referencia: dataRef,
+        turno,
+        he_prod_pessoa: 0,
+        ho_prod_pessoa: 0,
+        he_meta: calcCapHe(state.heTurnos[turno]),
+        ho_meta: calcCapHo(state.hoTurnos[turno]),
+        criado_por: userId
+      };
+      const { data: master, error: e1 } = await sb.from('resultado_separacao').upsert(payload, { onConflict: 'data_referencia,turno' }).select().single();
+      if(e1) throw e1;
+
+      const heTotal = Number(state.heTurnos[turno]?.fixa || 0) + Number(state.heTurnos[turno]?.avaria || 0) + Number(state.heTurnos[turno]?.exclusiva || 0) + Number(state.heTurnos[turno]?.linha || 0);
+      const hoTotal = Number(state.hoTurnos[turno]?.fixa || 0) + Number(state.hoTurnos[turno]?.disp || 0);
+
+      const detalhes = [
+        { resultado_id: master.id, turno, tipo: 'HE', mo_real: heTotal, mo_planejada: heTotal },
+        { resultado_id: master.id, turno, tipo: 'HO', mo_real: hoTotal, mo_planejada: hoTotal }
+      ];
+      const { error: e2 } = await sb.from('resultado_separacao_detalhes').upsert(detalhes, { onConflict: 'resultado_id,tipo' });
+      if(e2) throw e2;
+    }
+    showToast('Configuração da separação salva com sucesso');
+    await loadResultadoSeparacaoFromSupabase(true);
+  }catch(err){
+    console.error('Erro ao salvar resultado separação no Supabase', err);
+    showToast('Configuração salva localmente. Falhou no Supabase.');
+  }
+  renderResultadoSeparacao();
+}
+
+function carregarResultadoSeparacaoFormulario(){
+  const filtro = document.getElementById('resultadoSepData');
+  if(filtro && !filtro.value && dataFiltrada()) filtro.value = dataFiltrada();
+  loadResultadoSeparacaoFromSupabase(true).then(() => {
+    preencherResultadoSeparacaoFormulario(getResultadoSeparacaoState());
+    renderResultadoSeparacao();
+  });
+}
+
+function renderResultadoSeparacao(){
+  const section = document.getElementById('view-resultado-separacao');
+  if(!section) return;
+  const turnos = ['T1','T2','T3'];
+  const dataRaw = getResultadoSeparacaoSelectedDataRaw();
+  const filtroDataEl = document.getElementById('resultadoSepData');
+  if(filtroDataEl && dataRaw && filtroDataEl.value !== dataRaw) filtroDataEl.value = dataRaw;
+
+  const rowsBase = getAgendaRows();
+  const rows = dataRaw ? rowsBase.filter(r => r.data_agenda === dataRaw) : rowsBase;
+  const state = getResultadoSeparacaoState();
+  preencherResultadoSeparacaoFormulario(state);
+
+  const rowsPorTurno = t => rows.filter(r => (r.turno_separacao || definirTurno(r.hora_agenda)) === t);
+  const statusSeparados = ['Separado','Pronto Expedição','No Pátio','Em Doca','Em Carregamento','Expedido'];
+
+  const planejadoHeT = Object.fromEntries(turnos.map(t => [t, rowsPorTurno(t).reduce((a,b)=>a+(Number(b.he)||0),0)]));
+  const planejadoHoT = Object.fromEntries(turnos.map(t => [t, rowsPorTurno(t).reduce((a,b)=>a+(Number(b.ho)||0),0)]));
+  const realizadoHeT = Object.fromEntries(turnos.map(t => [t, rowsPorTurno(t).filter(r => statusSeparados.includes(r.status_global)).reduce((a,b)=>a+(Number(b.he)||0),0)]));
+  const realizadoHoT = Object.fromEntries(turnos.map(t => [t, rowsPorTurno(t).filter(r => statusSeparados.includes(r.status_global)).reduce((a,b)=>a+(Number(b.ho)||0),0)]));
+
+  const calcCapHe = cfg => (Number(cfg?.fixa||0)*1000) + (Number(cfg?.avaria||0)*800) + (Number(cfg?.exclusiva||0)*1000) + (Number(cfg?.linha||0)*1000);
+  const calcCapHo = cfg => (Number(cfg?.fixa||0) + Number(cfg?.disp||0)) * 120;
+  const calcTotHe = cfg => Number(cfg?.fixa||0) + Number(cfg?.avaria||0) + Number(cfg?.exclusiva||0) + Number(cfg?.linha||0);
+  const calcTotHo = cfg => Number(cfg?.fixa||0) + Number(cfg?.disp||0);
+
+  const capHeT = Object.fromEntries(turnos.map(t => [t, calcCapHe(state.heTurnos?.[t] || {})]));
+  const capHoT = Object.fromEntries(turnos.map(t => [t, calcCapHo(state.hoTurnos?.[t] || {})]));
+  const totalHeT = Object.fromEntries(turnos.map(t => [t, calcTotHe(state.heTurnos?.[t] || {})]));
+  const totalHoT = Object.fromEntries(turnos.map(t => [t, calcTotHo(state.hoTurnos?.[t] || {})]));
+  const efHeT = Object.fromEntries(turnos.map(t => [t, capHeT[t] ? Math.round((realizadoHeT[t] / capHeT[t]) * 100) : 0]));
+  const efHoT = Object.fromEntries(turnos.map(t => [t, capHoT[t] ? Math.round((realizadoHoT[t] / capHoT[t]) * 100) : 0]));
+
+  const planejadoHe = turnos.reduce((a,t)=>a+planejadoHeT[t],0);
+  const planejadoHo = turnos.reduce((a,t)=>a+planejadoHoT[t],0);
+  const realizadoHe = turnos.reduce((a,t)=>a+realizadoHeT[t],0);
+  const realizadoHo = turnos.reduce((a,t)=>a+realizadoHoT[t],0);
+  const pendHe = Math.max(planejadoHe - realizadoHe, 0);
+  const pendHo = Math.max(planejadoHo - realizadoHo, 0);
+
+  const setText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
+  setText('resultadoSepDataRef', dataRaw ? fmtDate(dataRaw) : 'Todos');
+  const capHeGeral = turnos.reduce((a,t)=>a+capHeT[t],0);
+  const capHoGeral = turnos.reduce((a,t)=>a+capHoT[t],0);
+  setText('resultadoSepEfHeRef', `${capHeGeral ? Math.round((realizadoHe / capHeGeral) * 100) : 0}%`);
+  setText('resultadoSepEfHoRef', `${capHoGeral ? Math.round((realizadoHo / capHoGeral) * 100) : 0}%`);
+  setText('resSepProgramadoHe', planejadoHe.toLocaleString('pt-BR'));
+  setText('resSepProgramadoHo', planejadoHo.toLocaleString('pt-BR'));
+  setText('resSepRealizadoHe', realizadoHe.toLocaleString('pt-BR'));
+  setText('resSepRealizadoHo', realizadoHo.toLocaleString('pt-BR'));
+  setText('resSepPendenteHe', pendHe.toLocaleString('pt-BR'));
+  setText('resSepPendenteHo', pendHo.toLocaleString('pt-BR'));
+
+  turnos.forEach(t => {
+    setText(`resSepHe${t}TotalMo`, totalHeT[t]);
+    setText(`resSepHe${t}Capacidade`, capHeT[t].toLocaleString('pt-BR'));
+    setText(`resSepHe${t}Realizado`, realizadoHeT[t].toLocaleString('pt-BR'));
+    setText(`resSepHe${t}Eficiencia`, `${efHeT[t]}%`);
+    setText(`resSepHo${t}TotalMo`, totalHoT[t]);
+    setText(`resSepHo${t}Capacidade`, capHoT[t].toLocaleString('pt-BR'));
+    setText(`resSepHo${t}Realizado`, realizadoHoT[t].toLocaleString('pt-BR'));
+    setText(`resSepHo${t}Eficiencia`, `${efHoT[t]}%`);
+  });
+
+  const renderSummary = (id, tipo, realizadoT, capT, totalT, eficienciaT) => {
+    const wrap = document.getElementById(id);
+    if(!wrap) return;
+    const tituloRealizado = tipo === 'HE' ? 'Realizado HE' : 'Realizado HO';
+    const totalMo = turnos.reduce((a,t)=>a+totalT[t],0);
+    const capacidade = turnos.reduce((a,t)=>a+capT[t],0);
+    const realizado = turnos.reduce((a,t)=>a+realizadoT[t],0);
+    const eficiencia = capacidade ? Math.round((realizado / capacidade) * 100) : 0;
+    const melhorTurno = turnos.slice().sort((a,b)=>eficienciaT[b]-eficienciaT[a])[0] || 'T1';
+    wrap.innerHTML = `
+      <div class="resultado-summary-card">
+        <span>Total M.O</span>
+        <strong>${esc(totalMo)}</strong>
+        <small>Somando T1, T2 e T3</small>
+      </div>
+      <div class="resultado-summary-card capacidade">
+        <span>Capacidade</span>
+        <strong>${esc(capacidade.toLocaleString('pt-BR'))}</strong>
+        <small>Calculada pela configuração</small>
+      </div>
+      <div class="resultado-summary-card realizado">
+        <span>${esc(tituloRealizado)}</span>
+        <strong>${esc(realizado.toLocaleString('pt-BR'))}</strong>
+        <small>Integrado com a agenda</small>
+      </div>
+      <div class="resultado-summary-card eficiencia">
+        <span>Eficiência</span>
+        <strong>${esc(eficiencia)}%</strong>
+        <small>Melhor turno: ${esc(melhorTurno)}</small>
+      </div>
+    `;
+  };
+  renderSummary('resultadoSepTabelaHE', 'HE', realizadoHeT, capHeT, totalHeT, efHeT);
+  renderSummary('resultadoSepTabelaHO', 'HO', realizadoHoT, capHoT, totalHoT, efHoT);
+
+  if(chartResultadoSepHE) chartResultadoSepHE.destroy();
+  if(chartResultadoSepHO) chartResultadoSepHO.destroy();
+
+  const chartBaseOpts = mergeChartOptions(getPremiumChartOptions(), {
+    plugins:{ legend:{ labels:{ color:'#f8fafc' } } },
+    scales:{
+      x:{ ticks:{ color:'#d8e5ff', font:{ weight:'700', size:12 } } },
+      y:{ beginAtZero:true, ticks:{ color:'#9fb0ca' } }
+    }
+  });
+
+  chartResultadoSepHE = new Chart(document.getElementById('graficoResultadoSepHE'), {
+    type:'bar',
+    data:{
+      labels: turnos,
+      datasets:[
+        { label:'Realizado', data: turnos.map(t => realizadoHeT[t]), backgroundColor:'rgba(34,211,238,.92)', borderRadius:10, borderSkipped:false, maxBarThickness:56 },
+        { type:'line', label:'Capacidade', data: turnos.map(t => capHeT[t]), borderColor:'rgba(251,146,60,1)', pointBackgroundColor:'rgba(251,146,60,1)', pointRadius:4, tension:.25 }
+      ]
+    },
+    options: chartBaseOpts
+  });
+
+  chartResultadoSepHO = new Chart(document.getElementById('graficoResultadoSepHO'), {
+    type:'bar',
+    data:{
+      labels: turnos,
+      datasets:[
+        { label:'Realizado', data: turnos.map(t => realizadoHoT[t]), backgroundColor:'rgba(34,211,238,.92)', borderRadius:10, borderSkipped:false, maxBarThickness:56 },
+        { type:'line', label:'Capacidade', data: turnos.map(t => capHoT[t]), borderColor:'rgba(251,146,60,1)', pointBackgroundColor:'rgba(251,146,60,1)', pointRadius:4, tension:.25 }
+      ]
+    },
+    options: chartBaseOpts
+  });
+}
