@@ -639,7 +639,7 @@
         <div class="report-hero">
           <div class="report-hero-card soft-glow">
             <h3>Resultado operacional da separação</h3>
-            <p>Painel para acompanhar programado, realizado, pendente, produtividade por turno e capacidade da mão de obra em HE e HO.</p>
+            <p>Painel premium para acompanhar programado, realizado, pendente e eficiência da mão de obra HE e HO por turno.</p>
             <div class="report-mini-grid report-mini-grid-3">
               <div class="report-mini"><span>Filtro aplicado</span><strong id="resultadoSepDataRef">Todos</strong></div>
               <div class="report-mini"><span>Eficiência HE</span><strong id="resultadoSepEfHeRef">0%</strong></div>
@@ -648,60 +648,169 @@
           </div>
           <div class="report-hero-card soft-glow">
             <h3>Capacidade versus realizado</h3>
-            <p>Os blocos abaixo permitem preencher a mão de obra planejada e real por turno, medir a capacidade e comparar com o realizado.</p>
+            <p>O resultado soma automaticamente a agenda de separação por turno, enquanto a capacidade é calculada pela configuração da mão de obra.</p>
+            <div class="resultado-filter-row">
+              <div class="resultado-filter-field">
+                <label>Data do resultado</label>
+                <input type="date" id="resultadoSepData" onchange="carregarResultadoSeparacaoFormulario()">
+              </div>
+              <div class="resultado-filter-note">
+                <span>Turnos fixos</span>
+                <strong>T1 06:00–14:00 • T2 14:00–22:00 • T3 22:00–06:00</strong>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="grid grid-3 resultado-top-grid">
-          <div class="card resultado-metric-card"><div class="resultado-tag green">Programado</div><div class="resultado-duo"><div><span>CX HE</span><strong id="resSepProgramadoHe">0</strong></div><div><span>PL HO</span><strong id="resSepProgramadoHo">0</strong></div></div></div>
-          <div class="card resultado-metric-card"><div class="resultado-tag blue">Realizado</div><div class="resultado-duo"><div><span>CX HE</span><strong id="resSepRealizadoHe">0</strong></div><div><span>PL HO</span><strong id="resSepRealizadoHo">0</strong></div></div></div>
-          <div class="card resultado-metric-card"><div class="resultado-tag gray">Pendente</div><div class="resultado-duo"><div><span>CX HE</span><strong id="resSepPendenteHe">0</strong></div><div><span>PL HO</span><strong id="resSepPendenteHo">0</strong></div></div></div>
+          <div class="card resultado-metric-card resultado-metric-card-hero"><div class="resultado-tag green">Programado</div><div class="resultado-duo"><div><span>CX HE</span><strong id="resSepProgramadoHe">0</strong></div><div><span>PL HO</span><strong id="resSepProgramadoHo">0</strong></div></div></div>
+          <div class="card resultado-metric-card resultado-metric-card-hero"><div class="resultado-tag blue">Realizado</div><div class="resultado-duo"><div><span>CX HE</span><strong id="resSepRealizadoHe">0</strong></div><div><span>PL HO</span><strong id="resSepRealizadoHo">0</strong></div></div></div>
+          <div class="card resultado-metric-card resultado-metric-card-hero"><div class="resultado-tag gray">Pendente</div><div class="resultado-duo"><div><span>CX HE</span><strong id="resSepPendenteHe">0</strong></div><div><span>PL HO</span><strong id="resSepPendenteHo">0</strong></div></div></div>
         </div>
 
         <div class="grid grid-2" style="margin-top:16px">
           <div class="card premium-chart-card resultado-chart-wrap">
-            <div class="premium-chart-head"><div><h2>Separação HE</h2><p class="chart-helper">Capacidade e realizado por turno.</p></div><span class="premium-chart-badge">HE</span></div>
-            <div class="premium-canvas-wrap"><canvas id="graficoResultadoSepHE" height="150"></canvas></div>
-            <div class="table-wrap resultado-table-wrap"><table><thead><tr><th>Indicador</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody id="resultadoSepTabelaHE"></tbody></table></div>
+            <div class="premium-chart-head"><div><h2>Separação HE</h2><p class="chart-helper">Barra azul para realizado e linha laranja para capacidade por turno.</p></div><span class="premium-chart-badge">HE</span></div>
+            <div class="premium-canvas-wrap resultado-canvas-premium"><canvas id="graficoResultadoSepHE" height="180"></canvas></div>
+            <div class="resultado-summary-grid" id="resultadoSepTabelaHE"></div>
           </div>
           <div class="card premium-chart-card resultado-chart-wrap">
-            <div class="premium-chart-head"><div><h2>Separação HO</h2><p class="chart-helper">Capacidade e realizado por turno.</p></div><span class="premium-chart-badge">HO</span></div>
-            <div class="premium-canvas-wrap"><canvas id="graficoResultadoSepHO" height="150"></canvas></div>
-            <div class="table-wrap resultado-table-wrap"><table><thead><tr><th>Indicador</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody id="resultadoSepTabelaHO"></tbody></table></div>
+            <div class="premium-chart-head"><div><h2>Separação HO</h2><p class="chart-helper">Barra azul para realizado e linha laranja para capacidade por turno.</p></div><span class="premium-chart-badge">HO</span></div>
+            <div class="premium-canvas-wrap resultado-canvas-premium"><canvas id="graficoResultadoSepHO" height="180"></canvas></div>
+            <div class="resultado-summary-grid" id="resultadoSepTabelaHO"></div>
           </div>
         </div>
 
-        <div class="card soft-glow" style="margin-top:16px">
-          <div class="card-title-row"><div><h2 style="margin:0">Preenchimento da mão de obra</h2><p>Preencha a equipe real e planejada por turno para calcular capacidade versus realizado.</p></div><div class="group"><button class="btn btn-light" onclick="carregarResultadoSeparacaoFormulario()">Recarregar</button><button class="btn btn-success" onclick="salvarResultadoSeparacaoFormulario()">Salvar configuração</button></div></div>
-          <div class="grid grid-2">
-            <div class="resultado-form-card">
-              <h3>HE • Parâmetros</h3>
-              <div class="fields resultado-fields">
-                <div><label>Produtividade por pessoa (HE)</label><input id="resSepHeProdPessoa" type="number" step="1"></div>
-                <div><label>Meta HE</label><input id="resSepHeMeta" type="number" step="1"></div>
+        <div class="card soft-glow resultado-config-shell" style="margin-top:16px">
+          <div class="card-title-row">
+            <div>
+              <h2 style="margin:0">Configuração da mão de obra</h2>
+              <p>Visual premium inspirado na planilha, sem aparência de tabela. O sistema calcula capacidade e eficiência automaticamente.</p>
+            </div>
+            <div class="group">
+              <button class="btn btn-light" onclick="carregarResultadoSeparacaoFormulario()">Recarregar</button>
+              <button class="btn btn-success" onclick="salvarResultadoSeparacaoFormulario()">Salvar configuração</button>
+            </div>
+          </div>
+          <div class="resultado-mao-grid">
+            
+            <div class="resultado-mao-card">
+              <div class="resultado-mao-card-head"><h3>T1</h3><span>06:00 às 14:00</span></div>
+              <div class="resultado-mao-section">
+                <div class="resultado-mao-section-title">
+                  <strong>Mão de Obra HE</strong>
+                  <small>Fixa, avarias, exclusiva e linha montagem</small>
+                </div>
+                <div class="resultado-mao-input-grid">
+                  <div><label>M.O Fixa</label><input id="resSepHeT1FixaQtd" type="number" step="1" min="0"></div>
+                  <div><label>M.O Avarias</label><input id="resSepHeT1AvariaQtd" type="number" step="1" min="0"></div>
+                  <div><label>M.O Exclusiva</label><input id="resSepHeT1ExclusivaQtd" type="number" step="1" min="0"></div>
+                  <div><label>M.O Linha de Montagem</label><input id="resSepHeT1LinhaQtd" type="number" step="1" min="0"></div>
+                </div>
+                <div class="resultado-total-strip"><span>Total mão de obra HE</span><strong id="resSepHeT1TotalMo">0</strong></div>
+                <div class="resultado-kpi-row">
+                  <div class="resultado-kpi-mini"><span>Capacidade</span><strong id="resSepHeT1Capacidade">0</strong></div>
+                  <div class="resultado-kpi-mini"><span>Realizado</span><strong id="resSepHeT1Realizado">0</strong></div>
+                  <div class="resultado-kpi-mini good"><span>Eficiência</span><strong id="resSepHeT1Eficiencia">0%</strong></div>
+                </div>
               </div>
-              <div class="resultado-turno-grid">
-                <div class="resultado-turno-card"><h4>T1</h4><label>M/O real</label><input id="resSepHeT1Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT1Plan" type="number" step="1"></div>
-                <div class="resultado-turno-card"><h4>T2</h4><label>M/O real</label><input id="resSepHeT2Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT2Plan" type="number" step="1"></div>
-                <div class="resultado-turno-card"><h4>T3</h4><label>M/O real</label><input id="resSepHeT3Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHeT3Plan" type="number" step="1"></div>
+              <div class="resultado-mao-section">
+                <div class="resultado-mao-section-title">
+                  <strong>Mão de Obra HO</strong>
+                  <small>Fixa e disponibilizada</small>
+                </div>
+                <div class="resultado-mao-input-grid resultado-mao-input-grid-ho">
+                  <div><label>M.O Fixa</label><input id="resSepHoT1FixaQtd" type="number" step="1" min="0"></div>
+                  <div><label>M.O Disponibilizada</label><input id="resSepHoT1DispQtd" type="number" step="1" min="0"></div>
+                </div>
+                <div class="resultado-total-strip"><span>Total mão de obra HO</span><strong id="resSepHoT1TotalMo">0</strong></div>
+                <div class="resultado-kpi-row">
+                  <div class="resultado-kpi-mini"><span>Capacidade</span><strong id="resSepHoT1Capacidade">0</strong></div>
+                  <div class="resultado-kpi-mini"><span>Realizado</span><strong id="resSepHoT1Realizado">0</strong></div>
+                  <div class="resultado-kpi-mini good"><span>Eficiência</span><strong id="resSepHoT1Eficiencia">0%</strong></div>
+                </div>
               </div>
             </div>
-            <div class="resultado-form-card">
-              <h3>HO • Parâmetros</h3>
-              <div class="fields resultado-fields">
-                <div><label>Produtividade por pessoa (HO)</label><input id="resSepHoProdPessoa" type="number" step="1"></div>
-                <div><label>Meta HO</label><input id="resSepHoMeta" type="number" step="1"></div>
+    
+            <div class="resultado-mao-card">
+              <div class="resultado-mao-card-head"><h3>T2</h3><span>14:00 às 22:00</span></div>
+              <div class="resultado-mao-section">
+                <div class="resultado-mao-section-title">
+                  <strong>Mão de Obra HE</strong>
+                  <small>Fixa, avarias, exclusiva e linha montagem</small>
+                </div>
+                <div class="resultado-mao-input-grid">
+                  <div><label>M.O Fixa</label><input id="resSepHeT2FixaQtd" type="number" step="1" min="0"></div>
+                  <div><label>M.O Avarias</label><input id="resSepHeT2AvariaQtd" type="number" step="1" min="0"></div>
+                  <div><label>M.O Exclusiva</label><input id="resSepHeT2ExclusivaQtd" type="number" step="1" min="0"></div>
+                  <div><label>M.O Linha de Montagem</label><input id="resSepHeT2LinhaQtd" type="number" step="1" min="0"></div>
+                </div>
+                <div class="resultado-total-strip"><span>Total mão de obra HE</span><strong id="resSepHeT2TotalMo">0</strong></div>
+                <div class="resultado-kpi-row">
+                  <div class="resultado-kpi-mini"><span>Capacidade</span><strong id="resSepHeT2Capacidade">0</strong></div>
+                  <div class="resultado-kpi-mini"><span>Realizado</span><strong id="resSepHeT2Realizado">0</strong></div>
+                  <div class="resultado-kpi-mini good"><span>Eficiência</span><strong id="resSepHeT2Eficiencia">0%</strong></div>
+                </div>
               </div>
-              <div class="resultado-turno-grid">
-                <div class="resultado-turno-card"><h4>T1</h4><label>M/O real</label><input id="resSepHoT1Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT1Plan" type="number" step="1"></div>
-                <div class="resultado-turno-card"><h4>T2</h4><label>M/O real</label><input id="resSepHoT2Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT2Plan" type="number" step="1"></div>
-                <div class="resultado-turno-card"><h4>T3</h4><label>M/O real</label><input id="resSepHoT3Real" type="number" step="1"><label>M/O planejada</label><input id="resSepHoT3Plan" type="number" step="1"></div>
+              <div class="resultado-mao-section">
+                <div class="resultado-mao-section-title">
+                  <strong>Mão de Obra HO</strong>
+                  <small>Fixa e disponibilizada</small>
+                </div>
+                <div class="resultado-mao-input-grid resultado-mao-input-grid-ho">
+                  <div><label>M.O Fixa</label><input id="resSepHoT2FixaQtd" type="number" step="1" min="0"></div>
+                  <div><label>M.O Disponibilizada</label><input id="resSepHoT2DispQtd" type="number" step="1" min="0"></div>
+                </div>
+                <div class="resultado-total-strip"><span>Total mão de obra HO</span><strong id="resSepHoT2TotalMo">0</strong></div>
+                <div class="resultado-kpi-row">
+                  <div class="resultado-kpi-mini"><span>Capacidade</span><strong id="resSepHoT2Capacidade">0</strong></div>
+                  <div class="resultado-kpi-mini"><span>Realizado</span><strong id="resSepHoT2Realizado">0</strong></div>
+                  <div class="resultado-kpi-mini good"><span>Eficiência</span><strong id="resSepHoT2Eficiencia">0%</strong></div>
+                </div>
               </div>
             </div>
+    
+            <div class="resultado-mao-card">
+              <div class="resultado-mao-card-head"><h3>T3</h3><span>22:00 às 06:00</span></div>
+              <div class="resultado-mao-section">
+                <div class="resultado-mao-section-title">
+                  <strong>Mão de Obra HE</strong>
+                  <small>Fixa, avarias, exclusiva e linha montagem</small>
+                </div>
+                <div class="resultado-mao-input-grid">
+                  <div><label>M.O Fixa</label><input id="resSepHeT3FixaQtd" type="number" step="1" min="0"></div>
+                  <div><label>M.O Avarias</label><input id="resSepHeT3AvariaQtd" type="number" step="1" min="0"></div>
+                  <div><label>M.O Exclusiva</label><input id="resSepHeT3ExclusivaQtd" type="number" step="1" min="0"></div>
+                  <div><label>M.O Linha de Montagem</label><input id="resSepHeT3LinhaQtd" type="number" step="1" min="0"></div>
+                </div>
+                <div class="resultado-total-strip"><span>Total mão de obra HE</span><strong id="resSepHeT3TotalMo">0</strong></div>
+                <div class="resultado-kpi-row">
+                  <div class="resultado-kpi-mini"><span>Capacidade</span><strong id="resSepHeT3Capacidade">0</strong></div>
+                  <div class="resultado-kpi-mini"><span>Realizado</span><strong id="resSepHeT3Realizado">0</strong></div>
+                  <div class="resultado-kpi-mini good"><span>Eficiência</span><strong id="resSepHeT3Eficiencia">0%</strong></div>
+                </div>
+              </div>
+              <div class="resultado-mao-section">
+                <div class="resultado-mao-section-title">
+                  <strong>Mão de Obra HO</strong>
+                  <small>Fixa e disponibilizada</small>
+                </div>
+                <div class="resultado-mao-input-grid resultado-mao-input-grid-ho">
+                  <div><label>M.O Fixa</label><input id="resSepHoT3FixaQtd" type="number" step="1" min="0"></div>
+                  <div><label>M.O Disponibilizada</label><input id="resSepHoT3DispQtd" type="number" step="1" min="0"></div>
+                </div>
+                <div class="resultado-total-strip"><span>Total mão de obra HO</span><strong id="resSepHoT3TotalMo">0</strong></div>
+                <div class="resultado-kpi-row">
+                  <div class="resultado-kpi-mini"><span>Capacidade</span><strong id="resSepHoT3Capacidade">0</strong></div>
+                  <div class="resultado-kpi-mini"><span>Realizado</span><strong id="resSepHoT3Realizado">0</strong></div>
+                  <div class="resultado-kpi-mini good"><span>Eficiência</span><strong id="resSepHoT3Eficiencia">0%</strong></div>
+                </div>
+              </div>
+            </div>
+    
           </div>
         </div>
       </section>
-
       <section id="view-passagem-turno" class="hidden">
         <div class="report-hero">
           <div class="report-hero-card soft-glow">
