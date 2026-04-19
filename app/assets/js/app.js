@@ -775,12 +775,6 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(status === "Em Doca" && !row.data_em_doca) payload.data_em_doca = new Date().toISOString();
       if(status === "Em Carregamento" && !row.inicio_carregamento) payload.inicio_carregamento = new Date().toISOString();
       if(status === "Expedido" && !row.fim_carregamento) payload.fim_carregamento = new Date().toISOString();
-      if(status === "Expedido" && !row.turno_expedido){
-        const baseHora = payload.fim_carregamento ? new Date(payload.fim_carregamento) : new Date();
-        const hh = String(baseHora.getHours()).padStart(2,'0');
-        const mm = String(baseHora.getMinutes()).padStart(2,'0');
-        payload.turno_expedido = definirTurno(`${hh}:${mm}`);
-      }
       return payload;
     }
 
@@ -982,6 +976,38 @@ function setView(view, btn){
       if(h >= 14 && h < 22) return "T2";
       return "T3";
     }
+
+    function getTonelagemPassagem(row){
+      const bruto = Number(row?.tonelagem ?? row?.peso ?? 0);
+      if(!Number.isFinite(bruto)) return 0;
+      return bruto > 1000 ? bruto / 1000 : bruto;
+    }
+
+    function formatPassagemTonelagem(valor){
+      return Number(valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    }
+
+    function bindPassagemLiveInputs(){
+      const ids = ['passagemData','passagemTurno','passagemResponsavel','passagemOperador','passagemConferente','passagemExclusiva','passagemRecebidoPor','passagemHorario','passagemOcorrencias'];
+      ['operador','conferente','exclusiva'].forEach(ch => {
+        ids.push(`passagemFerias_${ch}`, `passagemAusencias_${ch}`, `passagemBancoHoras_${ch}`);
+      });
+      (typeof PASSAGEM_AREAS !== 'undefined' ? PASSAGEM_AREAS : []).forEach(area => {
+        const slug = area.replace(/[^a-zA-Z0-9]/g,'_');
+        ids.push(`passagemAreaMo_${slug}`, `passagemAreaHoras_${slug}`);
+      });
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if(!el || el.dataset.passagemBound === '1') return;
+        const evt = (el.tagName === 'SELECT' || el.type === 'date' || el.type === 'time') ? 'change' : 'input';
+        el.addEventListener(evt, () => {
+          savePassagemTurnoState(collectPassagemTurnoState());
+          renderPassagemTurno();
+        });
+        el.dataset.passagemBound = '1';
+      });
+    }
+
 
     async function testarConexao(){
       try{
@@ -1953,7 +1979,7 @@ sb.auth.onAuthStateChange(async (_, session) => {
     }
 
     function renderMiniPassagemInputs(prefix, state){
-      return ['operador','conferente','exclusiva'].map(ch => `<div class="passagem-mini-input"><label>${ch.charAt(0).toUpperCase()+ch.slice(1)}</label><input id="${prefix}_${ch}" type="number" value="${esc(state[ch] ?? 0)}"></div>`).join('');
+      return ['operador','conferente','exclusiva'].map(ch => `<div class="passagem-mini-input" style="display:flex;flex-direction:column;gap:6px"><label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">${ch.charAt(0).toUpperCase()+ch.slice(1)}</label><input id="${prefix}_${ch}" type="number" value="${esc(state[ch] ?? 0)}"></div>`).join('');
     }
 
     function renderPassagemTurno(){
@@ -1970,20 +1996,30 @@ sb.auth.onAuthStateChange(async (_, session) => {
         const box = document.querySelector(`#graficoPassagem${prefix === 'bancoHoras' ? 'BancoHoras' : prefix.charAt(0).toUpperCase()+prefix.slice(1)}`)?.closest('.card');
         if(box){
           let holder = box.querySelector('.passagem-mini-inputs');
-          if(!holder){ holder = document.createElement('div'); holder.className = 'passagem-mini-inputs'; box.appendChild(holder); }
+          if(!holder){
+            holder = document.createElement('div');
+            holder.className = 'passagem-mini-inputs';
+            holder.style.display = 'grid';
+            holder.style.gridTemplateColumns = 'repeat(3,minmax(0,1fr))';
+            holder.style.gap = '8px';
+            holder.style.marginTop = '12px';
+            box.appendChild(holder);
+          }
           holder.innerHTML = renderMiniPassagemInputs(`passagem${prefix.charAt(0).toUpperCase()+prefix.slice(1)}`, state[prefix]);
         }
       });
       renderPassagemAreas(state);
-      const rows = getAgendaRows();
+      bindPassagemLiveInputs();
+      const rows = getAgendaRows().filter(r => !dataRefRaw || r.data_agenda === dataRefRaw);
       const programado = rows.filter(r => definirTurno(r.hora_agenda) === turno);
-      const realizado = programado.filter(r => r.status_global === 'Expedido');
+      const realizado = rows.filter(r => r.status_global === 'Expedido');
       const vira = programado.filter(r => r.status_global !== 'Expedido' && ['Em Doca','Em Carregamento','No Pátio','Pronto Expedição','Separado'].includes(r.status_global));
       const atrasado = programado.filter(r => calcSla(r).label === 'Atrasado');
-      const setKpiText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
-      const kpi = (arr, tonsId, carrosId) => { setKpiText(carrosId, arr.length); setKpiText(tonsId, arr.reduce((a,b)=>a+(b.tonelagem||0),0).toFixed(1)); };
+      const setKpiText = (ids,val)=>{ (Array.isArray(ids)?ids:[ids]).forEach(id => { const el=document.getElementById(id); if(el) el.textContent = val; }); };
+      const tons = arr => arr.reduce((a,b)=>a+getTonelagemPassagem(b),0);
+      const kpi = (arr, tonsIds, carrosIds) => { setKpiText(carrosIds, arr.length); setKpiText(tonsIds, formatPassagemTonelagem(tons(arr))); };
 
-      kpi(programado,'passagemProgTons','passagemProgCarros'); kpi(realizado,'passagemRealTons','passagemRealCarros'); kpi(vira,'passagemViraTons','passagemViraCarros'); kpi(atrasado,'passagemAtrasadoTons','passagemAtrasadoCarros');
+      kpi(programado,['passagemProgTons','passagemProgramadoTons'],['passagemProgCarros','passagemProgramadoCarros']); kpi(realizado,['passagemRealTons','passagemRealizadoTons'],['passagemRealCarros','passagemRealizadoCarros']); kpi(vira,'passagemViraTons','passagemViraCarros'); kpi(atrasado,'passagemAtrasadoTons','passagemAtrasadoCarros');
       const totalQuadro = (Number(state.operador)||0)+(Number(state.conferente)||0)+(Number(state.exclusiva)||0);
       const setText2 = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
       setText2('passagemDataRef', dataRefRaw ? fmtDate(dataRefRaw) : 'Todos'); setText2('passagemTurnoRef', turno); setText2('passagemTotalQuadroRef', totalQuadro);
@@ -2308,7 +2344,6 @@ sb.auth.onAuthStateChange(async (_, session) => {
       set("m_data_em_doca", toInputDateTime(row.data_em_doca));
       set("m_inicio_carregamento", toInputDateTime(row.inicio_carregamento));
       set("m_fim_carregamento", toInputDateTime(row.fim_carregamento));
-      set("m_turno_expedido", row.turno_expedido || (row.fim_carregamento ? definirTurno(String(new Date(row.fim_carregamento).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',hour12:false})).slice(0,5)) : ""));
       set("m_obs_carregamento", row.obs_carregamento);
       aplicarModoModal();
       document.getElementById("dtModal").classList.add("show");
@@ -2374,7 +2409,6 @@ sb.auth.onAuthStateChange(async (_, session) => {
         data_em_doca: document.getElementById("m_data_em_doca").value || null,
         inicio_carregamento: document.getElementById("m_inicio_carregamento").value || null,
         fim_carregamento: document.getElementById("m_fim_carregamento").value || null,
-        turno_expedido: document.getElementById("m_turno_expedido").value || null,
         obs_carregamento: document.getElementById("m_obs_carregamento").value.trim() || null
       };
       const { error } = await sb.from("agendas").update(payload).eq("id", dtAtual.id);
@@ -3049,11 +3083,11 @@ async function salvarPassagemTurno(){
   try{
     const rows = getAgendaRows().filter(r => !dataRef || r.data_agenda === dataRef);
     const programado = rows.filter(r => definirTurno(r.hora_agenda) === turno);
-    const realizado = programado.filter(r => r.status_global === 'Expedido');
+    const realizado = rows.filter(r => r.status_global === 'Expedido');
     const vira = programado.filter(r => r.status_global !== 'Expedido' && ['Em Doca','Em Carregamento','No Pátio','Pronto Expedição','Separado'].includes(r.status_global));
     const atrasado = programado.filter(r => calcSla(r).label === 'Atrasado');
 
-    const tons = arr => arr.reduce((a,b)=>a+(Number(b.tonelagem || b.peso || 0)),0);
+    const tons = arr => arr.reduce((a,b)=>a+getTonelagemPassagem(b),0);
 
     const { data: sess } = await sb.auth.getSession();
     const userId = sess?.session?.user?.id || null;
@@ -3155,26 +3189,31 @@ function renderPassagemTurno(){
     const box = document.querySelector(`#graficoPassagem${prefix === 'bancoHoras' ? 'BancoHoras' : prefix.charAt(0).toUpperCase()+prefix.slice(1)}`)?.closest('.card');
     if(box){
       let holder = box.querySelector('.passagem-mini-inputs');
-      if(!holder){ holder = document.createElement('div'); holder.className = 'passagem-mini-inputs'; box.appendChild(holder); }
+      if(!holder){
+        holder = document.createElement('div');
+        holder.className = 'passagem-mini-inputs';
+        holder.style.display = 'grid';
+        holder.style.gridTemplateColumns = 'repeat(3,minmax(0,1fr))';
+        holder.style.gap = '8px';
+        holder.style.marginTop = '12px';
+        box.appendChild(holder);
+      }
       holder.innerHTML = renderMiniPassagemInputs(`passagem${prefix.charAt(0).toUpperCase()+prefix.slice(1)}`, state[prefix]);
     }
   });
   renderPassagemAreas(state);
+  bindPassagemLiveInputs();
 
   const rows = getAgendaRows().filter(r => !dataRefRaw || r.data_agenda === dataRefRaw);
   const programado = rows.filter(r => definirTurno(r.hora_agenda) === turno);
-  const realizadosTurno = rows.filter(r => {
-    if(r.status_global !== 'Expedido') return false;
-    const turnoExpedido = r.turno_expedido || (r.fim_carregamento ? definirTurno(String(new Date(r.fim_carregamento).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',hour12:false})).slice(0,5)) : definirTurno(r.hora_agenda));
-    return turnoExpedido === turno;
-  });
+  const realizado = rows.filter(r => r.status_global === 'Expedido');
   const vira = programado.filter(r => r.status_global !== 'Expedido' && ['Em Doca','Em Carregamento','No Pátio','Pronto Expedição','Separado'].includes(r.status_global));
   const atrasado = programado.filter(r => calcSla(r).label === 'Atrasado');
-  const setKpiText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
-  const tons = arr => arr.reduce((a,b)=>a+(Number(b.tonelagem || b.peso || 0)),0);
-  const kpi = (arr, tonsId, carrosId) => { setKpiText(carrosId, arr.length); setKpiText(tonsId, tons(arr).toLocaleString('pt-BR')); };
-  kpi(programado, 'passagemProgramadoTons', 'passagemProgramadoCarros');
-  kpi(realizadosTurno, 'passagemRealizadoTons', 'passagemRealizadoCarros');
+  const setKpiText = (ids,val)=>{ (Array.isArray(ids)?ids:[ids]).forEach(id => { const el=document.getElementById(id); if(el) el.textContent = val; }); };
+  const tons = arr => arr.reduce((a,b)=>a+getTonelagemPassagem(b),0);
+  const kpi = (arr, tonsIds, carrosIds) => { setKpiText(carrosIds, arr.length); setKpiText(tonsIds, formatPassagemTonelagem(tons(arr))); };
+  kpi(programado, ['passagemProgramadoTons','passagemProgTons'], ['passagemProgramadoCarros','passagemProgCarros']);
+  kpi(realizado, ['passagemRealizadoTons','passagemRealTons'], ['passagemRealizadoCarros','passagemRealCarros']);
   kpi(vira, 'passagemViraTons', 'passagemViraCarros');
   kpi(atrasado, 'passagemAtrasadoTons', 'passagemAtrasadoCarros');
 
