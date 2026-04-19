@@ -12,6 +12,28 @@
   <script src="assets/js/config.js"></script>
   <script src="assets/js/permissions.js"></script>
   <script src="assets/js/auth.js"></script>
+
+  <style>
+    .passagem-mini-inputs .passagem-mini-input{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .passagem-mini-inputs .passagem-mini-input label{
+      font-size:11px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    .passagem-mini-inputs .passagem-mini-input input{
+      width:100%;
+    }
+    .passagem-kpi-card small{
+      color:var(--muted);
+      letter-spacing:.02em;
+    }
+  </style>
+
 </head>
 <body class="enterprise-shell">
 <div class="sidebar-backdrop hidden" id="sidebarBackdrop"></div>
@@ -852,9 +874,9 @@
             </div>
 
             <div class="grid grid-3" style="margin-top:16px">
-              <div class="card soft-glow passagem-mini-chart"><h3>Férias</h3><canvas id="graficoPassagemFerias" height="140"></canvas></div>
-              <div class="card soft-glow passagem-mini-chart"><h3>Ausências</h3><canvas id="graficoPassagemAusencias" height="140"></canvas></div>
-              <div class="card soft-glow passagem-mini-chart"><h3>Banco de Horas</h3><canvas id="graficoPassagemBancoHoras" height="140"></canvas></div>
+              <div class="card soft-glow passagem-mini-chart"><h3>Férias</h3><canvas id="graficoPassagemFerias" height="140"></canvas><div class="passagem-mini-inputs" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px"></div></div>
+              <div class="card soft-glow passagem-mini-chart"><h3>Ausências</h3><canvas id="graficoPassagemAusencias" height="140"></canvas><div class="passagem-mini-inputs" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px"></div></div>
+              <div class="card soft-glow passagem-mini-chart"><h3>Banco de Horas</h3><canvas id="graficoPassagemBancoHoras" height="140"></canvas><div class="passagem-mini-inputs" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px"></div></div>
             </div>
           </div>
 
@@ -865,8 +887,8 @@
         </div>
 
         <div class="grid grid-4" style="margin-top:16px">
-          <div class="card passagem-kpi-card"><div class="resultado-tag green">Programado</div><div class="resultado-duo"><div><span>Carros</span><strong id="passagemProgramadoCarros">0</strong></div><div><span>Tons</span><strong id="passagemProgramadoTons">0</strong></div></div></div>
-          <div class="card passagem-kpi-card"><div class="resultado-tag blue">Realizado</div><div class="resultado-duo"><div><span>Carros</span><strong id="passagemRealizadoCarros">0</strong></div><div><span>Tons</span><strong id="passagemRealizadoTons">0</strong></div></div></div>
+          <div class="card passagem-kpi-card"><div class="resultado-tag green">Programado</div><div class="resultado-duo"><div><span>Carros</span><strong id="passagemProgramadoCarros">0</strong><strong id="passagemProgCarros" class="hidden">0</strong></div><div><span>Tons</span><strong id="passagemProgramadoTons">0</strong><strong id="passagemProgTons" class="hidden">0</strong></div></div></div>
+          <div class="card passagem-kpi-card"><div class="resultado-tag blue">Realizado</div><div class="resultado-duo"><div><span>Carros</span><strong id="passagemRealizadoCarros">0</strong><strong id="passagemRealCarros" class="hidden">0</strong></div><div><span>Tons</span><strong id="passagemRealizadoTons">0</strong><strong id="passagemRealTons" class="hidden">0</strong></div></div><small style="display:block;margin-top:8px;color:var(--muted);font-size:11px">Expedidos do dia</small></div>
           <div class="card passagem-kpi-card"><div class="resultado-tag orange">Vira</div><div class="resultado-duo"><div><span>Carros</span><strong id="passagemViraCarros">0</strong></div><div><span>Tons</span><strong id="passagemViraTons">0</strong></div></div></div>
           <div class="card passagem-kpi-card"><div class="resultado-tag red">Atrasado</div><div class="resultado-duo"><div><span>Carros</span><strong id="passagemAtrasadoCarros">0</strong></div><div><span>Tons</span><strong id="passagemAtrasadoTons">0</strong></div></div></div>
         </div>
@@ -1208,7 +1230,6 @@
             <div><label>Data em doca</label><input id="m_data_em_doca" type="datetime-local"></div>
             <div><label>Início carregamento</label><input id="m_inicio_carregamento" type="datetime-local"></div>
             <div><label>Fim carregamento</label><input id="m_fim_carregamento" type="datetime-local"></div>
-            <div><label>Turno expedido</label><select id="m_turno_expedido"><option value="">Selecione</option><option value="T1">T1</option><option value="T2">T2</option><option value="T3">T3</option></select></div>
             <div class="full"><label>Obs. carregamento</label><textarea id="m_obs_carregamento"></textarea></div>
           </div>
         </div>
