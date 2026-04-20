@@ -983,6 +983,27 @@ function setView(view, btn){
       return "T3";
     }
 
+    function getTurnoAtualSistema(){
+      const agora = new Date();
+      const hh = String(agora.getHours()).padStart(2,'0');
+      const mm = String(agora.getMinutes()).padStart(2,'0');
+      return definirTurno(`${hh}:${mm}`);
+    }
+
+    function sincronizarFiltroTurnoPassagem(){
+      const el = document.getElementById('passagemTurno');
+      if(!el) return getTurnoAtualSistema();
+      if(el.dataset.manual !== '1'){
+        el.value = getTurnoAtualSistema();
+      }
+      if(el.dataset.autoBound !== '1'){
+        el.addEventListener('change', () => { el.dataset.manual = '1'; });
+        el.dataset.autoBound = '1';
+      }
+      return el.value || getTurnoAtualSistema();
+    }
+
+
     function getTonelagemPassagem(row){
       const bruto = Number(row?.tonelagem ?? row?.peso ?? 0);
       if(!Number.isFinite(bruto)) return 0;
@@ -1994,7 +2015,7 @@ sb.auth.onAuthStateChange(async (_, session) => {
       const dtInput = document.getElementById('passagemData'); if(dtInput && !dtInput.value && dataFiltrada()) dtInput.value = dataFiltrada();
       const turnoEl = document.getElementById('passagemTurno');
       const dataRefRaw = dtInput?.value || dataFiltrada() || '';
-      const turno = turnoEl?.value || 'T1';
+      const turno = sincronizarFiltroTurnoPassagem();
       const state = getPassagemTurnoState();
       const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? ''; };
       setVal('passagemResponsavel', state.responsavel); setVal('passagemOperador', state.operador); setVal('passagemConferente', state.conferente); setVal('passagemExclusiva', state.exclusiva); setVal('passagemRecebidoPor', state.recebidoPor); setVal('passagemHorario', state.horario); setVal('passagemOcorrencias', state.ocorrencias);
@@ -2028,7 +2049,7 @@ sb.auth.onAuthStateChange(async (_, session) => {
       kpi(programado,['passagemProgTons','passagemProgramadoTons'],['passagemProgCarros','passagemProgramadoCarros']); kpi(realizado,['passagemRealTons','passagemRealizadoTons'],['passagemRealCarros','passagemRealizadoCarros']); kpi(vira,'passagemViraTons','passagemViraCarros'); kpi(atrasado,'passagemAtrasadoTons','passagemAtrasadoCarros');
       const totalQuadro = (Number(state.operador)||0)+(Number(state.conferente)||0)+(Number(state.exclusiva)||0);
       const setText2 = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
-      setText2('passagemDataRef', dataRefRaw ? fmtDate(dataRefRaw) : 'Todos'); setText2('passagemTurnoRef', turno); setText2('passagemTotalQuadroRef', totalQuadro);
+      setText2('passagemTurnoRef', turno); setText2('passagemTotalQuadroRef', totalQuadro);
       const donutData = [state.operador || 0, state.conferente || 0, state.exclusiva || 0];
       if(chartPassagemQuadro) chartPassagemQuadro.destroy();
       if(chartPassagemFerias) chartPassagemFerias.destroy();
@@ -3210,7 +3231,7 @@ function renderPassagemTurno(){
   if(dtInput && !dtInput.value && dataFiltrada()) dtInput.value = dataFiltrada();
   const dataRefRaw = dtInput?.value || dataFiltrada() || '';
   const turnoEl = document.getElementById('passagemTurno');
-  const turno = turnoEl?.value || 'T1';
+  const turno = sincronizarFiltroTurnoPassagem();
 
   const key = getPassagemTurnoSupabaseKey();
   if(__passagemTurnoLoadKey !== key && !__passagemTurnoLoading){
