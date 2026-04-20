@@ -983,27 +983,6 @@ function setView(view, btn){
       return "T3";
     }
 
-    function getTurnoAtualSistema(){
-      const agora = new Date();
-      const hh = String(agora.getHours()).padStart(2,'0');
-      const mm = String(agora.getMinutes()).padStart(2,'0');
-      return definirTurno(`${hh}:${mm}`);
-    }
-
-    function sincronizarFiltroTurnoPassagem(){
-      const el = document.getElementById('passagemTurno');
-      if(!el) return getTurnoAtualSistema();
-      if(el.dataset.manual !== '1'){
-        el.value = getTurnoAtualSistema();
-      }
-      if(el.dataset.autoBound !== '1'){
-        el.addEventListener('change', () => { el.dataset.manual = '1'; });
-        el.dataset.autoBound = '1';
-      }
-      return el.value || getTurnoAtualSistema();
-    }
-
-
     function getTonelagemPassagem(row){
       const bruto = Number(row?.tonelagem ?? row?.peso ?? 0);
       if(!Number.isFinite(bruto)) return 0;
@@ -1026,189 +1005,26 @@ function setView(view, btn){
       ids.forEach(id => {
         const el = document.getElementById(id);
         if(!el || el.dataset.passagemBound === '1') return;
-        const evt = (el.tagName === 'SELECT' || el.type === 'date' || el.type === 'time') ? 'change' : 'input';
-        el.addEventListener(evt, () => {
+        const handler = () => {
+          const turnoFiltro = document.getElementById('passagemTurno')?.value || 'T1';
+          const op = Number(document.getElementById('passagemOperador')?.value || 0);
+          const conf = Number(document.getElementById('passagemConferente')?.value || 0);
+          const exc = Number(document.getElementById('passagemExclusiva')?.value || 0);
+          const turnoRef = document.getElementById('passagemTurnoRef');
+          const totalRef = document.getElementById('passagemTotalQuadroRef');
+          if(turnoRef) turnoRef.textContent = turnoFiltro;
+          if(totalRef) totalRef.textContent = String(op + conf + exc);
           savePassagemTurnoState(collectPassagemTurnoState());
           renderPassagemTurno();
-        });
+        };
+        const evt = (el.tagName === 'SELECT' || el.type === 'date' || el.type === 'time') ? 'change' : 'input';
+        el.addEventListener(evt, handler);
+        if(id === 'passagemTurno') el.addEventListener('input', handler);
         el.dataset.passagemBound = '1';
       });
     }
 
-
-    async function testarConexao(){
-      try{
-        const { error } = await sb.from("agendas").select("id").limit(1);
-        if(error) throw error;
-        const el = document.getElementById("statusConexao");
-        el.textContent = "Conectado ao Supabase.";
-        el.style.color = "#22c55e";
-        const adminStatus = document.getElementById("adminStatusRef");
-        if(adminStatus) adminStatus.textContent = "Online";
-      }catch(e){
-        console.error(e);
-        const el = document.getElementById("statusConexao");
-        const msg = String(e?.message || "");
-        el.textContent = msg.includes("permission denied")
-          ? "Conectado ao Supabase, mas sem permissão de leitura. Verifique GRANT e RLS."
-          : "Erro de conexão. Verifique URL, key, RLS e estrutura SQL.";
-        el.style.color = "#ef4444";
-        const adminStatus = document.getElementById("adminStatusRef");
-        if(adminStatus) adminStatus.textContent = "Erro";
-      }
-    }
-
-    async function login(){
-  return window.loginYMS ? window.loginYMS() : null;
-}
-
-async function logout(){
-  if(realtimeChannel){ try{ await sb.removeChannel(realtimeChannel); }catch(_){} }
-  if(window.logoutYMS){
-    await window.logoutYMS();
-    return;
-  }
-  await sb.auth.signOut();
-  window.location.href = "login.html";
-}
-
-async function verificarSessao(){
-  const authResult = window.requireAuthYMS
-    ? await window.requireAuthYMS()
-    : { session: (await sb.auth.getSession()).data.session, profile: null };
-  const session = authResult?.session || authResult || null;
-  const profile = authResult?.profile || window.YMS_AUTH_PROFILE || null;
-  if(session?.user){
-    await entrarSistema(session.user, profile);
-    return true;
-  }
-  bloquearSistema();
-  return false;
-}
-
-async function entrarSistema(user, profile){
-  const app = document.getElementById("app");
-  if(app) app.classList.remove("hidden");
-  const backdrop = document.getElementById("sidebarBackdrop");
-  if(backdrop) backdrop.classList.add("hidden");
-  await carregarPerfil(user.email, user.id, profile || null);
-  await carregarCadastros();
-  await carregarTudo();
-  setView(viewAtualGlobal);
-  await iniciarRealtime();
-}
-
-function bloquearSistema(){
-  window.location.href = "login.html";
-}
-
-sb.auth.onAuthStateChange(async (_, session) => {
-  if(!session) bloquearSistema();
-});
-
-    async function carregarPerfil(email, userId, profileFromAuth = null){
-      let data = null;
-      let error = null;
-
-      const preencherPerfilUI = (perfilData) => {
-        usuarioPerfil = String(perfilData?.perfil || "operacao").toLowerCase();
-        try{
-          sessionStorage.setItem("glp_auth_profile_v2", JSON.stringify({
-            id: perfilData?.id || userId || null,
-            nome: perfilData?.nome || email || "Usuário logado",
-            email: perfilData?.email || email || "-",
-            perfil: usuarioPerfil,
-            ativo: perfilData?.ativo !== false
-          }));
-        }catch(_){ }
-        document.getElementById("userNome").textContent = perfilData?.nome || email || "Usuário logado";
-        document.getElementById("userEmail").textContent = perfilData?.email || email || "-";
-        document.getElementById("userPerfil").textContent = `Perfil: ${usuarioPerfil}`;
-        document.getElementById("areaAdmin").style.display = usuarioPerfil === "admin" ? "grid" : "none";
-        aplicarPermissoes();
-        if(usuarioPerfil === "admin") carregarUsuariosAdmin();
-        atualizarSaudacaoSistema();
-        carregarTemperaturaSistema();
-      };
-
-      try{
-        const cachePerfil = profileFromAuth || window.YMS_AUTH_PROFILE || JSON.parse(sessionStorage.getItem("glp_auth_profile_v2") || "null");
-        if(cachePerfil && (cachePerfil.email || cachePerfil.perfil)){
-          preencherPerfilUI(cachePerfil);
-          return;
-        }
-      }catch(_){ }
-
-      try{
-        const porId = await sb
-          .from("usuarios")
-          .select("id,nome,email,perfil,ativo")
-          .eq("id", userId)
-          .maybeSingle();
-        if(porId.error) error = porId.error;
-        if(porId.data) data = porId.data;
-
-        if(!data){
-          const porEmail = await sb
-            .from("usuarios")
-            .select("id,nome,email,perfil,ativo")
-            .eq("email", email)
-            .maybeSingle();
-          if(porEmail.error) error = porEmail.error;
-          if(porEmail.data) data = porEmail.data;
-        }
-      }catch(err){
-        error = err;
-      }
-
-      if(error){
-        console.error(error);
-        usuarioPerfil = null;
-        document.getElementById("userNome").textContent = email || "Usuário logado";
-        document.getElementById("userEmail").textContent = email || "-";
-        document.getElementById("userPerfil").textContent = "Perfil: indisponível";
-        document.getElementById("areaAdmin").style.display = "none";
-        const menuAdmin = document.getElementById("menu-admin");
-        if(menuAdmin) menuAdmin.style.display = "none";
-        const status = document.getElementById("statusConexao");
-        if(status){
-          status.textContent = "Sem permissão para ler o perfil do usuário. Verifique GRANT e RLS da tabela public.usuarios.";
-          status.style.color = "#ef4444";
-        }
-        return;
-      }
-
-      if(!data){
-        usuarioPerfil = null;
-        document.getElementById("userNome").textContent = email || "Usuário logado";
-        document.getElementById("userEmail").textContent = email || "-";
-        document.getElementById("userPerfil").textContent = "Perfil: sem cadastro";
-        document.getElementById("areaAdmin").style.display = "none";
-        const menuAdmin = document.getElementById("menu-admin");
-        if(menuAdmin) menuAdmin.style.display = "none";
-        const status = document.getElementById("statusConexao");
-        if(status){
-          status.textContent = "Seu usuário não possui perfil cadastrado no sistema.";
-          status.style.color = "#ef4444";
-        }
-        return;
-      }
-
-      if(data.ativo !== true){
-        usuarioPerfil = null;
-        document.getElementById("userNome").textContent = data.nome || email || "Usuário logado";
-        document.getElementById("userEmail").textContent = data.email || email || "-";
-        document.getElementById("userPerfil").textContent = "Perfil: usuário inativo";
-        alert("Seu usuário está inativo. Procure o administrador do sistema.");
-        await sb.auth.signOut();
-        bloquearSistema();
-        return;
-      }
-
-      preencherPerfilUI(data);
-    }
-
-    function aplicarPermissoes(){
+        function aplicarPermissoes(){
       const perms = getRolePermissions();
       const ocultar = (id, hidden) => {
         const el = document.getElementById(id);
@@ -2015,7 +1831,7 @@ sb.auth.onAuthStateChange(async (_, session) => {
       const dtInput = document.getElementById('passagemData'); if(dtInput && !dtInput.value && dataFiltrada()) dtInput.value = dataFiltrada();
       const turnoEl = document.getElementById('passagemTurno');
       const dataRefRaw = dtInput?.value || dataFiltrada() || '';
-      const turno = sincronizarFiltroTurnoPassagem();
+      const turno = turnoEl?.value || 'T1';
       const state = getPassagemTurnoState();
       const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? ''; };
       setVal('passagemResponsavel', state.responsavel); setVal('passagemOperador', state.operador); setVal('passagemConferente', state.conferente); setVal('passagemExclusiva', state.exclusiva); setVal('passagemRecebidoPor', state.recebidoPor); setVal('passagemHorario', state.horario); setVal('passagemOcorrencias', state.ocorrencias);
@@ -3231,7 +3047,7 @@ function renderPassagemTurno(){
   if(dtInput && !dtInput.value && dataFiltrada()) dtInput.value = dataFiltrada();
   const dataRefRaw = dtInput?.value || dataFiltrada() || '';
   const turnoEl = document.getElementById('passagemTurno');
-  const turno = sincronizarFiltroTurnoPassagem();
+  const turno = turnoEl?.value || 'T1';
 
   const key = getPassagemTurnoSupabaseKey();
   if(__passagemTurnoLoadKey !== key && !__passagemTurnoLoading){
@@ -3281,6 +3097,9 @@ function renderPassagemTurno(){
   kpi(atrasado, 'passagemAtrasadoTons', 'passagemAtrasadoCarros');
 
   const totalQuadro = (Number(state.operador)||0) + (Number(state.conferente)||0) + (Number(state.exclusiva)||0);
+  const setText2 = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
+  setText2('passagemTurnoRef', turno);
+  setText2('passagemTotalQuadroRef', totalQuadro);
   const donutCtx = document.getElementById('graficoPassagemQuadro');
   if(donutCtx){
     try{ window.chartPassagemQuadro?.destroy(); }catch(_){}
