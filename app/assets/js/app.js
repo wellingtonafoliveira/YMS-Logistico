@@ -2651,7 +2651,30 @@ function setView(view, btn){
       document.getElementById("filtroData").value = `${hoje.getFullYear()}-${p(hoje.getMonth()+1)}-${p(hoje.getDate())}`;
     })();
 
-    async function boot(){
+    async function testarConexao(){
+      try{
+        const { error } = await sb.from("agendas").select("id").limit(1);
+        if(error) throw error;
+        const el = document.getElementById("statusConexao");
+        el.textContent = "Conectado ao Supabase.";
+        el.style.color = "#22c55e";
+        const adminStatus = document.getElementById("adminStatusRef");
+        if(adminStatus) adminStatus.textContent = "Online";
+      }catch(e){
+        console.error(e);
+        const el = document.getElementById("statusConexao");
+        const msg = String(e?.message || "");
+        el.textContent = msg.includes("permission denied")
+          ? "Conectado ao Supabase, mas sem permissão de leitura. Verifique GRANT e RLS."
+          : "Erro de conexão. Verifique URL, key, RLS e estrutura SQL.";
+        el.style.color = "#ef4444";
+        const adminStatus = document.getElementById("adminStatusRef");
+        if(adminStatus) adminStatus.textContent = "Erro";
+      }
+    }
+
+    
+async function boot(){
       await testarConexao();
       await verificarSessao();
     }
