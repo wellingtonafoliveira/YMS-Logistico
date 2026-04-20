@@ -3903,3 +3903,147 @@
     grid-template-columns:1fr !important;
   }
 }
+
+
+
+/* ===== CORREÇÃO DE CORTE NOS CAMPOS DOS INDICADORES ===== */
+#view-passagem-turno .grid.grid-3[style*="margin-top:16px"]{
+  align-items:stretch;
+}
+
+#view-passagem-turno .passagem-mini-chart-premium{
+  min-height:270px !important;
+  overflow:visible !important;
+}
+
+#view-passagem-turno .passagem-mini-inputs-premium{
+  grid-template-columns:repeat(3,minmax(90px,1fr)) !important;
+  gap:10px !important;
+}
+
+#view-passagem-turno .passagem-mini-inputs-premium .passagem-mini-input{
+  min-width:0;
+}
+
+#view-passagem-turno .passagem-mini-inputs-premium .passagem-mini-input label{
+  min-height:30px;
+  white-space:normal !important;
+  word-break:break-word;
+  line-height:1.2 !important;
+  font-size:10px !important;
+}
+
+#view-passagem-turno .passagem-mini-inputs-premium .passagem-mini-input input{
+  min-width:0;
+  font-size:14px;
+}
+
+@media (max-width: 1200px){
+  #view-passagem-turno .passagem-mini-inputs-premium{
+    grid-template-columns:repeat(3,minmax(80px,1fr)) !important;
+  }
+}
+
+@media (max-width: 900px){
+  #view-passagem-turno .passagem-mini-inputs-premium{
+    grid-template-columns:1fr !important;
+  }
+  #view-passagem-turno .passagem-mini-inputs-premium .passagem-mini-input label{
+    min-height:auto;
+  }
+}
+
+
+/* ===== FÉRIAS / AUSÊNCIAS / BANCO DE HORAS NO FORMATO DA PRINT ===== */
+#view-passagem-turno .passagem-mini-chart-print{
+  border:1.5px solid rgba(255,255,255,.78);
+  border-radius:14px;
+  padding:10px 12px 12px;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(96,76,255,.18), transparent 42%),
+    radial-gradient(circle at 86% 24%, rgba(255,0,128,.10), transparent 38%),
+    linear-gradient(180deg, rgba(18,21,42,.94), rgba(8,11,24,.96));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+  min-height: 250px !important;
+  overflow: hidden;
+}
+
+#view-passagem-turno .passagem-mini-header-center{
+  text-align:center;
+  margin-bottom:6px;
+}
+
+#view-passagem-turno .passagem-mini-header-center h3{
+  margin:0;
+  font-size:13px;
+  font-weight:800;
+  color:#ffffff;
+}
+
+#view-passagem-turno .passagem-mini-graphic-wrap{
+  height:118px;
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#view-passagem-turno .passagem-mini-graphic-wrap canvas{
+  width:100% !important;
+  height:118px !important;
+  max-height:118px !important;
+}
+
+#view-passagem-turno .passagem-mini-inputs-print{
+  display:grid !important;
+  grid-template-columns:repeat(3, minmax(0,1fr)) !important;
+  gap:8px !important;
+  margin-top:0 !important;
+}
+
+#view-passagem-turno .passagem-mini-inputs-print .passagem-mini-input{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:4px !important;
+  min-width:0;
+}
+
+#view-passagem-turno .passagem-mini-inputs-print .passagem-mini-input label{
+  display:block !important;
+  margin:0 !important;
+  font-size:10px !important;
+  font-weight:800;
+  color:#f3f6ff !important;
+  text-transform:none !important;
+  letter-spacing:0 !important;
+  line-height:1.1 !important;
+  text-align:center;
+  min-height:auto !important;
+  white-space:normal !important;
+}
+
+#view-passagem-turno .passagem-mini-inputs-print .passagem-mini-input input{
+  width:100% !important;
+  min-height:34px !important;
+  height:34px !important;
+  border-radius:10px !important;
+  padding:6px 10px !important;
+  text-align:center;
+  font-size:18px !important;
+  font-weight:700;
+  background:rgba(3,7,18,.78) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  color:#ffffff !important;
+}
+
+@media (max-width: 900px){
+  #view-passagem-turno .passagem-mini-inputs-print{
+    grid-template-columns:1fr !important;
+  }
+  #view-passagem-turno .passagem-mini-chart-print{
+    min-height:auto !important;
+  }
+  #view-passagem-turno .passagem-mini-graphic-wrap{
+    height:100px;
+  }
+}
