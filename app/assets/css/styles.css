@@ -3856,3 +3856,50 @@
     grid-template-columns:1fr !important;
   }
 }
+
+
+
+/* ===== PASSAGEM DE TURNO: INDICADORES SEM GRÁFICO ===== */
+#view-passagem-turno .passagem-mini-chart-premium{
+  padding:18px;
+  min-height:240px;
+}
+
+#view-passagem-turno .passagem-mini-form-body{
+  margin-top:8px;
+}
+
+#view-passagem-turno .passagem-mini-inputs-premium{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:12px !important;
+  margin-top:0 !important;
+}
+
+#view-passagem-turno .passagem-mini-inputs-premium .passagem-mini-input{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:6px !important;
+}
+
+#view-passagem-turno .passagem-mini-inputs-premium .passagem-mini-input label{
+  display:block !important;
+  margin:0 !important;
+  font-size:11px !important;
+  color:var(--muted) !important;
+  text-transform:uppercase !important;
+  letter-spacing:.08em !important;
+}
+
+#view-passagem-turno .passagem-mini-inputs-premium .passagem-mini-input input{
+  width:100% !important;
+  min-height:42px !important;
+  padding:11px 12px !important;
+  border-radius:14px !important;
+}
+
+@media (max-width: 700px){
+  #view-passagem-turno .passagem-mini-inputs-premium{
+    grid-template-columns:1fr !important;
+  }
+}
