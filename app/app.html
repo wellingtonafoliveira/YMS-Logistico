@@ -839,7 +839,7 @@
             <h3>Passagem de turno • Expedição</h3>
             <p>Painel para registrar mão de obra, distribuição do quadro, programado, realizado e pendências do turno.</p>
             <div class="report-mini-grid report-mini-grid-3">
-              <div class="report-mini"><span>Filtro aplicado</span><strong id="passagemDataRef">Todos</strong></div>
+              <div class="report-mini"><span>Filtro aplicado</span><strong id="passagemDataRef_REMOVIDO">Todos</strong></div>
               <div class="report-mini"><span>Turno</span><strong id="passagemTurnoRef">T1</strong></div>
               <div class="report-mini"><span>Total quadro</span><strong id="passagemTotalQuadroRef">0</strong></div>
             </div>
@@ -874,32 +874,35 @@
             </div>
 
             <div class="grid grid-3" style="margin-top:16px">
-              <div class="card soft-glow passagem-mini-chart passagem-mini-chart-print">
-                <div class="passagem-mini-header-center">
-                  <h3>Férias</h3>
+              <div class="card soft-glow passagem-mini-chart passagem-mini-chart-premium">
+                <div class="card-title-row">
+                  <div><h3 style="margin:0">Férias</h3><p>Preenchimento por função do turno.</p></div>
+                  <span class="premium-badge">Indicador</span>
                 </div>
-                <div class="passagem-mini-graphic-wrap">
-                  <canvas id="graficoPassagemFerias" height="120"></canvas>
+                <div class="passagem-mini-form-body">
+                  <div class="passagem-mini-inputs passagem-mini-inputs-premium"></div>
                 </div>
-                <div class="passagem-mini-inputs passagem-mini-inputs-print"></div>
+                <canvas id="graficoPassagemFerias" height="140" class="hidden"></canvas>
               </div>
-              <div class="card soft-glow passagem-mini-chart passagem-mini-chart-print">
-                <div class="passagem-mini-header-center">
-                  <h3>Ausências</h3>
+              <div class="card soft-glow passagem-mini-chart passagem-mini-chart-premium">
+                <div class="card-title-row">
+                  <div><h3 style="margin:0">Ausências</h3><p>Preenchimento por função do turno.</p></div>
+                  <span class="premium-badge">Indicador</span>
                 </div>
-                <div class="passagem-mini-graphic-wrap">
-                  <canvas id="graficoPassagemAusencias" height="120"></canvas>
+                <div class="passagem-mini-form-body">
+                  <div class="passagem-mini-inputs passagem-mini-inputs-premium"></div>
                 </div>
-                <div class="passagem-mini-inputs passagem-mini-inputs-print"></div>
+                <canvas id="graficoPassagemAusencias" height="140" class="hidden"></canvas>
               </div>
-              <div class="card soft-glow passagem-mini-chart passagem-mini-chart-print">
-                <div class="passagem-mini-header-center">
-                  <h3>Banco de Horas</h3>
+              <div class="card soft-glow passagem-mini-chart passagem-mini-chart-premium">
+                <div class="card-title-row">
+                  <div><h3 style="margin:0">Banco de Horas</h3><p>Preenchimento por função do turno.</p></div>
+                  <span class="premium-badge">Indicador</span>
                 </div>
-                <div class="passagem-mini-graphic-wrap">
-                  <canvas id="graficoPassagemBancoHoras" height="120"></canvas>
+                <div class="passagem-mini-form-body">
+                  <div class="passagem-mini-inputs passagem-mini-inputs-premium"></div>
                 </div>
-                <div class="passagem-mini-inputs passagem-mini-inputs-print"></div>
+                <canvas id="graficoPassagemBancoHoras" height="140" class="hidden"></canvas>
               </div>
             </div>
           </div>
