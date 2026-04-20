@@ -1872,7 +1872,31 @@ function setView(view, btn){
       if(chartPassagemAusencias) chartPassagemAusencias.destroy();
       if(chartPassagemBancoHoras) chartPassagemBancoHoras.destroy();
       chartPassagemQuadro = new Chart(document.getElementById('graficoPassagemQuadro'), { type:'doughnut', data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:donutData, backgroundColor:['rgba(34,211,238,.95)','rgba(59,130,246,.95)','rgba(251,146,60,.95)'], borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'72%', plugins:{ legend:{ labels:{ color:'#eef4ff' } } } } });
-      const miniChart = (canvasId, src) => new Chart(document.getElementById(canvasId), { type:'bar', data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:[src.operador||0, src.conferente||0, src.exclusiva||0], borderRadius:10, borderSkipped:false, backgroundColor:['rgba(34,211,238,.95)','rgba(59,130,246,.95)','rgba(251,146,60,.95)'] }] }, options: mergeChartOptions(getPremiumChartOptions(), { plugins:{ legend:{ display:false } }, scales:{ y:{ ticks:{ precision:0 } } } }) });
+      const miniChart = (canvasId, src) => new Chart(document.getElementById(canvasId), {
+        type:'bar',
+        data:{
+          labels:['Operador','Conferente','Exclusiva'],
+          datasets:[{
+            label:'Quantidade',
+            data:[src.operador||0, src.conferente||0, src.exclusiva||0],
+            borderRadius:8,
+            borderSkipped:false,
+            maxBarThickness:42,
+            backgroundColor:['rgba(34,211,238,.95)','rgba(59,130,246,.95)','rgba(251,146,60,.95)']
+          }]
+        },
+        options: mergeChartOptions(getPremiumChartOptions(), {
+          maintainAspectRatio:false,
+          plugins:{
+            legend:{ display:true, position:'bottom', labels:{ boxWidth:10, usePointStyle:true } },
+            tooltip:{ enabled:true }
+          },
+          scales:{
+            x:{ grid:{ display:false }, ticks:{ color:'#dbe5ff', font:{ size:11 } } },
+            y:{ beginAtZero:true, ticks:{ precision:0, stepSize:1 }, grid:{ color:'rgba(255,255,255,.06)' } }
+          }
+        })
+      });
       chartPassagemFerias = miniChart('graficoPassagemFerias', state.ferias || {});
       chartPassagemAusencias = miniChart('graficoPassagemAusencias', state.ausencias || {});
       chartPassagemBancoHoras = miniChart('graficoPassagemBancoHoras', state.bancoHoras || {});
@@ -3427,11 +3451,26 @@ function renderPassagemTurno(){
     }catch(_){}
     window[`chart_${id}`] = new Chart(el, {
       type:'bar',
-      data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:vals, borderRadius:10, backgroundColor:['rgba(34,211,238,.92)','rgba(59,130,246,.92)','rgba(245,158,11,.92)'] }]},
+      data:{
+        labels:['Operador','Conferente','Exclusiva'],
+        datasets:[{
+          label:'Quantidade',
+          data:vals,
+          borderRadius:8,
+          borderSkipped:false,
+          maxBarThickness:42,
+          backgroundColor:['rgba(34,211,238,.92)','rgba(59,130,246,.92)','rgba(245,158,11,.92)']
+        }]
+      },
       options: mergeChartOptions(getPremiumChartOptions(), {
-        plugins:{ legend:{ display:false } },
+        plugins:{
+          legend:{ display:true, position:'bottom', labels:{ boxWidth:10, usePointStyle:true, color:'#eef4ff' } }
+        },
         maintainAspectRatio:false,
-        scales:{ y:{ beginAtZero:true, ticks:{ precision:0, stepSize:1 } } }
+        scales:{
+          x:{ grid:{ display:false }, ticks:{ color:'#dbe5ff', font:{ size:11 } } },
+          y:{ beginAtZero:true, ticks:{ precision:0, stepSize:1 }, grid:{ color:'rgba(255,255,255,.06)' } }
+        }
       })
     });
   };
