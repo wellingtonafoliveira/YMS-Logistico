@@ -775,6 +775,12 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(status === "Em Doca" && !row.data_em_doca) payload.data_em_doca = new Date().toISOString();
       if(status === "Em Carregamento" && !row.inicio_carregamento) payload.inicio_carregamento = new Date().toISOString();
       if(status === "Expedido" && !row.fim_carregamento) payload.fim_carregamento = new Date().toISOString();
+      if(status === "Expedido" && !row.turno_expedido){
+        const baseHora = payload.fim_carregamento ? new Date(payload.fim_carregamento) : new Date();
+        const hh = String(baseHora.getHours()).padStart(2,'0');
+        const mm = String(baseHora.getMinutes()).padStart(2,'0');
+        payload.turno_expedido = definirTurno(`${hh}:${mm}`);
+      }
       return payload;
     }
 
@@ -2347,6 +2353,42 @@ sb.auth.onAuthStateChange(async (_, session) => {
       set("m_obs_carregamento", row.obs_carregamento);
       aplicarModoModal();
       document.getElementById("dtModal").classList.add("show");
+    }
+
+
+    function bindTurnoExpedidoAuto(){
+      const fimEl = document.getElementById("m_fim_carregamento");
+      const turnoEl = document.getElementById("m_turno_expedido");
+      const statusEl = document.getElementById("m_status_global");
+      if(!fimEl || !turnoEl || !statusEl) return;
+      const preencher = () => {
+        if(turnoEl.value) return;
+        if(fimEl.value){
+          const d = new Date(fimEl.value);
+          if(!isNaN(d)){
+            const hh = String(d.getHours()).padStart(2,'0');
+            const mm = String(d.getMinutes()).padStart(2,'0');
+            turnoEl.value = definirTurno(`${hh}:${mm}`);
+            return;
+          }
+        }
+        if(statusEl.value === "Expedido"){
+          const now = new Date();
+          const hh = String(now.getHours()).padStart(2,'0');
+          const mm = String(now.getMinutes()).padStart(2,'0');
+          turnoEl.value = definirTurno(`${hh}:${mm}`);
+        }
+      };
+      if(fimEl.dataset.turnoAutoBound !== '1'){
+        fimEl.addEventListener('change', preencher);
+        fimEl.addEventListener('input', preencher);
+        fimEl.dataset.turnoAutoBound = '1';
+      }
+      if(statusEl.dataset.turnoAutoBound !== '1'){
+        statusEl.addEventListener('change', preencher);
+        statusEl.dataset.turnoAutoBound = '1';
+      }
+      preencher();
     }
 
     function fecharDTModal(){
