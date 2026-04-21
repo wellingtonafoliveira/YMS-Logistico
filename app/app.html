@@ -836,136 +836,146 @@
       </section>
       
 
+
 <section id="view-passagem-turno" class="hidden">
-  <div class="pt3-shell">
-    <div class="pt3-top">
-      <div class="card soft-glow pt3-hero">
-        <h2>Passagem de turno • Expedição</h2>
-        <p>Painel premium para registrar mão de obra, distribuição do quadro, programado, realizado e pendências do turno.</p>
+  <div class="pt-split-shell">
+    <div class="pt-split-header">
+      <div class="pt-split-tabs">
+        <button class="pt-split-tab active" id="ptTabLancamento" type="button" onclick="setPassagemSubView('lancamento')">Lançamento</button>
+        <button class="pt-split-tab" id="ptTabIndicadores" type="button" onclick="setPassagemSubView('indicadores')">Indicadores</button>
       </div>
-      <div class="card soft-glow pt3-steps">
-        <div class="pt3-step active"><span>1</span><strong>Preencher</strong></div>
-        <div class="pt3-step"><span>2</span><strong>Revisar</strong></div>
-        <div class="pt3-step"><span>3</span><strong>Confirmar</strong></div>
-        <div class="pt3-step"><span>4</span><strong>Enviado</strong></div>
-      </div>
-      <div class="pt3-actions">
-        <button class="btn btn-light" onclick="salvarPassagemTurno()">Salvar</button>
-        <button class="btn btn-success" onclick="fecharEEnviarPassagemTurno()">Fechar e enviar por e-mail</button>
-      </div>
+      <div class="pt-split-header-note">Lançamento operacional separado do painel executivo para leitura mais limpa.</div>
     </div>
 
-    <div class="pt3-layout">
-      <div class="pt3-main" id="passagemPainelCaptura">
-        <div class="pt3-kpis">
-          <div class="card soft-glow pt3-kpi">
-            <span>Data referência</span>
+    <div id="passagemSubLancamento" class="pt-subview active">
+      <div class="pt-launch-shell">
+        <div class="pt-launch-top">
+          <div class="card soft-glow pt-launch-hero">
+            <h2>Passagem de Turno • Lançamento</h2>
+            <p>Página operacional para registrar quadro, distribuição por área, pendências e responsáveis do turno.</p>
+          </div>
+          <div class="pt-launch-actions">
+            <button class="btn btn-light" type="button" onclick="renderPassagemTurno()">Atualizar</button>
+            <button class="btn btn-success" type="button" onclick="salvarPassagemTurno()">Salvar lançamento</button>
+            <button class="btn btn-primary" type="button" onclick="setPassagemSubView('indicadores')">Abrir indicadores</button>
+          </div>
+        </div>
+
+        <div class="pt-launch-kpis">
+          <div class="card soft-glow pt-launch-kpi pt-launch-field">
+            <label>Data referência</label>
             <input type="date" id="passagemData" onchange="renderPassagemTurno()">
           </div>
-          <div class="card soft-glow pt3-kpi">
-            <span>Turno</span>
+          <div class="card soft-glow pt-launch-kpi pt-launch-field">
+            <label>Turno</label>
             <select id="passagemTurno" onchange="renderPassagemTurno()">
-              <option value="T1">T1</option><option value="T2">T2</option><option value="T3">T3</option>
+              <option value="T1">T1</option>
+              <option value="T2">T2</option>
+              <option value="T3">T3</option>
             </select>
             <small id="passagemTurnoRef">T1</small>
           </div>
-          <div class="card soft-glow pt3-kpi">
+          <div class="card soft-glow pt-launch-kpi">
             <span>Programado</span>
             <strong id="passagemProgramadoTons">0</strong>
             <small><b id="passagemProgramadoCarros">0</b> carros</small>
-            <strong id="passagemProgTons" class="hidden">0</strong><strong id="passagemProgCarros" class="hidden">0</strong>
+            <strong id="passagemProgTons" class="hidden">0</strong>
+            <strong id="passagemProgCarros" class="hidden">0</strong>
           </div>
-          <div class="card soft-glow pt3-kpi">
+          <div class="card soft-glow pt-launch-kpi">
             <span>Realizado</span>
             <strong id="passagemRealizadoTons">0</strong>
             <small><b id="passagemRealizadoCarros">0</b> carros</small>
-            <strong id="passagemRealTons" class="hidden">0</strong><strong id="passagemRealCarros" class="hidden">0</strong>
+            <strong id="passagemRealTons" class="hidden">0</strong>
+            <strong id="passagemRealCarros" class="hidden">0</strong>
           </div>
-          <div class="card soft-glow pt3-kpi">
+          <div class="card soft-glow pt-launch-kpi">
             <span>Vira</span>
             <strong id="passagemViraTons">0</strong>
             <small><b id="passagemViraCarros">0</b> carros</small>
           </div>
-          <div class="card soft-glow pt3-kpi pt3-kpi-danger">
+          <div class="card soft-glow pt-launch-kpi pt-launch-kpi-danger">
             <span>Atrasado</span>
             <strong id="passagemAtrasadoTons">0</strong>
             <small><b id="passagemAtrasadoCarros">0</b> carros</small>
           </div>
         </div>
 
-        <div class="pt3-grid-a">
-          <div class="card soft-glow pt3-panel pt3-panel-big">
-            <div class="card-title-row">
-              <div><h3 style="margin:0">Quadro | Turno</h3><p>Mão de obra preenchível e gravada por turno.</p></div>
-              <span class="premium-badge">M/O</span>
-            </div>
-            <div class="pt3-chart-form">
-              <div class="passagem-donut-wrap"><canvas id="graficoPassagemQuadro" height="180"></canvas></div>
-              <div class="passagem-legend-inputs">
+        <div class="pt-launch-grid">
+          <div class="pt-launch-left">
+            <div class="card soft-glow pt-launch-card">
+              <div class="card-title-row">
+                <div><h3 style="margin:0">Quadro do turno</h3><p>Preenchimento da mão de obra principal do turno.</p></div>
+                <span class="premium-badge">M/O</span>
+              </div>
+              <div class="pt-launch-quadro-grid">
                 <div><label>Operador</label><input id="passagemOperador" type="number"></div>
                 <div><label>Conferente</label><input id="passagemConferente" type="number"></div>
                 <div><label>Exclusiva</label><input id="passagemExclusiva" type="number"></div>
-                <div class="pt3-total-box"><label>Total quadro</label><div class="pt3-total-value" id="passagemTotalQuadroRef">0</div></div>
+                <div class="pt-launch-total">
+                  <label>Total quadro</label>
+                  <div class="pt-launch-total-value" id="passagemTotalQuadroRef">0</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card soft-glow pt-launch-card">
+              <div class="card-title-row">
+                <div><h3 style="margin:0">Distribuição do quadro</h3><p>Informe M/O e horas por área do turno.</p></div>
+                <span class="premium-badge">Áreas</span>
+              </div>
+              <div class="grid grid-4 passagem-area-grid" id="passagemAreasWrap"></div>
+            </div>
+          </div>
+
+          <div class="pt-launch-right">
+            <div class="card soft-glow pt-launch-card">
+              <div class="card-title-row">
+                <div><h3 style="margin:0">Férias</h3><p>Registrar pessoas de férias no turno.</p></div>
+                <span class="premium-badge">Lançamento</span>
+              </div>
+              <div class="pt-launch-mini-grid passagem-mini-inputs passagem-mini-inputs-v2"></div>
+              <canvas id="graficoPassagemFerias" class="hidden"></canvas>
+            </div>
+
+            <div class="card soft-glow pt-launch-card">
+              <div class="card-title-row">
+                <div><h3 style="margin:0">Ausências</h3><p>Registrar ausências do turno.</p></div>
+                <span class="premium-badge">Lançamento</span>
+              </div>
+              <div class="pt-launch-mini-grid passagem-mini-inputs passagem-mini-inputs-v2"></div>
+              <canvas id="graficoPassagemAusencias" class="hidden"></canvas>
+            </div>
+
+            <div class="card soft-glow pt-launch-card">
+              <div class="card-title-row">
+                <div><h3 style="margin:0">Banco de Horas</h3><p>Registrar saldo usado no turno.</p></div>
+                <span class="premium-badge">Lançamento</span>
+              </div>
+              <div class="pt-launch-mini-grid passagem-mini-inputs passagem-mini-inputs-v2"></div>
+              <canvas id="graficoPassagemBancoHoras" class="hidden"></canvas>
+            </div>
+
+            <div class="card soft-glow pt-launch-card">
+              <div class="card-title-row">
+                <div><h3 style="margin:0">Observações / Pendências</h3><p>Registrar pendências e orientações para o próximo turno.</p></div>
+                <span class="premium-badge">Notas</span>
+              </div>
+              <textarea id="passagemOcorrencias" class="passagem-textarea" placeholder="Descreva aqui as ocorrências do turno..."></textarea>
+            </div>
+
+            <div class="card soft-glow pt-launch-card">
+              <div class="card-title-row">
+                <div><h3 style="margin:0">Fechamento</h3><p>Informe os responsáveis e o horário da passagem de turno.</p></div>
+                <span class="premium-badge">Fechamento</span>
+              </div>
+              <div class="pt-launch-closure-grid">
+                <div><label>Responsável pelo turno</label><input id="passagemResponsavel"></div>
+                <div><label>Recebido por</label><input id="passagemRecebidoPor"></div>
+                <div><label>Horário da passagem</label><input id="passagemHorario" type="time"></div>
               </div>
             </div>
           </div>
-
-          <div class="card soft-glow pt3-panel">
-            <div class="card-title-row">
-              <div><h3 style="margin:0">Férias</h3><p>Preenchimento por função do turno.</p></div>
-              <span class="premium-badge">Indicador</span>
-            </div>
-            <div class="pt3-mini-layout">
-              <div class="pt3-mini-canvas"><canvas id="graficoPassagemFerias" height="150"></canvas></div>
-              <div class="passagem-mini-inputs passagem-mini-inputs-v2"></div>
-            </div>
-          </div>
-
-          <div class="card soft-glow pt3-panel">
-            <div class="card-title-row">
-              <div><h3 style="margin:0">Ausências</h3><p>Preenchimento por função do turno.</p></div>
-              <span class="premium-badge">Indicador</span>
-            </div>
-            <div class="pt3-mini-layout">
-              <div class="pt3-mini-canvas"><canvas id="graficoPassagemAusencias" height="150"></canvas></div>
-              <div class="passagem-mini-inputs passagem-mini-inputs-v2"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="pt3-grid-b">
-          <div class="card soft-glow pt3-panel">
-            <div class="card-title-row">
-              <div><h3 style="margin:0">Banco de Horas</h3><p>Preenchimento por função do turno.</p></div>
-              <span class="premium-badge">Indicador</span>
-            </div>
-            <div class="pt3-mini-layout">
-              <div class="pt3-mini-canvas"><canvas id="graficoPassagemBancoHoras" height="150"></canvas></div>
-              <div class="passagem-mini-inputs passagem-mini-inputs-v2"></div>
-            </div>
-          </div>
-
-          <div class="card soft-glow pt3-panel pt3-notes">
-            <div class="card-title-row">
-              <div><h3 style="margin:0">Observações / Pendências</h3><p>Registre pendências e orientações para o próximo turno.</p></div>
-              <span class="premium-badge">Notas</span>
-            </div>
-            <textarea id="passagemOcorrencias" class="passagem-textarea" placeholder="Descreva aqui as ocorrências do turno..."></textarea>
-          </div>
-        </div>
-
-        <div class="pt3-bottom">
-          <div class="card soft-glow pt3-bottom-card"><label>Responsável pelo turno</label><input id="passagemResponsavel"></div>
-          <div class="card soft-glow pt3-bottom-card"><label>Recebido por</label><input id="passagemRecebidoPor"></div>
-          <div class="card soft-glow pt3-bottom-card"><label>Horário da passagem</label><input id="passagemHorario" type="time"></div>
-        </div>
-
-        <div class="card soft-glow pt3-areas">
-          <div class="card-title-row">
-            <div><h3 style="margin:0">Distribuição do quadro</h3><p>Informe M/O e horas por área do turno.</p></div>
-            <span class="premium-badge">Áreas</span>
-          </div>
-          <div class="grid grid-4 passagem-area-grid" id="passagemAreasWrap"></div>
         </div>
 
         <div class="card soft-glow pt3-status is-idle" id="passagemStatusBar">
@@ -973,37 +983,178 @@
           <span id="passagemStatusRascunho">Preencha e salve a passagem de turno</span>
         </div>
       </div>
+    </div>
 
-      <aside class="card soft-glow pt3-preview">
-        <div class="card-title-row">
-          <div><h3 style="margin:0">Prévia do e-mail</h3><p>Visual executivo do fechamento do turno.</p></div>
-          <span class="premium-badge">Envio</span>
-        </div>
-        <div class="pt3-mail-lines">
-          <div><span>De:</span><strong>expedicao@logisticaplus.com.br</strong></div>
-          <div><span>Para:</span><strong id="passagemEmailDestinos">lideranca@logisticaplus.com.br</strong></div>
-          <div><span>Assunto:</span><strong id="passagemEmailAssunto">Passagem de turno • Expedição</strong></div>
-        </div>
-        <p class="pt3-mail-text">Segue em anexo a passagem de turno da expedição referente ao fechamento do turno selecionado.</p>
-        <div class="pt3-attachment"><strong>passagem_turno_preview.png</strong><span>Prévia visual do anexo</span></div>
-        <div class="pt3-preview-panel">
-          <div class="pt3-preview-chips">
-            <div class="pt3-chip">Turno <b id="passagemPreviewTurno">T1</b></div>
-            <div class="pt3-chip">Total quadro <b id="passagemPreviewQuadro">0</b></div>
+    <div id="passagemSubIndicadores" class="pt-subview">
+      <div class="pt-ind-shell">
+        <div class="pt-ind-top">
+          <div class="card soft-glow pt-ind-hero">
+            <h2>Passagem de Turno • Indicadores</h2>
+            <p>Acompanhe os principais indicadores operacionais do turno atual, a partir dos dados já lançados.</p>
           </div>
-          <div class="pt3-preview-grid">
-            <div class="pt3-preview-card"><span>Programado</span><strong id="passagemPreviewProgramado">0</strong></div>
-            <div class="pt3-preview-card"><span>Realizado</span><strong id="passagemPreviewRealizado">0</strong></div>
-            <div class="pt3-preview-card"><span>Vira</span><strong id="passagemPreviewVira">0</strong></div>
-            <div class="pt3-preview-card"><span>Atrasado</span><strong id="passagemPreviewAtrasado">0</strong></div>
+          <div class="pt-ind-actions">
+            <button class="btn btn-light" type="button" onclick="setPassagemSubView('lancamento')">Voltar ao lançamento</button>
+            <button class="btn btn-success" type="button" onclick="salvarPassagemTurno()">Salvar indicadores</button>
+            <button class="btn btn-primary" type="button" onclick="fecharEEnviarPassagemTurno()">Fechar e enviar por e-mail</button>
           </div>
-          <div class="pt3-preview-note">A imagem acima representa o painel que pode ser enviado por e-mail após o fechamento.</div>
         </div>
-      </aside>
+
+        <div class="pt-ind-layout">
+          <div class="pt-ind-main" id="passagemPainelCaptura">
+            <div class="pt-ind-kpis">
+              <div class="card soft-glow pt-ind-kpi">
+                <span>Data referência</span>
+                <strong id="passagemIndDataRef">--/--/----</strong>
+              </div>
+              <div class="card soft-glow pt-ind-kpi">
+                <span>Turno</span>
+                <strong id="passagemPreviewTurno">T1</strong>
+                <small id="passagemIndTurnoDesc">06h00 às 14h00</small>
+              </div>
+              <div class="card soft-glow pt-ind-kpi">
+                <span>Programado</span>
+                <strong id="passagemPreviewProgramado">0</strong>
+                <small><b id="passagemIndProgramadoCarros">0</b> carros</small>
+              </div>
+              <div class="card soft-glow pt-ind-kpi">
+                <span>Realizado</span>
+                <strong id="passagemPreviewRealizado">0</strong>
+                <small><b id="passagemIndRealizadoCarros">0</b> carros</small>
+              </div>
+              <div class="card soft-glow pt-ind-kpi">
+                <span>Vira</span>
+                <strong id="passagemPreviewVira">0</strong>
+                <small><b id="passagemIndViraCarros">0</b> carros</small>
+              </div>
+              <div class="card soft-glow pt-ind-kpi pt-ind-kpi-danger">
+                <span>Atrasado</span>
+                <strong id="passagemPreviewAtrasado">0</strong>
+                <small><b id="passagemIndAtrasadoCarros">0</b> carros</small>
+              </div>
+            </div>
+
+            <div class="pt-ind-row-a">
+              <div class="card soft-glow pt-ind-panel pt-ind-panel-big">
+                <div class="card-title-row">
+                  <div><h3 style="margin:0">Quadro | Turno</h3><p>Mão de obra preenchível e gravada por turno.</p></div>
+                  <span class="premium-badge">M/O</span>
+                </div>
+                <div class="pt-ind-donut-row">
+                  <div class="passagem-donut-wrap"><canvas id="graficoPassagemQuadro" height="180"></canvas></div>
+                  <div class="pt-ind-summary-grid">
+                    <div><label>Operador</label><div class="pt-ind-summary-value" id="passagemIndOperador">0</div></div>
+                    <div><label>Conferente</label><div class="pt-ind-summary-value" id="passagemIndConferente">0</div></div>
+                    <div><label>Exclusiva</label><div class="pt-ind-summary-value" id="passagemIndExclusiva">0</div></div>
+                    <div class="pt-ind-summary-total"><label>Total quadro</label><div class="pt-ind-summary-value" id="passagemPreviewQuadro">0</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card soft-glow pt-ind-panel pt-ind-mini-card" id="passagemIndicadorFeriasCard">
+                <div class="card-title-row">
+                  <div><h3 style="margin:0">Férias</h3><p>Visual limpo do fechamento por função.</p></div>
+                  <span class="premium-badge">Indicador</span>
+                </div>
+                <div class="pt-ind-mini-body">
+                  <div class="pt-ind-mini-chart"><canvas id="graficoPassagemFeriasIndicador" height="120"></canvas></div>
+                  <div class="pt-ind-mini-values">
+                    <div><label>Operador</label><div class="pt-ind-summary-value" id="passagemIndFerias_operador">0</div></div>
+                    <div><label>Conferente</label><div class="pt-ind-summary-value" id="passagemIndFerias_conferente">0</div></div>
+                    <div><label>Exclusiva</label><div class="pt-ind-summary-value" id="passagemIndFerias_exclusiva">0</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card soft-glow pt-ind-panel pt-ind-mini-card" id="passagemIndicadorAusenciasCard">
+                <div class="card-title-row">
+                  <div><h3 style="margin:0">Ausências</h3><p>Visual limpo do fechamento por função.</p></div>
+                  <span class="premium-badge">Indicador</span>
+                </div>
+                <div class="pt-ind-mini-body">
+                  <div class="pt-ind-mini-chart"><canvas id="graficoPassagemAusenciasIndicador" height="120"></canvas></div>
+                  <div class="pt-ind-mini-values">
+                    <div><label>Operador</label><div class="pt-ind-summary-value" id="passagemIndAusencias_operador">0</div></div>
+                    <div><label>Conferente</label><div class="pt-ind-summary-value" id="passagemIndAusencias_conferente">0</div></div>
+                    <div><label>Exclusiva</label><div class="pt-ind-summary-value" id="passagemIndAusencias_exclusiva">0</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-ind-row-b">
+              <div class="card soft-glow pt-ind-panel pt-ind-mini-card" id="passagemIndicadorBancoCard">
+                <div class="card-title-row">
+                  <div><h3 style="margin:0">Banco de Horas</h3><p>Visual limpo do fechamento por função.</p></div>
+                  <span class="premium-badge">Indicador</span>
+                </div>
+                <div class="pt-ind-mini-body">
+                  <div class="pt-ind-mini-chart"><canvas id="graficoPassagemBancoHorasIndicador" height="120"></canvas></div>
+                  <div class="pt-ind-mini-values">
+                    <div><label>Operador</label><div class="pt-ind-summary-value" id="passagemIndBancoHoras_operador">0</div></div>
+                    <div><label>Conferente</label><div class="pt-ind-summary-value" id="passagemIndBancoHoras_conferente">0</div></div>
+                    <div><label>Exclusiva</label><div class="pt-ind-summary-value" id="passagemIndBancoHoras_exclusiva">0</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card soft-glow pt-ind-panel">
+                <div class="card-title-row">
+                  <div><h3 style="margin:0">Observações / Pendências</h3><p>Resumo executivo do fechamento do turno.</p></div>
+                  <span class="premium-badge">Notas</span>
+                </div>
+                <div class="pt-ind-notes-box" id="passagemIndOcorrencias">Sem observações registradas.</div>
+              </div>
+            </div>
+
+            <div class="pt-ind-bottom">
+              <div class="card soft-glow pt-ind-bottom-card"><label>Responsável pelo turno</label><div class="pt-ind-summary-value" id="passagemIndResponsavel">-</div></div>
+              <div class="card soft-glow pt-ind-bottom-card"><label>Recebido por</label><div class="pt-ind-summary-value" id="passagemIndRecebidoPor">-</div></div>
+              <div class="card soft-glow pt-ind-bottom-card"><label>Horário da passagem</label><div class="pt-ind-summary-value" id="passagemIndHorario">-</div></div>
+            </div>
+
+            <div class="card soft-glow pt-ind-panel">
+              <div class="card-title-row">
+                <div><h3 style="margin:0">Distribuição do quadro</h3><p>Resumo das áreas lançadas no turno.</p></div>
+                <span class="premium-badge">Áreas</span>
+              </div>
+              <div class="grid grid-4 passagem-area-grid pt-ind-area-grid" id="passagemAreasWrapIndicador"></div>
+            </div>
+          </div>
+
+          <aside class="card soft-glow pt3-preview">
+            <div class="card-title-row">
+              <div><h3 style="margin:0">Prévia do e-mail</h3><p>Visual executivo do fechamento do turno.</p></div>
+              <span class="premium-badge">Envio</span>
+            </div>
+            <div class="pt3-mail-lines">
+              <div><span>De:</span><strong>expedicao@logisticaplus.com.br</strong></div>
+              <div><span>Para:</span><strong id="passagemEmailDestinos">Expedição Doméstico</strong></div>
+              <div><span>Cc:</span><strong>Gerência • Coordenação</strong></div>
+              <div><span>Assunto:</span><strong id="passagemEmailAssunto">Passagem de turno • Expedição</strong></div>
+            </div>
+            <p class="pt3-mail-text">Segue em anexo a passagem de turno da expedição referente ao fechamento do turno selecionado.</p>
+            <div class="pt3-attachment"><strong>passagem_turno_preview.png</strong><span>Prévia visual do anexo</span></div>
+            <div class="pt3-preview-panel">
+              <div class="pt3-preview-chips">
+                <div class="pt3-chip">Turno <b id="passagemPreviewTurnoEmail">T1</b></div>
+                <div class="pt3-chip">Total quadro <b id="passagemPreviewQuadroEmail">0</b></div>
+              </div>
+              <div class="pt3-preview-grid">
+                <div class="pt3-preview-card"><span>Programado</span><strong id="passagemPreviewProgramadoEmail">0</strong></div>
+                <div class="pt3-preview-card"><span>Realizado</span><strong id="passagemPreviewRealizadoEmail">0</strong></div>
+                <div class="pt3-preview-card"><span>Vira</span><strong id="passagemPreviewViraEmail">0</strong></div>
+                <div class="pt3-preview-card"><span>Atrasado</span><strong id="passagemPreviewAtrasadoEmail">0</strong></div>
+              </div>
+              <div class="pt3-preview-note">A imagem do painel de indicadores é a melhor base para o envio por e-mail.</div>
+            </div>
+          </aside>
+        </div>
+      </div>
     </div>
   </div>
   <strong id="passagemDataRef_REMOVIDO" class="hidden">Todos</strong>
 </section>
+
 
 
 
