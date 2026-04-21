@@ -3977,3 +3977,24 @@
 #view-passagem-turno .pt3-preview-card strong{font-size:18px}
 @media (max-width:1400px){#view-passagem-turno .pt3-layout{grid-template-columns:1fr}#view-passagem-turno .pt3-preview{position:static}}
 @media (max-width:1200px){#view-passagem-turno .pt3-top,#view-passagem-turno .pt3-kpis,#view-passagem-turno .pt3-grid-a,#view-passagem-turno .pt3-grid-b,#view-passagem-turno .pt3-bottom{grid-template-columns:1fr}#view-passagem-turno .pt3-chart-form,#view-passagem-turno .pt3-mini-layout{grid-template-columns:1fr}#view-passagem-turno .pt3-areas .passagem-area-grid{grid-template-columns:repeat(2,1fr)}}
+
+
+/* ===== STATUS DA PASSAGEM DE TURNO ===== */
+#view-passagem-turno .pt3-status{
+  transition:all .2s ease;
+}
+#view-passagem-turno .pt3-status.is-idle{
+  color:#cbd5e1;
+  border:1px solid rgba(148,163,184,.16);
+  background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+}
+#view-passagem-turno .pt3-status.is-saved{
+  color:#86efac;
+  border:1px solid rgba(16,185,129,.22);
+  background:linear-gradient(180deg, rgba(16,185,129,.08), rgba(16,185,129,.04));
+}
+#view-passagem-turno .pt3-status.is-dirty{
+  color:#fde68a;
+  border:1px solid rgba(245,158,11,.24);
+  background:linear-gradient(180deg, rgba(245,158,11,.08), rgba(245,158,11,.03));
+}
