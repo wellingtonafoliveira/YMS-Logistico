@@ -1877,7 +1877,7 @@ function setView(view, btn){
       const totalQuadro = (Number(state.operador)||0)+(Number(state.conferente)||0)+(Number(state.exclusiva)||0);
       const setText2 = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
       setText2('passagemTurnoRef', turno); setText2('passagemTotalQuadroRef', totalQuadro);
-      setText2('passagemPreviewTurno', turno);
+      setText2('passagemPreviewTurno', turno); const turnoRefEl=document.getElementById('passagemTurnoRef'); if(turnoRefEl) turnoRefEl.textContent = descricaoTurnoPassagem(turno) || turno;
       setText2('passagemPreviewQuadro', totalQuadro);
       const donutData = [state.operador || 0, state.conferente || 0, state.exclusiva || 0];
       if(chartPassagemQuadro) chartPassagemQuadro.destroy();
@@ -3794,4 +3794,12 @@ async function fecharEEnviarPassagemTurno(){
   }catch(err){ console.error(err); }
   window.location.href = `mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
   if(typeof showToast === 'function') showToast('Passagem salva. A imagem foi baixada para anexar no e-mail.');
+}
+
+
+function descricaoTurnoPassagem(turno){
+  if(turno === 'T1') return '06h00 às 14h00';
+  if(turno === 'T2') return '14h00 às 22h00';
+  if(turno === 'T3') return '22h00 às 06h00';
+  return '';
 }
