@@ -1838,7 +1838,7 @@ function setView(view, btn){
       ['ferias','ausencias','bancoHoras'].forEach(prefix => {
         const box = document.querySelector(`#graficoPassagem${prefix === 'bancoHoras' ? 'BancoHoras' : prefix.charAt(0).toUpperCase()+prefix.slice(1)}`)?.closest('.card');
         if(box){
-          let holder = box.querySelector('.passagem-mini-inputs');
+          let holder = box.querySelector('.passagem-mini-inputs-v2, .passagem-mini-inputs');
           if(!holder){
             holder = document.createElement('div');
             holder.className = 'passagem-mini-inputs';
@@ -1863,9 +1863,17 @@ function setView(view, btn){
       const kpi = (arr, tonsIds, carrosIds) => { setKpiText(carrosIds, arr.length); setKpiText(tonsIds, formatPassagemTonelagem(tons(arr))); };
 
       kpi(programado,['passagemProgTons','passagemProgramadoTons'],['passagemProgCarros','passagemProgramadoCarros']); kpi(realizado,['passagemRealTons','passagemRealizadoTons'],['passagemRealCarros','passagemRealizadoCarros']); kpi(vira,'passagemViraTons','passagemViraCarros'); kpi(atrasado,'passagemAtrasadoTons','passagemAtrasadoCarros');
+      setKpiText('passagemPreviewProgramado', document.getElementById('passagemProgramadoTons')?.textContent || '0');
+      setKpiText('passagemPreviewRealizado', document.getElementById('passagemRealizadoTons')?.textContent || '0');
+      setKpiText('passagemPreviewVira', document.getElementById('passagemViraTons')?.textContent || '0');
+      setKpiText('passagemPreviewAtrasado', document.getElementById('passagemAtrasadoTons')?.textContent || '0');
+      setKpiText('passagemEmailAssunto', `Passagem de turno • Expedição • ${(document.getElementById('passagemData')?.value || 'sem data')} (${turno})`);
+
       const totalQuadro = (Number(state.operador)||0)+(Number(state.conferente)||0)+(Number(state.exclusiva)||0);
       const setText2 = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
       setText2('passagemTurnoRef', turno); setText2('passagemTotalQuadroRef', totalQuadro);
+      setText2('passagemPreviewTurno', turno);
+      setText2('passagemPreviewQuadro', totalQuadro);
       const donutData = [state.operador || 0, state.conferente || 0, state.exclusiva || 0];
       if(chartPassagemQuadro) chartPassagemQuadro.destroy();
       if(chartPassagemFerias) chartPassagemFerias.destroy();
@@ -3379,7 +3387,7 @@ function renderPassagemTurno(){
   ['ferias','ausencias','bancoHoras'].forEach(prefix => {
     const box = document.querySelector(`#graficoPassagem${prefix === 'bancoHoras' ? 'BancoHoras' : prefix.charAt(0).toUpperCase()+prefix.slice(1)}`)?.closest('.card');
     if(box){
-      let holder = box.querySelector('.passagem-mini-inputs');
+      let holder = box.querySelector('.passagem-mini-inputs-v2, .passagem-mini-inputs');
       if(!holder){
         holder = document.createElement('div');
         holder.className = 'passagem-mini-inputs';
@@ -3693,4 +3701,47 @@ function renderResultadoSeparacao(){
     },
     options: chartBaseOpts
   });
+}
+
+
+async function capturarPassagemTurnoImagem(){
+  const alvo = document.getElementById('passagemPainelCaptura');
+  if(!alvo || typeof html2canvas === 'undefined') return null;
+  return await html2canvas(alvo, { backgroundColor: '#05070b', scale: 2, useCORS: true });
+}
+function baixarCanvasPassagem(canvas, nomeArquivo = 'passagem_turno_preview.png'){
+  const link = document.createElement('a');
+  link.href = canvas.toDataURL('image/png');
+  link.download = nomeArquivo;
+  link.click();
+}
+async function fecharEEnviarPassagemTurno(){
+  try{ if(typeof salvarPassagemTurno === 'function') await salvarPassagemTurno(); }catch(err){ console.error(err); }
+  const turno = document.getElementById('passagemTurno')?.value || 'T1';
+  const dataRef = document.getElementById('passagemData')?.value || '';
+  const programado = document.getElementById('passagemProgramadoTons')?.textContent || '0';
+  const realizado = document.getElementById('passagemRealizadoTons')?.textContent || '0';
+  const vira = document.getElementById('passagemViraTons')?.textContent || '0';
+  const atrasado = document.getElementById('passagemAtrasadoTons')?.textContent || '0';
+  const responsavel = document.getElementById('passagemResponsavel')?.value || '';
+  const assunto = `Passagem de turno • Expedição • ${dataRef || 'sem data'} (${turno})`;
+  const corpo = [
+    'Segue fechamento da passagem de turno da expedição.',
+    '',
+    `Data: ${dataRef || '-'}`,
+    `Turno: ${turno}`,
+    `Responsável: ${responsavel || '-'}`,
+    `Programado: ${programado}`,
+    `Realizado: ${realizado}`,
+    `Vira: ${vira}`,
+    `Atrasado: ${atrasado}`,
+    '',
+    'A imagem do painel foi baixada para anexar ao e-mail.'
+  ].join('\n');
+  try{
+    const canvas = await capturarPassagemTurnoImagem();
+    if(canvas) baixarCanvasPassagem(canvas, `passagem_turno_${(dataRef || 'sem-data').replaceAll('/','-')}_${turno}.png`);
+  }catch(err){ console.error(err); }
+  window.location.href = `mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+  if(typeof showToast === 'function') showToast('Passagem salva. A imagem foi baixada para anexar no e-mail.');
 }
