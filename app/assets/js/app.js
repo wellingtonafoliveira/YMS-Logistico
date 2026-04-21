@@ -79,6 +79,10 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     let chartPassagemFerias = null;
     let chartPassagemAusencias = null;
     let chartPassagemBancoHoras = null;
+    let chartPassagemFeriasIndicador = null;
+    let chartPassagemAusenciasIndicador = null;
+    let chartPassagemBancoHorasIndicador = null;
+    let passagemSubViewAtual = 'lancamento';
     let agendaFiltroKpi = "";
     let patioFilaRegistros = [];
     const TEMPO_MEDIO_FILA_MIN = 20;
@@ -1789,14 +1793,26 @@ function setView(view, btn){
     }
 
     function renderPassagemAreas(state){
-      const wrap = document.getElementById('passagemAreasWrap'); if(!wrap) return;
-      wrap.innerHTML = PASSAGEM_AREAS.map(area => `
-        <div class="passagem-area-card">
-          <h4>${esc(area)}</h4>
-          <label>M/O</label><input type="number" id="passagemAreaMo_${area.replace(/[^a-zA-Z0-9]/g,'_')}" value="${esc(state.areas?.[area]?.mo ?? 0)}">
-          <label>Horas</label><input type="number" id="passagemAreaHoras_${area.replace(/[^a-zA-Z0-9]/g,'_')}" value="${esc(state.areas?.[area]?.horas ?? 0)}">
-        </div>`).join('');
+      const slug = area => area.replace(/[^a-zA-Z0-9]/g,'_');
+      const wrap = document.getElementById('passagemAreasWrap');
+      if(wrap){
+        wrap.innerHTML = PASSAGEM_AREAS.map(area => `
+          <div class="passagem-area-card">
+            <h4>${esc(area)}</h4>
+            <label>M/O</label><input type="number" id="passagemAreaMo_${slug(area)}" value="${esc(state.areas?.[area]?.mo ?? 0)}">
+            <label>Horas</label><input type="number" id="passagemAreaHoras_${slug(area)}" value="${esc(state.areas?.[area]?.horas ?? 0)}">
+          </div>`).join('');
       }
+      const wrapIndicador = document.getElementById('passagemAreasWrapIndicador');
+      if(wrapIndicador){
+        wrapIndicador.innerHTML = PASSAGEM_AREAS.map(area => `
+          <div class="passagem-area-card">
+            <h4>${esc(area)}</h4>
+            <label>M/O</label><div class="pt-ind-summary-value">${esc(state.areas?.[area]?.mo ?? 0)}</div>
+            <label>Horas</label><div class="pt-ind-summary-value">${esc(state.areas?.[area]?.horas ?? 0)}</div>
+          </div>`).join('');
+      }
+    }
 
     function collectPassagemTurnoState(){
       const g = id => document.getElementById(id);
@@ -1873,6 +1889,30 @@ function setView(view, btn){
       setKpiText('passagemPreviewVira', document.getElementById('passagemViraTons')?.textContent || '0');
       setKpiText('passagemPreviewAtrasado', document.getElementById('passagemAtrasadoTons')?.textContent || '0');
       setKpiText('passagemEmailAssunto', `Passagem de turno • Expedição • ${(document.getElementById('passagemData')?.value || 'sem data')} (${turno})`);
+      setKpiText('passagemIndDataRef', dataRefRaw ? fmtDate(dataRefRaw) : 'Todos');
+      setKpiText('passagemIndTurnoDesc', descricaoTurnoPassagem(turno) || turno);
+      setKpiText('passagemIndProgramadoCarros', document.getElementById('passagemProgramadoCarros')?.textContent || '0');
+      setKpiText('passagemIndRealizadoCarros', document.getElementById('passagemRealizadoCarros')?.textContent || '0');
+      setKpiText('passagemIndViraCarros', document.getElementById('passagemViraCarros')?.textContent || '0');
+      setKpiText('passagemIndAtrasadoCarros', document.getElementById('passagemAtrasadoCarros')?.textContent || '0');
+      setKpiText('passagemIndOperador', state.operador || 0);
+      setKpiText('passagemIndConferente', state.conferente || 0);
+      setKpiText('passagemIndExclusiva', state.exclusiva || 0);
+      setKpiText('passagemIndResponsavel', state.responsavel || '-');
+      setKpiText('passagemIndRecebidoPor', state.recebidoPor || '-');
+      setKpiText('passagemIndHorario', state.horario || '-');
+      setKpiText('passagemIndOcorrencias', state.ocorrencias || 'Sem observações registradas.');
+      ['operador','conferente','exclusiva'].forEach(ch => {
+        setKpiText(`passagemIndFerias_${ch}`, state.ferias?.[ch] || 0);
+        setKpiText(`passagemIndAusencias_${ch}`, state.ausencias?.[ch] || 0);
+        setKpiText(`passagemIndBancoHoras_${ch}`, state.bancoHoras?.[ch] || 0);
+      });
+      setKpiText('passagemPreviewTurnoEmail', turno);
+      setKpiText('passagemPreviewQuadroEmail', totalQuadro);
+      setKpiText('passagemPreviewProgramadoEmail', document.getElementById('passagemProgramadoTons')?.textContent || '0');
+      setKpiText('passagemPreviewRealizadoEmail', document.getElementById('passagemRealizadoTons')?.textContent || '0');
+      setKpiText('passagemPreviewViraEmail', document.getElementById('passagemViraTons')?.textContent || '0');
+      setKpiText('passagemPreviewAtrasadoEmail', document.getElementById('passagemAtrasadoTons')?.textContent || '0');
 
       const totalQuadro = (Number(state.operador)||0)+(Number(state.conferente)||0)+(Number(state.exclusiva)||0);
       const setText2 = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
@@ -1889,6 +1929,34 @@ function setView(view, btn){
       chartPassagemFerias = miniChart('graficoPassagemFerias', state.ferias || {});
       chartPassagemAusencias = miniChart('graficoPassagemAusencias', state.ausencias || {});
       chartPassagemBancoHoras = miniChart('graficoPassagemBancoHoras', state.bancoHoras || {});
+
+      const renderMiniIndicador = (refName, canvasId, src) => {
+        try{
+          const canvas = document.getElementById(canvasId);
+          if(!canvas) return;
+          if(window[refName]) window[refName].destroy();
+          window[refName] = new Chart(canvas, {
+            type:'bar',
+            data:{
+              labels:['Operador','Conferente','Exclusiva'],
+              datasets:[{
+                data:[src.operador||0, src.conferente||0, src.exclusiva||0],
+                borderRadius:10,
+                borderSkipped:false,
+                backgroundColor:['rgba(34,211,238,.95)','rgba(59,130,246,.95)','rgba(251,146,60,.95)']
+              }]
+            },
+            options: mergeChartOptions(getPremiumChartOptions(), {
+              maintainAspectRatio:false,
+              plugins:{ legend:{ display:false } },
+              scales:{ x:{ grid:{ display:false } }, y:{ beginAtZero:true, ticks:{ precision:0 } } }
+            })
+          });
+        }catch(err){ console.error(err); }
+      };
+      renderMiniIndicador('chartPassagemFeriasIndicador','graficoPassagemFeriasIndicador', state.ferias || {});
+      renderMiniIndicador('chartPassagemAusenciasIndicador','graficoPassagemAusenciasIndicador', state.ausencias || {});
+      renderMiniIndicador('chartPassagemBancoHorasIndicador','graficoPassagemBancoHorasIndicador', state.bancoHoras || {});
     }
 
     function salvarPassagemTurno(){
@@ -3803,3 +3871,127 @@ function descricaoTurnoPassagem(turno){
   if(turno === 'T3') return '22h00 às 06h00';
   return '';
 }
+
+
+function syncPassagemMenuState(){
+  const group = document.getElementById('menu-group-passagem-turno');
+  const chev = document.getElementById('passagemMenuChevron');
+  if(!group || !chev) return;
+  chev.textContent = group.classList.contains('open') ? '▴' : '▾';
+}
+
+function setPassagemSubView(view){
+  passagemSubViewAtual = view === 'indicadores' ? 'indicadores' : 'lancamento';
+  const lanc = document.getElementById('passagemSubLancamento');
+  const ind = document.getElementById('passagemSubIndicadores');
+  const tabLanc = document.getElementById('ptTabLancamento');
+  const tabInd = document.getElementById('ptTabIndicadores');
+  const subLanc = document.getElementById('submenu-passagem-lancamento');
+  const subInd = document.getElementById('submenu-passagem-indicadores');
+  const group = document.getElementById('menu-group-passagem-turno');
+  if(lanc) lanc.classList.toggle('active', passagemSubViewAtual === 'lancamento');
+  if(ind) ind.classList.toggle('active', passagemSubViewAtual === 'indicadores');
+  if(tabLanc) tabLanc.classList.toggle('active', passagemSubViewAtual === 'lancamento');
+  if(tabInd) tabInd.classList.toggle('active', passagemSubViewAtual === 'indicadores');
+  if(subLanc) subLanc.classList.toggle('active', passagemSubViewAtual === 'lancamento');
+  if(subInd) subInd.classList.toggle('active', passagemSubViewAtual === 'indicadores');
+  if(group){ group.classList.add('open','active'); }
+  syncPassagemMenuState();
+}
+
+function openPassagemTurnoMenu(){
+  const group = document.getElementById('menu-group-passagem-turno');
+  if(viewAtualGlobal === 'passagem-turno'){
+    if(group) group.classList.toggle('open');
+    syncPassagemMenuState();
+    return;
+  }
+  setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+  if(group) group.classList.add('open','active');
+  setPassagemSubView(passagemSubViewAtual || 'lancamento');
+}
+
+function openPassagemSubView(view){
+  setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+  setPassagemSubView(view);
+}
+
+async function fecharEEnviarPassagemTurno(){
+  try{ if(typeof salvarPassagemTurno === 'function') salvarPassagemTurno(); }catch(err){ console.error(err); }
+  setPassagemSubView('indicadores');
+  const turno = document.getElementById('passagemTurno')?.value || 'T1';
+  const dataRef = document.getElementById('passagemData')?.value || '';
+  const assunto = `Passagem de turno • Expedição • ${dataRef || 'sem data'} (${turno})`;
+  const corpo = [
+    'Segue fechamento da passagem de turno da expedição.',
+    '',
+    `Data: ${dataRef || '-'}`,
+    `Turno: ${turno}`,
+    `Programado: ${document.getElementById('passagemPreviewProgramado')?.textContent || '0'}`,
+    `Realizado: ${document.getElementById('passagemPreviewRealizado')?.textContent || '0'}`,
+    `Vira: ${document.getElementById('passagemPreviewVira')?.textContent || '0'}`,
+    `Atrasado: ${document.getElementById('passagemPreviewAtrasado')?.textContent || '0'}`
+  ].join('\n');
+  window.location.href = `mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+  if(typeof showToast === 'function') showToast('Indicadores prontos para envio por e-mail.');
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  syncPassagemMenuState();
+});
+
+
+
+
+/* ===== FIX GLOBAL MENU PASSAGEM ===== */
+window.syncPassagemMenuState = function(){
+  const group = document.getElementById('menu-group-passagem-turno');
+  const chev = document.getElementById('passagemMenuChevron');
+  if(!group || !chev) return;
+  chev.textContent = group.classList.contains('open') ? '▴' : '▾';
+};
+
+window.setPassagemSubView = function(view){
+  window.passagemSubViewAtual = view === 'indicadores' ? 'indicadores' : 'lancamento';
+  const lanc = document.getElementById('passagemSubLancamento');
+  const ind = document.getElementById('passagemSubIndicadores');
+  const tabLanc = document.getElementById('ptTabLancamento');
+  const tabInd = document.getElementById('ptTabIndicadores');
+  const subLanc = document.getElementById('submenu-passagem-lancamento');
+  const subInd = document.getElementById('submenu-passagem-indicadores');
+  const group = document.getElementById('menu-group-passagem-turno');
+  if(lanc) lanc.classList.toggle('active', window.passagemSubViewAtual === 'lancamento');
+  if(ind) ind.classList.toggle('active', window.passagemSubViewAtual === 'indicadores');
+  if(tabLanc) tabLanc.classList.toggle('active', window.passagemSubViewAtual === 'lancamento');
+  if(tabInd) tabInd.classList.toggle('active', window.passagemSubViewAtual === 'indicadores');
+  if(subLanc) subLanc.classList.toggle('active', window.passagemSubViewAtual === 'lancamento');
+  if(subInd) subInd.classList.toggle('active', window.passagemSubViewAtual === 'indicadores');
+  if(group) group.classList.add('open','active');
+  window.syncPassagemMenuState();
+};
+
+window.openPassagemTurnoMenu = function(){
+  const group = document.getElementById('menu-group-passagem-turno');
+  if(typeof viewAtualGlobal !== 'undefined' && viewAtualGlobal === 'passagem-turno'){
+    if(group) group.classList.toggle('open');
+    window.syncPassagemMenuState();
+    return;
+  }
+  if(typeof setView === 'function'){
+    setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+  }
+  if(group) group.classList.add('open','active');
+  window.setPassagemSubView(window.passagemSubViewAtual || 'lancamento');
+  window.syncPassagemMenuState();
+};
+
+window.openPassagemSubView = function(view){
+  if(typeof setView === 'function'){
+    setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+  }
+  window.setPassagemSubView(view);
+};
+
+document.addEventListener('DOMContentLoaded', function(){
+  window.syncPassagemMenuState();
+});
