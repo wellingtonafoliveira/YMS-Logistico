@@ -4860,3 +4860,86 @@
   #view-passagem-turno .pt-launch-closure-grid,
   #view-passagem-turno .passagem-area-grid{grid-template-columns:1fr !important;}
 }
+
+/* ===== PASSAGEM DE TURNO V7 | REESTRUTURAÇÃO REAL ===== */
+#view-passagem-turno .ptv7-shell{display:flex;flex-direction:column;gap:16px}
+#view-passagem-turno .ptv7-hero{padding:18px 22px;border-radius:24px}
+#view-passagem-turno .ptv7-hero h2{margin:0 0 6px;font-size:24px}
+#view-passagem-turno .ptv7-hero p{margin:0;color:var(--muted);font-size:13px;line-height:1.45}
+#view-passagem-turno .ptv7-kpis{display:grid;grid-template-columns:1.05fr .9fr repeat(4,minmax(0,1fr));gap:14px;margin-top:14px}
+#view-passagem-turno .ptv7-kpi{padding:16px 18px;min-height:92px;border-radius:20px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+#view-passagem-turno .ptv7-kpi span,
+#view-passagem-turno .ptv7-kpi-field label{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:800}
+#view-passagem-turno .ptv7-kpi strong{font-size:22px;line-height:1}
+#view-passagem-turno .ptv7-kpi small{font-size:12px;color:var(--muted)}
+#view-passagem-turno .ptv7-kpi-field input,
+#view-passagem-turno .ptv7-kpi-field select{width:100%;min-height:38px;padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:#0a0d12;color:#fff}
+#view-passagem-turno .ptv7-kpi-danger strong{color:#ff6b7d}
+
+#view-passagem-turno .ptv7-launch-row{display:grid;grid-template-columns:1.15fr .95fr .95fr .95fr;gap:14px;margin-top:14px}
+#view-passagem-turno .ptv7-card{padding:18px;border-radius:22px}
+#view-passagem-turno .ptv7-mini-card{min-height:220px}
+#view-passagem-turno .ptv7-quadro-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#view-passagem-turno .ptv7-quadro-grid > div,
+#view-passagem-turno .ptv7-mini-grid > div,
+#view-passagem-turno .ptv7-fech-grid > div{background:linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.005));border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:10px}
+#view-passagem-turno .ptv7-quadro-grid label,
+#view-passagem-turno .ptv7-mini-grid label,
+#view-passagem-turno .ptv7-fech-grid label,
+#view-passagem-turno .ptv7-ind-summary label,
+#view-passagem-turno .ptv7-small-values label,
+#view-passagem-turno .ptv7-bottom-row label,
+#view-passagem-turno .passagem-area-card label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#94a8ca;margin:0 0 6px;font-weight:800}
+#view-passagem-turno .ptv7-quadro-grid input,
+#view-passagem-turno .ptv7-mini-grid input,
+#view-passagem-turno .ptv7-fech-grid input,
+#view-passagem-turno .passagem-area-card input{width:100%;min-height:34px;padding:7px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:#0a0d12;color:#fff}
+#view-passagem-turno .ptv7-static{min-height:34px;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:#0a0d12;color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center}
+#view-passagem-turno .ptv7-mini-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#view-passagem-turno .ptv7-dist-card{margin-top:14px}
+#view-passagem-turno .passagem-area-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#view-passagem-turno .passagem-area-card{padding:12px;border-radius:18px}
+#view-passagem-turno .passagem-area-card h4{font-size:13px;margin:0 0 8px}
+#view-passagem-turno .ptv7-bottom-row{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:14px}
+#view-passagem-turno .passagem-textarea{min-height:108px}
+#view-passagem-turno .ptv7-counter{display:flex;justify-content:flex-end;color:#9fb0ca;font-size:12px;margin-top:6px}
+#view-passagem-turno .ptv7-fech-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#view-passagem-turno .pt3-status{margin-top:14px}
+
+#view-passagem-turno .ptv7-ind-layout{display:grid;grid-template-columns:minmax(0,1.52fr) minmax(320px,.64fr);gap:14px;margin-top:14px}
+#view-passagem-turno .ptv7-ind-main{display:flex;flex-direction:column;gap:14px}
+#view-passagem-turno .ptv7-ind-row{display:grid;grid-template-columns:1.2fr .72fr .72fr .72fr;gap:14px}
+#view-passagem-turno .ptv7-ind-big{min-height:300px}
+#view-passagem-turno .ptv7-ind-small{min-height:300px}
+#view-passagem-turno .ptv7-ind-quadro{display:grid;grid-template-columns:210px 1fr;gap:16px}
+#view-passagem-turno .passagem-donut-wrap{background:linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.005));border:1px solid rgba(255,255,255,.04);border-radius:20px;padding:12px}
+#view-passagem-turno .ptv7-ind-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#view-passagem-turno .ptv7-small-body{display:grid;grid-template-columns:100px 1fr;gap:12px}
+#view-passagem-turno .ptv7-small-chart{height:126px;border:1px solid rgba(255,255,255,.05);border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.005));padding:10px}
+#view-passagem-turno .ptv7-small-chart canvas{width:100% !important;height:102px !important}
+#view-passagem-turno .ptv7-small-values{display:grid;grid-template-columns:1fr;gap:10px}
+#view-passagem-turno .ptv7-note-box{min-height:64px;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:#0a0d12;display:flex;align-items:center;line-height:1.5}
+#view-passagem-turno .ptv7-preview{padding:18px;border-radius:24px;position:sticky;top:18px;height:fit-content}
+#view-passagem-turno .ptv7-preview .pt3-preview-card strong{font-size:16px}
+#view-passagem-turno .footer-status.saved{padding:13px 16px;border-radius:18px}
+
+@media (max-width:1500px){
+  #view-passagem-turno .ptv7-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #view-passagem-turno .ptv7-ind-row{grid-template-columns:1fr 1fr}
+}
+@media (max-width:1320px){
+  #view-passagem-turno .ptv7-launch-row,
+  #view-passagem-turno .ptv7-bottom-row,
+  #view-passagem-turno .ptv7-ind-layout{grid-template-columns:1fr}
+  #view-passagem-turno .passagem-area-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:900px){
+  #view-passagem-turno .ptv7-kpis,
+  #view-passagem-turno .ptv7-launch-row,
+  #view-passagem-turno .ptv7-bottom-row,
+  #view-passagem-turno .ptv7-ind-row,
+  #view-passagem-turno .ptv7-ind-quadro,
+  #view-passagem-turno .ptv7-small-body,
+  #view-passagem-turno .ptv7-fech-grid,
+  #view-passagem-turno .passagem-area-grid{grid-template-columns:1fr}
+}
