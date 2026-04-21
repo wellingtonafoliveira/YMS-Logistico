@@ -1826,6 +1826,11 @@ function setView(view, btn){
     }
 
     function renderPassagemTurno(){
+      const barra = document.getElementById('passagemStatusBar');
+      if(barra && !barra.dataset.init){
+        atualizarStatusPassagem('idle');
+        barra.dataset.init = '1';
+      }
       const section = document.getElementById('view-passagem-turno');
       if(!section) return;
       const dtInput = document.getElementById('passagemData'); if(dtInput && !dtInput.value && dataFiltrada()) dtInput.value = dataFiltrada();
@@ -1889,6 +1894,8 @@ function setView(view, btn){
     function salvarPassagemTurno(){
       const state = collectPassagemTurnoState();
       savePassagemTurnoState(state);
+      const salvoEm = formatarDataHoraStatusPassagem();
+      atualizarStatusPassagem('saved', salvoEm);
       showToast('Passagem de turno salva com sucesso');
       renderPassagemTurno();
     }
@@ -3703,6 +3710,49 @@ function renderResultadoSeparacao(){
   });
 }
 
+
+
+let __passagemStatusState = 'idle';
+let __passagemStatusLastSavedAt = '';
+
+function formatarDataHoraStatusPassagem(date = new Date()){
+  const dd = String(date.getDate()).padStart(2,'0');
+  const mm = String(date.getMonth()+1).padStart(2,'0');
+  const yyyy = date.getFullYear();
+  const hh = String(date.getHours()).padStart(2,'0');
+  const mi = String(date.getMinutes()).padStart(2,'0');
+  return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
+}
+
+function atualizarStatusPassagem(estado = 'idle', salvoEm = ''){
+  __passagemStatusState = estado;
+  if(salvoEm) __passagemStatusLastSavedAt = salvoEm;
+  const bar = document.getElementById('passagemStatusBar');
+  const texto = document.getElementById('passagemStatusTexto');
+  const detalhe = document.getElementById('passagemStatusRascunho');
+  if(!bar || !texto || !detalhe) return;
+  bar.classList.remove('is-idle','is-saved','is-dirty');
+
+  if(estado === 'saved'){
+    bar.classList.add('is-saved');
+    texto.textContent = '✓ Dados salvos com sucesso';
+    detalhe.textContent = `rascunho salvo em ${salvoEm || __passagemStatusLastSavedAt || formatarDataHoraStatusPassagem()}`;
+    return;
+  }
+
+  if(estado === 'dirty'){
+    bar.classList.add('is-dirty');
+    texto.textContent = '• Alterações não salvas';
+    detalhe.textContent = __passagemStatusLastSavedAt
+      ? `houve mudanças após o salvamento de ${__passagemStatusLastSavedAt}`
+      : 'preencha e salve a passagem de turno';
+    return;
+  }
+
+  bar.classList.add('is-idle');
+  texto.textContent = '• Alterações pendentes';
+  detalhe.textContent = 'Preencha e salve a passagem de turno';
+}
 
 async function capturarPassagemTurnoImagem(){
   const alvo = document.getElementById('passagemPainelCaptura');
