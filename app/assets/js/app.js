@@ -3995,3 +3995,41 @@ window.openPassagemSubView = function(view){
 document.addEventListener('DOMContentLoaded', function(){
   window.syncPassagemMenuState();
 });
+
+
+
+window.setPassagemSubView = function(view){
+  window.passagemSubViewAtual = view === 'indicadores' ? 'indicadores' : 'lancamento';
+  const lanc = document.getElementById('passagemSubLancamento');
+  const ind = document.getElementById('passagemSubIndicadores');
+  const subLanc = document.getElementById('submenu-passagem-lancamento');
+  const subInd = document.getElementById('submenu-passagem-indicadores');
+  const group = document.getElementById('menu-group-passagem-turno');
+  if(lanc) lanc.classList.toggle('active', window.passagemSubViewAtual === 'lancamento');
+  if(ind) ind.classList.toggle('active', window.passagemSubViewAtual === 'indicadores');
+  if(subLanc) subLanc.classList.toggle('active', window.passagemSubViewAtual === 'lancamento');
+  if(subInd) subInd.classList.toggle('active', window.passagemSubViewAtual === 'indicadores');
+  if(group) group.classList.add('open','active');
+  if(typeof window.syncPassagemMenuState === 'function') window.syncPassagemMenuState();
+};
+
+window.openPassagemTurnoMenu = function(){
+  const group = document.getElementById('menu-group-passagem-turno');
+  if(typeof setView === 'function'){
+    setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+  }
+  if(group) group.classList.toggle('open');
+  if(group) group.classList.add('active');
+  if(!document.getElementById('passagemSubLancamento')?.classList.contains('active') &&
+     !document.getElementById('passagemSubIndicadores')?.classList.contains('active')){
+    window.setPassagemSubView(window.passagemSubViewAtual || 'lancamento');
+  }
+  if(typeof window.syncPassagemMenuState === 'function') window.syncPassagemMenuState();
+};
+
+window.openPassagemSubView = function(view){
+  if(typeof setView === 'function'){
+    setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+  }
+  window.setPassagemSubView(view);
+};

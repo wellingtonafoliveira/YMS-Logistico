@@ -4199,3 +4199,38 @@
     grid-template-columns:1fr !important;
   }
 }
+/* ===== PASSAGEM DE TURNO V3 | SUBMENU COMO NAVEGAÇÃO ÚNICA ===== */
+#view-passagem-turno .pt-split-header,
+#view-passagem-turno .pt-split-tabs,
+#view-passagem-turno .pt-split-tab,
+#view-passagem-turno .pt-launch-actions,
+#view-passagem-turno .pt-ind-actions{
+  display:none !important;
+}
+#view-passagem-turno .pt-launch-top,
+#view-passagem-turno .pt-ind-top{
+  display:block !important;
+  margin-bottom:16px;
+}
+#view-passagem-turno .pt-launch-hero,
+#view-passagem-turno .pt-ind-hero{
+  min-height:auto !important;
+  padding:22px !important;
+}
+#view-passagem-turno .pt-launch-hero h2,
+#view-passagem-turno .pt-ind-hero h2{
+  font-size:24px !important;
+  margin:0 0 8px !important;
+}
+#view-passagem-turno .pt-subview{
+  display:none !important;
+}
+#view-passagem-turno .pt-subview.active{
+  display:block !important;
+}
+#view-passagem-turno .pt-launch-shell,
+#view-passagem-turno .pt-ind-shell{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
