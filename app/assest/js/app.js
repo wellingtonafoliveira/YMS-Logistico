@@ -955,6 +955,13 @@ function setView(view, btn){
       });
       const viewEl = document.getElementById(`view-${view}`);
       if(viewEl) viewEl.classList.remove("hidden");
+      if(view !== 'passagem-turno'){
+        const group = document.getElementById('menu-group-passagem-turno');
+        if(group) group.classList.remove('open','active');
+      }else{
+        const group = document.getElementById('menu-group-passagem-turno');
+        if(group) group.classList.add('open','active');
+      }
       atualizarVisibilidadeStatusConexao();
     atualizarIconesSidebar();
       if(view === "admin" && usuarioPerfil === "admin"){
@@ -1793,20 +1800,24 @@ function setView(view, btn){
     }
 
     function renderPassagemAreas(state){
-      const makeCard = (area, editable) => `
+      const slug = area => area.replace(/[^a-zA-Z0-9]/g,'_');
+      const editableCard = area => `
         <div class="passagem-area-card">
           <h4>${esc(area)}</h4>
-          ${editable
-            ? `<label>M/O</label><input type="number" id="passagemAreaMo_${area.replace(/[^a-zA-Z0-9]/g,'_')}" value="${esc(state.areas?.[area]?.mo ?? 0)}">
-               <label>Horas</label><input type="number" id="passagemAreaHoras_${area.replace(/[^a-zA-Z0-9]/g,'_')}" value="${esc(state.areas?.[area]?.horas ?? 0)}">`
-            : `<label>M/O</label><div class="pt-ind-summary-value">${esc(state.areas?.[area]?.mo ?? 0)}</div>
-               <label>Horas</label><div class="pt-ind-summary-value">${esc(state.areas?.[area]?.horas ?? 0)}</div>`}
+          <label>M/O</label><input type="number" id="passagemAreaMo_${slug(area)}" value="${esc(state.areas?.[area]?.mo ?? 0)}">
+          <label>Horas</label><input type="number" id="passagemAreaHoras_${slug(area)}" value="${esc(state.areas?.[area]?.horas ?? 0)}">
+        </div>`;
+      const indicadorCard = area => `
+        <div class="passagem-area-card">
+          <h4>${esc(area)}</h4>
+          <label>M/O</label><div class="pt-ind-summary-value">${esc(state.areas?.[area]?.mo ?? 0)}</div>
+          <label>Horas</label><div class="pt-ind-summary-value">${esc(state.areas?.[area]?.horas ?? 0)}</div>
         </div>`;
       const wrap = document.getElementById('passagemAreasWrap');
-      if(wrap) wrap.innerHTML = PASSAGEM_AREAS.map(area => makeCard(area, true)).join('');
+      if(wrap) wrap.innerHTML = PASSAGEM_AREAS.map(editableCard).join('');
       const wrapIndicador = document.getElementById('passagemAreasWrapIndicador');
-      if(wrapIndicador) wrapIndicador.innerHTML = PASSAGEM_AREAS.map(area => makeCard(area, false)).join('');
-    }
+      if(wrapIndicador) wrapIndicador.innerHTML = PASSAGEM_AREAS.map(indicadorCard).join('');
+      }
 
     function collectPassagemTurnoState(){
       const g = id => document.getElementById(id);
@@ -1884,7 +1895,7 @@ function setView(view, btn){
       setKpiText('passagemPreviewAtrasado', document.getElementById('passagemAtrasadoTons')?.textContent || '0');
       setKpiText('passagemEmailAssunto', `Passagem de turno • Expedição • ${(document.getElementById('passagemData')?.value || 'sem data')} (${turno})`);
       setKpiText('passagemIndDataRef', dataRefRaw ? fmtDate(dataRefRaw) : 'Todos');
-      setKpiText('passagemIndTurnoDesc', ({T1:'06h00 às 14h00',T2:'14h00 às 22h00',T3:'22h00 às 06h00'}[turno] || turno));
+      setKpiText('passagemIndTurnoDesc', descricaoTurnoPassagem(turno) || turno);
       setKpiText('passagemIndProgramadoCarros', document.getElementById('passagemProgramadoCarros')?.textContent || '0');
       setKpiText('passagemIndRealizadoCarros', document.getElementById('passagemRealizadoCarros')?.textContent || '0');
       setKpiText('passagemIndViraCarros', document.getElementById('passagemViraCarros')?.textContent || '0');
@@ -1908,7 +1919,6 @@ function setView(view, btn){
       setKpiText('passagemPreviewViraEmail', document.getElementById('passagemViraTons')?.textContent || '0');
       setKpiText('passagemPreviewAtrasadoEmail', document.getElementById('passagemAtrasadoTons')?.textContent || '0');
 
-
       const totalQuadro = (Number(state.operador)||0)+(Number(state.conferente)||0)+(Number(state.exclusiva)||0);
       const setText2 = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
       setText2('passagemTurnoRef', turno); setText2('passagemTotalQuadroRef', totalQuadro);
@@ -1925,24 +1935,33 @@ function setView(view, btn){
       chartPassagemAusencias = miniChart('graficoPassagemAusencias', state.ausencias || {});
       chartPassagemBancoHoras = miniChart('graficoPassagemBancoHoras', state.bancoHoras || {});
 
-      const miniIndicador = (chartVarName, canvasId, src) => {
-        const map = { chartPassagemFeriasIndicador, chartPassagemAusenciasIndicador, chartPassagemBancoHorasIndicador };
-        const existing = map[chartVarName];
-        if(existing) existing.destroy();
-        const canvas = document.getElementById(canvasId);
-        if(!canvas) return null;
-        const chart = new Chart(canvas, {
-          type:'bar',
-          data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:[src.operador||0, src.conferente||0, src.exclusiva||0], borderRadius:10, borderSkipped:false, backgroundColor:['rgba(34,211,238,.95)','rgba(59,130,246,.95)','rgba(251,146,60,.95)'] }] },
-          options: mergeChartOptions(getPremiumChartOptions(), { maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false } }, y:{ ticks:{ precision:0 }, beginAtZero:true } } })
-        });
-        if(chartVarName === 'chartPassagemFeriasIndicador') chartPassagemFeriasIndicador = chart;
-        if(chartVarName === 'chartPassagemAusenciasIndicador') chartPassagemAusenciasIndicador = chart;
-        if(chartVarName === 'chartPassagemBancoHorasIndicador') chartPassagemBancoHorasIndicador = chart;
+      const renderMiniIndicador = (refName, canvasId, src) => {
+        try{
+          const canvas = document.getElementById(canvasId);
+          if(!canvas) return;
+          if(window[refName]) window[refName].destroy();
+          window[refName] = new Chart(canvas, {
+            type:'bar',
+            data:{
+              labels:['Operador','Conferente','Exclusiva'],
+              datasets:[{
+                data:[src.operador||0, src.conferente||0, src.exclusiva||0],
+                borderRadius:10,
+                borderSkipped:false,
+                backgroundColor:['rgba(34,211,238,.95)','rgba(59,130,246,.95)','rgba(251,146,60,.95)']
+              }]
+            },
+            options: mergeChartOptions(getPremiumChartOptions(), {
+              maintainAspectRatio:false,
+              plugins:{ legend:{ display:false } },
+              scales:{ x:{ grid:{ display:false } }, y:{ beginAtZero:true, ticks:{ precision:0 } } }
+            })
+          });
+        }catch(err){ console.error(err); }
       };
-      miniIndicador('chartPassagemFeriasIndicador', 'graficoPassagemFeriasIndicador', state.ferias || {});
-      miniIndicador('chartPassagemAusenciasIndicador', 'graficoPassagemAusenciasIndicador', state.ausencias || {});
-      miniIndicador('chartPassagemBancoHorasIndicador', 'graficoPassagemBancoHorasIndicador', state.bancoHoras || {});
+      renderMiniIndicador('chartPassagemFeriasIndicador','graficoPassagemFeriasIndicador', state.ferias || {});
+      renderMiniIndicador('chartPassagemAusenciasIndicador','graficoPassagemAusenciasIndicador', state.ausencias || {});
+      renderMiniIndicador('chartPassagemBancoHorasIndicador','graficoPassagemBancoHorasIndicador', state.bancoHoras || {});
     }
 
     function salvarPassagemTurno(){
@@ -3859,20 +3878,37 @@ function descricaoTurnoPassagem(turno){
 }
 
 
+
 function setPassagemSubView(view){
   passagemSubViewAtual = view === 'indicadores' ? 'indicadores' : 'lancamento';
   const lanc = document.getElementById('passagemSubLancamento');
   const ind = document.getElementById('passagemSubIndicadores');
   const tabLanc = document.getElementById('ptTabLancamento');
   const tabInd = document.getElementById('ptTabIndicadores');
+  const subLanc = document.getElementById('submenu-passagem-lancamento');
+  const subInd = document.getElementById('submenu-passagem-indicadores');
+  const group = document.getElementById('menu-group-passagem-turno');
   if(lanc) lanc.classList.toggle('active', passagemSubViewAtual === 'lancamento');
   if(ind) ind.classList.toggle('active', passagemSubViewAtual === 'indicadores');
   if(tabLanc) tabLanc.classList.toggle('active', passagemSubViewAtual === 'lancamento');
   if(tabInd) tabInd.classList.toggle('active', passagemSubViewAtual === 'indicadores');
+  if(subLanc) subLanc.classList.toggle('active', passagemSubViewAtual === 'lancamento');
+  if(subInd) subInd.classList.toggle('active', passagemSubViewAtual === 'indicadores');
+  if(group) group.classList.add('open','active');
+}
+
+function openPassagemTurnoMenu(){
+  setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+  setPassagemSubView(passagemSubViewAtual || 'lancamento');
+}
+
+function openPassagemSubView(view){
+  setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+  setPassagemSubView(view);
 }
 
 async function fecharEEnviarPassagemTurno(){
-  try{ salvarPassagemTurno(); }catch(err){ console.error(err); }
+  try{ if(typeof salvarPassagemTurno === 'function') salvarPassagemTurno(); }catch(err){ console.error(err); }
   setPassagemSubView('indicadores');
   const turno = document.getElementById('passagemTurno')?.value || 'T1';
   const dataRef = document.getElementById('passagemData')?.value || '';
@@ -3887,7 +3923,7 @@ async function fecharEEnviarPassagemTurno(){
     `Vira: ${document.getElementById('passagemPreviewVira')?.textContent || '0'}`,
     `Atrasado: ${document.getElementById('passagemPreviewAtrasado')?.textContent || '0'}`,
     '',
-    'A imagem do painel executivo pode ser anexada ao e-mail.'
+    'A imagem do painel de indicadores é a melhor base para anexar ao e-mail.'
   ].join('\n');
   window.location.href = `mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
   if(typeof showToast === 'function') showToast('Indicadores prontos para envio por e-mail.');
