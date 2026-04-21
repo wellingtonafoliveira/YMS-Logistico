@@ -3928,3 +3928,59 @@ async function fecharEEnviarPassagemTurno(){
   window.location.href = `mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
   if(typeof showToast === 'function') showToast('Indicadores prontos para envio por e-mail.');
 }
+
+
+function syncPassagemMenuState(){
+  const group = document.getElementById('menu-group-passagem-turno');
+  const chevron = document.getElementById('passagemMenuChevron');
+  if(!group || !chevron) return;
+  chevron.textContent = group.classList.contains('open') ? '▴' : '▾';
+}
+
+(function(){
+  const originalOpenPassagemTurnoMenu = window.openPassagemTurnoMenu;
+  window.openPassagemTurnoMenu = function(){
+    const group = document.getElementById('menu-group-passagem-turno');
+    if(group && viewAtualGlobal === 'passagem-turno'){
+      group.classList.toggle('open');
+      group.classList.add('active');
+      syncPassagemMenuState();
+      return;
+    }
+    if(typeof originalOpenPassagemTurnoMenu === 'function'){
+      originalOpenPassagemTurnoMenu();
+    }else{
+      setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+      setPassagemSubView(passagemSubViewAtual || 'lancamento');
+    }
+    const group2 = document.getElementById('menu-group-passagem-turno');
+    if(group2){ group2.classList.add('open','active'); }
+    syncPassagemMenuState();
+  };
+
+  const originalSetPassagemSubView = window.setPassagemSubView;
+  window.setPassagemSubView = function(view){
+    if(typeof originalSetPassagemSubView === 'function'){
+      originalSetPassagemSubView(view);
+    }
+    const group = document.getElementById('menu-group-passagem-turno');
+    if(group) group.classList.add('open','active');
+    syncPassagemMenuState();
+  };
+
+  const originalSetView = window.setView;
+  window.setView = function(view, btn){
+    const result = originalSetView ? originalSetView(view, btn) : undefined;
+    if(view !== 'passagem-turno'){
+      const group = document.getElementById('menu-group-passagem-turno');
+      if(group) group.classList.remove('active');
+    }else{
+      const group = document.getElementById('menu-group-passagem-turno');
+      if(group) group.classList.add('open','active');
+    }
+    syncPassagemMenuState();
+    return result;
+  };
+
+  document.addEventListener('DOMContentLoaded', syncPassagemMenuState);
+})();
