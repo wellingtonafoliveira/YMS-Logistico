@@ -955,13 +955,6 @@ function setView(view, btn){
       });
       const viewEl = document.getElementById(`view-${view}`);
       if(viewEl) viewEl.classList.remove("hidden");
-      if(view !== 'passagem-turno'){
-        const group = document.getElementById('menu-group-passagem-turno');
-        if(group) group.classList.remove('open','active');
-      }else{
-        const group = document.getElementById('menu-group-passagem-turno');
-        if(group) group.classList.add('open','active');
-      }
       atualizarVisibilidadeStatusConexao();
     atualizarIconesSidebar();
       if(view === "admin" && usuarioPerfil === "admin"){
@@ -1801,23 +1794,25 @@ function setView(view, btn){
 
     function renderPassagemAreas(state){
       const slug = area => area.replace(/[^a-zA-Z0-9]/g,'_');
-      const editableCard = area => `
-        <div class="passagem-area-card">
-          <h4>${esc(area)}</h4>
-          <label>M/O</label><input type="number" id="passagemAreaMo_${slug(area)}" value="${esc(state.areas?.[area]?.mo ?? 0)}">
-          <label>Horas</label><input type="number" id="passagemAreaHoras_${slug(area)}" value="${esc(state.areas?.[area]?.horas ?? 0)}">
-        </div>`;
-      const indicadorCard = area => `
-        <div class="passagem-area-card">
-          <h4>${esc(area)}</h4>
-          <label>M/O</label><div class="pt-ind-summary-value">${esc(state.areas?.[area]?.mo ?? 0)}</div>
-          <label>Horas</label><div class="pt-ind-summary-value">${esc(state.areas?.[area]?.horas ?? 0)}</div>
-        </div>`;
       const wrap = document.getElementById('passagemAreasWrap');
-      if(wrap) wrap.innerHTML = PASSAGEM_AREAS.map(editableCard).join('');
-      const wrapIndicador = document.getElementById('passagemAreasWrapIndicador');
-      if(wrapIndicador) wrapIndicador.innerHTML = PASSAGEM_AREAS.map(indicadorCard).join('');
+      if(wrap){
+        wrap.innerHTML = PASSAGEM_AREAS.map(area => `
+          <div class="passagem-area-card">
+            <h4>${esc(area)}</h4>
+            <label>M/O</label><input type="number" id="passagemAreaMo_${slug(area)}" value="${esc(state.areas?.[area]?.mo ?? 0)}">
+            <label>Horas</label><input type="number" id="passagemAreaHoras_${slug(area)}" value="${esc(state.areas?.[area]?.horas ?? 0)}">
+          </div>`).join('');
       }
+      const wrapIndicador = document.getElementById('passagemAreasWrapIndicador');
+      if(wrapIndicador){
+        wrapIndicador.innerHTML = PASSAGEM_AREAS.map(area => `
+          <div class="passagem-area-card">
+            <h4>${esc(area)}</h4>
+            <label>M/O</label><div class="pt-ind-summary-value">${esc(state.areas?.[area]?.mo ?? 0)}</div>
+            <label>Horas</label><div class="pt-ind-summary-value">${esc(state.areas?.[area]?.horas ?? 0)}</div>
+          </div>`).join('');
+      }
+    }
 
     function collectPassagemTurnoState(){
       const g = id => document.getElementById(id);
@@ -3878,6 +3873,12 @@ function descricaoTurnoPassagem(turno){
 }
 
 
+function syncPassagemMenuState(){
+  const group = document.getElementById('menu-group-passagem-turno');
+  const chev = document.getElementById('passagemMenuChevron');
+  if(!group || !chev) return;
+  chev.textContent = group.classList.contains('open') ? '▴' : '▾';
+}
 
 function setPassagemSubView(view){
   passagemSubViewAtual = view === 'indicadores' ? 'indicadores' : 'lancamento';
@@ -3894,11 +3895,19 @@ function setPassagemSubView(view){
   if(tabInd) tabInd.classList.toggle('active', passagemSubViewAtual === 'indicadores');
   if(subLanc) subLanc.classList.toggle('active', passagemSubViewAtual === 'lancamento');
   if(subInd) subInd.classList.toggle('active', passagemSubViewAtual === 'indicadores');
-  if(group) group.classList.add('open','active');
+  if(group){ group.classList.add('open','active'); }
+  syncPassagemMenuState();
 }
 
 function openPassagemTurnoMenu(){
+  const group = document.getElementById('menu-group-passagem-turno');
+  if(viewAtualGlobal === 'passagem-turno'){
+    if(group) group.classList.toggle('open');
+    syncPassagemMenuState();
+    return;
+  }
   setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+  if(group) group.classList.add('open','active');
   setPassagemSubView(passagemSubViewAtual || 'lancamento');
 }
 
@@ -3921,66 +3930,12 @@ async function fecharEEnviarPassagemTurno(){
     `Programado: ${document.getElementById('passagemPreviewProgramado')?.textContent || '0'}`,
     `Realizado: ${document.getElementById('passagemPreviewRealizado')?.textContent || '0'}`,
     `Vira: ${document.getElementById('passagemPreviewVira')?.textContent || '0'}`,
-    `Atrasado: ${document.getElementById('passagemPreviewAtrasado')?.textContent || '0'}`,
-    '',
-    'A imagem do painel de indicadores é a melhor base para anexar ao e-mail.'
+    `Atrasado: ${document.getElementById('passagemPreviewAtrasado')?.textContent || '0'}`
   ].join('\n');
   window.location.href = `mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
   if(typeof showToast === 'function') showToast('Indicadores prontos para envio por e-mail.');
 }
 
-
-function syncPassagemMenuState(){
-  const group = document.getElementById('menu-group-passagem-turno');
-  const chevron = document.getElementById('passagemMenuChevron');
-  if(!group || !chevron) return;
-  chevron.textContent = group.classList.contains('open') ? '▴' : '▾';
-}
-
-(function(){
-  const originalOpenPassagemTurnoMenu = window.openPassagemTurnoMenu;
-  window.openPassagemTurnoMenu = function(){
-    const group = document.getElementById('menu-group-passagem-turno');
-    if(group && viewAtualGlobal === 'passagem-turno'){
-      group.classList.toggle('open');
-      group.classList.add('active');
-      syncPassagemMenuState();
-      return;
-    }
-    if(typeof originalOpenPassagemTurnoMenu === 'function'){
-      originalOpenPassagemTurnoMenu();
-    }else{
-      setView('passagem-turno', document.getElementById('menu-passagem-turno'));
-      setPassagemSubView(passagemSubViewAtual || 'lancamento');
-    }
-    const group2 = document.getElementById('menu-group-passagem-turno');
-    if(group2){ group2.classList.add('open','active'); }
-    syncPassagemMenuState();
-  };
-
-  const originalSetPassagemSubView = window.setPassagemSubView;
-  window.setPassagemSubView = function(view){
-    if(typeof originalSetPassagemSubView === 'function'){
-      originalSetPassagemSubView(view);
-    }
-    const group = document.getElementById('menu-group-passagem-turno');
-    if(group) group.classList.add('open','active');
-    syncPassagemMenuState();
-  };
-
-  const originalSetView = window.setView;
-  window.setView = function(view, btn){
-    const result = originalSetView ? originalSetView(view, btn) : undefined;
-    if(view !== 'passagem-turno'){
-      const group = document.getElementById('menu-group-passagem-turno');
-      if(group) group.classList.remove('active');
-    }else{
-      const group = document.getElementById('menu-group-passagem-turno');
-      if(group) group.classList.add('open','active');
-    }
-    syncPassagemMenuState();
-    return result;
-  };
-
-  document.addEventListener('DOMContentLoaded', syncPassagemMenuState);
-})();
+document.addEventListener('DOMContentLoaded', function(){
+  syncPassagemMenuState();
+});
