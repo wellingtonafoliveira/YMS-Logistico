@@ -851,7 +851,7 @@
             <p>Página operacional para registrar quadro, distribuição por área, pendências e responsáveis do turno.</p>
           </div></div>
 
-        <div class="pt-launch-kpis">
+        <div class="pt-launch-kpis ptv4-kpis">
           <div class="card soft-glow pt-launch-kpi pt-launch-field">
             <label>Data referência</label>
             <input type="date" id="passagemData" onchange="renderPassagemTurno()">
@@ -948,10 +948,10 @@
 
             <div class="card soft-glow pt-launch-card">
               <div class="card-title-row">
-                <div><h3 style="margin:0">Observações / Pendências</h3><p>Registrar pendências e orientações para o próximo turno.</p></div>
+                <div><h3 style="margin:0">Observações / Pendências</h3><p>Registre pendências e orientações para o próximo turno.</p></div>
                 <span class="premium-badge">Notas</span>
               </div>
-              <textarea id="passagemOcorrencias" class="passagem-textarea" placeholder="Descreva aqui as ocorrências do turno..."></textarea>
+              <textarea id="passagemOcorrencias" class="passagem-textarea" maxlength="1000" placeholder="Descreva aqui as ocorrências do turno..."></textarea><div class="ptv4-counter"><span id="passagemOcorrenciasCounter">0</span> / 1000</div>
             </div>
 
             <div class="card soft-glow pt-launch-card">
@@ -969,8 +969,8 @@
         </div>
 
         <div class="card soft-glow pt3-status is-idle" id="passagemStatusBar">
-          <span id="passagemStatusTexto">• Alterações pendentes</span>
-          <span id="passagemStatusRascunho">Preencha e salve a passagem de turno</span>
+          <span id="passagemStatusTexto">✓ Status: PENDENTE DE SALVAMENTO</span>
+          <span id="passagemStatusRascunho">Alterações não salvas serão perdidas ao sair da página.</span>
         </div>
       </div>
     </div>
@@ -984,7 +984,7 @@
 
         <div class="pt-ind-layout">
           <div class="pt-ind-main" id="passagemPainelCaptura">
-            <div class="pt-ind-kpis">
+            <div class="pt-ind-kpis ptv4-kpis">
               <div class="card soft-glow pt-ind-kpi">
                 <span>Data referência</span>
                 <strong id="passagemIndDataRef">--/--/----</strong>
@@ -1107,7 +1107,7 @@
           <aside class="card soft-glow pt3-preview">
             <div class="card-title-row">
               <div><h3 style="margin:0">Prévia do e-mail</h3><p>Visual executivo do fechamento do turno.</p></div>
-              <span class="premium-badge">Envio</span>
+              <button class="ptv4-mini-edit" type="button">Editar</button>
             </div>
             <div class="pt3-mail-lines">
               <div><span>De:</span><strong>expedicao@logisticaplus.com.br</strong></div>
@@ -1116,7 +1116,7 @@
               <div><span>Assunto:</span><strong id="passagemEmailAssunto">Passagem de turno • Expedição</strong></div>
             </div>
             <p class="pt3-mail-text">Segue em anexo a passagem de turno da expedição referente ao fechamento do turno selecionado.</p>
-            <div class="pt3-attachment"><strong>passagem_turno_preview.png</strong><span>Prévia visual do anexo</span></div>
+            <div class="pt3-attachment"><strong>indicadores_turno_T2_20042026.pdf</strong><span>PDF • 248 KB</span></div>
             <div class="pt3-preview-panel">
               <div class="pt3-preview-chips">
                 <div class="pt3-chip">Turno <b id="passagemPreviewTurnoEmail">T1</b></div>

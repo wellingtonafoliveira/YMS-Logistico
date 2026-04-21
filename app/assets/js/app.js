@@ -4033,3 +4033,39 @@ window.openPassagemSubView = function(view){
   }
   window.setPassagemSubView(view);
 };
+
+
+
+document.addEventListener('DOMContentLoaded', function(){
+  const obs = document.getElementById('passagemOcorrencias');
+  const counter = document.getElementById('passagemOcorrenciasCounter');
+  if(obs && counter){
+    const syncCounter = ()=>{ counter.textContent = String((obs.value || '').length); };
+    obs.addEventListener('input', syncCounter);
+    syncCounter();
+  }
+});
+
+(function(){
+  const oldRender = window.renderPassagemTurno;
+  if(typeof oldRender === 'function'){
+    window.renderPassagemTurno = function(){
+      const result = oldRender.apply(this, arguments);
+      const turno = document.getElementById('passagemTurno')?.value || 'T1';
+      const ref = document.getElementById('passagemTurnoRef');
+      const desc = ({T1:'06:00 às 14:00',T2:'14:00 às 22:00',T3:'22:00 às 06:00'})[turno] || turno;
+      if(ref) ref.textContent = desc;
+      const indDesc = document.getElementById('passagemIndTurnoDesc');
+      if(indDesc) indDesc.textContent = desc;
+      const dt = document.getElementById('passagemData')?.value;
+      const indDt = document.getElementById('passagemIndDataRef');
+      if(indDt && dt){
+        try{
+          const [y,m,d] = dt.split('-');
+          indDt.textContent = `${d}/${m}/${y}`;
+        }catch(_){}
+      }
+      return result;
+    }
+  }
+})();
