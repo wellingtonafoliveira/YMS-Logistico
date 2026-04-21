@@ -3998,3 +3998,204 @@
   border:1px solid rgba(245,158,11,.24);
   background:linear-gradient(180deg, rgba(245,158,11,.08), rgba(245,158,11,.03));
 }
+
+
+/* ===== PASSAGEM DE TURNO V4 ===== */
+#view-passagem-turno .pt3-kpis{
+  gap:14px !important;
+}
+#view-passagem-turno .pt3-kpi{
+  min-height:116px;
+  justify-content:center;
+  border-radius:20px !important;
+}
+#view-passagem-turno .pt3-kpi span{
+  font-size:10px !important;
+  letter-spacing:.14em !important;
+}
+#view-passagem-turno .pt3-kpi strong{
+  font-size:30px !important;
+  font-weight:800 !important;
+}
+#view-passagem-turno .pt3-kpi small{
+  font-size:12px !important;
+}
+#view-passagem-turno .pt3-kpi.pt3-kpi-danger{
+  box-shadow: inset 0 0 0 1px rgba(248,113,113,.16);
+}
+#view-passagem-turno .pt3-kpi.pt3-kpi-danger strong{
+  color:#ff6b7d !important;
+}
+
+#view-passagem-turno .pt3-grid-a,
+#view-passagem-turno .pt3-grid-b{
+  gap:14px !important;
+}
+
+#view-passagem-turno .pt3-panel,
+#view-passagem-turno .pt3-areas,
+#view-passagem-turno .pt3-preview,
+#view-passagem-turno .pt3-bottom-card{
+  border-radius:22px !important;
+}
+
+#view-passagem-turno .pt3-panel{
+  min-height:250px;
+}
+
+#view-passagem-turno .pt3-panel-big{
+  min-height:300px;
+}
+
+#view-passagem-turno .card-title-row{
+  align-items:flex-start !important;
+  margin-bottom:14px !important;
+}
+#view-passagem-turno .card-title-row h3{
+  font-size:20px !important;
+}
+#view-passagem-turno .card-title-row p{
+  font-size:12px !important;
+  line-height:1.45 !important;
+}
+
+#view-passagem-turno .premium-badge{
+  padding:7px 12px !important;
+  border-radius:999px !important;
+  font-size:11px !important;
+  font-weight:800 !important;
+  letter-spacing:.02em !important;
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)) !important;
+  border:1px solid rgba(255,255,255,.08) !important;
+}
+
+#view-passagem-turno .pt3-chart-form{
+  grid-template-columns:190px 1fr !important;
+  gap:16px !important;
+}
+#view-passagem-turno .passagem-donut-wrap{
+  min-height:190px;
+}
+#view-passagem-turno .passagem-legend-inputs{
+  gap:12px !important;
+}
+#view-passagem-turno .passagem-legend-inputs input{
+  min-height:42px !important;
+}
+#view-passagem-turno .pt3-total-value{
+  min-height:44px !important;
+  font-size:22px !important;
+}
+
+#view-passagem-turno .pt3-mini-layout{
+  grid-template-columns:110px 1fr !important;
+  gap:14px !important;
+  min-height:150px;
+}
+#view-passagem-turno .pt3-mini-canvas{
+  height:110px !important;
+  min-height:110px !important;
+  align-self:center;
+  border-radius:16px;
+  background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+  border:1px solid rgba(255,255,255,.04);
+  padding:8px;
+}
+#view-passagem-turno .pt3-mini-canvas canvas{
+  height:94px !important;
+}
+#view-passagem-turno .passagem-mini-inputs-v2{
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:10px !important;
+}
+#view-passagem-turno .passagem-mini-inputs-v2 .passagem-mini-input label{
+  font-size:10px !important;
+  min-height:14px;
+}
+#view-passagem-turno .passagem-mini-inputs-v2 .passagem-mini-input input{
+  min-height:38px !important;
+  border-radius:12px !important;
+  font-size:14px !important;
+  padding:9px 10px !important;
+}
+
+#view-passagem-turno .pt3-notes .passagem-textarea{
+  min-height:160px !important;
+  font-size:14px !important;
+  line-height:1.55 !important;
+  border-radius:16px !important;
+}
+#view-passagem-turno .pt3-bottom{
+  gap:14px !important;
+}
+#view-passagem-turno .pt3-bottom-card input{
+  min-height:44px !important;
+}
+
+#view-passagem-turno .pt3-areas .passagem-area-grid{
+  gap:12px !important;
+}
+#view-passagem-turno .pt3-areas .passagem-area-grid > div{
+  border-radius:18px !important;
+  padding:14px !important;
+  background:linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.01)) !important;
+  border:1px solid rgba(255,255,255,.06) !important;
+}
+#view-passagem-turno .pt3-areas .passagem-area-grid > div h4,
+#view-passagem-turno .pt3-areas .passagem-area-grid > div .area-title{
+  font-size:15px !important;
+  font-weight:800 !important;
+  margin-bottom:10px !important;
+}
+#view-passagem-turno .pt3-areas .passagem-area-grid > div label{
+  font-size:10px !important;
+  color:#8ba0c2 !important;
+  text-transform:uppercase !important;
+  letter-spacing:.08em !important;
+}
+#view-passagem-turno .pt3-areas .passagem-area-grid > div input{
+  min-height:40px !important;
+  border-radius:12px !important;
+}
+#view-passagem-turno .pt3-status{
+  font-size:13px !important;
+  font-weight:700 !important;
+  padding:14px 18px !important;
+}
+
+#view-passagem-turno .pt3-preview{
+  min-height:100%;
+}
+#view-passagem-turno .pt3-mail-lines{
+  gap:12px !important;
+}
+#view-passagem-turno .pt3-mail-lines div{
+  grid-template-columns:68px 1fr !important;
+}
+#view-passagem-turno .pt3-preview-panel{
+  border-radius:18px !important;
+}
+#view-passagem-turno .pt3-preview-grid{
+  gap:10px !important;
+}
+#view-passagem-turno .pt3-preview-card{
+  min-height:82px;
+}
+#view-passagem-turno .pt3-preview-card strong{
+  font-size:24px !important;
+}
+#view-passagem-turno .pt3-preview-note{
+  margin-top:12px !important;
+  font-size:12px !important;
+  line-height:1.5 !important;
+}
+
+@media (max-width: 1200px){
+  #view-passagem-turno .pt3-kpi strong{
+    font-size:26px !important;
+  }
+  #view-passagem-turno .pt3-chart-form,
+  #view-passagem-turno .pt3-mini-layout{
+    grid-template-columns:1fr !important;
+  }
+}
