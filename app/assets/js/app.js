@@ -4069,3 +4069,18 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 })();
+
+document.addEventListener('DOMContentLoaded', function(){
+  const group = document.getElementById('menu-group-passagem-turno');
+  if(group && document.getElementById('view-passagem-turno') && !document.getElementById('view-passagem-turno').classList.contains('hidden')){
+    group.classList.add('open');
+    if(typeof syncPassagemMenuState === 'function') syncPassagemMenuState();
+  }
+  const counter = document.getElementById('passagemOcorrenciasCounter');
+  const obs = document.getElementById('passagemOcorrencias');
+  if(counter && obs){
+    const sync = ()=> counter.textContent = String((obs.value || '').length);
+    obs.addEventListener('input', sync);
+    sync();
+  }
+});

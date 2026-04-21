@@ -4453,3 +4453,209 @@
     grid-template-columns:1fr !important;
   }
 }
+
+/* ===== PASSAGEM DE TURNO V5 | AJUSTE FINO ===== */
+
+/* Sidebar closer to premium reference */
+.menu-group.active > #menu-passagem-turno{
+  background:
+    radial-gradient(circle at top right, rgba(37,99,235,.18), transparent 42%),
+    linear-gradient(135deg, rgba(37,99,235,.34), rgba(59,130,246,.56)) !important;
+  border-color: rgba(96,165,250,.32) !important;
+}
+.submenu-passagem{
+  gap:10px !important;
+  padding:10px 0 10px 40px !important;
+}
+.submenu-passagem button{
+  min-height:46px !important;
+  border-radius:16px !important;
+  background:linear-gradient(180deg, rgba(8,12,18,.98), rgba(7,10,16,.94)) !important;
+  border:1px solid rgba(255,255,255,.06) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+}
+.submenu-passagem button.active{
+  background:
+    radial-gradient(circle at top right, rgba(37,99,235,.18), transparent 40%),
+    linear-gradient(135deg, rgba(19,46,121,.82), rgba(37,99,235,.42)) !important;
+}
+.submenu-passagem button::before{
+  left:-14px !important;
+  width:8px !important;
+}
+#menu-passagem-turno{
+  position:relative;
+}
+#menu-passagem-turno::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:18px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+  pointer-events:none;
+}
+
+/* Launch page more operational */
+#view-passagem-turno .pt-launch-hero{
+  min-height:110px !important;
+}
+#view-passagem-turno .pt-launch-grid{
+  grid-template-columns:1.28fr .92fr !important;
+}
+#view-passagem-turno .pt-launch-card{
+  background:
+    radial-gradient(circle at top right, rgba(37,99,235,.10), transparent 25%),
+    linear-gradient(180deg, rgba(9,12,16,.98), rgba(6,8,11,.965)) !important;
+}
+#view-passagem-turno .pt-launch-kpi{
+  min-height:108px !important;
+}
+#view-passagem-turno .pt-launch-kpi strong{
+  font-size:24px !important;
+}
+#view-passagem-turno .pt-launch-quadro-grid{
+  grid-template-columns:repeat(4, minmax(0,1fr)) !important;
+}
+#view-passagem-turno .pt-launch-quadro-grid > div,
+#view-passagem-turno .pt-launch-mini-grid > div,
+#view-passagem-turno .pt-launch-closure-grid > div{
+  background:linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.005));
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:16px;
+  padding:12px;
+}
+#view-passagem-turno .pt-launch-mini-grid{
+  gap:14px !important;
+}
+#view-passagem-turno .pt-launch-mini-grid > div{
+  min-height:92px;
+}
+#view-passagem-turno .pt-launch-closure-grid{
+  gap:14px !important;
+}
+#view-passagem-turno .passagem-area-grid{
+  gap:14px !important;
+}
+#view-passagem-turno .passagem-area-card{
+  padding:16px !important;
+  border-radius:20px !important;
+}
+#view-passagem-turno .passagem-area-card label{
+  display:block;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:#94a8ca;
+  margin:0 0 6px;
+  font-weight:800;
+}
+#view-passagem-turno .passagem-area-card input{
+  margin-bottom:10px;
+}
+#view-passagem-turno .passagem-textarea{
+  min-height:132px !important;
+  line-height:1.55 !important;
+}
+#view-passagem-turno .ptv4-counter{
+  padding-right:4px;
+}
+#view-passagem-turno .pt3-status{
+  margin-top:18px !important;
+}
+
+/* Indicator page more executive */
+#view-passagem-turno .pt-ind-layout{
+  grid-template-columns:1.42fr .84fr !important;
+}
+#view-passagem-turno .pt-ind-hero{
+  min-height:110px !important;
+}
+#view-passagem-turno .pt-ind-kpis{
+  grid-template-columns:1fr 1fr repeat(4, minmax(0,1fr)) !important;
+}
+#view-passagem-turno .pt-ind-kpi{
+  min-height:116px !important;
+}
+#view-passagem-turno .pt-ind-kpi strong{
+  font-size:28px !important;
+}
+#view-passagem-turno .pt-ind-row-a{
+  grid-template-columns:1.28fr .82fr .82fr .82fr !important;
+}
+#view-passagem-turno .pt-ind-panel-big{
+  min-height:318px !important;
+}
+#view-passagem-turno .pt-ind-donut-row{
+  grid-template-columns:220px 1fr !important;
+  gap:18px !important;
+}
+#view-passagem-turno .passagem-donut-wrap{
+  background:linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.005));
+  border:1px solid rgba(255,255,255,.04);
+  border-radius:22px;
+  padding:12px;
+}
+#view-passagem-turno .pt-ind-summary-grid > div,
+#view-passagem-turno .pt-ind-mini-values > div,
+#view-passagem-turno .pt-ind-bottom-card{
+  background:linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.005));
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:16px;
+  padding:12px;
+}
+#view-passagem-turno .pt-ind-summary-grid .pt-ind-summary-value,
+#view-passagem-turno .pt-ind-mini-values .pt-ind-summary-value{
+  min-height:38px !important;
+}
+#view-passagem-turno .pt-ind-mini-card{
+  min-height:292px !important;
+}
+#view-passagem-turno .pt-ind-mini-body{
+  grid-template-columns:120px 1fr !important;
+}
+#view-passagem-turno .pt-ind-mini-chart{
+  height:132px !important;
+  padding:12px !important;
+}
+#view-passagem-turno .pt-ind-mini-chart canvas{
+  height:108px !important;
+}
+#view-passagem-turno .pt-ind-notes-box{
+  min-height:84px !important;
+  background:linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.005)) !important;
+}
+#view-passagem-turno .pt3-preview{
+  border-radius:28px !important;
+}
+#view-passagem-turno .pt3-mail-lines div strong{
+  line-height:1.45;
+}
+#view-passagem-turno .pt3-attachment{
+  background:linear-gradient(180deg, rgba(255,255,255,.022), rgba(255,255,255,.01)) !important;
+}
+#view-passagem-turno .pt3-preview-grid{
+  gap:12px !important;
+}
+#view-passagem-turno .pt3-preview-card{
+  border-radius:16px !important;
+}
+#view-passagem-turno .pt3-preview-card span{
+  color:#94a8ca !important;
+}
+#view-passagem-turno .footer-status.saved{
+  min-height:48px;
+  border-radius:18px !important;
+}
+
+/* Responsive polish */
+@media (max-width: 1500px){
+  #view-passagem-turno .pt-ind-row-a{
+    grid-template-columns:1.15fr 1fr 1fr !important;
+  }
+}
+@media (max-width: 1280px){
+  #view-passagem-turno .pt-launch-grid,
+  #view-passagem-turno .pt-ind-layout{
+    grid-template-columns:1fr !important;
+  }
+}
