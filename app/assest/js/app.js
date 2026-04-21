@@ -3939,3 +3939,59 @@ async function fecharEEnviarPassagemTurno(){
 document.addEventListener('DOMContentLoaded', function(){
   syncPassagemMenuState();
 });
+
+
+
+
+/* ===== FIX GLOBAL MENU PASSAGEM ===== */
+window.syncPassagemMenuState = function(){
+  const group = document.getElementById('menu-group-passagem-turno');
+  const chev = document.getElementById('passagemMenuChevron');
+  if(!group || !chev) return;
+  chev.textContent = group.classList.contains('open') ? '▴' : '▾';
+};
+
+window.setPassagemSubView = function(view){
+  window.passagemSubViewAtual = view === 'indicadores' ? 'indicadores' : 'lancamento';
+  const lanc = document.getElementById('passagemSubLancamento');
+  const ind = document.getElementById('passagemSubIndicadores');
+  const tabLanc = document.getElementById('ptTabLancamento');
+  const tabInd = document.getElementById('ptTabIndicadores');
+  const subLanc = document.getElementById('submenu-passagem-lancamento');
+  const subInd = document.getElementById('submenu-passagem-indicadores');
+  const group = document.getElementById('menu-group-passagem-turno');
+  if(lanc) lanc.classList.toggle('active', window.passagemSubViewAtual === 'lancamento');
+  if(ind) ind.classList.toggle('active', window.passagemSubViewAtual === 'indicadores');
+  if(tabLanc) tabLanc.classList.toggle('active', window.passagemSubViewAtual === 'lancamento');
+  if(tabInd) tabInd.classList.toggle('active', window.passagemSubViewAtual === 'indicadores');
+  if(subLanc) subLanc.classList.toggle('active', window.passagemSubViewAtual === 'lancamento');
+  if(subInd) subInd.classList.toggle('active', window.passagemSubViewAtual === 'indicadores');
+  if(group) group.classList.add('open','active');
+  window.syncPassagemMenuState();
+};
+
+window.openPassagemTurnoMenu = function(){
+  const group = document.getElementById('menu-group-passagem-turno');
+  if(typeof viewAtualGlobal !== 'undefined' && viewAtualGlobal === 'passagem-turno'){
+    if(group) group.classList.toggle('open');
+    window.syncPassagemMenuState();
+    return;
+  }
+  if(typeof setView === 'function'){
+    setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+  }
+  if(group) group.classList.add('open','active');
+  window.setPassagemSubView(window.passagemSubViewAtual || 'lancamento');
+  window.syncPassagemMenuState();
+};
+
+window.openPassagemSubView = function(view){
+  if(typeof setView === 'function'){
+    setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+  }
+  window.setPassagemSubView(view);
+};
+
+document.addEventListener('DOMContentLoaded', function(){
+  window.syncPassagemMenuState();
+});
