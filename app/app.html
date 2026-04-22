@@ -846,10 +846,13 @@
 <section id="view-passagem-turno" class="hidden">
   <div class="ptv7-shell">
     <div id="passagemSubLancamento" class="pt-subview active">
-      <div class="card soft-glow ptv7-hero">
+      <div class="card soft-glow ptv7-hero ptv10-hero-row">
         <div>
           <h2>Passagem de Turno • Lançamento</h2>
           <p>Página de lançamento operacional para registro dos dados do turno em execução.</p>
+        </div>
+        <div class="ptv10-actions">
+          <button class="btn btn-success" type="button" onclick="salvarPassagemTurno()">Salvar lançamento</button>
         </div>
       </div>
 
@@ -973,10 +976,14 @@
     </div>
 
     <div id="passagemSubIndicadores" class="pt-subview">
-      <div class="card soft-glow ptv7-hero">
+      <div class="card soft-glow ptv7-hero ptv10-hero-row">
         <div>
           <h2>Passagem de Turno • Indicadores</h2>
           <p>Acompanhe os principais indicadores operacionais do turno atual em um painel executivo compacto.</p>
+        </div>
+        <div class="ptv10-actions">
+          <button class="btn btn-success" type="button" onclick="salvarPassagemTurno()">Salvar indicadores</button>
+          <button class="btn btn-primary" type="button" onclick="fecharEEnviarPassagemTurno()">Fechar e enviar por e-mail</button>
         </div>
       </div>
 
