@@ -5494,3 +5494,36 @@
     justify-content:flex-start !important;
   }
 }
+
+/* ===== AGENDA | NOVAS COLUNAS TEMPO / TÉRMINO ===== */
+#view-agenda .premium-table-card .table-wrap table{
+  min-width: 1720px;
+}
+#view-agenda .premium-table-card th:nth-child(6),
+#view-agenda .premium-table-card td:nth-child(6){
+  min-width: 120px;
+  white-space: nowrap;
+}
+#view-agenda .premium-table-card th:nth-child(7),
+#view-agenda .premium-table-card td:nth-child(7){
+  min-width: 160px;
+  white-space: nowrap;
+}
+#view-agenda .premium-table-card th:nth-child(8),
+#view-agenda .premium-table-card td:nth-child(8){
+  min-width: 80px;
+  white-space: nowrap;
+}
+#view-agenda .premium-table-card th:nth-child(11),
+#view-agenda .premium-table-card td:nth-child(11){
+  min-width: 150px;
+}
+
+#dtModal .fields input[id="m_tempodecarregamento"],
+#dtModal .fields input[id="m_terminoprevisto"]{
+  white-space: nowrap;
+}
+
+#previewBox .table-wrap table{
+  min-width: 1500px;
+}
