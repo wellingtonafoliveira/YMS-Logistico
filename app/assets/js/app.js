@@ -599,6 +599,86 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
         .replaceAll("'", '&#39;');
     }
 
+
+    function normalizarCabecalhoExcel(valor){
+      return String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toUpperCase();
+    }
+
+    function getValorColuna(row, aliases){
+      if(!row) return null;
+      const entradas = Object.entries(row);
+      for(const alias of aliases){
+        const buscado = normalizarCabecalhoExcel(alias);
+        const encontrado = entradas.find(([k]) => normalizarCabecalhoExcel(k) === buscado);
+        if(encontrado){
+          const valor = encontrado[1];
+          if(valor !== undefined && valor !== null && String(valor).trim() !== "") return valor;
+        }
+      }
+      return null;
+    }
+
+    function excelSerialToJSDate(serial){
+      const numero = Number(serial);
+      if(!Number.isFinite(numero)) return null;
+      const utcDays = Math.floor(numero - 25569);
+      const utcValue = utcDays * 86400;
+      const dateInfo = new Date(utcValue * 1000);
+      const fractionalDay = numero - Math.floor(numero) + 0.0000001;
+      let totalSeconds = Math.floor(86400 * fractionalDay);
+      const seconds = totalSeconds % 60;
+      totalSeconds -= seconds;
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor(totalSeconds / 60) % 60;
+      return new Date(
+        dateInfo.getUTCFullYear(),
+        dateInfo.getUTCMonth(),
+        dateInfo.getUTCDate(),
+        hours,
+        minutes,
+        seconds
+      );
+    }
+
+    function pad2(n){
+      return String(n).padStart(2, "0");
+    }
+
+    function formatExcelHoraOuTexto(valor){
+      if(valor === null || valor === undefined || valor === "") return null;
+      if(valor instanceof Date && !isNaN(valor)) return `${pad2(valor.getHours())}:${pad2(valor.getMinutes())}`;
+      if(typeof valor === "number"){
+        const d = excelSerialToJSDate(valor);
+        if(d && !isNaN(d)) return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+      }
+      const texto = String(valor).trim();
+      if(!texto) return null;
+      const match = texto.match(/(\d{1,2}):(\d{2})/);
+      if(match) return `${pad2(match[1])}:${match[2]}`;
+      return texto;
+    }
+
+    function formatExcelDateTimeOuTexto(valor){
+      if(valor === null || valor === undefined || valor === "") return null;
+      if(valor instanceof Date && !isNaN(valor)){
+        return `${valor.getFullYear()}-${pad2(valor.getMonth()+1)}-${pad2(valor.getDate())} ${pad2(valor.getHours())}:${pad2(valor.getMinutes())}:00`;
+      }
+      if(typeof valor === "number"){
+        const d = excelSerialToJSDate(valor);
+        if(d && !isNaN(d)){
+          return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:00`;
+        }
+      }
+      const texto = String(valor).trim();
+      if(!texto) return null;
+      return texto;
+    }
+
     function formatPlacas(row){
       return [row?.placa_cavalo, row?.placa_carreta, row?.placa_reboque_1, row?.placa_reboque_2]
         .filter(Boolean)
@@ -648,6 +728,17 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(!v) return "";
       const d = new Date(v);
       return isNaN(d) ? v : d.toLocaleDateString("pt-BR");
+    }
+
+
+    function formatTerminoPrevistoAgenda(valor){
+      if(!valor) return "-";
+      const texto = String(valor).trim();
+      const d = new Date(texto);
+      if(!isNaN(d) && texto.includes("-")){
+        return d.toLocaleString("pt-BR", { dateStyle:"short", timeStyle:"short" });
+      }
+      return texto;
     }
 
     function fmtDateTime(v){
@@ -2328,6 +2419,8 @@ function setView(view, btn){
         transportadora: document.getElementById("m_transportadora").value.trim() || null,
         data_agenda: document.getElementById("m_data_agenda").value || null,
         hora_agenda: document.getElementById("m_hora_agenda").value || null,
+        tempodecarregamento: document.getElementById("m_tempodecarregamento").value || null,
+        terminoprevisto: document.getElementById("m_terminoprevisto").value || null,
         tipo_carga: document.getElementById("m_tipo_carga").value.trim() || null,
         tipo_veiculo: document.getElementById("m_tipo_veiculo").value.trim() || null,
         tipo_frete: document.getElementById("m_tipo_frete").value.trim() || null,
