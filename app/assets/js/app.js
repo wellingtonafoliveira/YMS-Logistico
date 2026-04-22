@@ -4239,3 +4239,190 @@ document.addEventListener('DOMContentLoaded', function(){
     try{ window.passagemTurnoV11Refresh(); }catch(_){}
   }, 120);
 });
+
+
+/* ===== PASSAGEM DE TURNO | REGRA OPERACIONAL REAL ===== */
+function getHoraTextoPassagem(valor){
+  if(valor === null || valor === undefined || valor === '') return '';
+  const texto = String(valor).trim();
+  if(!texto) return '';
+  const match = texto.match(/(\d{1,2}):(\d{2})/);
+  if(match) return `${String(match[1]).padStart(2,'0')}:${match[2]}`;
+  const numero = Number(texto.replace(',', '.'));
+  if(Number.isFinite(numero) && numero >= 0 && numero < 1){
+    const totalMin = Math.round(numero * 24 * 60);
+    const hh = String(Math.floor(totalMin / 60) % 24).padStart(2,'0');
+    const mm = String(totalMin % 60).padStart(2,'0');
+    return `${hh}:${mm}`;
+  }
+  return '';
+}
+
+function getTurnoPorHorarioPrevisto(row){
+  const previsto = valorTerminoPrevisto(row);
+  const horaPrev = getHoraTextoPassagem(previsto);
+  if(horaPrev) return definirTurno(horaPrev);
+  return definirTurno(row?.hora_agenda);
+}
+
+function getTurnoConclusaoReal(row){
+  const candidatos = [
+    row?.fim_carregamento,
+    row?.data_expedicao,
+    row?.hora_fim_carregamento,
+    row?.horario_saida
+  ];
+  for(const valor of candidatos){
+    const hora = getHoraTextoPassagem(valor);
+    if(hora) return definirTurno(hora);
+  }
+  if(row?.turno_expedido) return row.turno_expedido;
+  return '';
+}
+
+function carroEstaPresenteParaCarregamento(row){
+  return !!(
+    row?.chegada_motorista ||
+    row?.data_em_doca ||
+    row?.inicio_carregamento ||
+    row?.fim_carregamento ||
+    ['No Pátio','Em Doca','Em Carregamento','Expedido'].includes(row?.status_global)
+  );
+}
+
+function carroConcluidoNoTurno(row, turno){
+  if(row?.status_global !== 'Expedido' && !row?.fim_carregamento && !row?.data_expedicao) return false;
+  return getTurnoConclusaoReal(row) === turno;
+}
+
+function getResumoOperacionalPassagem(rows, turno){
+  const programado = rows.filter(r => getTurnoPorHorarioPrevisto(r) === turno);
+  const realizado = programado.filter(r => carroConcluidoNoTurno(r, turno));
+  const vira = programado.filter(r => !carroConcluidoNoTurno(r, turno) && carroEstaPresenteParaCarregamento(r));
+  const atrasado = programado.filter(r => !carroConcluidoNoTurno(r, turno) && !carroEstaPresenteParaCarregamento(r));
+  return { programado, realizado, vira, atrasado };
+}
+
+renderPassagemTurno = function(){
+  const section = document.getElementById('view-passagem-turno');
+  if(!section) return;
+  const dtInput = document.getElementById('passagemData');
+  if(dtInput && !dtInput.value && dataFiltrada()) dtInput.value = dataFiltrada();
+  const dataRefRaw = dtInput?.value || dataFiltrada() || '';
+  const turnoEl = document.getElementById('passagemTurno');
+  const turno = turnoEl?.value || 'T1';
+
+  const key = getPassagemTurnoSupabaseKey();
+  if(__passagemTurnoLoadKey !== key && !__passagemTurnoLoading){
+    loadPassagemTurnoFromSupabase().then(() => renderPassagemTurno());
+  }
+
+  const state = getPassagemTurnoState();
+  const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val ?? ''; };
+  setVal('passagemResponsavel', state.responsavel);
+  setVal('passagemOperador', state.operador);
+  setVal('passagemConferente', state.conferente);
+  setVal('passagemExclusiva', state.exclusiva);
+  setVal('passagemRecebidoPor', state.recebidoPor);
+  setVal('passagemHorario', state.horario);
+  setVal('passagemOcorrencias', state.ocorrencias);
+
+  ['ferias','ausencias','bancoHoras'].forEach(prefix => {
+    const box = document.querySelector(`#graficoPassagem${prefix === 'bancoHoras' ? 'BancoHoras' : prefix.charAt(0).toUpperCase()+prefix.slice(1)}`)?.closest('.card');
+    if(box){
+      let holder = box.querySelector('.passagem-mini-inputs-v2, .passagem-mini-inputs');
+      if(!holder){
+        holder = document.createElement('div');
+        holder.className = 'passagem-mini-inputs';
+        holder.style.display = 'grid';
+        holder.style.gridTemplateColumns = 'repeat(3,minmax(0,1fr))';
+        holder.style.gap = '8px';
+        holder.style.marginTop = '12px';
+        box.appendChild(holder);
+      }
+      holder.innerHTML = renderMiniPassagemInputs(`passagem${prefix.charAt(0).toUpperCase()+prefix.slice(1)}`, state[prefix]);
+    }
+  });
+  renderPassagemAreas(state);
+  bindPassagemLiveInputs();
+
+  const rows = getAgendaRows().filter(r => !dataRefRaw || r.data_agenda === dataRefRaw);
+  const resumo = getResumoOperacionalPassagem(rows, turno);
+  const setKpiText = (ids,val)=>{ (Array.isArray(ids)?ids:[ids]).forEach(id => { const el=document.getElementById(id); if(el) el.textContent = val; }); };
+  const tons = arr => arr.reduce((a,b)=>a+getTonelagemPassagem(b),0);
+  const kpi = (arr, tonsIds, carrosIds) => { setKpiText(carrosIds, arr.length); setKpiText(tonsIds, formatPassagemTonelagem(tons(arr))); };
+
+  kpi(resumo.programado, ['passagemProgramadoTons','passagemProgTons'], ['passagemProgramadoCarros','passagemProgCarros']);
+  kpi(resumo.realizado, ['passagemRealizadoTons','passagemRealTons'], ['passagemRealizadoCarros','passagemRealCarros']);
+  kpi(resumo.vira, 'passagemViraTons', 'passagemViraCarros');
+  kpi(resumo.atrasado, 'passagemAtrasadoTons', 'passagemAtrasadoCarros');
+
+  const totalQuadro = (Number(state.operador)||0) + (Number(state.conferente)||0) + (Number(state.exclusiva)||0);
+  const setText2 = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
+  setText2('passagemTurnoRef', turno);
+  setText2('passagemTotalQuadroRef', totalQuadro);
+  setText2('passagemPreviewProgramado', document.getElementById('passagemProgramadoTons')?.textContent || '0');
+  setText2('passagemPreviewRealizado', document.getElementById('passagemRealizadoTons')?.textContent || '0');
+  setText2('passagemPreviewVira', document.getElementById('passagemViraTons')?.textContent || '0');
+  setText2('passagemPreviewAtrasado', document.getElementById('passagemAtrasadoTons')?.textContent || '0');
+  setText2('passagemIndProgramadoCarros', document.getElementById('passagemProgramadoCarros')?.textContent || '0');
+  setText2('passagemIndRealizadoCarros', document.getElementById('passagemRealizadoCarros')?.textContent || '0');
+  setText2('passagemIndViraCarros', document.getElementById('passagemViraCarros')?.textContent || '0');
+  setText2('passagemIndAtrasadoCarros', document.getElementById('passagemAtrasadoCarros')?.textContent || '0');
+  setText2('passagemPreviewProgramadoEmail', document.getElementById('passagemProgramadoTons')?.textContent || '0');
+  setText2('passagemPreviewRealizadoEmail', document.getElementById('passagemRealizadoTons')?.textContent || '0');
+  setText2('passagemPreviewViraEmail', document.getElementById('passagemViraTons')?.textContent || '0');
+  setText2('passagemPreviewAtrasadoEmail', document.getElementById('passagemAtrasadoTons')?.textContent || '0');
+  setText2('passagemPreviewTurnoEmail', turno);
+  setText2('passagemPreviewQuadroEmail', totalQuadro);
+  setText2('passagemPreviewQuadro', totalQuadro);
+  setText2('passagemIndOperador', state.operador || 0);
+  setText2('passagemIndConferente', state.conferente || 0);
+  setText2('passagemIndExclusiva', state.exclusiva || 0);
+  setText2('passagemIndResponsavel', state.responsavel || '-');
+  setText2('passagemIndRecebidoPor', state.recebidoPor || '-');
+  setText2('passagemIndHorario', state.horario || '-');
+  setText2('passagemIndOcorrencias', state.ocorrencias || 'Sem observações registradas.');
+
+  const setMini = (prefix, obj) => {
+    setText2(`${prefix}_operador`, obj.operador || 0);
+    setText2(`${prefix}_conferente`, obj.conferente || 0);
+    setText2(`${prefix}_exclusiva`, obj.exclusiva || 0);
+  };
+  setMini('passagemIndFerias', state.ferias || {});
+  setMini('passagemIndAusencias', state.ausencias || {});
+  setMini('passagemIndBancoHoras', state.bancoHoras || {});
+
+  const donutCtx = document.getElementById('graficoPassagemQuadro');
+  if(donutCtx){
+    try{ window.chartPassagemQuadro?.destroy(); }catch(_){}
+    window.chartPassagemQuadro = new Chart(donutCtx, {
+      type:'doughnut',
+      data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:[state.operador||0,state.conferente||0,state.exclusiva||0], backgroundColor:['rgba(34,211,238,.92)','rgba(59,130,246,.92)','rgba(245,158,11,.92)'], borderColor:'rgba(10,13,18,.94)', borderWidth:3, hoverOffset:4 }]},
+      options: mergeChartOptions(getPremiumChartOptions(), { cutout:'68%', layout:{ padding:{ top:8, right:12, bottom:8, left:12 } }, plugins:{ legend:{ position:'top' }, passagemDonutLabels:{ totalLabel:'Total' } } })
+    });
+  }
+
+  const miniChart = (id, vals) => {
+    const el = document.getElementById(id); if(!el) return;
+    try{ const ref = window[`chart_${id}`]; if(ref) ref.destroy(); }catch(_){}
+    window[`chart_${id}`] = new Chart(el, {
+      type:'bar',
+      data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:vals, borderRadius:10, backgroundColor:['rgba(34,211,238,.92)','rgba(59,130,246,.92)','rgba(245,158,11,.92)'] }]},
+      options: mergeChartOptions(getPremiumChartOptions(), {
+        plugins:{ legend:{ display:false } },
+        maintainAspectRatio:false,
+        scales:{ y:{ beginAtZero:true, ticks:{ precision:0, stepSize:1 } } }
+      })
+    });
+  };
+  miniChart('graficoPassagemFerias', [state.ferias.operador||0,state.ferias.conferente||0,state.ferias.exclusiva||0]);
+  miniChart('graficoPassagemAusencias', [state.ausencias.operador||0,state.ausencias.conferente||0,state.ausencias.exclusiva||0]);
+  miniChart('graficoPassagemBancoHoras', [state.bancoHoras.operador||0,state.bancoHoras.conferente||0,state.bancoHoras.exclusiva||0]);
+  miniChart('graficoPassagemFeriasIndicador', [state.ferias.operador||0,state.ferias.conferente||0,state.ferias.exclusiva||0]);
+  miniChart('graficoPassagemAusenciasIndicador', [state.ausencias.operador||0,state.ausencias.conferente||0,state.ausencias.exclusiva||0]);
+  miniChart('graficoPassagemBancoHorasIndicador', [state.bancoHoras.operador||0,state.bancoHoras.conferente||0,state.bancoHoras.exclusiva||0]);
+
+  const totalRef = document.getElementById('passagemTotalQuadro');
+  if(totalRef) totalRef.textContent = totalQuadro;
+};
