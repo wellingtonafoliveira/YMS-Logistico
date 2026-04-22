@@ -1924,7 +1924,7 @@ function setView(view, btn){
       if(chartPassagemFerias) chartPassagemFerias.destroy();
       if(chartPassagemAusencias) chartPassagemAusencias.destroy();
       if(chartPassagemBancoHoras) chartPassagemBancoHoras.destroy();
-      chartPassagemQuadro = new Chart(document.getElementById('graficoPassagemQuadro'), { type:'doughnut', data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:donutData, backgroundColor:['rgba(34,211,238,.95)','rgba(59,130,246,.95)','rgba(251,146,60,.95)'], borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'72%', plugins:{ legend:{ labels:{ color:'#eef4ff' } } } } });
+      chartPassagemQuadro = new Chart(document.getElementById('graficoPassagemQuadro'), { type:'doughnut', data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:donutData, backgroundColor:['rgba(34,211,238,.95)','rgba(59,130,246,.95)','rgba(251,146,60,.95)'], borderColor:'rgba(8,11,18,.92)', borderWidth:3 }] }, options: mergeChartOptions(getPremiumChartOptions(), { responsive:true, maintainAspectRatio:false, cutout:'68%', layout:{ padding:{ top:12, right:14, bottom:12, left:14 } }, plugins:{ legend:{ position:'right', labels:{ color:'#eef4ff', boxWidth:10, boxHeight:10, padding:12 } }, passagemDonutLabels:{ totalLabel:'Total' } } }) });
       const miniChart = (canvasId, src) => new Chart(document.getElementById(canvasId), { type:'bar', data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:[src.operador||0, src.conferente||0, src.exclusiva||0], borderRadius:10, borderSkipped:false, backgroundColor:['rgba(34,211,238,.95)','rgba(59,130,246,.95)','rgba(251,146,60,.95)'] }] }, options: mergeChartOptions(getPremiumChartOptions(), { plugins:{ legend:{ display:false } }, scales:{ y:{ ticks:{ precision:0 } } } }) });
       chartPassagemFerias = miniChart('graficoPassagemFerias', state.ferias || {});
       chartPassagemAusencias = miniChart('graficoPassagemAusencias', state.ausencias || {});
@@ -1948,8 +1948,9 @@ function setView(view, btn){
             },
             options: mergeChartOptions(getPremiumChartOptions(), {
               maintainAspectRatio:false,
-              plugins:{ legend:{ display:false } },
-              scales:{ x:{ grid:{ display:false } }, y:{ beginAtZero:true, ticks:{ precision:0 } } }
+              layout:{ padding:{ top:22, right:10, bottom:6, left:10 } },
+              plugins:{ legend:{ display:true, position:'bottom', labels:{ color:'#eaf0fb', boxWidth:8, boxHeight:8, padding:12, font:{ size:10, weight:'700' } } }, passagemValueLabels:{ enabled:true } },
+              scales:{ x:{ grid:{ display:false }, ticks:{ display:false } }, y:{ beginAtZero:true, grid:{ display:false }, border:{ display:false }, ticks:{ display:false, precision:0, stepSize:1 } } }
             })
           });
         }catch(err){ console.error(err); }
@@ -3501,7 +3502,7 @@ function renderPassagemTurno(){
     window.chartPassagemQuadro = new Chart(donutCtx, {
       type:'doughnut',
       data:{ labels:['Operador','Conferente','Exclusiva'], datasets:[{ data:[state.operador||0,state.conferente||0,state.exclusiva||0], backgroundColor:['rgba(34,211,238,.92)','rgba(59,130,246,.92)','rgba(245,158,11,.92)'], borderColor:'rgba(10,13,18,.94)', borderWidth:3, hoverOffset:4 }]},
-      options: mergeChartOptions(getPremiumChartOptions(), { cutout:'68%', plugins:{ legend:{ position:'top' } } })
+      options: mergeChartOptions(getPremiumChartOptions(), { cutout:'68%', layout:{ padding:{ top:8, right:12, bottom:8, left:12 } }, plugins:{ legend:{ position:'top' }, passagemDonutLabels:{ totalLabel:'Total' } } })
     });
   }
   const miniChart = (id, vals) => {
@@ -4084,3 +4085,94 @@ document.addEventListener('DOMContentLoaded', function(){
     sync();
   }
 });
+
+
+/* ===== PASSAGEM DE TURNO V9 | LABELS NOS GRÁFICOS ===== */
+(function(){
+  if(typeof Chart === 'undefined' || window.__passagemV9PluginsLoaded) return;
+  window.__passagemV9PluginsLoaded = true;
+
+  const roundRect = (ctx, x, y, w, h, r=8) => {
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.arcTo(x+w, y, x+w, y+h, r);
+    ctx.arcTo(x+w, y+h, x, y+h, r);
+    ctx.arcTo(x, y+h, x, y, r);
+    ctx.arcTo(x, y, x+w, y, r);
+    ctx.closePath();
+  };
+
+  Chart.register({
+    id:'passagemValueLabels',
+    afterDatasetsDraw(chart, args, opts){
+      if(!opts || !opts.enabled || chart.config.type !== 'bar') return;
+      const ctx = chart.ctx;
+      const meta = chart.getDatasetMeta(0);
+      const dataset = chart.data.datasets[0];
+      if(!meta || !dataset) return;
+      ctx.save();
+      ctx.font = '700 14px Inter, Arial, sans-serif';
+      ctx.textAlign = 'center';
+      meta.data.forEach((bar, i) => {
+        const value = Number(dataset.data[i] || 0);
+        const x = bar.x;
+        const topY = Math.min(bar.y, bar.base) - 10;
+        const baseY = chart.chartArea.bottom - 18;
+        const y = value > 0 ? topY : baseY;
+        ctx.fillStyle = '#f8fbff';
+        ctx.fillText(String(value), x, y);
+      });
+      ctx.restore();
+    }
+  });
+
+  Chart.register({
+    id:'passagemDonutLabels',
+    afterDatasetsDraw(chart, args, opts){
+      if(chart.config.type !== 'doughnut') return;
+      const ctx = chart.ctx;
+      const meta = chart.getDatasetMeta(0);
+      const data = chart.data.datasets?.[0]?.data || [];
+      if(!meta || !meta.data?.length) return;
+      const total = data.reduce((a,b)=>a + Number(b || 0), 0);
+      const centerX = meta.data[0].x;
+      const centerY = meta.data[0].y;
+      ctx.save();
+      // center value
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#9fb0ca';
+      ctx.font = '600 12px Inter, Arial, sans-serif';
+      ctx.fillText((opts && opts.totalLabel) || 'Total', centerX, centerY - 8);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 28px Inter, Arial, sans-serif';
+      ctx.fillText(String(total), centerX, centerY + 22);
+      // segment values around ring
+      meta.data.forEach((arc, i) => {
+        const value = Number(data[i] || 0);
+        if(value <= 0) return;
+        const angle = (arc.startAngle + arc.endAngle) / 2;
+        const r = arc.outerRadius + 16;
+        const x = centerX + Math.cos(angle) * r;
+        const y = centerY + Math.sin(angle) * r;
+        const bg = Array.isArray(chart.data.datasets[0].backgroundColor) ? chart.data.datasets[0].backgroundColor[i] : '#fff';
+        const txt = String(value);
+        ctx.font = '800 16px Inter, Arial, sans-serif';
+        const width = Math.max(26, ctx.measureText(txt).width + 14);
+        const h = 24;
+        ctx.fillStyle = 'rgba(7,11,18,.88)';
+        roundRect(ctx, x - width/2, y - h/2, width, h, 10);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,.06)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillStyle = typeof bg === 'string' ? bg.replace('.95', '1').replace('.92','1') : '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(txt, x, y + 1);
+      });
+      ctx.restore();
+    }
+  });
+})();
+
+try{ if(typeof renderPassagemTurno === 'function') setTimeout(() => renderPassagemTurno(), 0); }catch(_){ }
