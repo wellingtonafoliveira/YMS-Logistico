@@ -5177,3 +5177,57 @@
     grid-template-columns:1fr !important;
   }
 }
+
+
+/* ===== PASSAGEM DE TURNO V9 | GRÁFICOS LIMPOS ===== */
+#view-passagem-turno .ptv7-ind-quadro{
+  display:block !important;
+}
+#view-passagem-turno .ptv7-ind-summary,
+#view-passagem-turno .ptv7-small-values{
+  display:none !important;
+}
+#view-passagem-turno .ptv7-ind-big,
+#view-passagem-turno .ptv7-ind-small{
+  min-height:300px !important;
+}
+#view-passagem-turno .passagem-donut-wrap{
+  height:210px !important;
+  padding:10px 12px !important;
+  border-radius:20px !important;
+  background:linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,.008)) !important;
+}
+#view-passagem-turno .ptv7-small-body{
+  display:block !important;
+}
+#view-passagem-turno .ptv7-small-chart{
+  width:100% !important;
+  height:210px !important;
+  padding:8px 8px 4px !important;
+  border-radius:18px !important;
+  background:linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,.008)) !important;
+}
+#view-passagem-turno .ptv7-small-chart canvas,
+#view-passagem-turno .passagem-donut-wrap canvas{
+  width:100% !important;
+  height:100% !important;
+}
+#view-passagem-turno .ptv7-ind-row{
+  align-items:stretch !important;
+}
+#view-passagem-turno .ptv7-card .card-title-row{
+  margin-bottom:10px !important;
+}
+#view-passagem-turno .ptv7-card .premium-badge{
+  min-width:70px !important;
+}
+@media (max-width: 1100px){
+  #view-passagem-turno .ptv7-ind-big,
+  #view-passagem-turno .ptv7-ind-small{
+    min-height:auto !important;
+  }
+  #view-passagem-turno .ptv7-small-chart,
+  #view-passagem-turno .passagem-donut-wrap{
+    height:190px !important;
+  }
+}
