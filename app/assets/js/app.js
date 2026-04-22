@@ -1007,10 +1007,46 @@ function setView(view, btn){
       return "T3";
     }
 
+    function parseNumeroBR(valor){
+      if(valor === null || valor === undefined || valor === "") return null;
+      if(typeof valor === "number" && Number.isFinite(valor)) return valor;
+
+      const texto = String(valor).trim();
+      if(!texto) return null;
+
+      const normalizado = texto.includes(",")
+        ? texto.replace(/\./g, "").replace(",", ".")
+        : texto;
+
+      const n = Number(normalizado);
+      return Number.isFinite(n) ? n : null;
+    }
+
     function getTonelagemPassagem(row){
-      const bruto = Number(row?.tonelagem ?? row?.peso ?? 0);
-      if(!Number.isFinite(bruto)) return 0;
-      return bruto > 1000 ? bruto / 1000 : bruto;
+      const peso = parseNumeroBR(
+        row?.peso ??
+        row?.PESO ??
+        row?.peso_total ??
+        row?.PESO_TOTAL ??
+        null
+      );
+
+      const tonelagem = parseNumeroBR(
+        row?.tonelagem ??
+        row?.TONELAGEM ??
+        row?.TON ??
+        null
+      );
+
+      if(peso !== null && peso > 0){
+        return peso > 1000 ? peso / 1000 : peso;
+      }
+
+      if(tonelagem !== null && tonelagem > 0){
+        return tonelagem > 1000 ? tonelagem / 1000 : tonelagem;
+      }
+
+      return 0;
     }
 
     function formatPassagemTonelagem(valor){
