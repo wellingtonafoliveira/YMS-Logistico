@@ -1008,49 +1008,36 @@ function setView(view, btn){
     }
 
     function parseNumeroBR(valor){
-      if(valor === null || valor === undefined || valor === "") return null;
+      if(valor === null || valor === undefined || valor === "") return 0;
       if(typeof valor === "number" && Number.isFinite(valor)) return valor;
 
       const texto = String(valor).trim();
-      if(!texto) return null;
+      if(!texto) return 0;
 
       const normalizado = texto.includes(",")
         ? texto.replace(/\./g, "").replace(",", ".")
         : texto;
 
       const n = Number(normalizado);
-      return Number.isFinite(n) ? n : null;
+      return Number.isFinite(n) ? n : 0;
     }
 
     function getTonelagemPassagem(row){
-      const peso = parseNumeroBR(
-        row?.peso ??
-        row?.PESO ??
-        row?.peso_total ??
-        row?.PESO_TOTAL ??
-        null
-      );
-
-      const tonelagem = parseNumeroBR(
+      return parseNumeroBR(
         row?.tonelagem ??
         row?.TONELAGEM ??
         row?.TON ??
-        null
+        row?.peso ??
+        row?.PESO ??
+        0
       );
-
-      if(peso !== null && peso > 0){
-        return peso > 1000 ? peso / 1000 : peso;
-      }
-
-      if(tonelagem !== null && tonelagem > 0){
-        return tonelagem > 1000 ? tonelagem / 1000 : tonelagem;
-      }
-
-      return 0;
     }
 
     function formatPassagemTonelagem(valor){
-      return Number(valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+      return Number(valor || 0).toLocaleString('pt-BR', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+      });
     }
 
     function bindPassagemLiveInputs(){
