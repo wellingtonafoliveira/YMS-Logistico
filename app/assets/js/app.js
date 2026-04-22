@@ -600,82 +600,22 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
 
-    function normalizarCabecalhoExcel(valor){
-      return String(valor || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/\s+/g, " ")
-        .trim()
-        .toUpperCase();
+    function valorTempoCarregamento(row){
+      return row?.TEMPODECARREGAMENTO ?? row?.tempodecarregamento ?? null;
     }
 
-    function getValorColuna(row, aliases){
-      if(!row) return null;
-      const entradas = Object.entries(row);
-      for(const alias of aliases){
-        const buscado = normalizarCabecalhoExcel(alias);
-        const encontrado = entradas.find(([k]) => normalizarCabecalhoExcel(k) === buscado);
-        if(encontrado){
-          const valor = encontrado[1];
-          if(valor !== undefined && valor !== null && String(valor).trim() !== "") return valor;
-        }
-      }
-      return null;
+    function valorTerminoPrevisto(row){
+      return row?.["TÉRMINOPREVISTO"] ?? row?.TERMINOPREVISTO ?? row?.terminoprevisto ?? null;
     }
 
-    function excelSerialToJSDate(serial){
-      const numero = Number(serial);
-      if(!Number.isFinite(numero)) return null;
-      const utcDays = Math.floor(numero - 25569);
-      const utcValue = utcDays * 86400;
-      const dateInfo = new Date(utcValue * 1000);
-      const fractionalDay = numero - Math.floor(numero) + 0.0000001;
-      let totalSeconds = Math.floor(86400 * fractionalDay);
-      const seconds = totalSeconds % 60;
-      totalSeconds -= seconds;
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor(totalSeconds / 60) % 60;
-      return new Date(
-        dateInfo.getUTCFullYear(),
-        dateInfo.getUTCMonth(),
-        dateInfo.getUTCDate(),
-        hours,
-        minutes,
-        seconds
-      );
-    }
-
-    function pad2(n){
-      return String(n).padStart(2, "0");
-    }
-
-    function formatExcelHoraOuTexto(valor){
-      if(valor === null || valor === undefined || valor === "") return null;
-      if(valor instanceof Date && !isNaN(valor)) return `${pad2(valor.getHours())}:${pad2(valor.getMinutes())}`;
-      if(typeof valor === "number"){
-        const d = excelSerialToJSDate(valor);
-        if(d && !isNaN(d)) return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-      }
+    function formatTerminoPrevistoAgenda(valor){
+      if(!valor) return "-";
       const texto = String(valor).trim();
-      if(!texto) return null;
-      const match = texto.match(/(\d{1,2}):(\d{2})/);
-      if(match) return `${pad2(match[1])}:${match[2]}`;
-      return texto;
-    }
-
-    function formatExcelDateTimeOuTexto(valor){
-      if(valor === null || valor === undefined || valor === "") return null;
-      if(valor instanceof Date && !isNaN(valor)){
-        return `${valor.getFullYear()}-${pad2(valor.getMonth()+1)}-${pad2(valor.getDate())} ${pad2(valor.getHours())}:${pad2(valor.getMinutes())}:00`;
+      if(!texto) return "-";
+      const d = new Date(texto.replace(" ", "T"));
+      if(!isNaN(d) && /\d{4}-\d{2}-\d{2}/.test(texto)){
+        return d.toLocaleString("pt-BR", { dateStyle:"short", timeStyle:"short" });
       }
-      if(typeof valor === "number"){
-        const d = excelSerialToJSDate(valor);
-        if(d && !isNaN(d)){
-          return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:00`;
-        }
-      }
-      const texto = String(valor).trim();
-      if(!texto) return null;
       return texto;
     }
 
@@ -728,17 +668,6 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
       if(!v) return "";
       const d = new Date(v);
       return isNaN(d) ? v : d.toLocaleDateString("pt-BR");
-    }
-
-
-    function formatTerminoPrevistoAgenda(valor){
-      if(!valor) return "-";
-      const texto = String(valor).trim();
-      const d = new Date(texto);
-      if(!isNaN(d) && texto.includes("-")){
-        return d.toLocaleString("pt-BR", { dateStyle:"short", timeStyle:"short" });
-      }
-      return texto;
     }
 
     function fmtDateTime(v){
@@ -1442,7 +1371,14 @@ function setView(view, btn){
         acoes.push(`<button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button>`);
         if(podeTransicionar(r.status_global || "Agendado", "Em Separação")) acoes.push(`<button class="mini orange" onclick="mudarStatus('${esc(r.id)}','Em Separação')">Separação</button>`);
         return `<tr>
-          <td>${esc(r.dt)}</td><td>${fmtDate(r.data_agenda)}</td><td>${esc(r.hora_agenda)}</td><td>${esc(r.cliente)}</td><td>${esc(r.transportadora)}</td><td>${esc(r.doca_agenda || r.doca_planejada || "-")}</td>
+          <td>${esc(r.dt)}</td>
+          <td>${fmtDate(r.data_agenda)}</td>
+          <td>${esc(r.hora_agenda)}</td>
+          <td>${esc(r.cliente)}</td>
+          <td>${esc(r.transportadora)}</td>
+          <td>${esc(valorTempoCarregamento(r) || "-")}</td>
+          <td>${esc(formatTerminoPrevistoAgenda(valorTerminoPrevisto(r)))}</td>
+          <td>${esc(r.doca_agenda || r.doca_planejada || "-")}</td>
           <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span>${hasConflict ? ` <span class="log-badge">Conflito</span>` : ``}</td>
           <td><span class="${sla.cls}">${sla.label}</span></td>
           <td><div class="mini-actions">${acoes.join("")}</div></td>
@@ -2318,6 +2254,8 @@ function setView(view, btn){
       set("m_transportadora", row.transportadora);
       set("m_data_agenda", row.data_agenda);
       set("m_hora_agenda", row.hora_agenda);
+      set("m_tempodecarregamento", valorTempoCarregamento(row));
+      set("m_terminoprevisto", valorTerminoPrevisto(row));
       set("m_tipo_carga", row.tipo_carga);
       set("m_tipo_veiculo", row.tipo_veiculo);
       set("m_tipo_frete", row.tipo_frete);
@@ -2419,8 +2357,8 @@ function setView(view, btn){
         transportadora: document.getElementById("m_transportadora").value.trim() || null,
         data_agenda: document.getElementById("m_data_agenda").value || null,
         hora_agenda: document.getElementById("m_hora_agenda").value || null,
-        tempodecarregamento: document.getElementById("m_tempodecarregamento").value || null,
-        terminoprevisto: document.getElementById("m_terminoprevisto").value || null,
+        TEMPODECARREGAMENTO: document.getElementById("m_tempodecarregamento").value || null,
+        "TÉRMINOPREVISTO": document.getElementById("m_terminoprevisto").value || null,
         tipo_carga: document.getElementById("m_tipo_carga").value.trim() || null,
         tipo_veiculo: document.getElementById("m_tipo_veiculo").value.trim() || null,
         tipo_frete: document.getElementById("m_tipo_frete").value.trim() || null,
@@ -2605,6 +2543,23 @@ function setView(view, btn){
             total_caixas: intPlanilha(get(row, ["Qtd.remessa","Qtd remessa","TOTAL","TOTAL CAIXAS"])),
             he: intPlanilha(get(row, ["HE"])),
             ho: intPlanilha(get(row, ["HO","PalletsHO","PALLETSHO"])),
+            TEMPODECARREGAMENTO: (() => {
+              const v = get(row, ["TEMPODECARREGAMENTO","TEMPO DE CARREGAMENTO","TEMPO CARREGAMENTO"]);
+              return v === null || v === undefined || v === "" ? null : String(v).trim();
+            })(),
+            "TÉRMINOPREVISTO": (() => {
+              const v = get(row, ["TÉRMINOPREVISTO","TÉRMINO PREVISTO","TERMINOPREVISTO","TERMINO PREVISTO"]);
+              if(v === null || v === undefined || v === "") return null;
+              if(typeof v === "number"){
+                const base = new Date(Date.UTC(1899, 11, 30));
+                const data = new Date(base.getTime() + v * 86400000);
+                return data.toISOString().replace("T"," ").slice(0,19);
+              }
+              const txt = String(v).trim();
+              const d = new Date(txt.replace(" ", "T"));
+              if(!isNaN(d) && /\d/.test(txt)) return d.toISOString().replace("T"," ").slice(0,19);
+              return txt;
+            })(),
             status_global: "Agendado"
           });
         }
@@ -2646,6 +2601,8 @@ function setView(view, btn){
           <td>${esc(r.hora_agenda)}</td>
           <td>${esc(r.cliente)}</td>
           <td>${esc(r.transportadora)}</td>
+          <td>${esc(r.TEMPODECARREGAMENTO || "-")}</td>
+          <td>${esc(formatTerminoPrevistoAgenda(r["TÉRMINOPREVISTO"]))}</td>
           <td>${esc(r.tipo_veiculo)}</td>
           <td>${esc(r.total_caixas)}</td>
           <td>${esc(r.peso)}</td>
