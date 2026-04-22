@@ -4176,3 +4176,5 @@ document.addEventListener('DOMContentLoaded', function(){
 })();
 
 try{ if(typeof renderPassagemTurno === 'function') setTimeout(() => renderPassagemTurno(), 0); }catch(_){ }
+
+// V10 buttons added
