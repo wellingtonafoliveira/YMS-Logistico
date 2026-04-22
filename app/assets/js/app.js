@@ -4178,3 +4178,14 @@ document.addEventListener('DOMContentLoaded', function(){
 try{ if(typeof renderPassagemTurno === 'function') setTimeout(() => renderPassagemTurno(), 0); }catch(_){ }
 
 // V10 buttons added
+
+window.passagemTurnoV11Refresh = function(){
+  try{
+    if(typeof renderPassagemTurno === 'function') renderPassagemTurno();
+  }catch(_){}
+};
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(() => {
+    try{ window.passagemTurnoV11Refresh(); }catch(_){}
+  }, 120);
+});
