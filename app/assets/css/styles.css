@@ -5982,3 +5982,187 @@
     min-height:auto;
   }
 }
+
+
+/* ===== Ajustes v5: filtro compacto, saudação compacta, submenu robusto, sair só ícone ===== */
+.topbar-utility-row{
+  grid-template-columns:minmax(500px, 1.6fr) minmax(250px, .82fr) 56px;
+  gap:10px;
+}
+
+.top-welcome-strip{
+  min-height:82px;
+  padding:12px 14px;
+  border-radius:18px;
+}
+
+.welcome-main strong{
+  font-size:16px;
+}
+
+.welcome-main span{
+  font-size:12px;
+  line-height:1.45;
+  max-width:340px;
+}
+
+.welcome-meta{
+  grid-template-columns:repeat(3, minmax(74px, 1fr));
+  gap:8px;
+}
+
+.welcome-pill{
+  padding:9px 10px;
+  border-radius:14px;
+}
+
+.welcome-pill strong{
+  font-size:13px;
+}
+
+.topbar .actions{
+  min-height:82px;
+  padding:12px 14px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:"field button";
+  align-items:end;
+  gap:10px;
+}
+
+.topbar .actions > div:first-child{
+  grid-area:field;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.topbar .actions .btn{
+  grid-area:button;
+  align-self:end;
+  min-width:96px;
+  padding:9px 12px;
+  border-radius:14px;
+}
+
+.topbar .actions label{
+  font-size:11px;
+  margin:0;
+}
+
+.topbar .actions input[type="date"]{
+  min-height:36px;
+  padding:8px 12px;
+  border-radius:14px;
+}
+
+.topbar-actions-note{
+  display:none !important;
+}
+
+.logout-btn-top{
+  width:56px;
+  min-width:56px;
+  height:82px;
+  min-height:82px;
+  padding:0;
+  border-radius:16px;
+  box-shadow:0 16px 28px rgba(127,29,29,.18);
+  font-size:0;
+}
+
+.logout-btn-top::before{
+  content:"⎋";
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:100%;
+  font-size:20px;
+  color:#fff;
+}
+
+.logout-btn-top::after{
+  display:none !important;
+}
+
+.menu-group{
+  gap:8px;
+}
+
+#submenu-passagem-turno{
+  display:none !important;
+  flex-direction:column;
+  gap:8px;
+  padding-left:16px;
+  margin-top:-2px;
+}
+
+.menu-group.open #submenu-passagem-turno{
+  display:flex !important;
+}
+
+#submenu-passagem-turno button{
+  min-height:40px;
+  padding:10px 12px;
+  border-radius:14px;
+  font-size:12px;
+  font-weight:800;
+  background:linear-gradient(180deg,rgba(12,15,20,.92),rgba(9,11,15,.9));
+  border:1px solid rgba(255,255,255,.06);
+  color:var(--text);
+}
+
+#submenu-passagem-turno button:hover,
+#submenu-passagem-turno button.active{
+  background:linear-gradient(135deg,#1d4ed8,#2563eb);
+  color:#fff;
+  border-color:rgba(255,255,255,.12);
+  box-shadow:0 10px 22px rgba(37,99,235,.18);
+}
+
+@media (max-width: 1240px){
+  .topbar-utility-row{
+    grid-template-columns:1fr 56px;
+    grid-template-areas:
+      "welcome logout"
+      "filters filters";
+  }
+  .top-welcome-strip{ grid-area:welcome; }
+  .topbar .actions{ grid-area:filters; }
+  .logout-btn-top{ grid-area:logout; }
+}
+
+@media (max-width: 860px){
+  .topbar-utility-row{
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "welcome"
+      "filters"
+      "logout";
+  }
+
+  .topbar .actions{
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "field"
+      "button";
+    align-items:stretch;
+  }
+
+  .topbar .actions .btn{
+    width:100%;
+  }
+
+  .logout-btn-top{
+    width:56px;
+    min-width:56px;
+    height:56px;
+    min-height:56px;
+    justify-self:end;
+  }
+
+  .top-welcome-strip{
+    min-height:auto;
+  }
+}
