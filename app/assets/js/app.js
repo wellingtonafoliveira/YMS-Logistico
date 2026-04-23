@@ -3390,6 +3390,18 @@ function normalizePassagemTurnoFromDb(master, indicadores, areas){
   return out;
 }
 
+
+function formatSupabaseError(err){
+  if(!err) return 'Erro desconhecido.';
+  const parts = [
+    err.message || '',
+    err.details || '',
+    err.hint || '',
+    err.code ? `(code: ${err.code})` : ''
+  ].filter(Boolean);
+  return parts.join(' | ') || 'Erro desconhecido.';
+}
+
 async function loadPassagemTurnoFromSupabase(force = false){
   const dataRef = document.getElementById('passagemData')?.value || dataFiltrada() || '';
   const turno = document.getElementById('passagemTurno')?.value || 'T1';
@@ -3431,7 +3443,7 @@ async function loadPassagemTurnoFromSupabase(force = false){
     return __passagemTurnoCache[key];
   }catch(err){
     console.error('Erro ao carregar passagem de turno no Supabase', err);
-    showToast('Erro ao carregar Passagem de Turno');
+    showToast('Erro ao carregar Passagem de Turno: ' + formatSupabaseError(err));
     return __passagemTurnoCache[key] || getPassagemTurnoDefaults();
   }finally{
     __passagemTurnoLoading = false;
@@ -3521,7 +3533,9 @@ async function salvarPassagemTurno(){
     renderPassagemTurno();
   }catch(err){
     console.error('Erro ao salvar passagem de turno no Supabase', err);
-    alert('Erro ao salvar Passagem de Turno no Supabase.');
+    const mensagem = formatSupabaseError(err);
+    alert('Erro ao salvar Passagem de Turno no Supabase:\n\n' + mensagem);
+    showToast('Falha ao salvar: ' + mensagem);
   }
 }
 
