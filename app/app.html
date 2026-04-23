@@ -117,7 +117,7 @@
                 <div class="actions soft-glow">
                   <div>
                     <label>Filtrar por data</label>
-                    <input type="date" id="filtroData" onchange="carregarTudo()">
+                    <input type="date" id="filtroData" onchange="syncFiltroDataAcrossViews(this.value);carregarTudo()">
                   </div>
                   <button class="btn btn-light" onclick="carregarTudo()">Atualizar</button>
                   <div class="topbar-actions-note">Versão enterprise com visual premium, foco em leitura rápida da operação e execução mais confortável para o time logístico.</div>
