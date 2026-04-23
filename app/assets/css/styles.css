@@ -6271,3 +6271,66 @@
 #menu-passagem-turno .submenu-chevron{
   transition:transform .2s ease;
 }
+
+
+/* ===== Ajustes v8: salvamento premium da Passagem de Turno ===== */
+.passagem-save-btn{
+  min-width:160px;
+  transition:transform .18s ease, box-shadow .18s ease, filter .18s ease, opacity .18s ease;
+}
+
+.passagem-save-btn.is-saving{
+  cursor:wait;
+  opacity:.92;
+  filter:saturate(.9);
+  box-shadow:0 18px 34px rgba(34,197,94,.18);
+}
+
+.passagem-save-btn.is-saved{
+  box-shadow:0 18px 34px rgba(34,197,94,.22);
+}
+
+#passagemStatusBar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:14px 16px;
+}
+
+#passagemStatusTexto{
+  font-weight:800;
+  letter-spacing:.01em;
+}
+
+#passagemStatusRascunho{
+  color:#b9c7de;
+  font-size:12px;
+  text-align:right;
+}
+
+#passagemStatusBar.is-saved{
+  border-color:rgba(34,197,94,.28);
+  box-shadow:0 18px 34px rgba(34,197,94,.08);
+}
+
+#passagemStatusBar.is-dirty{
+  border-color:rgba(245,158,11,.24);
+  box-shadow:0 18px 34px rgba(245,158,11,.06);
+}
+
+@media (max-width: 860px){
+  #passagemStatusBar{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  #passagemStatusRascunho{
+    text-align:left;
+  }
+
+  .passagem-save-btn{
+    width:100%;
+    min-width:0;
+  }
+}
