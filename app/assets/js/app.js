@@ -963,27 +963,42 @@ function setView(view, btn){
     view = "dashboard";
     btn = document.getElementById("menu-dashboard");
   }
-      viewAtualGlobal = view;
-      const targetBtn = btn || document.getElementById(`menu-${view}`);
-      const titulo = (targetBtn?.querySelector(".menu-text")?.textContent || targetBtn?.textContent || view).trim();
-      document.getElementById("pageTitle").textContent = titulo;
-      document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
-      if(targetBtn) targetBtn.classList.add("active");
-      ["dashboard","agenda","separacao","expedicao","patio","motoristas","transportadoras","docas","checkin","relatorios","resultado-separacao","passagem-turno","admin"].forEach(v => {
-        const el = document.getElementById(`view-${v}`);
-        if(el) el.classList.add("hidden");
-      });
-      const viewEl = document.getElementById(`view-${view}`);
-      if(viewEl) viewEl.classList.remove("hidden");
-      atualizarVisibilidadeStatusConexao();
-    atualizarIconesSidebar();
-      if(view === "admin" && usuarioPerfil === "admin"){
-        carregarUsuariosAdmin();
-      }
-      if(window.innerWidth <= 900){
-        alternarSidebar(true);
-      }
-    }
+  viewAtualGlobal = view;
+  const targetBtn = btn || document.getElementById(`menu-${view}`);
+  const titulo = (targetBtn?.querySelector(".menu-text")?.textContent || targetBtn?.textContent || view).trim();
+  document.getElementById("pageTitle").textContent = titulo;
+
+  document.querySelectorAll(".menu button").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".menu-group").forEach(g => g.classList.remove("active"));
+
+  if(view === 'passagem-turno'){
+    const group = document.getElementById('menu-group-passagem-turno');
+    if(group) group.classList.add('open','active');
+    const menuBtn = document.getElementById('menu-passagem-turno');
+    if(menuBtn) menuBtn.classList.add('active');
+    if(typeof syncPassagemMenuState === 'function') syncPassagemMenuState();
+    if(typeof setPassagemSubView === 'function') setPassagemSubView(passagemSubViewAtual || 'lancamento');
+  }else if(targetBtn){
+    targetBtn.classList.add("active");
+  }
+
+  ["dashboard","agenda","separacao","expedicao","patio","motoristas","transportadoras","docas","checkin","relatorios","resultado-separacao","passagem-turno","admin"].forEach(v => {
+    const el = document.getElementById(`view-${v}`);
+    if(el) el.classList.add("hidden");
+  });
+  const viewEl = document.getElementById(`view-${view}`);
+  if(viewEl) viewEl.classList.remove("hidden");
+
+  atualizarVisibilidadeStatusConexao();
+  atualizarIconesSidebar();
+
+  if(view === "admin" && usuarioPerfil === "admin"){
+    carregarUsuariosAdmin();
+  }
+  if(window.innerWidth <= 900){
+    alternarSidebar(true);
+  }
+}
 
     function calcSla(row){
       const baseData = row.data_agenda;
@@ -3137,6 +3152,7 @@ async function boot(){
     atualizarIconesSidebar();
     atualizarSaudacaoSistema();
     carregarTemperaturaSistema();
+    syncPassagemMenuState();
     boot();
 
 /* ===== SUPABASE • RESULTADO SEPARAÇÃO + PASSAGEM DE TURNO ===== */
@@ -3950,8 +3966,12 @@ function descricaoTurnoPassagem(turno){
 function syncPassagemMenuState(){
   const group = document.getElementById('menu-group-passagem-turno');
   const chev = document.getElementById('passagemMenuChevron');
+  const subLanc = document.getElementById('submenu-passagem-lancamento');
+  const subInd = document.getElementById('submenu-passagem-indicadores');
   if(!group || !chev) return;
   chev.textContent = group.classList.contains('open') ? '▴' : '▾';
+  if(subLanc) subLanc.classList.toggle('active', passagemSubViewAtual === 'lancamento');
+  if(subInd) subInd.classList.toggle('active', passagemSubViewAtual === 'indicadores');
 }
 
 function setPassagemSubView(view){
@@ -3980,14 +4000,18 @@ function openPassagemTurnoMenu(){
     syncPassagemMenuState();
     return;
   }
-  setView('passagem-turno', document.getElementById('menu-passagem-turno'));
   if(group) group.classList.add('open','active');
+  setView('passagem-turno', document.getElementById('menu-passagem-turno'));
   setPassagemSubView(passagemSubViewAtual || 'lancamento');
+  syncPassagemMenuState();
 }
 
 function openPassagemSubView(view){
+  const group = document.getElementById('menu-group-passagem-turno');
+  if(group) group.classList.add('open','active');
   setView('passagem-turno', document.getElementById('menu-passagem-turno'));
   setPassagemSubView(view);
+  syncPassagemMenuState();
 }
 
 async function fecharEEnviarPassagemTurno(){
