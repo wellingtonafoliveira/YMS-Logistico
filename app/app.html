@@ -850,7 +850,7 @@
           <p>Página de lançamento operacional para registro dos dados do turno em execução.</p>
         </div>
         <div class="ptv10-actions">
-          <button class="btn btn-success" type="button" onclick="salvarPassagemTurno()">Salvar lançamento</button>
+          <button class="btn btn-success passagem-save-btn" id="passagemSalvarBtn" type="button" onclick="salvarPassagemTurno()">Salvar lançamento</button>
         </div>
       </div>
 
@@ -968,8 +968,8 @@
       </div>
 
       <div class="card soft-glow pt3-status is-idle" id="passagemStatusBar">
-        <span id="passagemStatusTexto">✓ Status: PENDENTE DE SALVAMENTO</span>
-        <span id="passagemStatusRascunho">Alterações não salvas serão perdidas ao sair da página.</span>
+        <span id="passagemStatusTexto">• Alterações pendentes</span>
+        <span id="passagemStatusRascunho">Preencha e salve a passagem de turno.</span>
       </div>
     </div>
 
@@ -980,7 +980,7 @@
           <p>Acompanhe os principais indicadores operacionais do turno atual em um painel executivo compacto.</p>
         </div>
         <div class="ptv10-actions">
-          <button class="btn btn-success" type="button" onclick="salvarPassagemTurno()">Salvar indicadores</button>
+          <button class="btn btn-success passagem-save-btn" id="passagemSalvarIndicadoresBtn" type="button" onclick="salvarPassagemTurno()">Salvar indicadores</button>
           <button class="btn btn-primary" type="button" onclick="fecharEEnviarPassagemTurno()">Fechar e enviar por e-mail</button>
         </div>
       </div>
