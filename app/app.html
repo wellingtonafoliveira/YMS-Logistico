@@ -76,10 +76,10 @@
         <button id="menu-relatorios" data-short="Rel" onclick="setView('relatorios', this)"><span class="menu-icon icon-relatorios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"></path><path d="M4 19h16"></path><path d="M7 15l3-3 3 2 4-5"></path></svg></span><span class="menu-text">Relatórios</span></button>
         <button id="menu-resultado-separacao" data-short="Res" onclick="setView('resultado-separacao', this)"><span class="menu-icon icon-relatorios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16"></path><path d="M7 18V8"></path><path d="M12 18V5"></path><path d="M17 18v-9"></path></svg></span><span class="menu-text">Resultado Separação</span></button>
         <div class="menu-group" id="menu-group-passagem-turno">
-        <button id="menu-passagem-turno" data-short="Psg" onclick="openPassagemTurnoMenu()"><span class="menu-icon icon-admin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"></path><path d="M4 12h16"></path><path d="M4 18h10"></path><circle cx="18" cy="18" r="2"></circle></svg></span><span class="menu-text">Passagem de Turno</span><span class="submenu-chevron" id="passagemMenuChevron">▾</span></button>
+        <button id="menu-passagem-turno" data-short="Psg" onclick="openPassagemTurnoMenu(event)"><span class="menu-icon icon-admin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"></path><path d="M4 12h16"></path><path d="M4 18h10"></path><circle cx="18" cy="18" r="2"></circle></svg></span><span class="menu-text">Passagem de Turno</span><span class="submenu-chevron" id="passagemMenuChevron">▾</span></button>
         <div class="submenu-passagem" id="submenu-passagem-turno">
-          <button id="submenu-passagem-lancamento" type="button" onclick="openPassagemSubView('lancamento')">Lançamento</button>
-          <button id="submenu-passagem-indicadores" type="button" onclick="openPassagemSubView('indicadores')">Indicadores</button>
+          <button id="submenu-passagem-lancamento" type="button" onclick="openPassagemSubView('lancamento', event)">Lançamento</button>
+          <button id="submenu-passagem-indicadores" type="button" onclick="openPassagemSubView('indicadores', event)">Indicadores</button>
         </div>
       </div>
         <button id="menu-admin" data-short="Adm" onclick="setView('admin', this)"><span class="menu-icon icon-admin"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.3.8a7 7 0 0 0-1.7-1L14.5 3h-5L9 5.8a7 7 0 0 0-1.7 1L5 6 3 9.5 5 11a7 7 0 0 0 0 2l-2 1.5L5 18l2.3-.8a7 7 0 0 0 1.7 1l.5 2.8h5l.4-2.8a7 7 0 0 0 1.7-1L19 18l2-3.5-2-1.5c.1-.3.1-.7.1-1z"></path></svg></span><span class="menu-text">Admin</span></button>
@@ -123,7 +123,7 @@
                   <div class="topbar-actions-note">Versão enterprise com visual premium, foco em leitura rápida da operação e execução mais confortável para o time logístico.</div>
                 </div>
 
-                <button class="logout-btn logout-btn-top logout-btn-compact" onclick="logout()">Sair</button>
+                <button class="logout-btn logout-btn-top logout-btn-compact" onclick="logout()" title="Sair" aria-label="Sair">Sair</button>
               </div>
             </div>
           </div>
