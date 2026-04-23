@@ -1077,6 +1077,7 @@ function setView(view, btn){
           if(turnoRef) turnoRef.textContent = turnoFiltro;
           if(totalRef) totalRef.textContent = String(op + conf + exc);
           savePassagemTurnoState(collectPassagemTurnoState());
+          markPassagemAsDirty();
           renderPassagemTurno();
         };
         const evt = (el.tagName === 'SELECT' || el.type === 'date' || el.type === 'time') ? 'change' : 'input';
@@ -3390,18 +3391,6 @@ function normalizePassagemTurnoFromDb(master, indicadores, areas){
   return out;
 }
 
-
-function formatSupabaseError(err){
-  if(!err) return 'Erro desconhecido.';
-  const parts = [
-    err.message || '',
-    err.details || '',
-    err.hint || '',
-    err.code ? `(code: ${err.code})` : ''
-  ].filter(Boolean);
-  return parts.join(' | ') || 'Erro desconhecido.';
-}
-
 async function loadPassagemTurnoFromSupabase(force = false){
   const dataRef = document.getElementById('passagemData')?.value || dataFiltrada() || '';
   const turno = document.getElementById('passagemTurno')?.value || 'T1';
@@ -3443,7 +3432,7 @@ async function loadPassagemTurnoFromSupabase(force = false){
     return __passagemTurnoCache[key];
   }catch(err){
     console.error('Erro ao carregar passagem de turno no Supabase', err);
-    showToast('Erro ao carregar Passagem de Turno: ' + formatSupabaseError(err));
+    showToast('Erro ao carregar Passagem de Turno');
     return __passagemTurnoCache[key] || getPassagemTurnoDefaults();
   }finally{
     __passagemTurnoLoading = false;
@@ -3457,6 +3446,10 @@ async function salvarPassagemTurno(){
   if(!dataRef) return alert('Selecione a data para salvar a Passagem de Turno.');
 
   try{
+    clearTimeout(__passagemSaveUiTimer);
+    setPassagemSaveButtonsState('saving');
+    atualizarStatusPassagem('saving');
+
     const rows = getAgendaRows().filter(r => !dataRef || r.data_agenda === dataRef);
     const programado = rows.filter(r => definirTurno(r.hora_agenda) === turno);
     const realizado = rows.filter(r => r.status_global === 'Expedido');
@@ -3528,14 +3521,22 @@ async function salvarPassagemTurno(){
     if(e3) throw e3;
 
     savePassagemTurnoState(state);
-    showToast('Passagem de turno salva no Supabase com sucesso');
     await loadPassagemTurnoFromSupabase(true);
     renderPassagemTurno();
+
+    const salvoEm = formatarDataHoraStatusPassagem();
+    atualizarStatusPassagem('saved', salvoEm);
+    setPassagemSaveButtonsState('saved');
+    showToast('Passagem de turno salva com sucesso');
+
+    __passagemSaveUiTimer = setTimeout(() => {
+      setPassagemSaveButtonsState('idle');
+    }, 1800);
   }catch(err){
     console.error('Erro ao salvar passagem de turno no Supabase', err);
-    const mensagem = formatSupabaseError(err);
-    alert('Erro ao salvar Passagem de Turno no Supabase:\n\n' + mensagem);
-    showToast('Falha ao salvar: ' + mensagem);
+    setPassagemSaveButtonsState('idle');
+    markPassagemAsDirty();
+    alert('Erro ao salvar Passagem de Turno no Supabase.');
   }
 }
 
@@ -3908,7 +3909,14 @@ function atualizarStatusPassagem(estado = 'idle', salvoEm = ''){
   if(estado === 'saved'){
     bar.classList.add('is-saved');
     texto.textContent = '✓ Dados salvos com sucesso';
-    detalhe.textContent = `rascunho salvo em ${salvoEm || __passagemStatusLastSavedAt || formatarDataHoraStatusPassagem()}`;
+    detalhe.textContent = `Último salvamento às ${salvoEm || __passagemStatusLastSavedAt || formatarDataHoraStatusPassagem()}`;
+    return;
+  }
+
+  if(estado === 'saving'){
+    bar.classList.add('is-idle');
+    texto.textContent = '◌ Salvando passagem de turno';
+    detalhe.textContent = 'Enviando dados para o Supabase...';
     return;
   }
 
@@ -3916,8 +3924,8 @@ function atualizarStatusPassagem(estado = 'idle', salvoEm = ''){
     bar.classList.add('is-dirty');
     texto.textContent = '• Alterações não salvas';
     detalhe.textContent = __passagemStatusLastSavedAt
-      ? `houve mudanças após o salvamento de ${__passagemStatusLastSavedAt}`
-      : 'preencha e salve a passagem de turno';
+      ? `Houve mudanças após o salvamento de ${__passagemStatusLastSavedAt}`
+      : 'Preencha e salve a passagem de turno';
     return;
   }
 
