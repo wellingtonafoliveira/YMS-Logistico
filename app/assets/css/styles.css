@@ -7742,3 +7742,45 @@ th{
     min-height:52px;
   }
 }
+
+
+/* ===== Ajustes v12: filtro da agenda alinhado com a data real ===== */
+.topbar .actions{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  grid-template-areas:"field refresh nav";
+  align-items:end;
+  gap:8px;
+}
+
+.topbar .actions > div:first-child{
+  grid-area:field;
+}
+
+.topbar .actions .btn{
+  align-self:end;
+}
+
+.topbar .actions .btn.btn-light{
+  grid-area:refresh;
+}
+
+.topbar .actions .topbar-nav-btn,
+.topbar .actions > button:not(.btn-light){
+  grid-area:nav;
+}
+
+#agendaDataRef,
+#agendaTotalRef{
+  letter-spacing:-.01em;
+}
+
+@media (max-width: 860px){
+  .topbar .actions{
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "field"
+      "refresh"
+      "nav";
+  }
+}
