@@ -3964,41 +3964,44 @@ function descricaoTurnoPassagem(turno){
 
 
 
+
 function togglePassagemMenu(forceOpen){
   const group = document.getElementById('menu-group-passagem-turno');
   const submenu = document.getElementById('submenu-passagem-turno');
-  if(!group) return;
-  const abrir = typeof forceOpen === 'boolean' ? forceOpen : !group.classList.contains('open');
-  group.classList.toggle('open', abrir);
-  if(submenu){
-    submenu.hidden = !abrir;
-    submenu.style.display = abrir ? 'flex' : 'none';
-  }
-  syncPassagemMenuState();
+  const chevron = document.getElementById('passagemMenuChevron');
+  if(!group || !submenu) return;
+
+  const deveAbrir = typeof forceOpen === 'boolean'
+    ? forceOpen
+    : !group.classList.contains('open');
+
+  group.classList.toggle('open', deveAbrir);
+  submenu.hidden = !deveAbrir;
+  submenu.style.display = deveAbrir ? 'flex' : 'none';
+  if(chevron) chevron.textContent = deveAbrir ? '▴' : '▾';
 }
 
 function syncPassagemMenuState(){
   const group = document.getElementById('menu-group-passagem-turno');
   const submenu = document.getElementById('submenu-passagem-turno');
-  const chev = document.getElementById('passagemMenuChevron');
+  const chevron = document.getElementById('passagemMenuChevron');
   const subLanc = document.getElementById('submenu-passagem-lancamento');
   const subInd = document.getElementById('submenu-passagem-indicadores');
-  if(!group) return;
 
-  const aberto = group.classList.contains('open');
-
-  if(chev) chev.textContent = aberto ? '▴' : '▾';
   if(subLanc) subLanc.classList.toggle('active', passagemSubViewAtual === 'lancamento');
   if(subInd) subInd.classList.toggle('active', passagemSubViewAtual === 'indicadores');
 
-  if(submenu){
+  if(group && submenu){
+    const aberto = group.classList.contains('open');
     submenu.hidden = !aberto;
     submenu.style.display = aberto ? 'flex' : 'none';
+    if(chevron) chevron.textContent = aberto ? '▴' : '▾';
   }
 }
 
 function setPassagemSubView(view){
   passagemSubViewAtual = view === 'indicadores' ? 'indicadores' : 'lancamento';
+
   const lanc = document.getElementById('passagemSubLancamento');
   const ind = document.getElementById('passagemSubIndicadores');
   const tabLanc = document.getElementById('ptTabLancamento');
@@ -4015,7 +4018,7 @@ function setPassagemSubView(view){
   if(subInd) subInd.classList.toggle('active', passagemSubViewAtual === 'indicadores');
   if(group) group.classList.add('active');
 
-  togglePassagemMenu(True);
+  syncPassagemMenuState();
 }
 
 function openPassagemTurnoMenu(event){
@@ -4024,16 +4027,19 @@ function openPassagemTurnoMenu(event){
     event.stopPropagation();
   }
 
-  if(viewAtualGlobal === 'passagem-turno'){
-    togglePassagemMenu();
+  const jaNaTela = viewAtualGlobal === 'passagem-turno';
+
+  if(!jaNaTela){
+    setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+    const group = document.getElementById('menu-group-passagem-turno');
+    if(group) group.classList.add('open');
+    togglePassagemMenu(true);
+    setPassagemSubView(passagemSubViewAtual || 'lancamento');
     return;
   }
 
-  const group = document.getElementById('menu-group-passagem-turno');
-  if(group) group.classList.add('active');
-  togglePassagemMenu(True);
-  setView('passagem-turno', document.getElementById('menu-passagem-turno'));
-  setPassagemSubView(passagemSubViewAtual || 'lancamento');
+  togglePassagemMenu();
+  syncPassagemMenuState();
 }
 
 function openPassagemSubView(view, event){
@@ -4042,12 +4048,13 @@ function openPassagemSubView(view, event){
     event.stopPropagation();
   }
 
-  const group = document.getElementById('menu-group-passagem-turno');
-  if(group) group.classList.add('active');
-  togglePassagemMenu(True);
   setView('passagem-turno', document.getElementById('menu-passagem-turno'));
+  const group = document.getElementById('menu-group-passagem-turno');
+  if(group) group.classList.add('open');
+  togglePassagemMenu(true);
   setPassagemSubView(view);
 }
+
 
 
 async function fecharEEnviarPassagemTurno(){
