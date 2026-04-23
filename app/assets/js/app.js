@@ -685,6 +685,24 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     }
 
     function dataFiltrada(){ return document.getElementById("filtroData").value; }
+
+function getFiltroDataValue(){
+  return document.getElementById('filtroData')?.value || '';
+}
+
+function syncFiltroDataAcrossViews(value = ''){
+  const data = value || getFiltroDataValue() || '';
+  const passagemData = document.getElementById('passagemData');
+  if(passagemData && !passagemData.dataset.userLocked){
+    passagemData.value = data || passagemData.value || '';
+  }
+  const agendaDataRef = document.getElementById('agendaDataRef');
+  if(agendaDataRef){
+    agendaDataRef.textContent = data ? fmtDate(data) : 'Todos';
+  }
+}
+
+
     function linhasFiltradas(){ const d = dataFiltrada(); return d ? registros.filter(r => r.data_agenda === d) : registros; }
 
     function currentUserLabel(){
@@ -1068,6 +1086,9 @@ function setView(view, btn){
         const el = document.getElementById(id);
         if(!el || el.dataset.passagemBound === '1') return;
         const handler = () => {
+          if(id === 'passagemData'){
+            el.dataset.userLocked = el.value ? '1' : '';
+          }
           const turnoFiltro = document.getElementById('passagemTurno')?.value || 'T1';
           const op = Number(document.getElementById('passagemOperador')?.value || 0);
           const conf = Number(document.getElementById('passagemConferente')?.value || 0);
@@ -1260,6 +1281,7 @@ function setView(view, btn){
     }
 
     function renderTudo(){
+      syncFiltroDataAcrossViews(getFiltroDataValue());
       renderDashboard();
       renderAgenda();
       renderSeparacao();
@@ -1385,7 +1407,8 @@ function setView(view, btn){
         riskBanner.textContent = `Validações do dia • Conflitos: ${conflitos.length} • Sem doca: ${semDoca} • Atrasadas: ${atrasos}.`;
       }
 
-      const dataRef = dataFiltrada() ? fmtDate(dataFiltrada()) : "Todos";
+      const filtroAtivo = getFiltroDataValue();
+      const dataRef = filtroAtivo ? fmtDate(filtroAtivo) : "Todos";
       const cards = [
         { label:"DTs do dia", value: rows.length, sub:"cadastros filtrados", cls:"status-blue", icon:"🗓️" },
         { label:"Agendado", value: rows.filter(x=>x.status_global==="Agendado").length, sub:"planejamento", cls:"status-gray", icon:"📌" },
@@ -3544,7 +3567,7 @@ function renderPassagemTurno(){
   const section = document.getElementById('view-passagem-turno');
   if(!section) return;
   const dtInput = document.getElementById('passagemData');
-  if(dtInput && !dtInput.value && dataFiltrada()) dtInput.value = dataFiltrada();
+  if(dtInput && !dtInput.dataset.userLocked && dataFiltrada()) dtInput.value = dataFiltrada();
   const dataRefRaw = dtInput?.value || dataFiltrada() || '';
   const turnoEl = document.getElementById('passagemTurno');
   const turno = turnoEl?.value || 'T1';
@@ -4444,7 +4467,7 @@ renderPassagemTurno = function(){
   const section = document.getElementById('view-passagem-turno');
   if(!section) return;
   const dtInput = document.getElementById('passagemData');
-  if(dtInput && !dtInput.value && dataFiltrada()) dtInput.value = dataFiltrada();
+  if(dtInput && !dtInput.dataset.userLocked && dataFiltrada()) dtInput.value = dataFiltrada();
   const dataRefRaw = dtInput?.value || dataFiltrada() || '';
   const turnoEl = document.getElementById('passagemTurno');
   const turno = turnoEl?.value || 'T1';
