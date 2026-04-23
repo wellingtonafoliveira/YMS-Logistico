@@ -99,34 +99,38 @@
         </button>
 
         <div class="topbar-main">
-          <div class="topbar-utility-row">
-            <div class="welcome-strip soft-glow top-welcome-strip">
-              <div class="welcome-main">
-                <strong id="welcomeGreeting">Bom dia</strong>
-                <span id="welcomeMessage">Aqui está um resumo da operação para apoiar as decisões do turno.</span>
-              </div>
-              <div class="welcome-meta">
-                <div class="welcome-pill"><span>Hora</span><strong id="welcomeTime">--:--</strong></div>
-                <div class="welcome-pill"><span>Data</span><strong id="welcomeDate">--/--/----</strong></div>
-                <div class="welcome-pill"><span>Temperatura</span><strong id="welcomeTemp">22°C</strong></div>
-              </div>
-            </div>
-
-            <div class="topbar-right-tools">
-              <div class="actions soft-glow">
-                <div>
-                  <label>Filtrar por data</label>
-                  <input type="date" id="filtroData" onchange="carregarTudo()">
+          <div class="topbar-utility-panel soft-glow">
+            <div class="topbar-utility-row">
+              <div class="welcome-strip top-welcome-strip">
+                <div class="welcome-main">
+                  <strong id="welcomeGreeting">Bom dia</strong>
+                  <span id="welcomeMessage">Aqui está um resumo da operação para apoiar as decisões do turno.</span>
                 </div>
-                <button class="btn btn-light" onclick="carregarTudo()">Atualizar</button>
-                <div class="topbar-actions-note">Versão enterprise com visual premium, foco em leitura rápida da operação e execução mais confortável para o time logístico.</div>
+                <div class="welcome-meta">
+                  <div class="welcome-pill"><span>Hora</span><strong id="welcomeTime">--:--</strong></div>
+                  <div class="welcome-pill"><span>Data</span><strong id="welcomeDate">--/--/----</strong></div>
+                  <div class="welcome-pill"><span>Temperatura</span><strong id="welcomeTemp">22°C</strong></div>
+                </div>
               </div>
 
-              <button class="logout-btn logout-btn-top" onclick="logout()">Sair</button>
+              <div class="topbar-right-tools">
+                <div class="actions soft-glow">
+                  <div>
+                    <label>Filtrar por data</label>
+                    <input type="date" id="filtroData" onchange="carregarTudo()">
+                  </div>
+                  <button class="btn btn-light" onclick="carregarTudo()">Atualizar</button>
+                  <div class="topbar-actions-note">Versão enterprise com visual premium, foco em leitura rápida da operação e execução mais confortável para o time logístico.</div>
+                </div>
+
+                <button class="logout-btn logout-btn-top logout-btn-compact" onclick="logout()">Sair</button>
+              </div>
             </div>
           </div>
 
-          <div class="title">
+          <div class="topbar-section-divider" aria-hidden="true"></div>
+
+          <div class="title topbar-title-panel">
             <div class="topbar-badge">Gestão Logística Plus • Operação em tempo real</div>
             <h1 id="pageTitle">Dashboard</h1>
             <p>Gestão integrada da agenda, pátio, expedição e docas, agora com visual black premium, animações mais elegantes e um menu lateral compacto e profissional.</p>
