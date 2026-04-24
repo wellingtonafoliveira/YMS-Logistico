@@ -236,7 +236,15 @@
     }
     .icon{
       width:58px;height:58px;border-radius:18px;display:flex;align-items:center;justify-content:center;
-      font-size:25px;margin-bottom:16px;box-shadow:0 10px 20px rgba(0,0,0,.12)
+      font-size:0;margin-bottom:16px;box-shadow:0 10px 20px rgba(0,0,0,.12)
+    }
+    .icon svg{
+      width:28px;height:28px;
+      stroke:currentColor;
+      stroke-width:1.9;
+      fill:none;
+      stroke-linecap:round;
+      stroke-linejoin:round;
     }
     .card h3{font-size:20px;margin-bottom:10px;letter-spacing:-.02em}
     .card p{font-size:14px;line-height:1.78;color:var(--muted)}
@@ -721,49 +729,49 @@
 
       <div class="grid">
         <div class="card card-dashboard">
-          <div class="icon">📊</div>
+          <div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20v-11"/><path d="M3 20h19"/></svg></div>
           <h3>Dashboard</h3>
           <p>Indicadores operacionais, produtividade, status das cargas e visão executiva em tempo real.</p>
         </div>
 
         <div class="card card-agenda">
-          <div class="icon">📅</div>
+          <div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4"/><path d="M16 3v4"/><path d="M3 10h18"/><path d="M8 14h3"/><path d="M13 14h3"/><path d="M8 18h3"/></svg></div>
           <h3>Agenda</h3>
           <p>Gestão das cargas agendadas com data, hora, cliente, transportadora e planejamento diário.</p>
         </div>
 
         <div class="card card-patio">
-          <div class="icon">🏢</div>
+          <div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 9.5V20h14V9.5"/><path d="M9 20v-5h6v5"/><path d="M7.5 12h.01"/><path d="M12 12h.01"/><path d="M16.5 12h.01"/></svg></div>
           <h3>Pátio</h3>
           <p>Painel visual do fluxo das cargas, fila de chegada, presença de motoristas e movimentações.</p>
         </div>
 
         <div class="card card-docas">
-          <div class="icon">🚪</div>
+          <div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="8" height="16" rx="2"/><path d="M12 9h4"/><path d="M12 15h4"/><path d="M18 7l2 2-2 2"/><path d="M18 13l2 2-2 2"/></svg></div>
           <h3>Docas</h3>
           <p>Controle da ocupação, disponibilidade, alocação e andamento do carregamento por doca.</p>
         </div>
 
         <div class="card card-separacao">
-          <div class="icon">📦</div>
+          <div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 7.5 12 12 4 7.5 12 3Z"/><path d="M20 7.5V16.5L12 21"/><path d="M4 7.5V16.5L12 21"/><path d="M12 12v9"/></svg></div>
           <h3>Separação</h3>
           <p>Acompanhamento da preparação da carga com visibilidade de etapa, turno e conferência.</p>
         </div>
 
         <div class="card card-expedicao">
-          <div class="icon">🚚</div>
+          <div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3z"/><path d="M14 10h3l3 3v3h-6z"/><circle cx="8" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M14 18h-4"/><path d="M20 16h1"/></svg></div>
           <h3>Expedição</h3>
           <p>Gestão do carregamento, faturamento, romaneio, notas e saída final dos veículos.</p>
         </div>
 
         <div class="card card-checkin">
-          <div class="icon">📝</div>
+          <div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 4.5h6"/><path d="M9 11l2 2 4-4"/><path d="M9 17h6"/></svg></div>
           <h3>Check-in</h3>
           <p>Registro da chegada do motorista com informações rápidas para direcionamento operacional.</p>
         </div>
 
         <div class="card card-resultados">
-          <div class="icon">📈</div>
+          <div class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"/><path d="M5 16l4-4 3 3 6-7"/><path d="M18 8h-3"/><path d="M18 8v3"/></svg></div>
           <h3>Resultados</h3>
           <p>Métricas, gráficos, análises e apoio à tomada de decisão para melhoria contínua.</p>
         </div>
