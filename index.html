@@ -561,6 +561,87 @@
       }
     }
 
+
+    .yms-journey{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:14px;
+      align-items:stretch;
+      margin-top:10px;
+    }
+    .yms-journey-bottom{ margin-top:14px; }
+    .yms-step{
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:20px 18px;
+      background:
+        radial-gradient(circle at top right, rgba(37,99,235,.08), transparent 22%),
+        linear-gradient(180deg, rgba(15,20,28,.90), rgba(11,15,21,.86));
+      box-shadow:0 14px 30px rgba(0,0,0,.16);
+      min-height:168px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      justify-content:flex-start;
+      transition:.25s ease;
+    }
+    .yms-step:hover{
+      transform:translateY(-4px);
+      box-shadow:0 22px 42px rgba(0,0,0,.22);
+      border-color:rgba(59,130,246,.22);
+    }
+    .yms-step.active{
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,.14), transparent 22%),
+        linear-gradient(180deg, rgba(21,33,56,.92), rgba(11,18,31,.90));
+      border-color:rgba(59,130,246,.22);
+    }
+    .yms-step small{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:34px;
+      height:34px;
+      border-radius:12px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      color:#dbeafe;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.05em;
+    }
+    .yms-step strong{
+      font-size:20px;
+      letter-spacing:-.02em;
+      line-height:1.1;
+    }
+    .yms-step span{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.75;
+    }
+    .yms-arrow{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#8fb1ff;
+      font-size:30px;
+      font-weight:900;
+      opacity:.72;
+    }
+
+    @media (max-width:1024px){
+      .yms-journey{
+        grid-template-columns:1fr;
+      }
+      .yms-arrow{
+        display:none;
+      }
+      .yms-step{
+        min-height:auto;
+      }
+    }
+
 </style>
 </head>
 <body>
@@ -575,29 +656,27 @@
     </div>
 
     <div class="nav">
-      <button class="nav-btn" onclick="rolarPara('funcionalidades')">Funcionalidades</button>
-      <button class="nav-btn" onclick="rolarPara('sobre')">Sobre</button>
-      <button class="nav-btn" onclick="rolarPara('indicadores-powerbi')">Power BI</button>
-      <button class="nav-btn" onclick="rolarPara('contato')">Contato</button>
+      <button class="nav-btn" onclick="rolarPara('funcionalidades')">Soluções</button>
+      <button class="nav-btn" onclick="rolarPara('fluxo-yms')">Fluxo YMS</button>
+      <button class="nav-btn" onclick="rolarPara('indicadores-powerbi')">Inteligência Operacional</button>
+      <button class="nav-btn" onclick="rolarPara('contato')">Acesso</button>
       <button class="nav-btn primary" onclick="irSistema()">Entrar no Sistema</button>
     </div>
   </header>
 
   <section class="hero reveal delay-1">
     <div class="hero-left">
-      <div class="tag">Plataforma logística em tempo real</div>
-      <h1>Controle premium da sua operação logística</h1>
+      <div class="tag">Ecossistema logístico com visão operacional e executiva</div>
+      <h1>Controle executivo da sua operação logística</h1>
       <p>
-        Centralize agenda, pátio, docas, check-in de motoristas, separação,
-        expedição e indicadores em uma plataforma moderna, visual e preparada
-        para operação real, gestão tática e acompanhamento executivo.
+        Centralize agenda, check-in, pátio, docas, separação, expedição e indicadores em uma plataforma premium, moderna e preparada para operação real, gestão tática e acompanhamento executivo.
       </p>
       <div class="accent-line"></div>
 
       <div class="actions">
         <button class="btn btn-primary" onclick="irSistema()">Entrar no Sistema</button>
         <button class="btn btn-green" onclick="irCheckin()">Check-in Motorista</button>
-        <button class="btn btn-ghost" onclick="rolarPara('indicadores-powerbi')">Ver Power BI</button>
+        <button class="btn btn-ghost" onclick="rolarPara('indicadores-powerbi')">Ver Inteligência Operacional</button>
       </div>
     </div>
 
@@ -615,7 +694,7 @@
       </div>
 
       <div class="glass-card destaque">
-        <h3>Operação e gestão em uma mesma experiência</h3>
+        <h3>Operação, gestão e inteligência em uma mesma experiência</h3>
         <p>
           Além da visão operacional, esta versão já abre espaço para indicadores
           analíticos com Power BI, unindo execução e inteligência em um único ambiente.
@@ -709,7 +788,7 @@
     </div>
   </section>
 
-  <section class="section reveal delay-3" id="sobre">
+  <section class="section reveal delay-3" id="sobre-institucional">
     <div class="section-panel">
       <div class="section-head">
         <h2>Sobre a Plataforma</h2>
@@ -742,20 +821,85 @@
     </div>
   </section>
 
+
+  <section class="section reveal delay-3" id="fluxo-yms">
+    <div class="section-panel">
+      <div class="section-head">
+        <h2>Fluxo YMS da Operação</h2>
+        <p>
+          Uma navegação mais estratégica para organizar a jornada da operação do agendamento
+          até a expedição final, com leitura clara por etapa.
+        </p>
+      </div>
+
+      <div class="yms-journey">
+        <div class="yms-step active">
+          <small>01</small>
+          <strong>Agenda</strong>
+          <span>Planejamento das janelas, clientes, transportadoras e docas.</span>
+        </div>
+        <div class="yms-arrow">→</div>
+        <div class="yms-step">
+          <small>02</small>
+          <strong>Check-in</strong>
+          <span>Entrada do motorista, checklist e validação operacional.</span>
+        </div>
+        <div class="yms-arrow">→</div>
+        <div class="yms-step">
+          <small>03</small>
+          <strong>Pátio</strong>
+          <span>Controle da fila, chamada e permanência dos veículos.</span>
+        </div>
+        <div class="yms-arrow">→</div>
+        <div class="yms-step">
+          <small>04</small>
+          <strong>Docas</strong>
+          <span>Direcionamento e leitura do status do carregamento.</span>
+        </div>
+      </div>
+
+      <div class="yms-journey yms-journey-bottom">
+        <div class="yms-step">
+          <small>05</small>
+          <strong>Separação</strong>
+          <span>Controle da preparação da carga e produtividade por turno.</span>
+        </div>
+        <div class="yms-arrow">→</div>
+        <div class="yms-step">
+          <small>06</small>
+          <strong>Expedição</strong>
+          <span>Saída operacional com mais visibilidade e rastreabilidade.</span>
+        </div>
+        <div class="yms-arrow">→</div>
+        <div class="yms-step">
+          <small>07</small>
+          <strong>Passagem de Turno</strong>
+          <span>Fechamento operacional com lançamento e indicadores.</span>
+        </div>
+        <div class="yms-arrow">→</div>
+        <div class="yms-step">
+          <small>08</small>
+          <strong>Indicadores</strong>
+          <span>Inteligência operacional e visão executiva conectadas ao dia a dia da operação.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="section reveal delay-4" id="indicadores-powerbi">
     <div class="section-panel">
       <div class="section-head">
         <h2>Indicadores</h2>
         <p>
-          Área dedicada para dashboards analíticos e indicadores executivos da operação logística.
+          Área dedicada à inteligência operacional, dashboards analíticos e visão executiva da operação logística.
         </p>
       </div>
 
       <div class="powerbi-wrap dashboard-preview">
         <div class="powerbi-head">
           <div>
-            <strong>Prévia do Dashboard Interno</strong><br>
-            <span>Mockup visual baseado no sistema operacional interno, pronto para servir de referência ao seu Power BI</span>
+            <strong>Painel de Inteligência Operacional</strong><br>
+            <span>Mockup visual baseado no sistema operacional interno, pronto para servir de referência à sua camada de inteligência operacional</span>
           </div>
           <div class="preview-badge">Dashboard interno</div>
         </div>
@@ -903,7 +1047,7 @@
           </div>
 
           <div class="powerbi-note">
-            Nesta versão deixei uma prévia visual dos indicadores do sistema interno para servir como referência do layout que depois pode ser conectado a dados reais da operação.
+            Nesta versão deixei uma prévia visual dos indicadores do sistema interno para servir como referência do layout que depois pode ser conectado a dados reais da operação e a uma camada de inteligência operacional.
           </div>
         </div>
       </div>
@@ -913,7 +1057,7 @@
   <section class="section" id="contato">
     <div class="section-panel">
       <div class="cta-box">
-        <h3>Leve sua operação para um novo nível</h3>
+        <h3>Transforme sua operação em uma plataforma mais estratégica</h3>
         <p>
           Reúna controle operacional, visibilidade em tempo real e inteligência gerencial
           em uma única plataforma. Tenha mais organização, mais produtividade e mais clareza
