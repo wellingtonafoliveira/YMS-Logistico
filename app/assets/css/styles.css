@@ -8759,3 +8759,355 @@ tbody tr:hover{
 .sidebar-note{
   flex:0 0 auto;
 }
+
+
+/* ===== Sistema agrupado v8: compactação premium ===== */
+.main{
+  padding:18px 18px 24px;
+}
+
+.topbar{
+  padding:16px 16px 14px;
+  border-radius:24px;
+  margin-bottom:12px;
+}
+
+.topbar-main{
+  gap:12px;
+}
+
+.topbar-utility-row{
+  gap:10px;
+}
+
+.top-welcome-strip{
+  min-height:78px;
+  padding:12px 14px;
+  border-radius:18px;
+}
+
+.welcome-main strong{
+  font-size:17px;
+}
+
+.welcome-main span{
+  font-size:12px;
+  line-height:1.5;
+  max-width:360px;
+}
+
+.welcome-meta{
+  gap:8px;
+}
+
+.welcome-pill{
+  padding:10px 12px;
+  border-radius:14px;
+}
+
+.welcome-pill span{
+  font-size:9px;
+  margin-bottom:5px;
+}
+
+.welcome-pill strong{
+  font-size:13px;
+}
+
+.topbar .actions{
+  min-height:78px;
+  padding:10px 12px;
+  gap:8px;
+  border-radius:18px;
+}
+
+.topbar .actions label{
+  font-size:10px;
+  margin-bottom:4px;
+}
+
+.topbar .actions .btn{
+  min-height:36px;
+  padding:8px 12px;
+}
+
+.topbar-title-panel .topbar-badge{
+  padding:7px 10px;
+  font-size:9px;
+}
+
+.topbar-title-panel h1{
+  font-size:32px;
+  margin-bottom:8px;
+}
+
+.topbar-title-panel p{
+  font-size:13px;
+  line-height:1.65;
+  max-width:680px;
+}
+
+.topbar-meta-row{
+  margin-top:12px;
+  gap:8px;
+}
+
+.topbar-meta-pill{
+  padding:10px 12px;
+  border-radius:15px;
+}
+
+.topbar-meta-pill span{
+  font-size:9px;
+}
+
+.topbar-meta-pill strong{
+  font-size:12px;
+}
+
+.card,
+.section-hero-card,
+.filters-card,
+.premium-table-card,
+.modal-content{
+  border-radius:20px;
+  padding:16px;
+}
+
+.card-title-row,
+.premium-table-head{
+  margin-bottom:10px;
+}
+
+.card-title-row h2,
+.section-hero-card h3,
+.premium-table-head h2{
+  font-size:18px;
+}
+
+.card-title-row p,
+.section-hero-card p,
+.premium-table-head p{
+  font-size:12px;
+  line-height:1.55;
+}
+
+.grid,
+.grid-2,
+.grid-3,
+.grid-4,
+.board,
+.filters-grid,
+.section-mini-grid{
+  gap:10px;
+}
+
+.kpi{
+  min-height:106px !important;
+  border-radius:18px !important;
+  padding:14px !important;
+}
+
+.kpi .label{
+  font-size:10px !important;
+  margin-bottom:8px !important;
+}
+
+.kpi .value{
+  font-size:28px !important;
+}
+
+.kpi .sub{
+  font-size:10px !important;
+  margin-top:6px !important;
+}
+
+.kpi-icon{
+  width:30px !important;
+  height:30px !important;
+  border-radius:10px !important;
+  margin-bottom:8px !important;
+}
+
+.kpi-icon svg{
+  width:16px !important;
+  height:16px !important;
+}
+
+.section-hero-card{
+  min-height:auto !important;
+  padding:18px !important;
+}
+
+.section-mini{
+  padding:12px 14px !important;
+  border-radius:14px !important;
+}
+
+.section-mini strong{
+  font-size:24px !important;
+}
+
+.filters-card{
+  padding:16px !important;
+}
+
+label{
+  font-size:11px;
+  margin-bottom:5px;
+}
+
+input,
+select,
+textarea{
+  min-height:38px;
+  padding:9px 11px;
+  border-radius:13px;
+  font-size:13px;
+}
+
+textarea{
+  min-height:80px;
+}
+
+.btn{
+  min-height:38px;
+  padding:8px 13px;
+  border-radius:13px;
+  font-size:13px;
+}
+
+.table-wrap{
+  border-radius:16px;
+}
+
+th, td{
+  padding:9px 8px;
+  font-size:11px;
+}
+
+th{
+  font-size:10px;
+}
+
+.lane{
+  border-radius:18px !important;
+  min-height:240px !important;
+  padding:12px !important;
+}
+
+.lane-head{
+  margin-bottom:8px;
+  padding-bottom:8px;
+}
+
+.lane h3{
+  font-size:14px;
+}
+
+.item{
+  border-radius:12px !important;
+  padding:10px !important;
+}
+
+.item strong{
+  font-size:13px;
+}
+
+.item .meta{
+  font-size:11px;
+  line-height:1.45;
+}
+
+.dock{
+  border-radius:16px !important;
+  min-height:138px !important;
+  padding:12px !important;
+}
+
+.sidebar{
+  padding-bottom:12px;
+}
+
+.user-box,
+.sidebar-note{
+  padding:14px;
+  border-radius:18px;
+}
+
+.premium-menu button{
+  min-height:46px;
+  padding:11px 13px;
+  border-radius:16px;
+  font-size:13px;
+}
+
+.menu-icon{
+  width:18px;
+}
+
+.menu-section-label{
+  margin:12px 6px 4px;
+  font-size:10px;
+}
+
+.submenu-passagem button{
+  min-height:36px;
+  border-radius:12px;
+  font-size:11px;
+}
+
+#view-passagem-turno .ptv7-hero,
+#view-passagem-turno .ptv7-card,
+#view-passagem-turno .ptv7-kpi,
+#view-passagem-turno .ptv7-kpi-field{
+  padding:16px !important;
+  border-radius:18px !important;
+}
+
+#view-passagem-turno .ptv7-kpi strong{
+  font-size:26px !important;
+}
+
+#passagemStatusBar{
+  padding:12px 14px;
+  border-radius:16px;
+}
+
+@media (max-width: 1200px){
+  .main{
+    padding:16px 16px 20px;
+  }
+}
+
+@media (max-width: 860px){
+  .main{
+    padding:12px;
+  }
+
+  .topbar{
+    padding:14px;
+    border-radius:20px;
+  }
+
+  .topbar-title-panel h1{
+    font-size:28px;
+  }
+
+  .grid-2,
+  .grid-3,
+  .grid-4,
+  .board{
+    grid-template-columns:1fr !important;
+  }
+
+  .top-welcome-strip,
+  .topbar .actions{
+    min-height:auto;
+  }
+
+  .section-mini strong,
+  #view-passagem-turno .ptv7-kpi strong{
+    font-size:22px !important;
+  }
+}
