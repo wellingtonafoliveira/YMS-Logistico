@@ -8746,3 +8746,16 @@ tbody tr:hover{
     border-radius:18px;
   }
 }
+
+
+/* ===== Sistema agrupado v6: correção estrutural da sidebar ===== */
+.sidebar{
+  display:flex;
+  flex-direction:column;
+}
+.premium-menu.grouped-menu{
+  flex:0 0 auto;
+}
+.sidebar-note{
+  flex:0 0 auto;
+}
