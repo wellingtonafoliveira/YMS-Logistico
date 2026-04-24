@@ -9572,3 +9572,39 @@ th{
     font-size:20px !important;
   }
 }
+
+
+/* ===== Sistema agrupado v10: ícones mais executivos nos cards ===== */
+.kpi-icon{
+  font-size:0 !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018));
+  box-shadow:
+    0 10px 22px rgba(0,0,0,.16),
+    inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+.kpi-icon svg{
+  width:15px !important;
+  height:15px !important;
+  stroke:currentColor;
+  stroke-width:1.9;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.kpi.status-blue .kpi-icon{ color:#60a5fa; }
+.kpi.status-green .kpi-icon{ color:#4ade80; }
+.kpi.status-orange .kpi-icon{ color:#fb923c; }
+.kpi.status-red .kpi-icon{ color:#f87171; }
+.kpi.status-purple .kpi-icon{ color:#a78bfa; }
+.kpi.status-cyan .kpi-icon{ color:#22d3ee; }
+.kpi.status-gray .kpi-icon{ color:#94a3b8; }
+
+#dashboardKpis .kpi-icon,
+#dashboardExceptions .kpi-icon,
+#agendaKpis .kpi-icon,
+#relatorioResumo .kpi-icon{
+  border-radius:8px !important;
+}

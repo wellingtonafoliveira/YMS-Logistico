@@ -86,6 +86,26 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     let agendaFiltroKpi = "";
     let patioFilaRegistros = [];
     const TEMPO_MEDIO_FILA_MIN = 20;
+
+    function getKpiIcon(name){
+      const icons = {
+        calendar:`<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18"></path><path d="M8 3v4"></path><path d="M16 3v4"></path></svg>`,
+        package:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 7.5 12 12 4 7.5 12 3Z"></path><path d="M20 7.5V16.5L12 21"></path><path d="M4 7.5V16.5L12 21"></path><path d="M12 12v9"></path></svg>`,
+        checkSquare:`<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"></rect><path d="m9 12 2 2 4-5"></path></svg>`,
+        yard:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V8l8-4 8 4v10"></path><path d="M8 18v-4h8v4"></path><path d="M7.5 12h.01"></path><path d="M12 12h.01"></path><path d="M16.5 12h.01"></path></svg>`,
+        dock:`<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="16" rx="2"></rect><rect x="14" y="4" width="6" height="16" rx="2"></rect><path d="M10 8h4"></path><path d="M10 16h4"></path></svg>`,
+        truck:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h10v8H3z"></path><path d="M13 10h4l3 3v3h-7z"></path><circle cx="8" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg>`,
+        outbound:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10"></path><path d="m8 10 4 4 4-4"></path><path d="M5 20h14"></path></svg>`,
+        time:`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v5l3 2"></path></svg>`,
+        pin:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11Z"></path><circle cx="12" cy="10" r="2.3"></circle></svg>`,
+        weight:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10l2 11H5L7 8Z"></path><path d="M10 8a2 2 0 1 1 4 0"></path></svg>`,
+        chart:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"></path><path d="M7 16V9"></path><path d="M12 16V5"></path><path d="M17 16v-7"></path></svg>`,
+        driver:`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M5 20c1.5-3 4-5 7-5s5.5 2 7 5"></path></svg>`,
+        warning:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 21 20H3L12 4Z"></path><path d="M12 9v5"></path><path d="M12 17h.01"></path></svg>`
+      };
+      return icons[name] || icons.chart;
+    }
+
     const STATUS_RULES = {
       "Agendado":["Em Separação","Pronto Expedição","No Pátio"],
       "Em Separação":["Separado","Agendado"],
@@ -851,7 +871,7 @@ function syncFiltroDataAcrossViews(value = ''){
           value: rows.filter(r => calcSla(r).label === "Atrasado").length,
           detail:"fora do SLA",
           cls:"status-red",
-          icon:"⏱️",
+          icon:getKpiIcon("time"),
           filter:() => { agendaFiltroKpi = "Atrasado"; setView('agenda', document.getElementById('menu-agenda')); renderAgenda(); renderDashboard(); }
         },
         {
@@ -859,7 +879,7 @@ function syncFiltroDataAcrossViews(value = ''){
           value: rows.filter(r => !(r.doca_agenda || r.doca_planejada || r.doca_carregamento)).length,
           detail:"pendência operacional",
           cls:"status-orange",
-          icon:"🚪",
+          icon:getKpiIcon("dock"),
           filter:() => { const el = document.getElementById('agendaFiltroRisco'); if(el) el.value = 'sem_doca'; setView('agenda', document.getElementById('menu-agenda')); renderAgenda(); renderDashboard(); }
         },
         {
@@ -867,7 +887,7 @@ function syncFiltroDataAcrossViews(value = ''){
           value: rows.filter(r => ['No Pátio','Em Doca','Em Carregamento'].includes(r.status_global) && !String(r.motorista || '').trim()).length,
           detail:"cadastro incompleto",
           cls:"status-purple",
-          icon:"👤",
+          icon:getKpiIcon("driver"),
           filter:() => { setView('patio', document.getElementById('menu-patio')); }
         },
         {
@@ -875,7 +895,7 @@ function syncFiltroDataAcrossViews(value = ''){
           value: conflitoIds.size,
           detail:"janela duplicada",
           cls:"status-cyan",
-          icon:"⚠️",
+          icon:getKpiIcon("warning"),
           filter:() => { const el = document.getElementById('agendaFiltroRisco'); if(el) el.value = 'conflito'; setView('agenda', document.getElementById('menu-agenda')); renderAgenda(); renderDashboard(); }
         }
       ];
@@ -1354,14 +1374,14 @@ function setView(view, btn){
     function renderDashboard(){
       const rows = getAgendaRows();
       const cards = [
-        { label:"Agendado", value: rows.filter(x=>x.status_global==="Agendado").length, sub:"planejamento", cls:"status-gray", icon:"🗓️" },
-        { label:"Em Separação", value: rows.filter(x=>x.status_global==="Em Separação").length, sub:"andamento", cls:"status-orange", icon:"📦" },
-        { label:"Separado", value: rows.filter(x=>x.status_global==="Separado").length, sub:"prontas", cls:"status-green", icon:"✅" },
-        { label:"No Pátio", value: rows.filter(x=>x.status_global==="No Pátio").length, sub:"chegadas", cls:"status-blue", icon:"🏁" },
-        { label:"Em Doca", value: rows.filter(x=>x.status_global==="Em Doca").length, sub:"ocupação", cls:"status-purple", icon:"🚪" },
-        { label:"Em Carregamento", value: rows.filter(x=>x.status_global==="Em Carregamento").length, sub:"execução", cls:"status-cyan", icon:"🚚" },
-        { label:"Expedido", value: rows.filter(x=>x.status_global==="Expedido").length, sub:"concluídas", cls:"status-green", icon:"📤" },
-        { label:"Atrasado", value: rows.filter(x=>calcSla(x).label==="Atrasado").length, sub:"exceção", cls:"status-red", icon:"⏱️" }
+        { label:"Agendado", value: rows.filter(x=>x.status_global==="Agendado").length, sub:"planejamento", cls:"status-gray", icon:getKpiIcon("calendar") },
+        { label:"Em Separação", value: rows.filter(x=>x.status_global==="Em Separação").length, sub:"andamento", cls:"status-orange", icon:getKpiIcon("package") },
+        { label:"Separado", value: rows.filter(x=>x.status_global==="Separado").length, sub:"prontas", cls:"status-green", icon:getKpiIcon("checkSquare") },
+        { label:"No Pátio", value: rows.filter(x=>x.status_global==="No Pátio").length, sub:"chegadas", cls:"status-blue", icon:getKpiIcon("yard") },
+        { label:"Em Doca", value: rows.filter(x=>x.status_global==="Em Doca").length, sub:"ocupação", cls:"status-purple", icon:getKpiIcon("dock") },
+        { label:"Em Carregamento", value: rows.filter(x=>x.status_global==="Em Carregamento").length, sub:"execução", cls:"status-cyan", icon:getKpiIcon("truck") },
+        { label:"Expedido", value: rows.filter(x=>x.status_global==="Expedido").length, sub:"concluídas", cls:"status-green", icon:getKpiIcon("outbound") },
+        { label:"Atrasado", value: rows.filter(x=>calcSla(x).label==="Atrasado").length, sub:"exceção", cls:"status-red", icon:getKpiIcon("time") }
       ];
       document.getElementById("dashboardKpis").innerHTML = cards.map(k => `
         <div class="kpi ${k.cls} clickable" onclick="filtrarPorKpi('${esc(k.label)}')">
@@ -1410,10 +1430,10 @@ function setView(view, btn){
       const filtroAtivo = getFiltroDataValue();
       const dataRef = filtroAtivo ? fmtDate(filtroAtivo) : "Todos";
       const cards = [
-        { label:"DTs do dia", value: rows.length, sub:"cadastros filtrados", cls:"status-blue", icon:"🗓️" },
-        { label:"Agendado", value: rows.filter(x=>x.status_global==="Agendado").length, sub:"planejamento", cls:"status-gray", icon:"📌" },
-        { label:"Sem doca", value: rows.filter(x=>!(x.doca_agenda || x.doca_planejada || x.doca_carregamento)).length, sub:"pendência", cls:"status-orange", icon:"🚪" },
-        { label:"Atrasadas", value: rows.filter(x=>calcSla(x).label==="Atrasado").length, sub:"exceção", cls:"status-red", icon:"⏱️" }
+        { label:"DTs do dia", value: rows.length, sub:"cadastros filtrados", cls:"status-blue", icon:getKpiIcon("calendar") },
+        { label:"Agendado", value: rows.filter(x=>x.status_global==="Agendado").length, sub:"planejamento", cls:"status-gray", icon:getKpiIcon("pin") },
+        { label:"Sem doca", value: rows.filter(x=>!(x.doca_agenda || x.doca_planejada || x.doca_carregamento)).length, sub:"pendência", cls:"status-orange", icon:getKpiIcon("dock") },
+        { label:"Atrasadas", value: rows.filter(x=>calcSla(x).label==="Atrasado").length, sub:"exceção", cls:"status-red", icon:getKpiIcon("time") }
       ];
       document.getElementById("agendaKpis").innerHTML = cards.map(k => `
         <div class="kpi ${k.cls} clickable" onclick="filtrarPorKpi('${esc(k.label)}')">
@@ -1634,10 +1654,10 @@ function setView(view, btn){
       const taxaExpedicao = rows.length ? Math.round((expedidas.length / rows.length) * 100) : 0;
 
       const cards = [
-        { label:"Peso expedido", value: `${pesoExpedido.toFixed(1)} t`, cls:"status-green", icon:"⚖️" },
-        { label:"Taxa de expedição", value: `${taxaExpedicao}%`, cls:"status-blue", icon:"📈" },
-        { label:"Fila ativa", value: filaAtiva, cls:"status-orange", icon:"🚚" },
-        { label:"DTs em atraso", value: atrasadas, cls:"status-red", icon:"⏱️" }
+        { label:"Peso expedido", value: `${pesoExpedido.toFixed(1)} t`, cls:"status-green", icon:getKpiIcon("weight") },
+        { label:"Taxa de expedição", value: `${taxaExpedicao}%`, cls:"status-blue", icon:getKpiIcon("chart") },
+        { label:"Fila ativa", value: filaAtiva, cls:"status-orange", icon:getKpiIcon("truck") },
+        { label:"DTs em atraso", value: atrasadas, cls:"status-red", icon:getKpiIcon("time") }
       ];
 
       document.getElementById("relatorioResumo").innerHTML = cards.map(k => `
