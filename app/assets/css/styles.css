@@ -9937,3 +9937,7 @@ th{
   font-size:10px;
   line-height:1.45;
 }
+
+
+#docaInterdicaoModal{ z-index: 520; }
+#docaInterdicaoModal .modal-content{ z-index: 521; }
