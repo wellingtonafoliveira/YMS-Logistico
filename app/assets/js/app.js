@@ -1061,7 +1061,119 @@ const AUDITORIA_DOCA_STATUSES = ["Aguardando","Carregando","Disponível","Devolu
       return mapa[String(status || "").trim()] || "audit-aguardando";
     }
 
-    function getDocaObservacao(id){
+    
+    
+    function isDocaInterditadaValue(valorDoca){
+      const alvo = String(valorDoca || "").trim();
+      if(!alvo) return false;
+      return (docas || []).some(d => {
+        const chave = String(d?.nome_original || d?.nome || d?.numero || "").trim();
+        const local = getDocaInterdicaoByKey(d);
+        return chave === alvo && !!(d?.interditada || local?.interditada);
+      });
+    }
+
+    function getMotivoInterdicaoByValor(valorDoca){
+      const alvo = String(valorDoca || "").trim();
+      if(!alvo) return "";
+      const found = (docas || []).find(d => String(d?.nome_original || d?.nome || d?.numero || "").trim() === alvo);
+      if(!found) return "";
+      const local = getDocaInterdicaoByKey(found);
+      return found?.motivo_interdicao || local?.motivo || "";
+    }
+
+    function validarDocaNaoInterditada(valorDoca, contexto){
+      if(!valorDoca) return true;
+      if(!isDocaInterditadaValue(valorDoca)) return true;
+      const motivo = getMotivoInterdicaoByValor(valorDoca);
+      alert(`${contexto || "Esta doca"} está interditada.${motivo ? "\nMotivo: " + motivo : ""}`);
+      return false;
+    }
+
+    function sinalizarSelectDocasInterditadas(ids){
+      (ids || []).forEach(id => {
+        const el = document.getElementById(id);
+        if(!el) return;
+        Array.from(el.options || []).forEach(opt => {
+          const interd = isDocaInterditadaValue(opt.value);
+          opt.textContent = opt.textContent.replace(/\s+\[INTERDITADA\]$/,'');
+          if(interd){
+            opt.textContent = `${opt.textContent} [INTERDITADA]`;
+          }
+        });
+      });
+    }
+
+function getInterdicoesDocasLocal(){
+      return getLocalStorageJson("glp_doca_interdicoes", {});
+    }
+
+    function getDocaInterdicao(id){
+      const mapa = getInterdicoesDocasLocal();
+      return mapa[String(id || "")] || { interditada:false, motivo:"" };
+    }
+
+    function getDocaInterdicaoByKey(doca){
+      const chave = String(doca?.id || doca?.numero || doca?.nome || "");
+      return getDocaInterdicao(chave);
+    }
+
+    async function abrirModalInterdicaoDoca(idDoca){
+      const doca = (docas || []).find(d => String(d.id || d.numero || d.nome) === String(idDoca));
+      if(!doca) return;
+      docaEdicaoAtual = doca;
+      const atual = getDocaInterdicaoByKey(doca);
+      document.getElementById("docaInterdicaoNome").value = doca.nome_exibicao || doca.nome || `Doca ${doca.numero || ""}`;
+      document.getElementById("docaInterdicaoStatus").value = atual?.interditada ? "true" : "false";
+      document.getElementById("docaInterdicaoMotivo").value = atual?.motivo || "";
+      document.getElementById("docaInterdicaoModalSub").textContent = `Atualize o status operacional da ${doca.nome_exibicao || doca.nome || "doca"}.`;
+      document.getElementById("docaInterdicaoModal").classList.remove("hidden");
+    }
+
+    function fecharModalInterdicaoDoca(){
+      document.getElementById("docaInterdicaoModal")?.classList.add("hidden");
+      docaEdicaoAtual = null;
+    }
+
+    async function salvarInterdicaoDoca(){
+      if(!docaEdicaoAtual) return;
+      const interditada = (document.getElementById("docaInterdicaoStatus")?.value || "false") === "true";
+      const motivo = (document.getElementById("docaInterdicaoMotivo")?.value || "").trim();
+      const chave = String(docaEdicaoAtual.id || docaEdicaoAtual.numero || docaEdicaoAtual.nome || "");
+      const locais = getInterdicoesDocasLocal();
+      locais[chave] = {
+        interditada,
+        motivo,
+        updated_at: new Date().toISOString(),
+        usuario: currentUserLabel ? currentUserLabel() : ""
+      };
+      setLocalStorageJson("glp_doca_interdicoes", locais);
+
+      try{
+        if(!docaEdicaoAtual.virtual){
+          const payload = { interditada, motivo_interdicao: motivo || null };
+          const { error } = await sb.from("docas").update(payload).eq("id", docaEdicaoAtual.id);
+          if(error){
+            console.warn("Não foi possível salvar interdição na tabela docas. Mantido no armazenamento local.", error.message || error);
+          }
+        }
+      }catch(err){
+        console.warn("Falha ao salvar interdição da doca no banco.", err);
+      }
+
+      docas = (docas || []).map(d => String(d.id || d.numero || d.nome || "") === chave ? {
+        ...d,
+        interditada,
+        motivo_interdicao: motivo
+      } : d);
+
+      fecharModalInterdicaoDoca();
+      renderDocas();
+      renderAuditoriaDoca();
+      showToast(interditada ? "Doca interditada com sucesso" : "Interdição removida com sucesso");
+    }
+
+function getDocaObservacao(id){
       const local = getLocalStorageJson("glp_doca_observacoes", {});
       return local[String(id || "")] || "";
     }
@@ -1297,7 +1409,7 @@ const AUDITORIA_DOCA_STATUSES = ["Aguardando","Carregando","Disponível","Devolu
         const obs = auditoria?.observacao || "";
         return `<tr>
           <td>${fmtDate(r.data_agenda)}</td>
-          <td>${esc(getDocaNome(r) || "-")}</td>
+          <td>${esc(getDocaNome(r) || "-")}${isDocaInterditadaValue(getDocaNome(r)) ? `<span class="doca-chip-interditada">Interditada</span>${getMotivoInterdicaoByValor(getDocaNome(r)) ? `<span class="doca-motivo-inline">${esc(getMotivoInterdicaoByValor(getDocaNome(r)))}</span>` : ``}` : ``}</td>
           <td>${esc(r.dt)}</td>
           <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span></td>
           <td>${getDiasEmAbertoAuditoria(r)}</td>
@@ -1540,10 +1652,21 @@ function setView(view, btn){
       conferentes = confRes.data || [];
       docas = (docaRes.data || []).slice().sort((a, b) => compararDocas(a?.nome, b?.nome));
       syncObservacoesDocasLocais();
+      const interdicoesLocais = getInterdicoesDocasLocal();
+      docas = (docas || []).map(d => {
+        const chave = String(d.id || d.numero || d.nome || "");
+        const local = interdicoesLocais[chave] || {};
+        return {
+          ...d,
+          interditada: typeof d?.interditada === "boolean" ? d.interditada : !!local.interditada,
+          motivo_interdicao: d?.motivo_interdicao || local.motivo || ""
+        };
+      });
       window._motoristas = motRes.data || [];
       window._transportadoras = transRes.data || [];
 
       ["a_doca_agenda","p_doca","m_doca_agenda","m_doca_planejada","m_doca_carregamento","auditoriaDocaFiltroDoca"].forEach(preencherSelectDocas);
+      sinalizarSelectDocasInterditadas(["a_doca_agenda","p_doca","m_doca_agenda","m_doca_planejada","m_doca_carregamento"]);
       ["m_conf_recebimento","m_conf_expedicao"].forEach(preencherSelectConferentes);
       carregarMotoristas();
       carregarTransportadoras();
@@ -1904,6 +2027,7 @@ function renderDocas(){
       const listaDocas = getDocasOrdenadas();
       let livres = 0;
       let ocupadas = 0;
+      let interditadas = 0;
 
       document.getElementById("docasGrid").innerHTML = listaDocas.map(d => {
         const nome = d.nome_original || d.nome || String(d.numero);
@@ -1912,6 +2036,24 @@ function renderDocas(){
         const atual = filaAtual ? (registros.find(a => a.id === filaAtual.agenda_id) || filaAtual) : estado.row;
         const nomeExibicao = d.nome_exibicao || nome;
         const observacao = d.observacao || getDocaObservacao(d.id || d.numero || d.nome) || "";
+        const interdicao = getDocaInterdicaoByKey(d);
+        const interditada = !!(d?.interditada || interdicao?.interditada);
+        const motivoInterdicao = d?.motivo_interdicao || interdicao?.motivo || "";
+
+        if(interditada){
+          interditadas++;
+          return `<div class="dock interditada">
+            <div class="dock-head"><strong>${esc(nomeExibicao)}</strong><span class="count">Interditada</span></div>
+            <div class="meta">Sem uso operacional enquanto a interdição estiver ativa.<br>Doca: ${esc(nomeExibicao)}</div>
+            ${motivoInterdicao ? `<div class="dock-interdicao-note"><strong>Motivo:</strong> ${esc(motivoInterdicao)}</div>` : ``}
+            ${observacao ? `<div class="dock-note"><strong>Obs.:</strong> ${esc(observacao)}</div>` : ``}
+            <div class="dock-actions">
+              <button class="mini red" onclick="event.stopPropagation();abrirModalInterdicaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Interditar</button>
+              <button class="mini orange" onclick="event.stopPropagation();abrirModalObservacaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Observação</button>
+            </div>
+            <div class="dock-state interditada">Interditada</div>
+          </div>`;
+        }
 
         if(estado.kind === "free"){
           livres++;
@@ -1920,6 +2062,7 @@ function renderDocas(){
             <div class="meta">Sem veículo na doca.</div>
             ${observacao ? `<div class="dock-note"><strong>Obs.:</strong> ${esc(observacao)}</div>` : ``}
             <div class="dock-actions">
+              <button class="mini red" onclick="event.stopPropagation();abrirModalInterdicaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Interditar</button>
               <button class="mini orange" onclick="event.stopPropagation();abrirModalObservacaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Observação</button>
               <button class="mini blue" onclick="event.stopPropagation();abrirAuditoriaDocaComFiltro('${esc(nome)}')">Auditoria</button>
             </div>
@@ -1936,6 +2079,7 @@ function renderDocas(){
           <div class="meta">DT: ${esc((atual && atual.dt) || "-")}<br>Transportadora: ${esc((atual && atual.transportadora) || "-")}<br>Motorista: ${esc((atual && atual.motorista) || "-")}<br>Telefone: ${esc(formatarTelefoneVisual(phone) || "-")}<br>Doca: ${esc(nomeExibicao)}<br><span class="${sla.cls}">${sla.label}</span></div>
           ${observacao ? `<div class="dock-note"><strong>Obs.:</strong> ${esc(observacao)}</div>` : ``}
           <div class="dock-actions">
+            <button class="mini red" onclick="event.stopPropagation();abrirModalInterdicaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Interditar</button>
             <button class="mini orange" onclick="event.stopPropagation();abrirModalObservacaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Observação</button>
             <button class="mini blue" onclick="event.stopPropagation();abrirAuditoriaDocaComFiltro('${esc(nome)}')">Auditoria</button>
           </div>
@@ -1943,9 +2087,12 @@ function renderDocas(){
         </div>`;
       }).join("");
 
-      document.getElementById("docasLivreRef").textContent = livres;
-      document.getElementById("docasOcupadaRef").textContent = ocupadas;
-      document.getElementById("docasSoftStat").textContent = `${listaDocas.length} docas`;
+      const elLivre = document.getElementById("docasLivreRef");
+      const elOcup = document.getElementById("docasOcupadaRef");
+      const elSoft = document.getElementById("docasSoftStat");
+      if(elLivre) elLivre.textContent = livres;
+      if(elOcup) elOcup.textContent = ocupadas;
+      if(elSoft) elSoft.textContent = `${listaDocas.length} docas • ${ocupadas} ocupadas • ${interditadas} interditadas`;
     }
 
     function renderCheckin(){
