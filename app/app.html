@@ -139,7 +139,7 @@
           <div class="title topbar-title-panel">
             <div class="topbar-badge">Gestão Logística Plus • Operação em tempo real</div>
             <h1 id="pageTitle">Dashboard</h1>
-            <p>Gestão integrada da agenda, pátio, expedição e docas, agora com visual black premium, animações mais elegantes e um menu lateral compacto e profissional.</p>
+            <p>Gestão integrada da agenda, pátio, expedição, docas e auditoria, com controle de interdição por doca e leitura premium da operação.</p>
             <div class="page-accent-line"></div>
             <div class="topbar-meta-row">
               <div class="topbar-meta-pill"><span>Modo</span><strong>Enterprise Black</strong></div>
@@ -1646,6 +1646,37 @@
       <div class="modal-actions">
         <button class="btn btn-success" onclick="salvarAuditoriaDocaModal()">Salvar auditoria</button>
         <button class="btn btn-light" onclick="fecharAuditoriaDocaModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="modal hidden" id="docaInterdicaoModal">
+    <div class="modal-content modal-content-wide">
+      <div class="modal-head">
+        <div>
+          <h2>Interdição de doca</h2>
+          <p id="docaInterdicaoModalSub">Defina se a doca ficará interditada e registre o motivo operacional.</p>
+        </div>
+        <button class="modal-close" onclick="fecharModalInterdicaoDoca()">✕</button>
+      </div>
+      <div class="modal-card soft-glow">
+        <div class="fields">
+          <div><label>Doca</label><input id="docaInterdicaoNome" disabled></div>
+          <div>
+            <label>Status</label>
+            <select id="docaInterdicaoStatus">
+              <option value="false">Liberada</option>
+              <option value="true">Interditada</option>
+            </select>
+          </div>
+          <div class="full"><label>Motivo da interdição</label><textarea id="docaInterdicaoMotivo" placeholder="Ex.: manutenção, avaria, bloqueio operacional, segurança"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" onclick="salvarInterdicaoDoca()">Salvar interdição</button>
+        <button class="btn btn-light" onclick="fecharModalInterdicaoDoca()">Fechar</button>
       </div>
     </div>
   </div>
