@@ -9941,3 +9941,51 @@ th{
 
 #docaInterdicaoModal{ z-index: 520; }
 #docaInterdicaoModal .modal-content{ z-index: 521; }
+
+
+/* ===== V8: Doca interditada na Agenda e Auditoria ===== */
+.doca-tag-interditada{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:3px 8px;
+  margin-left:6px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.02em;
+  background:rgba(239,68,68,.14);
+  color:#fecaca;
+  border:1px solid rgba(239,68,68,.22);
+  white-space:nowrap;
+}
+
+.doca-motivo-bloqueio{
+  display:block;
+  margin-top:5px;
+  color:#fecaca;
+  font-size:10px;
+  line-height:1.45;
+}
+
+.auditoria-doca-card.interditada{
+  border-color:rgba(239,68,68,.24) !important;
+  background:
+    radial-gradient(circle at top right, rgba(239,68,68,.10), transparent 24%),
+    linear-gradient(180deg, rgba(28,14,18,.96), rgba(18,10,12,.94)) !important;
+}
+
+.auditoria-doca-card.interditada .dock-head strong{
+  color:#fecaca;
+}
+
+.auditoria-alerta-interdicao{
+  margin-top:8px;
+  padding:8px 10px;
+  border-radius:12px;
+  background:rgba(239,68,68,.12);
+  border:1px solid rgba(239,68,68,.18);
+  color:#fecaca;
+  font-size:10.5px;
+  line-height:1.45;
+}
