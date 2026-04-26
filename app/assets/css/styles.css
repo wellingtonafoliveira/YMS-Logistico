@@ -9608,3 +9608,88 @@ th{
 #relatorioResumo .kpi-icon{
   border-radius:8px !important;
 }
+
+/* ===== AUDITORIA DE DOCA ===== */
+.auditoria-doca-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:12px;
+  padding:4px 0 2px;
+}
+.auditoria-doca-card{
+  position:relative;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(14,20,31,.96), rgba(9,14,23,.94));
+  padding:14px;
+  min-height:168px;
+  box-shadow:0 16px 30px rgba(0,0,0,.12);
+}
+.auditoria-doca-card .dock-head{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:flex-start;
+  margin-bottom:10px;
+}
+.auditoria-doca-card .dock-head strong{
+  font-size:14px;
+}
+.auditoria-doca-card .count{
+  background:rgba(255,255,255,.06);
+}
+.auditoria-doca-card .meta{
+  font-size:11px;
+  line-height:1.6;
+  color:#b8cae8;
+  min-height:78px;
+}
+.auditoria-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  border:1px solid rgba(255,255,255,.08);
+  white-space:nowrap;
+}
+.audit-aguardando{ background:rgba(255,255,255,.08); color:#d6deeb; }
+.audit-carregando{ background:rgba(37,99,235,.16); color:#93c5fd; }
+.audit-disponivel{ background:rgba(34,197,94,.16); color:#bbf7d0; }
+.audit-devolucao{ background:rgba(107,114,128,.18); color:#d1d5db; }
+.audit-reagendado{ background:rgba(245,158,11,.18); color:#fde68a; }
+.audit-solto{ background:rgba(239,68,68,.18); color:#fecaca; }
+.dock-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.dock-note{
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px dashed rgba(255,255,255,.08);
+  font-size:11px;
+  color:#9fb0ca;
+  line-height:1.5;
+}
+.modal-content-wide{
+  width:min(860px, calc(100vw - 40px));
+}
+.audit-action-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+@media (max-width: 1500px){
+  .auditoria-doca-grid{ grid-template-columns:repeat(5,minmax(0,1fr)); }
+}
+@media (max-width: 1200px){
+  .auditoria-doca-grid{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 760px){
+  .auditoria-doca-grid{ grid-template-columns:1fr; }
+  .modal-content-wide{ width:min(96vw, calc(100vw - 16px)); }
+}
