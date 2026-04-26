@@ -85,6 +85,9 @@ const ADMIN_RESET_PASSWORD_ENDPOINT = "https://jwprwgptefhvqzdewnfr.supabase.co/
     let passagemSubViewAtual = 'lancamento';
     let agendaFiltroKpi = "";
     let patioFilaRegistros = [];
+    let docaAuditorias = [];
+    let auditoriaDocaAtual = null;
+    let docaEdicaoAtual = null;
     const TEMPO_MEDIO_FILA_MIN = 20;
 
     function getKpiIcon(name){
@@ -988,7 +991,288 @@ function syncFiltroDataAcrossViews(value = ''){
       window.__toastTimer = setTimeout(() => el.style.display = "none", 2500);
     }
 
-    function ymsCanOpenView(view){
+    
+    const AUDITORIA_DOCA_STATUSES = ["Aguardando","Carregando","Disponível","Devolução","Reagendado","Solto"];
+
+    function getLocalStorageJson(key, fallback){
+      try{
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      }catch(_){
+        return fallback;
+      }
+    }
+
+    function setLocalStorageJson(key, value){
+      try{
+        localStorage.setItem(key, JSON.stringify(value));
+      }catch(_){}
+    }
+
+    function getDocaNome(row){
+      return String(row?.doca_carregamento || row?.doca_planejada || row?.doca_agenda || "").trim();
+    }
+
+    function isAuditoriaStatusAgenda(status){
+      return ["Separado","Pronto Expedição","No Pátio","Em Doca","Em Carregamento","Expedido"].includes(String(status || ""));
+    }
+
+    function getAuditStatusClass(status){
+      const mapa = {
+        "Aguardando":"audit-aguardando",
+        "Carregando":"audit-carregando",
+        "Disponível":"audit-disponivel",
+        "Devolução":"audit-devolucao",
+        "Reagendado":"audit-reagendado",
+        "Solto":"audit-solto"
+      };
+      return mapa[String(status || "").trim()] || "audit-aguardando";
+    }
+
+    function getDocaObservacao(id){
+      const local = getLocalStorageJson("glp_doca_observacoes", {});
+      return local[String(id || "")] || "";
+    }
+
+    function getAuditoriaDocaRows(){
+      let rows = linhasFiltradas().filter(r => isAuditoriaStatusAgenda(r.status_global) && getDocaNome(r));
+      const busca = (document.getElementById("auditoriaFiltroBusca")?.value || "").trim().toLowerCase();
+      const doca = (document.getElementById("auditoriaDocaFiltroDoca")?.value || "").trim().toLowerCase();
+      const statusAud = document.getElementById("auditoriaFiltroStatus")?.value || "";
+
+      if(busca){
+        rows = rows.filter(r => [r.dt, r.cliente, r.transportadora].some(v => String(v || "").toLowerCase().includes(busca)));
+      }
+      if(doca){
+        rows = rows.filter(r => getDocaNome(r).toLowerCase() === doca);
+      }
+      if(statusAud){
+        rows = rows.filter(r => (getAuditoriaByAgendaId(r.id)?.status_auditoria || "Aguardando") === statusAud);
+      }
+      return rows;
+    }
+
+    function getAuditoriaByAgendaId(agendaId){
+      return (docaAuditorias || []).find(a => String(a.agenda_id || a.id_agenda || "") === String(agendaId || ""));
+    }
+
+    function getAuditoriaStatusDerivado(row){
+      const auditoria = getAuditoriaByAgendaId(row?.id);
+      if(auditoria?.status_auditoria) return auditoria.status_auditoria;
+      if(row?.status_global === "Em Carregamento") return "Carregando";
+      if(row?.status_global === "Expedido") return "Disponível";
+      if(row?.status_global === "No Pátio") return "Aguardando";
+      return "Aguardando";
+    }
+
+    async function carregarDocaAuditorias(){
+      try{
+        const { data, error } = await sb.from("doca_auditorias").select("*").order("updated_at", { ascending:false });
+        if(error){
+          console.warn("Tabela doca_auditorias indisponível, usando armazenamento local.", error.message || error);
+          docaAuditorias = getLocalStorageJson("glp_doca_auditorias", []);
+          return;
+        }
+        docaAuditorias = data || [];
+      }catch(err){
+        console.warn("Falha ao carregar doca_auditorias, usando armazenamento local.", err);
+        docaAuditorias = getLocalStorageJson("glp_doca_auditorias", []);
+      }
+    }
+
+    function syncObservacoesDocasLocais(){
+      const locais = getLocalStorageJson("glp_doca_observacoes", {});
+      docas = (docas || []).map(d => ({
+        ...d,
+        observacao: d?.observacao || locais[String(d.id || d.numero || d.nome || "")] || ""
+      }));
+    }
+
+    async function abrirModalObservacaoDoca(idDoca){
+      const doca = (docas || []).find(d => String(d.id || d.numero || d.nome) === String(idDoca));
+      if(!doca) return;
+      docaEdicaoAtual = doca;
+      document.getElementById("docaObsNome").value = doca.nome_exibicao || doca.nome || `Doca ${doca.numero || ""}`;
+      document.getElementById("docaObsTexto").value = doca.observacao || getDocaObservacao(doca.id || doca.numero || doca.nome) || "";
+      document.getElementById("docaObsModalSub").textContent = `Atualize a observação operacional da ${doca.nome_exibicao || doca.nome || "doca"}.`;
+      document.getElementById("docaObsModal").classList.remove("hidden");
+    }
+
+    function fecharModalObservacaoDoca(){
+      document.getElementById("docaObsModal")?.classList.add("hidden");
+      docaEdicaoAtual = null;
+    }
+
+    async function salvarObservacaoDoca(){
+      if(!docaEdicaoAtual) return;
+      const texto = (document.getElementById("docaObsTexto")?.value || "").trim();
+      const chave = String(docaEdicaoAtual.id || docaEdicaoAtual.numero || docaEdicaoAtual.nome || "");
+      const locais = getLocalStorageJson("glp_doca_observacoes", {});
+      locais[chave] = texto;
+      setLocalStorageJson("glp_doca_observacoes", locais);
+
+      try{
+        if(!docaEdicaoAtual.virtual){
+          const { error } = await sb.from("docas").update({ observacao: texto }).eq("id", docaEdicaoAtual.id);
+          if(error){
+            console.warn("Não foi possível salvar observação na tabela docas. Mantido no armazenamento local.", error.message || error);
+          }
+        }
+      }catch(err){
+        console.warn("Falha ao salvar observação da doca no banco.", err);
+      }
+
+      docas = (docas || []).map(d => String(d.id || d.numero || d.nome || "") === chave ? { ...d, observacao:texto } : d);
+      fecharModalObservacaoDoca();
+      renderDocas();
+      renderAuditoriaDoca();
+      showToast("Observação da doca salva");
+    }
+
+    function abrirAuditoriaDocaPorAgenda(idAgenda){
+      const row = registros.find(r => String(r.id) === String(idAgenda));
+      if(!row) return alert("Carga não encontrada para auditoria.");
+      auditoriaDocaAtual = row;
+      const auditoria = getAuditoriaByAgendaId(row.id);
+      document.getElementById("auditoriaModalDoca").value = getDocaNome(row) || "-";
+      document.getElementById("auditoriaModalDt").value = row.dt || "-";
+      document.getElementById("auditoriaModalCliente").value = row.cliente || "-";
+      document.getElementById("auditoriaModalTransportadora").value = row.transportadora || "-";
+      document.getElementById("auditoriaModalStatus").value = auditoria?.status_auditoria || getAuditoriaStatusDerivado(row);
+      document.getElementById("auditoriaModalLegenda").value = auditoria?.legenda || "";
+      document.getElementById("auditoriaModalObs").value = auditoria?.observacao || "";
+      document.getElementById("auditoriaDocaModalSub").textContent = `Registro da DT ${row.dt || "-"} • ${getDocaNome(row) || "Sem doca"}.`;
+      document.getElementById("auditoriaDocaModal").classList.remove("hidden");
+    }
+
+    function fecharAuditoriaDocaModal(){
+      document.getElementById("auditoriaDocaModal")?.classList.add("hidden");
+      auditoriaDocaAtual = null;
+    }
+
+    async function salvarAuditoriaDocaModal(){
+      if(!auditoriaDocaAtual) return;
+      const payload = {
+        agenda_id: auditoriaDocaAtual.id,
+        dt: auditoriaDocaAtual.dt || null,
+        doca: getDocaNome(auditoriaDocaAtual) || null,
+        status_auditoria: document.getElementById("auditoriaModalStatus").value || "Aguardando",
+        legenda: (document.getElementById("auditoriaModalLegenda").value || "").trim() || null,
+        observacao: (document.getElementById("auditoriaModalObs").value || "").trim() || null,
+        data_agenda: auditoriaDocaAtual.data_agenda || null,
+        updated_at: new Date().toISOString(),
+        usuario: currentUserLabel()
+      };
+
+      const existentes = getLocalStorageJson("glp_doca_auditorias", []);
+      const idx = existentes.findIndex(a => String(a.agenda_id || a.id_agenda || "") === String(payload.agenda_id));
+      if(idx >= 0){
+        existentes[idx] = { ...existentes[idx], ...payload };
+      }else{
+        existentes.unshift({ id:`local-${Date.now()}`, created_at:new Date().toISOString(), ...payload });
+      }
+      setLocalStorageJson("glp_doca_auditorias", existentes);
+
+      try{
+        const atual = getAuditoriaByAgendaId(payload.agenda_id);
+        if(atual?.id && !String(atual.id).startsWith("local-")){
+          const { error } = await sb.from("doca_auditorias").update(payload).eq("id", atual.id);
+          if(error) console.warn("Não foi possível atualizar auditoria no banco.", error.message || error);
+        }else{
+          const { error } = await sb.from("doca_auditorias").insert([payload]);
+          if(error) console.warn("Não foi possível inserir auditoria no banco.", error.message || error);
+        }
+      }catch(err){
+        console.warn("Falha ao salvar auditoria no banco. Mantido no armazenamento local.", err);
+      }
+
+      await carregarDocaAuditorias();
+      fecharAuditoriaDocaModal();
+      renderAuditoriaDoca();
+      renderDocas();
+      showToast("Auditoria de doca salva");
+    }
+
+    function abrirAuditoriaDocaComFiltro(docaNome){
+      const el = document.getElementById("auditoriaDocaFiltroDoca");
+      if(el) el.value = String(docaNome || "");
+      setView("auditoria-doca", document.getElementById("menu-auditoria-doca"));
+      renderAuditoriaDoca();
+    }
+
+    function renderAuditoriaDoca(){
+      const rows = getAuditoriaDocaRows();
+      const listaDocas = getDocasOrdenadas();
+      const usadas = new Set(rows.map(r => getDocaNome(r)).filter(Boolean));
+      document.getElementById("auditoriaTotalRef").textContent = rows.length;
+      document.getElementById("auditoriaDocasRef").textContent = usadas.size;
+      document.getElementById("auditoriaSoftStat").textContent = `${listaDocas.length} docas`;
+      document.getElementById("auditoriaTabelaSoftStat").textContent = `${rows.length} cargas`;
+
+      const selectDoca = document.getElementById("auditoriaDocaFiltroDoca");
+      if(selectDoca){
+        const atual = selectDoca.value;
+        selectDoca.innerHTML = `<option value="">Todas</option>` + listaDocas.map(d => {
+          const valor = d.nome_original || d.nome || d.numero;
+          const label = d.nome_exibicao || d.nome || `Doca ${d.numero}`;
+          return `<option value="${esc(valor)}">${esc(label)}</option>`;
+        }).join("");
+        if(atual) selectDoca.value = atual;
+      }
+
+      document.getElementById("auditoriaDocaGrid").innerHTML = listaDocas.map(d => {
+        const valor = d.nome_original || d.nome || String(d.numero || "");
+        const label = d.nome_exibicao || d.nome || `Doca ${d.numero || ""}`;
+        const row = rows.find(r => getDocaNome(r) === valor) || linhasFiltradas().find(r => getDocaNome(r) === valor && isAuditoriaStatusAgenda(r.status_global));
+        const auditoria = row ? getAuditoriaByAgendaId(row.id) : null;
+        const status = row ? getAuditoriaStatusDerivado(row) : "Disponível";
+        const legenda = auditoria?.legenda || (row ? row.status_global : "Sem carga vinculada");
+        const obs = auditoria?.observacao || d?.observacao || "";
+        return `<div class="auditoria-doca-card">
+          <div class="dock-head">
+            <strong>${esc(label)}</strong>
+            <span class="auditoria-badge ${getAuditStatusClass(status)}">${esc(status)}</span>
+          </div>
+          <div class="meta">
+            DT: ${esc(row?.dt || "-")}<br>
+            Cliente: ${esc(row?.cliente || "-")}<br>
+            Transportadora: ${esc(row?.transportadora || "-")}<br>
+            Legenda: ${esc(legenda || "-")}
+          </div>
+          ${obs ? `<div class="dock-note"><strong>Obs.:</strong> ${esc(obs)}</div>` : ``}
+          <div class="dock-actions">
+            <button class="mini blue" onclick="abrirAuditoriaDocaComFiltro('${esc(valor)}')">Filtrar</button>
+            <button class="mini orange" onclick="abrirModalObservacaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Observação</button>
+            ${row ? `<button class="mini green" onclick="abrirAuditoriaDocaPorAgenda('${esc(row.id)}')">Registrar</button>` : ``}
+          </div>
+        </div>`;
+      }).join("");
+
+      document.getElementById("auditoriaDocaTabela").innerHTML = rows.map(r => {
+        const auditoria = getAuditoriaByAgendaId(r.id);
+        const status = auditoria?.status_auditoria || getAuditoriaStatusDerivado(r);
+        const legenda = auditoria?.legenda || r.status_global || "-";
+        const obs = auditoria?.observacao || "";
+        return `<tr>
+          <td>${fmtDate(r.data_agenda)}</td>
+          <td>${esc(getDocaNome(r) || "-")}</td>
+          <td>${esc(r.dt)}</td>
+          <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span></td>
+          <td>${esc(r.cliente || "-")}</td>
+          <td>${esc(r.transportadora || "-")}</td>
+          <td><span class="auditoria-badge ${getAuditStatusClass(status)}">${esc(status)}</span><div style="margin-top:6px;color:var(--muted);font-size:11px">${esc(legenda)}</div></td>
+          <td>${esc(obs || "-")}</td>
+          <td>
+            <div class="audit-action-row">
+              <button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button>
+              <button class="mini green" onclick="abrirAuditoriaDocaPorAgenda('${esc(r.id)}')">Registrar</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join("");
+    }
+
+function ymsCanOpenView(view){
   const reqs = window.YMS_VIEW_PERMISSIONS || {};
   const required = reqs[view];
   if(!required) return true;
@@ -1020,7 +1304,7 @@ function setView(view, btn){
     targetBtn.classList.add("active");
   }
 
-  ["dashboard","agenda","separacao","expedicao","patio","motoristas","transportadoras","docas","checkin","relatorios","resultado-separacao","passagem-turno","admin"].forEach(v => {
+  ["dashboard","agenda","separacao","expedicao","patio","motoristas","transportadoras","docas","auditoria-doca","checkin","relatorios","resultado-separacao","passagem-turno","admin"].forEach(v => {
     const el = document.getElementById(`view-${v}`);
     if(el) el.classList.add("hidden");
   });
@@ -1212,10 +1496,11 @@ function setView(view, btn){
 
       conferentes = confRes.data || [];
       docas = (docaRes.data || []).slice().sort((a, b) => compararDocas(a?.nome, b?.nome));
+      syncObservacoesDocasLocais();
       window._motoristas = motRes.data || [];
       window._transportadoras = transRes.data || [];
 
-      ["a_doca_agenda","p_doca","m_doca_agenda","m_doca_planejada","m_doca_carregamento"].forEach(preencherSelectDocas);
+      ["a_doca_agenda","p_doca","m_doca_agenda","m_doca_planejada","m_doca_carregamento","auditoriaDocaFiltroDoca"].forEach(preencherSelectDocas);
       ["m_conf_recebimento","m_conf_expedicao"].forEach(preencherSelectConferentes);
       carregarMotoristas();
       carregarTransportadoras();
@@ -1281,6 +1566,7 @@ function setView(view, btn){
       }
       registros = data || [];
       await carregarPatioFila();
+      await carregarDocaAuditorias();
       renderTudo();
     }
 
@@ -1297,6 +1583,7 @@ function setView(view, btn){
       }
       registros = data || [];
       await carregarPatioFila();
+      await carregarDocaAuditorias();
       renderTudo();
     }
 
@@ -1308,6 +1595,7 @@ function setView(view, btn){
       renderExpedicao();
       renderPatio();
       renderDocas();
+      renderAuditoriaDoca();
       renderCheckin();
       renderRelatorios();
       renderResultadoSeparacao();
@@ -1451,6 +1739,7 @@ function setView(view, btn){
         const hasConflict = conflitoIds.has(r.id);
         const acoes = [];
         acoes.push(`<button class="mini blue" onclick="abrirDTPorId('${esc(r.id)}')">Abrir DT</button>`);
+        if(isAuditoriaStatusAgenda(r.status_global) && getDocaNome(r)) acoes.push(`<button class="mini green" onclick="abrirAuditoriaDocaPorAgenda('${esc(r.id)}')">Auditoria</button>`);
         if(podeTransicionar(r.status_global || "Agendado", "Em Separação")) acoes.push(`<button class="mini orange" onclick="mudarStatus('${esc(r.id)}','Em Separação')">Separação</button>`);
         return `<tr>
           <td>${esc(r.dt)}</td>
@@ -1566,7 +1855,8 @@ function setView(view, btn){
       }).join("");
     }
 
-    function renderDocas(){
+    
+function renderDocas(){
       const rows = getAgendaRows();
       const listaDocas = getDocasOrdenadas();
       let livres = 0;
@@ -1578,10 +1868,20 @@ function setView(view, btn){
         const filaAtual = patioFilaRegistros.find(r => compararDocas(r.doca_destino || "", nome) === 0 && r.status_fila === "em_doca");
         const atual = filaAtual ? (registros.find(a => a.id === filaAtual.agenda_id) || filaAtual) : estado.row;
         const nomeExibicao = d.nome_exibicao || nome;
+        const observacao = d.observacao || getDocaObservacao(d.id || d.numero || d.nome) || "";
 
         if(estado.kind === "free"){
           livres++;
-          return `<div class="dock free"><div class="dock-head"><strong>${esc(nomeExibicao)}</strong><span class="count">Livre</span></div><div class="meta">Sem veículo na doca.</div><div class="dock-state free">Livre</div></div>`;
+          return `<div class="dock free">
+            <div class="dock-head"><strong>${esc(nomeExibicao)}</strong><span class="count">Livre</span></div>
+            <div class="meta">Sem veículo na doca.</div>
+            ${observacao ? `<div class="dock-note"><strong>Obs.:</strong> ${esc(observacao)}</div>` : ``}
+            <div class="dock-actions">
+              <button class="mini orange" onclick="event.stopPropagation();abrirModalObservacaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Observação</button>
+              <button class="mini blue" onclick="event.stopPropagation();abrirAuditoriaDocaComFiltro('${esc(nome)}')">Auditoria</button>
+            </div>
+            <div class="dock-state free">Livre</div>
+          </div>`;
         }
 
         ocupadas++;
@@ -1591,6 +1891,11 @@ function setView(view, btn){
         return `<div class="dock ${estado.kind === "reserved" ? "free" : "busy"}" onclick="abrirDTPorId('${esc((atual && (atual.agenda_id || atual.id)) || '')}')">
           <div class="dock-head"><strong>${esc(nomeExibicao)}</strong><span class="count">${esc((atual && (atual.status_global || atual.status_fila)) || estado.label)}</span></div>
           <div class="meta">DT: ${esc((atual && atual.dt) || "-")}<br>Transportadora: ${esc((atual && atual.transportadora) || "-")}<br>Motorista: ${esc((atual && atual.motorista) || "-")}<br>Telefone: ${esc(formatarTelefoneVisual(phone) || "-")}<br>Doca: ${esc(nomeExibicao)}<br><span class="${sla.cls}">${sla.label}</span></div>
+          ${observacao ? `<div class="dock-note"><strong>Obs.:</strong> ${esc(observacao)}</div>` : ``}
+          <div class="dock-actions">
+            <button class="mini orange" onclick="event.stopPropagation();abrirModalObservacaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Observação</button>
+            <button class="mini blue" onclick="event.stopPropagation();abrirAuditoriaDocaComFiltro('${esc(nome)}')">Auditoria</button>
+          </div>
           <div class="dock-state ${stateClass}">${esc(estado.label)}</div>
         </div>`;
       }).join("");
