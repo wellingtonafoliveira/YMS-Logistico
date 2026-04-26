@@ -2048,7 +2048,7 @@ function renderDocas(){
             ${motivoInterdicao ? `<div class="dock-interdicao-note"><strong>Motivo:</strong> ${esc(motivoInterdicao)}</div>` : ``}
             ${observacao ? `<div class="dock-note"><strong>Obs.:</strong> ${esc(observacao)}</div>` : ``}
             <div class="dock-actions">
-              <button class="mini red" onclick="event.stopPropagation();abrirModalInterdicaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Interditar</button>
+              <button class="mini red" type="button" onclick="event.stopPropagation();abrirModalInterdicaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')"" type="button">Interditar</button>
               <button class="mini orange" onclick="event.stopPropagation();abrirModalObservacaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Observação</button>
             </div>
             <div class="dock-state interditada">Interditada</div>
@@ -2062,7 +2062,7 @@ function renderDocas(){
             <div class="meta">Sem veículo na doca.</div>
             ${observacao ? `<div class="dock-note"><strong>Obs.:</strong> ${esc(observacao)}</div>` : ``}
             <div class="dock-actions">
-              <button class="mini red" onclick="event.stopPropagation();abrirModalInterdicaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Interditar</button>
+              <button class="mini red" type="button" onclick="event.stopPropagation();abrirModalInterdicaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')"" type="button">Interditar</button>
               <button class="mini orange" onclick="event.stopPropagation();abrirModalObservacaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Observação</button>
               <button class="mini blue" onclick="event.stopPropagation();abrirAuditoriaDocaComFiltro('${esc(nome)}')">Auditoria</button>
             </div>
@@ -2079,7 +2079,7 @@ function renderDocas(){
           <div class="meta">DT: ${esc((atual && atual.dt) || "-")}<br>Transportadora: ${esc((atual && atual.transportadora) || "-")}<br>Motorista: ${esc((atual && atual.motorista) || "-")}<br>Telefone: ${esc(formatarTelefoneVisual(phone) || "-")}<br>Doca: ${esc(nomeExibicao)}<br><span class="${sla.cls}">${sla.label}</span></div>
           ${observacao ? `<div class="dock-note"><strong>Obs.:</strong> ${esc(observacao)}</div>` : ``}
           <div class="dock-actions">
-            <button class="mini red" onclick="event.stopPropagation();abrirModalInterdicaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Interditar</button>
+            <button class="mini red" type="button" onclick="event.stopPropagation();abrirModalInterdicaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')"" type="button">Interditar</button>
             <button class="mini orange" onclick="event.stopPropagation();abrirModalObservacaoDoca('${esc(String(d.id || d.numero || d.nome || ""))}')">Observação</button>
             <button class="mini blue" onclick="event.stopPropagation();abrirAuditoriaDocaComFiltro('${esc(nome)}')">Auditoria</button>
           </div>
@@ -5101,3 +5101,11 @@ renderPassagemTurno = function(){
   const totalRef = document.getElementById('passagemTotalQuadro');
   if(totalRef) totalRef.textContent = totalQuadro;
 };
+
+document.addEventListener("click", (ev) => {
+  const btn = ev.target.closest("[data-action='interditar-doca']");
+  if(!btn) return;
+  ev.preventDefault();
+  ev.stopPropagation();
+  abrirModalInterdicaoDoca(btn.getAttribute("data-doca-id"));
+});
