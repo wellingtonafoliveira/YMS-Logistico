@@ -1204,8 +1204,12 @@ function syncFiltroDataAcrossViews(value = ''){
       const rows = getAuditoriaDocaRows();
       const listaDocas = getDocasOrdenadas();
       const usadas = new Set(rows.map(r => getDocaNome(r)).filter(Boolean));
+      const qtdDisponivel = rows.filter(r => getAuditoriaStatusDerivado(r) === "Disponível").length;
+      const qtdCarregando = rows.filter(r => getAuditoriaStatusDerivado(r) === "Carregando").length;
       document.getElementById("auditoriaTotalRef").textContent = rows.length;
       document.getElementById("auditoriaDocasRef").textContent = usadas.size;
+      const elDisp = document.getElementById("auditoriaDisponiveisRef"); if(elDisp) elDisp.textContent = qtdDisponivel;
+      const elCarr = document.getElementById("auditoriaCarregandoRef"); if(elCarr) elCarr.textContent = qtdCarregando;
       document.getElementById("auditoriaSoftStat").textContent = `${listaDocas.length} docas`;
       document.getElementById("auditoriaTabelaSoftStat").textContent = `${rows.length} cargas`;
 
@@ -1228,16 +1232,16 @@ function syncFiltroDataAcrossViews(value = ''){
         const status = row ? getAuditoriaStatusDerivado(row) : "Disponível";
         const legenda = auditoria?.legenda || (row ? row.status_global : "Sem carga vinculada");
         const obs = auditoria?.observacao || d?.observacao || "";
-        return `<div class="auditoria-doca-card">
+        return `<div class="auditoria-doca-card status-${String(status || 'Aguardando').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-')}">
           <div class="dock-head">
             <strong>${esc(label)}</strong>
             <span class="auditoria-badge ${getAuditStatusClass(status)}">${esc(status)}</span>
           </div>
           <div class="meta">
-            DT: ${esc(row?.dt || "-")}<br>
-            Cliente: ${esc(row?.cliente || "-")}<br>
-            Transportadora: ${esc(row?.transportadora || "-")}<br>
-            Legenda: ${esc(legenda || "-")}
+            <strong>DT:</strong> ${esc(row?.dt || "-")}<br>
+            <strong>Cliente:</strong> ${esc(row?.cliente || "-")}<br>
+            <strong>Transportadora:</strong> ${esc(row?.transportadora || "-")}<br>
+            <strong>Legenda:</strong> ${esc(legenda || "-")}
           </div>
           ${obs ? `<div class="dock-note"><strong>Obs.:</strong> ${esc(obs)}</div>` : ``}
           <div class="dock-actions">
