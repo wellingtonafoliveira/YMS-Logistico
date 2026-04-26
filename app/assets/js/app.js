@@ -992,7 +992,39 @@ function syncFiltroDataAcrossViews(value = ''){
     }
 
     
-    const AUDITORIA_DOCA_STATUSES = ["Aguardando","Carregando","Disponível","Devolução","Reagendado","Solto"];
+    
+    function getAuditoriaReferenceDate(){
+      const filtro = document.getElementById("filtroData")?.value;
+      if(filtro) return filtro;
+      return new Date().toISOString().slice(0,10);
+    }
+
+    function diffDaysISO(dateA, dateB){
+      if(!dateA || !dateB) return 0;
+      const a = new Date(`${dateA}T00:00:00`);
+      const b = new Date(`${dateB}T00:00:00`);
+      return Math.round((b - a) / 86400000);
+    }
+
+    function isCargaParadaAuditoria(row){
+      if(!row) return false;
+      const status = String(row.status_global || "").trim();
+      const dataAgenda = String(row.data_agenda || "").slice(0,10);
+      const ref = getAuditoriaReferenceDate();
+      if(!dataAgenda || !ref) return false;
+      if(status === "Expedido") return false;
+      if(!getDocaNome(row)) return false;
+      return dataAgenda < ref;
+    }
+
+    function getDiasEmAbertoAuditoria(row){
+      const dataAgenda = String(row?.data_agenda || "").slice(0,10);
+      const ref = getAuditoriaReferenceDate();
+      if(!dataAgenda || !ref) return 0;
+      return Math.max(0, diffDaysISO(dataAgenda, ref));
+    }
+
+const AUDITORIA_DOCA_STATUSES = ["Aguardando","Carregando","Disponível","Devolução","Reagendado","Solto"];
 
     function getLocalStorageJson(key, fallback){
       try{
@@ -1035,13 +1067,13 @@ function syncFiltroDataAcrossViews(value = ''){
     }
 
     function getAuditoriaDocaRows(){
-      let rows = linhasFiltradas().filter(r => isAuditoriaStatusAgenda(r.status_global) && getDocaNome(r));
+      let rows = (registros || []).filter(r => isCargaParadaAuditoria(r));
       const busca = (document.getElementById("auditoriaFiltroBusca")?.value || "").trim().toLowerCase();
       const doca = (document.getElementById("auditoriaDocaFiltroDoca")?.value || "").trim().toLowerCase();
       const statusAud = document.getElementById("auditoriaFiltroStatus")?.value || "";
 
       if(busca){
-        rows = rows.filter(r => [r.dt, r.cliente, r.transportadora].some(v => String(v || "").toLowerCase().includes(busca)));
+        rows = rows.filter(r => [r.dt, r.cliente, r.transportadora, r.status_global].some(v => String(v || "").toLowerCase().includes(busca)));
       }
       if(doca){
         rows = rows.filter(r => getDocaNome(r).toLowerCase() === doca);
@@ -1049,7 +1081,13 @@ function syncFiltroDataAcrossViews(value = ''){
       if(statusAud){
         rows = rows.filter(r => (getAuditoriaByAgendaId(r.id)?.status_auditoria || "Aguardando") === statusAud);
       }
-      return rows;
+
+      return rows.sort((a,b) => {
+        const da = String(a.data_agenda || "");
+        const db = String(b.data_agenda || "");
+        if(da !== db) return da.localeCompare(db);
+        return String(a.dt || "").localeCompare(String(b.dt || ""), "pt-BR", { numeric:true, sensitivity:"base" });
+      });
     }
 
     function getAuditoriaByAgendaId(agendaId){
@@ -1060,8 +1098,7 @@ function syncFiltroDataAcrossViews(value = ''){
       const auditoria = getAuditoriaByAgendaId(row?.id);
       if(auditoria?.status_auditoria) return auditoria.status_auditoria;
       if(row?.status_global === "Em Carregamento") return "Carregando";
-      if(row?.status_global === "Expedido") return "Disponível";
-      if(row?.status_global === "No Pátio") return "Aguardando";
+      if(["Separado","Pronto Expedição","No Pátio","Em Doca"].includes(String(row?.status_global || ""))) return "Aguardando";
       return "Aguardando";
     }
 
@@ -1204,11 +1241,11 @@ function syncFiltroDataAcrossViews(value = ''){
       const rows = getAuditoriaDocaRows();
       const listaDocas = getDocasOrdenadas();
       const usadas = new Set(rows.map(r => getDocaNome(r)).filter(Boolean));
-      const qtdDisponivel = rows.filter(r => getAuditoriaStatusDerivado(r) === "Disponível").length;
+      const qtdEmAberto = rows.filter(r => getAuditoriaStatusDerivado(r) !== "Solto").length;
       const qtdCarregando = rows.filter(r => getAuditoriaStatusDerivado(r) === "Carregando").length;
       document.getElementById("auditoriaTotalRef").textContent = rows.length;
       document.getElementById("auditoriaDocasRef").textContent = usadas.size;
-      const elDisp = document.getElementById("auditoriaDisponiveisRef"); if(elDisp) elDisp.textContent = qtdDisponivel;
+      const elDisp = document.getElementById("auditoriaDisponiveisRef"); if(elDisp) elDisp.textContent = qtdEmAberto;
       const elCarr = document.getElementById("auditoriaCarregandoRef"); if(elCarr) elCarr.textContent = qtdCarregando;
       document.getElementById("auditoriaSoftStat").textContent = `${listaDocas.length} docas`;
       document.getElementById("auditoriaTabelaSoftStat").textContent = `${rows.length} cargas`;
@@ -1230,7 +1267,7 @@ function syncFiltroDataAcrossViews(value = ''){
         const row = rows.find(r => getDocaNome(r) === valor) || linhasFiltradas().find(r => getDocaNome(r) === valor && isAuditoriaStatusAgenda(r.status_global));
         const auditoria = row ? getAuditoriaByAgendaId(row.id) : null;
         const status = row ? getAuditoriaStatusDerivado(row) : "Disponível";
-        const legenda = auditoria?.legenda || (row ? row.status_global : "Sem carga vinculada");
+        const legenda = auditoria?.legenda || (row ? `Parada desde ${fmtDate(row.data_agenda)}` : "Sem carga parada vinculada");
         const obs = auditoria?.observacao || d?.observacao || "";
         return `<div class="auditoria-doca-card status-${String(status || 'Aguardando').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-')}">
           <div class="dock-head">
@@ -1241,7 +1278,8 @@ function syncFiltroDataAcrossViews(value = ''){
             <strong>DT:</strong> ${esc(row?.dt || "-")}<br>
             <strong>Cliente:</strong> ${esc(row?.cliente || "-")}<br>
             <strong>Transportadora:</strong> ${esc(row?.transportadora || "-")}<br>
-            <strong>Legenda:</strong> ${esc(legenda || "-")}
+            <strong>Legenda:</strong> ${esc(legenda || "-")}<br>
+            <strong>Dias em aberto:</strong> ${getDiasEmAbertoAuditoria(row)}
           </div>
           ${obs ? `<div class="dock-note"><strong>Obs.:</strong> ${esc(obs)}</div>` : ``}
           <div class="dock-actions">
@@ -1262,6 +1300,7 @@ function syncFiltroDataAcrossViews(value = ''){
           <td>${esc(getDocaNome(r) || "-")}</td>
           <td>${esc(r.dt)}</td>
           <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span></td>
+          <td>${getDiasEmAbertoAuditoria(r)}</td>
           <td>${esc(r.cliente || "-")}</td>
           <td>${esc(r.transportadora || "-")}</td>
           <td><span class="auditoria-badge ${getAuditStatusClass(status)}">${esc(status)}</span><div style="margin-top:6px;color:var(--muted);font-size:11px">${esc(legenda)}</div></td>
