@@ -69,6 +69,7 @@
         <button id="menu-checkin" data-short="Chk" onclick="setView('checkin', this)"><span class="menu-icon icon-docas"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="12" height="16" rx="2"></rect><path d="M9 4h6"></path><path d="M9 12l2 2 4-4"></path><path d="M9 17h6"></path></svg></span><span class="menu-text">Check-in</span></button>
         <button id="menu-patio" data-short="Pat" onclick="setView('patio', this)"><span class="menu-icon icon-patio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V8l8-4 8 4v10"></path><path d="M8 18v-4h8v4"></path></svg></span><span class="menu-text">Pátio</span></button>
         <button id="menu-docas" data-short="Doc" onclick="setView('docas', this)"><span class="menu-icon icon-docas"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="16" rx="2"></rect><rect x="14" y="4" width="6" height="16" rx="2"></rect><path d="M10 8h4"></path><path d="M10 16h4"></path></svg></span><span class="menu-text">Docas</span></button>
+        <button id="menu-auditoria-doca" data-short="Aud" onclick="setView('auditoria-doca', this)"><span class="menu-icon icon-relatorios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h10"></path><circle cx="18" cy="19" r="2"></circle></svg></span><span class="menu-text">Auditoria de Doca</span></button>
         <button id="menu-separacao" data-short="Sep" onclick="setView('separacao', this)"><span class="menu-icon icon-separacao"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M4 12h10"></path><path d="M4 17h7"></path><circle cx="18" cy="12" r="3"></circle></svg></span><span class="menu-text">Separação</span></button>
         <button id="menu-expedicao" data-short="Exp" onclick="setView('expedicao', this)"><span class="menu-icon icon-expedicao"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h10v8H3z"></path><path d="M13 10h4l3 3v3h-7z"></path><circle cx="8" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg></span><span class="menu-text">Expedição</span></button>
 
@@ -494,6 +495,101 @@
           <div class="dock-grid dock-grid-premium" id="docasGrid" style="padding:18px"></div>
         </div>
       </section>
+
+      
+      <section id="view-auditoria-doca" class="hidden">
+        <div class="section-hero">
+          <div class="section-hero-card soft-glow">
+            <h3>Auditoria de doca</h3>
+            <p>Painel para acompanhar e registrar todas as cargas separadas, com leitura por doca, observações operacionais e vínculo direto com agenda e docas.</p>
+            <div class="section-mini-grid">
+              <div class="section-mini">
+                <span>Cargas auditáveis</span>
+                <strong id="auditoriaTotalRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Docas com auditoria</span>
+                <strong id="auditoriaDocasRef">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="section-hero-card soft-glow">
+            <h3>Visão integrada</h3>
+            <p>Esta página consolida a agenda separada por doca, permite registrar status e observações da auditoria e também consultar observações cadastradas em cada doca.</p>
+          </div>
+        </div>
+
+        <div class="filters-card soft-glow">
+          <div class="card-title-row">
+            <div>
+              <h2 style="margin:0">Filtros da auditoria</h2>
+              <p>Filtre por doca, status da auditoria ou busque por DT, cliente e transportadora.</p>
+            </div>
+            <span class="premium-badge">Auditoria</span>
+          </div>
+          <div class="filters-grid">
+            <div><label>Busca rápida</label><input id="auditoriaFiltroBusca" placeholder="DT, cliente ou transportadora" oninput="renderAuditoriaDoca()"></div>
+            <div><label>Doca</label><select id="auditoriaDocaFiltroDoca" onchange="renderAuditoriaDoca()"><option value="">Todas</option></select></div>
+            <div><label>Status da auditoria</label>
+              <select id="auditoriaFiltroStatus" onchange="renderAuditoriaDoca()">
+                <option value="">Todos</option>
+                <option value="Aguardando">Aguardando</option>
+                <option value="Carregando">Carregando</option>
+                <option value="Disponível">Disponível</option>
+                <option value="Devolução">Devolução</option>
+                <option value="Reagendado">Reagendado</option>
+                <option value="Solto">Solto</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card premium-table-card">
+          <div class="premium-table-head">
+            <div>
+              <h2>Mapa de auditoria por doca</h2>
+              <p>Resumo visual da situação atual de cada doca com base na agenda e nos registros de auditoria.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="auditoriaSoftStat">0 registros</span>
+              <span class="premium-badge">Mapa</span>
+            </div>
+          </div>
+          <div class="auditoria-doca-grid" id="auditoriaDocaGrid"></div>
+        </div>
+
+        <div class="card premium-table-card" style="margin-top:16px">
+          <div class="premium-table-head">
+            <div>
+              <h2>Cargas separadas para auditoria</h2>
+              <p>Lista de cargas já separadas ou em fases posteriores, prontas para registro e acompanhamento de doca.</p>
+            </div>
+            <div class="group">
+              <span class="soft-stat" id="auditoriaTabelaSoftStat">0 cargas</span>
+              <span class="premium-badge">Agenda + Doca</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data agenda</th>
+                  <th>Doca</th>
+                  <th>DT</th>
+                  <th>Status</th>
+                  <th>Cliente</th>
+                  <th>Transportadora</th>
+                  <th>Legenda auditoria</th>
+                  <th>Observação</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="auditoriaDocaTabela"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
 
       <section id="view-checkin" class="hidden">
         <div class="section-hero">
@@ -1486,6 +1582,66 @@
       </div>
     </div>
   </div>
+
+
+  <div class="modal hidden" id="docaObsModal">
+    <div class="modal-content modal-content-wide">
+      <div class="modal-head">
+        <div>
+          <h2>Observação da doca</h2>
+          <p id="docaObsModalSub">Edite a observação operacional da doca.</p>
+        </div>
+        <button class="modal-close" onclick="fecharModalObservacaoDoca()">✕</button>
+      </div>
+      <div class="modal-card soft-glow">
+        <div class="fields">
+          <div><label>Doca</label><input id="docaObsNome" disabled></div>
+          <div class="full"><label>Observação</label><textarea id="docaObsTexto" placeholder="Digite a observação operacional da doca"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-success" onclick="salvarObservacaoDoca()">Salvar observação</button>
+        <button class="btn btn-light" onclick="fecharModalObservacaoDoca()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="auditoriaDocaModal">
+    <div class="modal-content modal-content-wide">
+      <div class="modal-head">
+        <div>
+          <h2>Registro de auditoria de doca</h2>
+          <p id="auditoriaDocaModalSub">Atualize o status e a observação desta carga.</p>
+        </div>
+        <button class="modal-close" onclick="fecharAuditoriaDocaModal()">✕</button>
+      </div>
+      <div class="modal-card soft-glow">
+        <div class="fields">
+          <div><label>Doca</label><input id="auditoriaModalDoca" disabled></div>
+          <div><label>DT</label><input id="auditoriaModalDt" disabled></div>
+          <div><label>Cliente</label><input id="auditoriaModalCliente" disabled></div>
+          <div><label>Transportadora</label><input id="auditoriaModalTransportadora" disabled></div>
+          <div><label>Status da auditoria</label>
+            <select id="auditoriaModalStatus">
+              <option value="Aguardando">Aguardando</option>
+              <option value="Carregando">Carregando</option>
+              <option value="Disponível">Disponível</option>
+              <option value="Devolução">Devolução</option>
+              <option value="Reagendado">Reagendado</option>
+              <option value="Solto">Solto</option>
+            </select>
+          </div>
+          <div><label>Legenda visual</label><input id="auditoriaModalLegenda" placeholder="Ex.: Aguardando posição do agendamento"></div>
+          <div class="full"><label>Observação da auditoria</label><textarea id="auditoriaModalObs" placeholder="Digite a observação da auditoria"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-success" onclick="salvarAuditoriaDocaModal()">Salvar auditoria</button>
+        <button class="btn btn-light" onclick="fecharAuditoriaDocaModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
 
   <div class="toast" id="toast"></div>
   <script src="assets/js/app.js"></script>
