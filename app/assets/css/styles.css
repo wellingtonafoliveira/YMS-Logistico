@@ -9868,3 +9868,21 @@ th{
   .auditoria-kpis-row,
   .auditoria-doca-grid{ grid-template-columns:1fr; }
 }
+
+
+/* ===== AUDITORIA DE DOCA V3 - CARGAS PARADAS ===== */
+.auditoria-top-card .card-title-row p,
+.auditoria-mapa-card .premium-table-head p,
+.auditoria-table-card .premium-table-head p{
+  max-width:780px;
+}
+.auditoria-doca-card .meta strong{
+  color:#eef4ff;
+  font-weight:800;
+}
+.auditoria-table-wrap tbody tr{
+  background:rgba(255,255,255,.01);
+}
+.auditoria-table-wrap tbody tr:hover{
+  background:rgba(255,255,255,.03);
+}
