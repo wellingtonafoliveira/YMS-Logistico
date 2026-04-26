@@ -1087,6 +1087,15 @@ const AUDITORIA_DOCA_STATUSES = ["Aguardando","Carregando","Disponível","Devolu
       if(!isDocaInterditadaValue(valorDoca)) return true;
       const motivo = getMotivoInterdicaoByValor(valorDoca);
       alert(`${contexto || "Esta doca"} está interditada.${motivo ? "\nMotivo: " + motivo : ""}`);
+
+    function renderDocaComInterdicao(valorDoca){
+      const valor = String(valorDoca || "").trim();
+      if(!valor) return "-";
+      const motivo = getMotivoInterdicaoByValor(valor);
+      const interditada = isDocaInterditadaValue(valor);
+      return `${esc(valor)}${interditada ? `<span class="doca-tag-interditada">Interditada</span>${motivo ? `<span class="doca-motivo-bloqueio">${esc(motivo)}</span>` : ``}` : ``}`;
+    }
+
       return false;
     }
 
@@ -1405,9 +1414,11 @@ function getDocaObservacao(id){
         const status = row ? getAuditoriaStatusDerivado(row) : "Disponível";
         const legenda = auditoria?.legenda || (row ? `Parada desde ${fmtDate(row.data_agenda)}` : "Sem carga parada vinculada");
         const obs = auditoria?.observacao || d?.observacao || "";
-        return `<div class="auditoria-doca-card status-${String(status || 'Aguardando').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-')}">
+        const interditada = isDocaInterditadaValue(valor);
+        const motivoInterdicao = getMotivoInterdicaoByValor(valor);
+        return `<div class="auditoria-doca-card ${interditada ? 'interditada' : ''} status-${String(status || 'Aguardando').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-')}">
           <div class="dock-head">
-            <strong>${esc(label)}</strong>
+            <strong>${esc(label)}${interditada ? `<span class="doca-tag-interditada">Interditada</span>` : ``}</strong>
             <span class="auditoria-badge ${getAuditStatusClass(status)}">${esc(status)}</span>
           </div>
           <div class="meta">
@@ -1417,6 +1428,7 @@ function getDocaObservacao(id){
             <strong>Legenda:</strong> ${esc(legenda || "-")}<br>
             <strong>Dias em aberto:</strong> ${getDiasEmAbertoAuditoria(row)}
           </div>
+          ${interditada ? `<div class="auditoria-alerta-interdicao"><strong>Doca interditada.</strong>${motivoInterdicao ? ` Motivo: ${esc(motivoInterdicao)}` : ``}</div>` : ``}
           ${obs ? `<div class="dock-note"><strong>Obs.:</strong> ${esc(obs)}</div>` : ``}
           <div class="dock-actions">
             <button class="mini blue" onclick="abrirAuditoriaDocaComFiltro('${esc(valor)}')">Filtrar</button>
@@ -1431,9 +1443,11 @@ function getDocaObservacao(id){
         const status = auditoria?.status_auditoria || getAuditoriaStatusDerivado(r);
         const legenda = auditoria?.legenda || r.status_global || "-";
         const obs = auditoria?.observacao || "";
+        const docaInterditadaAgenda = isDocaInterditadaValue(r.doca_agenda || r.doca_planejada || r.doca_carregamento || "");
+        const motivoDocaAgenda = getMotivoInterdicaoByValor(r.doca_agenda || r.doca_planejada || r.doca_carregamento || "");
         return `<tr>
           <td>${fmtDate(r.data_agenda)}</td>
-          <td>${esc(getDocaNome(r) || "-")}${isDocaInterditadaValue(getDocaNome(r)) ? `<span class="doca-chip-interditada">Interditada</span>${getMotivoInterdicaoByValor(getDocaNome(r)) ? `<span class="doca-motivo-inline">${esc(getMotivoInterdicaoByValor(getDocaNome(r)))}</span>` : ``}` : ``}</td>
+          <td>${renderDocaComInterdicao(getDocaNome(r) || "-")}</td>
           <td>${esc(r.dt)}</td>
           <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span></td>
           <td>${getDiasEmAbertoAuditoria(r)}</td>
@@ -1942,7 +1956,7 @@ function setView(view, btn){
           <td>${esc(r.doca_agenda || r.doca_planejada || "-")}</td>
           <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span>${hasConflict ? ` <span class="log-badge">Conflito</span>` : ``}</td>
           <td><span class="${sla.cls}">${sla.label}</span></td>
-          <td><div class="mini-actions">${acoes.join("")}</div></td>
+          <td><div class="mini-actions">${acoes.join("")}</div>${docaInterditadaAgenda ? `<div class="doca-motivo-bloqueio">Doca interditada${motivoDocaAgenda ? `: ${esc(motivoDocaAgenda)}` : ``}</div>` : ``}</td>
         </tr>`;
       }).join("");
     }
