@@ -9886,3 +9886,54 @@ th{
 .auditoria-table-wrap tbody tr:hover{
   background:rgba(255,255,255,.03);
 }
+
+
+/* ===== DOCAS - INTERDIÇÃO ===== */
+.dock.interditada{
+  border-color:rgba(239,68,68,.28) !important;
+  background:
+    radial-gradient(circle at top right, rgba(239,68,68,.10), transparent 24%),
+    linear-gradient(180deg, rgba(28,14,18,.96), rgba(18,10,12,.94)) !important;
+}
+.dock.interditada .dock-head strong{
+  color:#fecaca;
+}
+.dock-state.interditada{
+  background:rgba(239,68,68,.16);
+  color:#fecaca;
+  border:1px solid rgba(239,68,68,.22);
+}
+.dock-interdicao-note{
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px dashed rgba(239,68,68,.18);
+  color:#fecaca;
+  font-size:10.5px;
+  line-height:1.45;
+}
+
+
+/* ===== DOCA INTERDITADA V5 ===== */
+.select-option-interditada{
+  color:#fecaca;
+}
+.doca-chip-interditada{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:900;
+  background:rgba(239,68,68,.14);
+  color:#fecaca;
+  border:1px solid rgba(239,68,68,.22);
+  margin-left:6px;
+}
+.doca-motivo-inline{
+  display:block;
+  margin-top:4px;
+  color:#fecaca;
+  font-size:10px;
+  line-height:1.45;
+}
