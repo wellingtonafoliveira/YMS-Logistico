@@ -126,7 +126,7 @@
                     <input type="date" id="filtroData" onchange="syncFiltroDataAcrossViews(this.value);carregarTudo()">
                   </div>
                   <button class="btn btn-light" onclick="carregarTudo()">Atualizar</button>
-                  <div class="topbar-actions-note">Versão enterprise com visual premium, foco em leitura rápida da operação e execução mais confortável para o time logístico.</div>
+          
                 </div>
 
                 <button class="logout-btn logout-btn-top logout-btn-compact" onclick="logout()" title="Sair" aria-label="Sair">Sair</button>
@@ -497,12 +497,45 @@
       </section>
 
       
+      
       <section id="view-auditoria-doca" class="hidden">
-        <div class="section-hero">
-          <div class="section-hero-card soft-glow">
-            <h3>Auditoria de doca</h3>
-            <p>Painel para acompanhar e registrar todas as cargas separadas, com leitura por doca, observações operacionais e vínculo direto com agenda e docas.</p>
-            <div class="section-mini-grid">
+        <div class="auditoria-shell">
+          <div class="auditoria-top-card soft-glow">
+            <div class="card-title-row">
+              <div>
+                <h2 style="margin:0">Painel de auditoria de doca</h2>
+                <p>Leitura operacional das cargas separadas por doca, com vínculo direto com agenda e docas.</p>
+              </div>
+              <div class="group">
+                <span class="soft-stat" id="auditoriaSoftStat">0 registros</span>
+                <span class="premium-badge">Agenda + Doca</span>
+              </div>
+            </div>
+
+            <div class="auditoria-filtros-linha">
+              <div class="auditoria-filtro-item auditoria-filtro-busca">
+                <label>Busca rápida</label>
+                <input id="auditoriaFiltroBusca" placeholder="DT, cliente ou transportadora" oninput="renderAuditoriaDoca()">
+              </div>
+              <div class="auditoria-filtro-item">
+                <label>Doca</label>
+                <select id="auditoriaDocaFiltroDoca" onchange="renderAuditoriaDoca()"><option value="">Todas</option></select>
+              </div>
+              <div class="auditoria-filtro-item">
+                <label>Status da auditoria</label>
+                <select id="auditoriaFiltroStatus" onchange="renderAuditoriaDoca()">
+                  <option value="">Todos</option>
+                  <option value="Aguardando">Aguardando</option>
+                  <option value="Carregando">Carregando</option>
+                  <option value="Disponível">Disponível</option>
+                  <option value="Devolução">Devolução</option>
+                  <option value="Reagendado">Reagendado</option>
+                  <option value="Solto">Solto</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="auditoria-kpis-row">
               <div class="section-mini">
                 <span>Cargas auditáveis</span>
                 <strong id="auditoriaTotalRef">0</strong>
@@ -511,84 +544,61 @@
                 <span>Docas com auditoria</span>
                 <strong id="auditoriaDocasRef">0</strong>
               </div>
+              <div class="section-mini">
+                <span>Disponíveis</span>
+                <strong id="auditoriaDisponiveisRef">0</strong>
+              </div>
+              <div class="section-mini">
+                <span>Carregando</span>
+                <strong id="auditoriaCarregandoRef">0</strong>
+              </div>
             </div>
           </div>
-          <div class="section-hero-card soft-glow">
-            <h3>Visão integrada</h3>
-            <p>Esta página consolida a agenda separada por doca, permite registrar status e observações da auditoria e também consultar observações cadastradas em cada doca.</p>
-          </div>
-        </div>
 
-        <div class="filters-card soft-glow">
-          <div class="card-title-row">
-            <div>
-              <h2 style="margin:0">Filtros da auditoria</h2>
-              <p>Filtre por doca, status da auditoria ou busque por DT, cliente e transportadora.</p>
+          <div class="card premium-table-card auditoria-mapa-card">
+            <div class="premium-table-head">
+              <div>
+                <h2>Mapa de auditoria por doca</h2>
+                <p>Quadro resumido da situação atual das docas e das cargas vinculadas.</p>
+              </div>
+              <span class="premium-badge">Mapa visual</span>
             </div>
-            <span class="premium-badge">Auditoria</span>
+            <div class="auditoria-doca-grid" id="auditoriaDocaGrid"></div>
           </div>
-          <div class="filters-grid">
-            <div><label>Busca rápida</label><input id="auditoriaFiltroBusca" placeholder="DT, cliente ou transportadora" oninput="renderAuditoriaDoca()"></div>
-            <div><label>Doca</label><select id="auditoriaDocaFiltroDoca" onchange="renderAuditoriaDoca()"><option value="">Todas</option></select></div>
-            <div><label>Status da auditoria</label>
-              <select id="auditoriaFiltroStatus" onchange="renderAuditoriaDoca()">
-                <option value="">Todos</option>
-                <option value="Aguardando">Aguardando</option>
-                <option value="Carregando">Carregando</option>
-                <option value="Disponível">Disponível</option>
-                <option value="Devolução">Devolução</option>
-                <option value="Reagendado">Reagendado</option>
-                <option value="Solto">Solto</option>
-              </select>
-            </div>
-          </div>
-        </div>
 
-        <div class="card premium-table-card">
-          <div class="premium-table-head">
-            <div>
-              <h2>Mapa de auditoria por doca</h2>
-              <p>Resumo visual da situação atual de cada doca com base na agenda e nos registros de auditoria.</p>
+          <div class="card premium-table-card auditoria-table-card">
+            <div class="premium-table-head">
+              <div>
+                <h2>Cargas separadas para auditoria</h2>
+                <p>Lista de cargas já separadas ou em fases posteriores, prontas para registro e acompanhamento de doca.</p>
+              </div>
+              <div class="group">
+                <span class="soft-stat" id="auditoriaTabelaSoftStat">0 cargas</span>
+                <span class="premium-badge">Auditoria</span>
+              </div>
             </div>
-            <div class="group">
-              <span class="soft-stat" id="auditoriaSoftStat">0 registros</span>
-              <span class="premium-badge">Mapa</span>
+            <div class="table-wrap auditoria-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data agenda</th>
+                    <th>Doca</th>
+                    <th>DT</th>
+                    <th>Status</th>
+                    <th>Cliente</th>
+                    <th>Transportadora</th>
+                    <th>Legenda auditoria</th>
+                    <th>Observação</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="auditoriaDocaTabela"></tbody>
+              </table>
             </div>
-          </div>
-          <div class="auditoria-doca-grid" id="auditoriaDocaGrid"></div>
-        </div>
-
-        <div class="card premium-table-card" style="margin-top:16px">
-          <div class="premium-table-head">
-            <div>
-              <h2>Cargas separadas para auditoria</h2>
-              <p>Lista de cargas já separadas ou em fases posteriores, prontas para registro e acompanhamento de doca.</p>
-            </div>
-            <div class="group">
-              <span class="soft-stat" id="auditoriaTabelaSoftStat">0 cargas</span>
-              <span class="premium-badge">Agenda + Doca</span>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Data agenda</th>
-                  <th>Doca</th>
-                  <th>DT</th>
-                  <th>Status</th>
-                  <th>Cliente</th>
-                  <th>Transportadora</th>
-                  <th>Legenda auditoria</th>
-                  <th>Observação</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="auditoriaDocaTabela"></tbody>
-            </table>
           </div>
         </div>
       </section>
+
 
 
       <section id="view-checkin" class="hidden">
@@ -1445,9 +1455,7 @@
           </div>
         </div>
       </section>
-
-      <footer>© 2026 Gestão Logística Plus — Todos os direitos reservados • Black Premium Enterprise</footer>
-    </main>
+</main>
   </div>
 
   <div class="modal" id="dtModal">
