@@ -1014,7 +1014,8 @@ function syncFiltroDataAcrossViews(value = ''){
       if(!dataAgenda || !ref) return false;
       if(status === "Expedido") return false;
       if(!getDocaNome(row)) return false;
-      return dataAgenda < ref;
+      if(dataAgenda > ref) return false;
+      return ["Separado","Pronto Expedição","No Pátio","Em Doca","Em Carregamento","Em Separação","Agendado"].includes(status);
     }
 
     function getDiasEmAbertoAuditoria(row){
@@ -1393,7 +1394,7 @@ function getDocaObservacao(id){
       const elDisp = document.getElementById("auditoriaDisponiveisRef"); if(elDisp) elDisp.textContent = qtdEmAberto;
       const elCarr = document.getElementById("auditoriaCarregandoRef"); if(elCarr) elCarr.textContent = qtdCarregando;
       document.getElementById("auditoriaSoftStat").textContent = `${listaDocas.length} docas`;
-      document.getElementById("auditoriaTabelaSoftStat").textContent = `${rows.length} cargas`;
+      document.getElementById("auditoriaTabelaSoftStat").textContent = `${rows.length} cargas em aberto`;
 
       const selectDoca = document.getElementById("auditoriaDocaFiltroDoca");
       if(selectDoca){
@@ -1412,7 +1413,7 @@ function getDocaObservacao(id){
         const row = rows.find(r => getDocaNome(r) === valor) || linhasFiltradas().find(r => getDocaNome(r) === valor && isAuditoriaStatusAgenda(r.status_global));
         const auditoria = row ? getAuditoriaByAgendaId(row.id) : null;
         const status = row ? getAuditoriaStatusDerivado(row) : "Disponível";
-        const legenda = auditoria?.legenda || (row ? `Parada desde ${fmtDate(row.data_agenda)}` : "Sem carga parada vinculada");
+        const legenda = auditoria?.legenda || (row ? (getDiasEmAbertoAuditoria(row) > 0 ? `Parada desde ${fmtDate(row.data_agenda)}` : `Parada no dia ${fmtDate(row.data_agenda)}`) : "Sem carga parada vinculada");
         const obs = auditoria?.observacao || d?.observacao || "";
         const interditada = isDocaInterditadaValue(valor);
         const motivoInterdicao = getMotivoInterdicaoByValor(valor);
@@ -1438,7 +1439,7 @@ function getDocaObservacao(id){
         </div>`;
       }).join("");
 
-      document.getElementById("auditoriaDocaTabela").innerHTML = rows.map(r => {
+      document.getElementById("auditoriaDocaTabela").innerHTML = rows.length ? rows.map(r => {
         const auditoria = getAuditoriaByAgendaId(r.id);
         const status = auditoria?.status_auditoria || getAuditoriaStatusDerivado(r);
         const legenda = auditoria?.legenda || r.status_global || "-";
@@ -1463,7 +1464,7 @@ function getDocaObservacao(id){
             </div>
           </td>
         </tr>`;
-      }).join("");
+      }).join("") : `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:18px">Nenhuma carga elegível para auditoria no período selecionado.</td></tr>`;
     }
 
 function ymsCanOpenView(view){
