@@ -1095,17 +1095,17 @@ const AUDITORIA_DOCA_STATUSES = ["Aguardando","Carregando","Disponível","Devolu
       if(!valorDoca) return true;
       if(!isDocaInterditadaValue(valorDoca)) return true;
       const motivo = getMotivoInterdicaoByValor(valorDoca);
-      alert(`${contexto || "Esta doca"} está interditada.${motivo ? "\nMotivo: " + motivo : ""}`);
+      alert(`${contexto || "Esta doca"} está interditada.${motivo ? "
+Motivo: " + motivo : ""}`);
+      return false;
+    }
 
     function renderDocaComInterdicao(valorDoca){
       const valor = String(valorDoca || "").trim();
-      if(!valor) return "-";
+      if(!valor || valor === "-") return "-";
       const motivo = getMotivoInterdicaoByValor(valor);
       const interditada = isDocaInterditadaValue(valor);
       return `${esc(valor)}${interditada ? `<span class="doca-tag-interditada">Interditada</span>${motivo ? `<span class="doca-motivo-bloqueio">${esc(motivo)}</span>` : ``}` : ``}`;
-    }
-
-      return false;
     }
 
     function sinalizarSelectDocasInterditadas(ids){
