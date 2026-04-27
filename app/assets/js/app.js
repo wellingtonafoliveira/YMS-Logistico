@@ -1095,8 +1095,7 @@ const AUDITORIA_DOCA_STATUSES = ["Aguardando","Carregando","Disponível","Devolu
       if(!valorDoca) return true;
       if(!isDocaInterditadaValue(valorDoca)) return true;
       const motivo = getMotivoInterdicaoByValor(valorDoca);
-      alert((contexto || "Esta doca") + " está interditada." + (motivo ? "
-Motivo: " + motivo : ""));
+      alert((contexto || "Esta doca") + " está interditada." + (motivo ? "\nMotivo: " + motivo : ""));
       return false;
     }
 
