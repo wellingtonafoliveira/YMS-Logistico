@@ -9995,3 +9995,12 @@ th{
 .auditoria-table-wrap td[colspan]{
   background:rgba(255,255,255,.01);
 }
+
+
+/* ===== V12 TODAS CARGAS AUDITORIA ===== */
+.auditoria-table-wrap .doca-motivo-inline{
+  margin-top:5px;
+  color:#fecaca;
+  font-size:10px;
+  line-height:1.4;
+}
