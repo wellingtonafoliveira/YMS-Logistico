@@ -1008,14 +1008,10 @@ function syncFiltroDataAcrossViews(value = ''){
 
     function isCargaParadaAuditoria(row){
       if(!row) return false;
-      const status = String(row.status_global || "").trim();
-      const dataAgenda = String(row.data_agenda || "").slice(0,10);
       const ref = getAuditoriaReferenceDate();
-      if(!dataAgenda || !ref) return false;
-      if(status === "Expedido") return false;
-      if(!getDocaNome(row)) return false;
-      if(dataAgenda > ref) return false;
-      return ["Separado","Pronto Expedição","No Pátio","Em Doca","Em Carregamento","Em Separação","Agendado"].includes(status);
+      const dataAgenda = String(row.data_agenda || "").slice(0,10);
+      if(dataAgenda && ref && dataAgenda > ref) return false;
+      return true;
     }
 
     function getDiasEmAbertoAuditoria(row){
@@ -1024,6 +1020,18 @@ function syncFiltroDataAcrossViews(value = ''){
       if(!dataAgenda || !ref) return 0;
       return Math.max(0, diffDaysISO(dataAgenda, ref));
     }
+
+    function getSituacaoDocaAuditoria(row){
+      const doca = getDocaNome(row);
+      if(!doca) return { label:"Sem doca", cls:"audit-devolucao", motivo:"" };
+      if(isDocaInterditadaValue(doca)){
+        return { label:"Interditada", cls:"audit-solto", motivo:getMotivoInterdicaoByValor(doca) || "" };
+      }
+      const status = String(row?.status_global || "");
+      if(["Em Doca","Em Carregamento"].includes(status)) return { label:"Ocupada", cls:"audit-carregando", motivo:"" };
+      return { label:"Utilizável", cls:"audit-disponivel", motivo:"" };
+    }
+
 
 const AUDITORIA_DOCA_STATUSES = ["Aguardando","Carregando","Disponível","Devolução","Reagendado","Solto"];
 
@@ -1219,13 +1227,13 @@ function getDocaObservacao(id){
       const statusAud = document.getElementById("auditoriaFiltroStatus")?.value || "";
 
       if(busca){
-        rows = rows.filter(r => [r.dt, r.cliente, r.transportadora, r.status_global].some(v => String(v || "").toLowerCase().includes(busca)));
+        rows = rows.filter(r => [r.dt, r.cliente, r.transportadora, r.status_global, r.doca_agenda, r.doca_planejada, r.doca_carregamento].some(v => String(v || "").toLowerCase().includes(busca)));
       }
       if(doca){
         rows = rows.filter(r => getDocaNome(r).toLowerCase() === doca);
       }
       if(statusAud){
-        rows = rows.filter(r => (getAuditoriaByAgendaId(r.id)?.status_auditoria || "Aguardando") === statusAud);
+        rows = rows.filter(r => (getAuditoriaByAgendaId(r.id)?.status_auditoria || getAuditoriaStatusDerivado(r)) === statusAud);
       }
 
       return rows.sort((a,b) => {
@@ -1243,8 +1251,11 @@ function getDocaObservacao(id){
     function getAuditoriaStatusDerivado(row){
       const auditoria = getAuditoriaByAgendaId(row?.id);
       if(auditoria?.status_auditoria) return auditoria.status_auditoria;
-      if(row?.status_global === "Em Carregamento") return "Carregando";
-      if(["Separado","Pronto Expedição","No Pátio","Em Doca"].includes(String(row?.status_global || ""))) return "Aguardando";
+      const status = String(row?.status_global || "");
+      if(status === "Em Carregamento") return "Carregando";
+      if(status === "Expedido") return "Disponível";
+      if(status === "Devolução") return "Devolução";
+      if(status === "Reagendado") return "Reagendado";
       return "Aguardando";
     }
 
@@ -1387,8 +1398,8 @@ function getDocaObservacao(id){
       const rows = getAuditoriaDocaRows();
       const listaDocas = getDocasOrdenadas();
       const usadas = new Set(rows.map(r => getDocaNome(r)).filter(Boolean));
-      const qtdEmAberto = rows.filter(r => getAuditoriaStatusDerivado(r) !== "Solto").length;
-      const qtdCarregando = rows.filter(r => getAuditoriaStatusDerivado(r) === "Carregando").length;
+      const qtdEmAberto = getDocasOrdenadas().filter(d => !isDocaInterditadaValue(d.nome_original || d.nome || String(d.numero || ""))).length;
+      const qtdCarregando = rows.filter(r => ["Em Doca","Em Carregamento"].includes(String(r.status_global || ""))).length;
       document.getElementById("auditoriaTotalRef").textContent = rows.length;
       document.getElementById("auditoriaDocasRef").textContent = usadas.size;
       const elDisp = document.getElementById("auditoriaDisponiveisRef"); if(elDisp) elDisp.textContent = qtdEmAberto;
@@ -1410,10 +1421,11 @@ function getDocaObservacao(id){
       document.getElementById("auditoriaDocaGrid").innerHTML = listaDocas.map(d => {
         const valor = d.nome_original || d.nome || String(d.numero || "");
         const label = d.nome_exibicao || d.nome || `Doca ${d.numero || ""}`;
-        const row = rows.find(r => getDocaNome(r) === valor) || linhasFiltradas().find(r => getDocaNome(r) === valor && isAuditoriaStatusAgenda(r.status_global));
+        const row = rows.find(r => getDocaNome(r) === valor) || (registros || []).find(r => getDocaNome(r) === valor);
         const auditoria = row ? getAuditoriaByAgendaId(row.id) : null;
-        const status = row ? getAuditoriaStatusDerivado(row) : "Disponível";
-        const legenda = auditoria?.legenda || (row ? (getDiasEmAbertoAuditoria(row) > 0 ? `Parada desde ${fmtDate(row.data_agenda)}` : `Parada no dia ${fmtDate(row.data_agenda)}`) : "Sem carga parada vinculada");
+        const situacaoDoca = row ? getSituacaoDocaAuditoria(row) : (isDocaInterditadaValue(valor) ? { label:"Interditada", cls:"audit-solto", motivo:getMotivoInterdicaoByValor(valor) || "" } : { label:"Utilizável", cls:"audit-disponivel", motivo:"" });
+        const status = row ? getAuditoriaStatusDerivado(row) : situacaoDoca.label;
+        const legenda = auditoria?.legenda || (row ? `${row.status_global || "Sem status"} • ${fmtDate(row.data_agenda)}` : "Sem carga vinculada");
         const obs = auditoria?.observacao || d?.observacao || "";
         const interditada = isDocaInterditadaValue(valor);
         const motivoInterdicao = getMotivoInterdicaoByValor(valor);
@@ -1426,10 +1438,11 @@ function getDocaObservacao(id){
             <strong>DT:</strong> ${esc(row?.dt || "-")}<br>
             <strong>Cliente:</strong> ${esc(row?.cliente || "-")}<br>
             <strong>Transportadora:</strong> ${esc(row?.transportadora || "-")}<br>
+            <strong>Situação da doca:</strong> ${esc(situacaoDoca.label)}<br>
             <strong>Legenda:</strong> ${esc(legenda || "-")}<br>
             <strong>Dias em aberto:</strong> ${getDiasEmAbertoAuditoria(row)}
           </div>
-          ${interditada ? `<div class="auditoria-alerta-interdicao"><strong>Doca interditada.</strong>${motivoInterdicao ? ` Motivo: ${esc(motivoInterdicao)}` : ``}</div>` : ``}
+          ${interditada ? `<div class="auditoria-alerta-interdicao"><strong>Doca interditada.</strong>${motivoInterdicao ? ` Motivo: ${esc(motivoInterdicao)}` : ``}</div>` : (situacaoDoca.label === "Utilizável" ? `<div class="auditoria-alerta-interdicao" style="background:rgba(34,197,94,.10);border-color:rgba(34,197,94,.16);color:#bbf7d0"><strong>Doca utilizável.</strong></div>` : ``)}
           ${obs ? `<div class="dock-note"><strong>Obs.:</strong> ${esc(obs)}</div>` : ``}
           <div class="dock-actions">
             <button class="mini blue" onclick="abrirAuditoriaDocaComFiltro('${esc(valor)}')">Filtrar</button>
@@ -1464,7 +1477,7 @@ function getDocaObservacao(id){
             </div>
           </td>
         </tr>`;
-      }).join("") : `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:18px">Nenhuma carga elegível para auditoria no período selecionado.</td></tr>`;
+      }).join("") : `<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:18px">Nenhuma carga elegível para auditoria no período selecionado.</td></tr>`;
     }
 
 function ymsCanOpenView(view){
