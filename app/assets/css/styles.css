@@ -9989,3 +9989,9 @@ th{
   font-size:10.5px;
   line-height:1.45;
 }
+
+
+/* ===== V11 AUDITORIA DIA ATUAL ===== */
+.auditoria-table-wrap td[colspan]{
+  background:rgba(255,255,255,.01);
+}
