@@ -1445,6 +1445,9 @@ function getDocaObservacao(id){
         const obs = auditoria?.observacao || "";
         const docaInterditadaAgenda = isDocaInterditadaValue(r.doca_agenda || r.doca_planejada || r.doca_carregamento || "");
         const motivoDocaAgenda = getMotivoInterdicaoByValor(r.doca_agenda || r.doca_planejada || r.doca_carregamento || "");
+        const docaAgendaReferencia = r.doca_agenda || r.doca_planejada || r.doca_carregamento || "";
+        const docaInterditadaAgenda = isDocaInterditadaValue(docaAgendaReferencia);
+        const motivoDocaAgenda = getMotivoInterdicaoByValor(docaAgendaReferencia);
         return `<tr>
           <td>${fmtDate(r.data_agenda)}</td>
           <td>${renderDocaComInterdicao(getDocaNome(r) || "-")}</td>
@@ -1956,7 +1959,7 @@ function setView(view, btn){
           <td>${esc(r.doca_agenda || r.doca_planejada || "-")}</td>
           <td><span class="chip ${clsStatus(r.status_global)}">${esc(r.status_global)}</span>${hasConflict ? ` <span class="log-badge">Conflito</span>` : ``}</td>
           <td><span class="${sla.cls}">${sla.label}</span></td>
-          <td><div class="mini-actions">${acoes.join("")}</div>${docaInterditadaAgenda ? `<div class="doca-motivo-bloqueio">Doca interditada${motivoDocaAgenda ? `: ${esc(motivoDocaAgenda)}` : ``}</div>` : ``}</td>
+          <td><div class="mini-actions">${acoes.join("")}</div>${(typeof docaInterditadaAgenda !== "undefined" && docaInterditadaAgenda) ? `<div class="doca-motivo-bloqueio">Doca interditada${motivoDocaAgenda ? `: ${esc(motivoDocaAgenda)}` : ``}</div>` : ``}</td>
         </tr>`;
       }).join("");
     }
